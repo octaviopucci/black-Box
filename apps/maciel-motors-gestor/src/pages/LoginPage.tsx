@@ -8,9 +8,9 @@ import { Checkbox } from '@/components/ui/Input'
 import { Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
 import { isInteractive } from '@/config/variant'
+import loginBg from '@/assets/login-luxury-cars.jpg'
 
 const ease = [0.22, 1, 0.36, 1] as const
-const bgUrl = `${import.meta.env.BASE_URL}login-luxury-cars.jpg`
 
 function ClassicLogin() {
   const { login, toast } = useApp()
@@ -144,7 +144,7 @@ function InteractiveLogin() {
         transition={{ duration: leaving ? 0.4 : 12, ease: leaving ? 'easeOut' : 'linear' }}
       >
         <img
-          src={bgUrl}
+          src={loginBg}
           alt=""
           className="h-full w-full object-cover object-center"
           draggable={false}
