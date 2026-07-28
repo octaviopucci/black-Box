@@ -131,7 +131,7 @@ export function DashboardPage() {
           <p className="mt-1 text-sm text-white/50">{insights.resumo}</p>
         </div>
         <div className="rounded-xl border border-brand-gray/50 bg-brand-graphite/80 px-4 py-2 text-sm">
-          <span className="text-white/45">Potencial estoque − investimento: </span>
+          <span className="text-white/45">Lucro potencial do estoque: </span>
           <span
             className={
               insights.potencialLucro >= 0 ? 'font-semibold text-emerald-400' : 'font-semibold text-red-400'
