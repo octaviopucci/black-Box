@@ -11,8 +11,8 @@ import { useApp } from '@/context/AppContext'
 export function LoginPage() {
   const { login, toast } = useApp()
   const navigate = useNavigate()
-  const [username, setUsername] = useState('admin')
-  const [password, setPassword] = useState('MacielMotors123')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -98,10 +98,6 @@ export function LoginPage() {
           <Button type="submit" className="w-full" size="lg" loading={loading}>
             Entrar
           </Button>
-
-          <p className="text-center text-xs text-white/35">
-            Acesso inicial: <span className="text-white/60">admin / MacielMotors123</span>
-          </p>
         </form>
       </motion.div>
     </div>
