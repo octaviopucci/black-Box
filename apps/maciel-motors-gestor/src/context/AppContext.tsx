@@ -119,9 +119,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const toast = useCallback((message: string, type: ToastItem['type'] = 'success') => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
     setToasts((prev) => [...prev, { id, type, message }])
+    const ms = type === 'error' ? 7000 : 3500
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, 3500)
+    }, ms)
   }, [])
 
   const dismissToast = useCallback((id: string) => {

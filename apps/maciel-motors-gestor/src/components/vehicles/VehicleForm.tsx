@@ -23,7 +23,7 @@ const schema = z.object({
   ano: z.coerce.number().min(1950).max(2100),
   anoModelo: z.coerce.number().min(1950).max(2100),
   categoria: z.string().min(1),
-  cor: z.string().min(1),
+  cor: z.string().min(1, 'Obrigatório'),
   placa: z.string(),
   renavam: z.string(),
   chassi: z.string(),
@@ -31,7 +31,7 @@ const schema = z.object({
   combustivel: z.enum(['flex', 'gasolina', 'etanol', 'diesel', 'eletrico', 'hibrido', 'gnv']),
   cambio: z.enum(['manual', 'automatico', 'cvt', 'automatizado']),
   quilometragem: z.coerce.number().min(0),
-  cidade: z.string().min(1),
+  cidade: z.string().min(1, 'Obrigatório'),
   estado: z.string().min(2).max(2),
   fornecedor: z.string(),
   telefoneFornecedor: z.string(),
@@ -41,7 +41,7 @@ const schema = z.object({
   precoAnunciado: z.coerce.number().min(0),
   precoMinimo: z.coerce.number().min(0),
   observacoes: z.string(),
-  dataCompra: z.string().min(1),
+  dataCompra: z.string().min(1, 'Obrigatório'),
   status: z.enum([
     'disponivel',
     'reservado',
@@ -72,6 +72,8 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
     handleSubmit,
     watch,
     setValue,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema) as any,
@@ -114,26 +116,56 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
 
   const fotos = watch('fotos')
   const fotoPrincipal = watch('fotoPrincipal')
+  const hasFieldErrors = Object.keys(errors).some((k) => k !== 'root')
+
+  const scrollToFirstError = () => {
+    requestAnimationFrame(() => {
+      const el = document.querySelector('[data-field-error="true"]')
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+  }
 
   return (
     <form
       className="space-y-6"
-      onSubmit={handleSubmit(async (values) => {
-        await onSubmit({
-          ...values,
-          placa: values.placa.toUpperCase(),
-          consignado: values.status === 'consignado' || values.consignado,
-        })
-      })}
+      onSubmit={handleSubmit(
+        async (values) => {
+          clearErrors('root')
+          try {
+            await onSubmit({
+              ...values,
+              placa: values.placa.toUpperCase(),
+              consignado: values.status === 'consignado' || values.consignado,
+            })
+          } catch (e) {
+            const message =
+              e instanceof Error ? e.message : 'Não foi possível salvar o veículo. Tente novamente.'
+            setError('root', { message })
+            throw e
+          }
+        },
+        () => {
+          scrollToFirstError()
+        },
+      )}
     >
       <section className="panel space-y-4 p-5">
         <h3 className="font-display text-lg font-semibold tracking-wide">Identificação</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <Input label="Marca *" {...register('marca')} />
-          <Input label="Modelo *" {...register('modelo')} />
+          <div data-field-error={errors.marca ? 'true' : undefined}>
+            <Input label="Marca *" error={errors.marca?.message} {...register('marca')} />
+          </div>
+          <div data-field-error={errors.modelo ? 'true' : undefined}>
+            <Input label="Modelo *" error={errors.modelo?.message} {...register('modelo')} />
+          </div>
           <Input label="Versão" {...register('versao')} />
-          <Input label="Ano *" type="number" {...register('ano')} />
-          <Input label="Ano modelo *" type="number" {...register('anoModelo')} />
+          <Input label="Ano *" type="number" error={errors.ano?.message} {...register('ano')} />
+          <Input
+            label="Ano modelo *"
+            type="number"
+            error={errors.anoModelo?.message}
+            {...register('anoModelo')}
+          />
           <Select label="Categoria *" {...register('categoria')}>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -141,7 +173,9 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
               </option>
             ))}
           </Select>
-          <Input label="Cor *" {...register('cor')} />
+          <div data-field-error={errors.cor ? 'true' : undefined}>
+            <Input label="Cor *" error={errors.cor?.message} {...register('cor')} />
+          </div>
           <Input
             label="Placa"
             value={watch('placa')}
@@ -176,15 +210,14 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
             <Checkbox label="Consignado" {...register('consignado')} />
           </div>
         </div>
-        {Object.keys(errors).length ? (
-          <p className="text-sm text-red-400">Verifique os campos obrigatórios destacados.</p>
-        ) : null}
       </section>
 
       <section className="panel space-y-4 p-5">
         <h3 className="font-display text-lg font-semibold tracking-wide">Localização e origem</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <Input label="Cidade *" {...register('cidade')} />
+          <div data-field-error={errors.cidade ? 'true' : undefined}>
+            <Input label="Cidade *" error={errors.cidade?.message} {...register('cidade')} />
+          </div>
           <Select label="Estado *" {...register('estado')}>
             {BRAZIL_STATES.map((s) => (
               <option key={s} value={s}>
@@ -205,7 +238,14 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
             value={watch('telefoneFornecedor')}
             onChange={(e) => setValue('telefoneFornecedor', maskPhone(e.target.value))}
           />
-          <Input label="Data da compra *" type="date" {...register('dataCompra')} />
+          <div data-field-error={errors.dataCompra ? 'true' : undefined}>
+            <Input
+              label="Data da compra *"
+              type="date"
+              error={errors.dataCompra?.message}
+              {...register('dataCompra')}
+            />
+          </div>
         </div>
       </section>
 
@@ -221,7 +261,7 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
       </section>
 
       <section className="panel space-y-4 p-5">
-        <h3 className="font-display text-lg font-semibold tracking-wide">Fotos (até 20)</h3>
+        <h3 className="font-display text-lg font-semibold tracking-wide">Fotos (até 15)</h3>
         <PhotoGallery
           photos={fotos}
           mainIndex={fotoPrincipal}
@@ -231,6 +271,13 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
           }}
         />
       </section>
+
+      {hasFieldErrors || errors.root ? (
+        <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {errors.root?.message ||
+            'Preencha os campos obrigatórios marcados em vermelho antes de cadastrar.'}
+        </div>
+      ) : null}
 
       <div className="flex justify-end gap-3">
         <Button type="submit" loading={isSubmitting} size="lg">

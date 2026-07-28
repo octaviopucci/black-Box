@@ -97,7 +97,22 @@ export function loadDatabase(): Database {
 }
 
 export function saveDatabase(db: Database): void {
-  localStorage.setItem(DB_KEY, JSON.stringify(db))
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(db))
+  } catch (e) {
+    const isQuota =
+      e instanceof DOMException &&
+      (e.name === 'QuotaExceededError' ||
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+        e.code === 22 ||
+        e.code === 1014)
+    if (isQuota) {
+      throw new Error(
+        'Espaço insuficiente para salvar. Remova algumas fotos ou use imagens menores e tente de novo.',
+      )
+    }
+    throw e instanceof Error ? e : new Error('Falha ao salvar os dados')
+  }
 }
 
 export function resetDatabase(): Database {

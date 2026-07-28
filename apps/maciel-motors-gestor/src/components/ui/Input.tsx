@@ -4,12 +4,21 @@ import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTML
 export function Input({
   label,
   className,
+  error,
   ...props
-}: InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
+}: InputHTMLAttributes<HTMLInputElement> & { label?: string; error?: string }) {
   return (
     <label className="block">
       {label ? <span className="label-field">{label}</span> : null}
-      <input className={cn('input-field', className)} {...props} />
+      <input
+        className={cn(
+          'input-field',
+          error && 'border-red-500/80 focus:border-red-500 focus:ring-red-500/20',
+          className,
+        )}
+        {...props}
+      />
+      {error ? <span className="mt-1 block text-xs text-red-400">{error}</span> : null}
     </label>
   )
 }
@@ -17,12 +26,21 @@ export function Input({
 export function Textarea({
   label,
   className,
+  error,
   ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string }) {
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string; error?: string }) {
   return (
     <label className="block">
       {label ? <span className="label-field">{label}</span> : null}
-      <textarea className={cn('input-field min-h-[96px] resize-y', className)} {...props} />
+      <textarea
+        className={cn(
+          'input-field min-h-[96px] resize-y',
+          error && 'border-red-500/80 focus:border-red-500 focus:ring-red-500/20',
+          className,
+        )}
+        {...props}
+      />
+      {error ? <span className="mt-1 block text-xs text-red-400">{error}</span> : null}
     </label>
   )
 }
@@ -31,14 +49,27 @@ export function Select({
   label,
   className,
   children,
+  error,
   ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & { label?: string; children: ReactNode }) {
+}: SelectHTMLAttributes<HTMLSelectElement> & {
+  label?: string
+  children: ReactNode
+  error?: string
+}) {
   return (
     <label className="block">
       {label ? <span className="label-field">{label}</span> : null}
-      <select className={cn('input-field', className)} {...props}>
+      <select
+        className={cn(
+          'input-field',
+          error && 'border-red-500/80 focus:border-red-500 focus:ring-red-500/20',
+          className,
+        )}
+        {...props}
+      >
         {children}
       </select>
+      {error ? <span className="mt-1 block text-xs text-red-400">{error}</span> : null}
     </label>
   )
 }
