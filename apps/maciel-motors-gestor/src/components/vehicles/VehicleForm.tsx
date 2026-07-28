@@ -16,30 +16,48 @@ import {
 import { maskPhone, maskPlate } from '@/utils'
 import type { VehicleInput } from '@/services/vehicles'
 
+/** Converte valor de input (string/number/vazio) sem gerar NaN no Zod. */
+function toNumber(val: unknown): number | undefined {
+  if (val === '' || val === null || val === undefined) return undefined
+  if (typeof val === 'number') return Number.isFinite(val) ? val : undefined
+  const n = Number(String(val).trim().replace(',', '.'))
+  return Number.isFinite(n) ? n : undefined
+}
+
+function numberField(message: string, min = 0, max = Number.MAX_SAFE_INTEGER) {
+  return z.preprocess(
+    toNumber,
+    z
+      .number({ required_error: message, invalid_type_error: message })
+      .min(min, message)
+      .max(max, message),
+  )
+}
+
 const schema = z.object({
-  marca: z.string().min(1, 'Obrigatório'),
-  modelo: z.string().min(1, 'Obrigatório'),
+  marca: z.string().trim().min(1, 'Obrigatório'),
+  modelo: z.string().trim().min(1, 'Obrigatório'),
   versao: z.string(),
-  ano: z.coerce.number().min(1950).max(2100),
-  anoModelo: z.coerce.number().min(1950).max(2100),
-  categoria: z.string().min(1),
-  cor: z.string().min(1, 'Obrigatório'),
+  ano: numberField('Informe um ano válido', 1950, 2100),
+  anoModelo: numberField('Informe um ano válido', 1950, 2100),
+  categoria: z.string().min(1, 'Obrigatório'),
+  cor: z.string().trim().min(1, 'Obrigatório'),
   placa: z.string(),
   renavam: z.string(),
   chassi: z.string(),
   motor: z.string(),
   combustivel: z.enum(['flex', 'gasolina', 'etanol', 'diesel', 'eletrico', 'hibrido', 'gnv']),
   cambio: z.enum(['manual', 'automatico', 'cvt', 'automatizado']),
-  quilometragem: z.coerce.number().min(0),
-  cidade: z.string().min(1, 'Obrigatório'),
-  estado: z.string().min(2).max(2),
+  quilometragem: numberField('Informe a quilometragem', 0),
+  cidade: z.string().trim().min(1, 'Obrigatório'),
+  estado: z.string().min(2, 'Obrigatório').max(2),
   fornecedor: z.string(),
   telefoneFornecedor: z.string(),
   origem: z.string(),
-  precoFipe: z.coerce.number().min(0),
-  valorCompra: z.coerce.number().min(0),
-  precoAnunciado: z.coerce.number().min(0),
-  precoMinimo: z.coerce.number().min(0),
+  precoFipe: numberField('Informe o valor', 0),
+  valorCompra: numberField('Informe o valor de compra', 0),
+  precoAnunciado: numberField('Informe o valor', 0),
+  precoMinimo: numberField('Informe o valor', 0),
   observacoes: z.string(),
   dataCompra: z.string().min(1, 'Obrigatório'),
   status: z.enum([
@@ -53,12 +71,12 @@ const schema = z.object({
     'financiado',
     'entregue',
   ]),
-  consignado: z.boolean(),
+  consignado: z.boolean().default(false),
   fotos: z.array(z.string()),
   fotoPrincipal: z.number(),
 })
 
-type FormValues = z.infer<typeof schema>
+type FormValues = z.input<typeof schema>
 
 interface VehicleFormProps {
   initial?: Vehicle
@@ -77,6 +95,7 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema) as any,
+    shouldFocusError: true,
     defaultValues: initial
       ? {
           ...initial,
@@ -114,8 +133,8 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
         },
   })
 
-  const fotos = watch('fotos')
-  const fotoPrincipal = watch('fotoPrincipal')
+  const fotos = watch('fotos') || []
+  const fotoPrincipal = watch('fotoPrincipal') || 0
   const hasFieldErrors = Object.keys(errors).some((k) => k !== 'root')
 
   const scrollToFirstError = () => {
@@ -132,10 +151,11 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
         async (values) => {
           clearErrors('root')
           try {
+            const parsed = schema.parse(values)
             await onSubmit({
-              ...values,
-              placa: values.placa.toUpperCase(),
-              consignado: values.status === 'consignado' || values.consignado,
+              ...parsed,
+              placa: String(parsed.placa || '').toUpperCase(),
+              consignado: parsed.status === 'consignado' || Boolean(parsed.consignado),
             })
           } catch (e) {
             const message =
@@ -153,20 +173,31 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
         <h3 className="font-display text-lg font-semibold tracking-wide">Identificação</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div data-field-error={errors.marca ? 'true' : undefined}>
-            <Input label="Marca *" error={errors.marca?.message} {...register('marca')} />
+            <Input label="Marca *" {...register('marca')} error={errors.marca?.message} />
           </div>
           <div data-field-error={errors.modelo ? 'true' : undefined}>
-            <Input label="Modelo *" error={errors.modelo?.message} {...register('modelo')} />
+            <Input label="Modelo *" {...register('modelo')} error={errors.modelo?.message} />
           </div>
           <Input label="Versão" {...register('versao')} />
-          <Input label="Ano *" type="number" error={errors.ano?.message} {...register('ano')} />
-          <Input
-            label="Ano modelo *"
-            type="number"
-            error={errors.anoModelo?.message}
-            {...register('anoModelo')}
-          />
-          <Select label="Categoria *" {...register('categoria')}>
+          <div data-field-error={errors.ano ? 'true' : undefined}>
+            <Input
+              label="Ano *"
+              type="number"
+              inputMode="numeric"
+              {...register('ano')}
+              error={errors.ano?.message as string | undefined}
+            />
+          </div>
+          <div data-field-error={errors.anoModelo ? 'true' : undefined}>
+            <Input
+              label="Ano modelo *"
+              type="number"
+              inputMode="numeric"
+              {...register('anoModelo')}
+              error={errors.anoModelo?.message as string | undefined}
+            />
+          </div>
+          <Select label="Categoria *" {...register('categoria')} error={errors.categoria?.message}>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -174,12 +205,15 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
             ))}
           </Select>
           <div data-field-error={errors.cor ? 'true' : undefined}>
-            <Input label="Cor *" error={errors.cor?.message} {...register('cor')} />
+            <Input label="Cor *" {...register('cor')} error={errors.cor?.message} />
           </div>
           <Input
             label="Placa"
-            value={watch('placa')}
-            onChange={(e) => setValue('placa', maskPlate(e.target.value))}
+            {...register('placa')}
+            value={watch('placa') || ''}
+            onChange={(e) =>
+              setValue('placa', maskPlate(e.target.value), { shouldDirty: true, shouldValidate: true })
+            }
           />
           <Input label="Renavam" {...register('renavam')} />
           <Input label="Chassi" {...register('chassi')} />
@@ -198,7 +232,13 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
               </option>
             ))}
           </Select>
-          <Input label="Quilometragem *" type="number" {...register('quilometragem')} />
+          <Input
+            label="Quilometragem *"
+            type="number"
+            inputMode="numeric"
+            {...register('quilometragem')}
+            error={errors.quilometragem?.message as string | undefined}
+          />
           <Select label="Status *" {...register('status')}>
             {Object.entries(STATUS_LABELS).map(([k, v]) => (
               <option key={k} value={k}>
@@ -216,7 +256,7 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
         <h3 className="font-display text-lg font-semibold tracking-wide">Localização e origem</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div data-field-error={errors.cidade ? 'true' : undefined}>
-            <Input label="Cidade *" error={errors.cidade?.message} {...register('cidade')} />
+            <Input label="Cidade *" {...register('cidade')} error={errors.cidade?.message} />
           </div>
           <Select label="Estado *" {...register('estado')}>
             {BRAZIL_STATES.map((s) => (
@@ -235,15 +275,21 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
           <Input label="Fornecedor" {...register('fornecedor')} />
           <Input
             label="Telefone fornecedor"
-            value={watch('telefoneFornecedor')}
-            onChange={(e) => setValue('telefoneFornecedor', maskPhone(e.target.value))}
+            {...register('telefoneFornecedor')}
+            value={watch('telefoneFornecedor') || ''}
+            onChange={(e) =>
+              setValue('telefoneFornecedor', maskPhone(e.target.value), {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }
           />
           <div data-field-error={errors.dataCompra ? 'true' : undefined}>
             <Input
               label="Data da compra *"
               type="date"
-              error={errors.dataCompra?.message}
               {...register('dataCompra')}
+              error={errors.dataCompra?.message}
             />
           </div>
         </div>
@@ -252,10 +298,38 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
       <section className="panel space-y-4 p-5">
         <h3 className="font-display text-lg font-semibold tracking-wide">Valores</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Input label="Preço FIPE" type="number" step="0.01" {...register('precoFipe')} />
-          <Input label="Valor de compra *" type="number" step="0.01" {...register('valorCompra')} />
-          <Input label="Preço anunciado" type="number" step="0.01" {...register('precoAnunciado')} />
-          <Input label="Preço mínimo" type="number" step="0.01" {...register('precoMinimo')} />
+          <Input
+            label="Preço FIPE"
+            type="number"
+            step="0.01"
+            inputMode="decimal"
+            {...register('precoFipe')}
+            error={errors.precoFipe?.message as string | undefined}
+          />
+          <Input
+            label="Valor de compra *"
+            type="number"
+            step="0.01"
+            inputMode="decimal"
+            {...register('valorCompra')}
+            error={errors.valorCompra?.message as string | undefined}
+          />
+          <Input
+            label="Preço anunciado"
+            type="number"
+            step="0.01"
+            inputMode="decimal"
+            {...register('precoAnunciado')}
+            error={errors.precoAnunciado?.message as string | undefined}
+          />
+          <Input
+            label="Preço mínimo"
+            type="number"
+            step="0.01"
+            inputMode="decimal"
+            {...register('precoMinimo')}
+            error={errors.precoMinimo?.message as string | undefined}
+          />
         </div>
         <Textarea label="Observações" {...register('observacoes')} />
       </section>
@@ -266,15 +340,15 @@ export function VehicleForm({ initial, onSubmit, submitLabel = 'Salvar veículo'
           photos={fotos}
           mainIndex={fotoPrincipal}
           onChange={(photos, main) => {
-            setValue('fotos', photos)
-            setValue('fotoPrincipal', main)
+            setValue('fotos', photos, { shouldDirty: true })
+            setValue('fotoPrincipal', main, { shouldDirty: true })
           }}
         />
       </section>
 
       {hasFieldErrors || errors.root ? (
         <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-          {errors.root?.message ||
+          {(errors.root?.message as string | undefined) ||
             'Preencha os campos obrigatórios marcados em vermelho antes de cadastrar.'}
         </div>
       ) : null}
