@@ -9,8 +9,11 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | Projeto | Caminho | Status |
 |---------|---------|--------|
 | **Maciel Motors Gestor** | [/maciel-motors/](/maciel-motors/) | Ativo |
+| **Maciel Motors Gestor X** | [/maciel-motors-x/](/maciel-motors-x/) | Demo interativa |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
+
+Comparação interativa: [/maciel-motors-x/](/maciel-motors-x/) (login animado, dados isolados)
 
 ## Stack
 

@@ -10,5 +10,6 @@ public
 .netlify
 apps/*/node_modules
 apps/*/dist
+apps/*/dist-x
 portal/node_modules
 portal/dist

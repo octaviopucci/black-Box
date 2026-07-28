@@ -21,4 +21,14 @@ export const projects: ClientProject[] = [
     status: 'ativo',
     tags: ['React', 'Gestão', 'Automotivo'],
   },
+  {
+    id: 'maciel-motors-x',
+    name: 'Maciel Motors Gestor X',
+    client: 'Maciel Motors',
+    description:
+      'Mesmo sistema com login e entrada mais interativos (animações, presença de marca). Use para comparar lado a lado com a versão estável.',
+    href: '/maciel-motors-x/',
+    status: 'demo',
+    tags: ['React', 'Interativo', 'Comparação'],
+  },
 ]

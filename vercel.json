@@ -3,8 +3,9 @@
   "outputDirectory": "public",
   "framework": null,
   "rewrites": [
+    { "source": "/maciel-motors-x/(.*)", "destination": "/maciel-motors-x/index.html" },
     { "source": "/maciel-motors/(.*)", "destination": "/maciel-motors/index.html" },
-    { "source": "/((?!maciel-motors|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/((?!maciel-motors-x|maciel-motors|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

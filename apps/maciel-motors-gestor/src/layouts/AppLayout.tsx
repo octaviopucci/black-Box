@@ -19,6 +19,7 @@ import { useState } from 'react'
 import { MacielLogo } from '@/components/common/MacielLogo'
 import { LoadingOverlay, Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
+import { isInteractive } from '@/config/variant'
 import { cn } from '@/utils'
 
 const NAV = [
@@ -158,7 +159,11 @@ export function AppLayout() {
               <p className="font-display text-lg font-semibold tracking-wide sm:text-xl">
                 {settings.nomeEmpresa || 'Maciel Motors Gestor'}
               </p>
-              <p className="text-xs text-white/40">Gestão profissional de estoque</p>
+              <p className="text-xs text-white/40">
+                {isInteractive
+                  ? 'Versão interativa · compare com /maciel-motors/'
+                  : 'Gestão profissional de estoque'}
+              </p>
             </div>
           </div>
           <div className="hidden items-center gap-2 sm:flex">

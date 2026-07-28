@@ -11,7 +11,8 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'dist',
+    outDir: process.env.VITE_OUT_DIR || 'dist',
+    emptyOutDir: true,
     sourcemap: false,
   },
   preview: {

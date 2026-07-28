@@ -1,16 +1,19 @@
 import type { Database, Settings, User } from '@/types'
 import { generateId, nowISO } from '@/utils'
 import { seedDatabase } from '@/data/seed'
+import { storageSuffix } from '@/config/variant'
 
 /** v4: empty start + admin password MacielMotors123. Bumped to refresh stored users. */
-const DB_KEY = 'maciel_motors_gestor_db_v4'
-const SESSION_KEY = 'maciel_motors_gestor_session'
-const REMEMBER_KEY = 'maciel_motors_gestor_remember'
-const LEGACY_DB_KEYS = [
-  'maciel_motors_gestor_db_v3',
-  'maciel_motors_gestor_db_v2',
-  'maciel_motors_gestor_db',
-]
+const DB_KEY = `maciel_motors_gestor_db_v4${storageSuffix}`
+const SESSION_KEY = `maciel_motors_gestor_session${storageSuffix}`
+const REMEMBER_KEY = `maciel_motors_gestor_remember${storageSuffix}`
+const LEGACY_DB_KEYS = storageSuffix
+  ? []
+  : [
+      'maciel_motors_gestor_db_v3',
+      'maciel_motors_gestor_db_v2',
+      'maciel_motors_gestor_db',
+    ]
 
 function createDefaultSettings(): Settings {
   return {
