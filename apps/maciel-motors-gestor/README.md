@@ -33,7 +33,7 @@ O sistema inicia **zerado** (sem veículos, vendas, despesas, clientes ou histó
 Os usuários padrão permanecem para o primeiro login:
 
 - Usuário: `admin`
-- Senha: `admin123`
+- Senha: `MacielMotors123`
 
 Também: `maciel` / `maciel123`
 

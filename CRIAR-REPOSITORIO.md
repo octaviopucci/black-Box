@@ -40,4 +40,4 @@ git push -u origin main
 URLs esperadas:
 - Portal: `https://seu-projeto.vercel.app/`
 - Maciel Motors: `https://seu-projeto.vercel.app/maciel-motors/`
-- Login Maciel: `admin` / `admin123`
+- Login Maciel: `admin` / `MacielMotors123`

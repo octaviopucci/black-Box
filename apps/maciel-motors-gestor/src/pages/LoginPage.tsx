@@ -12,7 +12,7 @@ export function LoginPage() {
   const { login, toast } = useApp()
   const navigate = useNavigate()
   const [username, setUsername] = useState('admin')
-  const [password, setPassword] = useState('admin123')
+  const [password, setPassword] = useState('MacielMotors123')
   const [remember, setRemember] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -100,7 +100,7 @@ export function LoginPage() {
           </Button>
 
           <p className="text-center text-xs text-white/35">
-            Acesso inicial: <span className="text-white/60">admin / admin123</span>
+            Acesso inicial: <span className="text-white/60">admin / MacielMotors123</span>
           </p>
         </form>
       </motion.div>

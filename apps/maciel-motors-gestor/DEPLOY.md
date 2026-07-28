@@ -5,7 +5,7 @@
 A Netlify atingiu o **limite diário de deploys anônimos**. Enquanto isso:
 
 - **URL:** https://two-yaks-thank.loca.lt  
-- **Login:** `admin` / `admin123`
+- **Login:** `admin` / `MacielMotors123`
 
 > Se o localtunnel pedir confirmação, clique em Continue / bypass.
 

@@ -41,4 +41,4 @@ Abra um Cloud Agent **já no repo `black-Box`** e peça para importar a pasta
 
 - Portal: `/`
 - Maciel Motors: `/maciel-motors/`
-- Login: `admin` / `admin123`
+- Login: `admin` / `MacielMotors123`

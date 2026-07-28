@@ -2,11 +2,15 @@ import type { Database, Settings, User } from '@/types'
 import { generateId, nowISO } from '@/utils'
 import { seedDatabase } from '@/data/seed'
 
-/** v3: starts empty (no demo seed). Bumped so browsers with old demo data get a clean slate. */
-const DB_KEY = 'maciel_motors_gestor_db_v3'
+/** v4: empty start + admin password MacielMotors123. Bumped to refresh stored users. */
+const DB_KEY = 'maciel_motors_gestor_db_v4'
 const SESSION_KEY = 'maciel_motors_gestor_session'
 const REMEMBER_KEY = 'maciel_motors_gestor_remember'
-const LEGACY_DB_KEYS = ['maciel_motors_gestor_db_v2', 'maciel_motors_gestor_db']
+const LEGACY_DB_KEYS = [
+  'maciel_motors_gestor_db_v3',
+  'maciel_motors_gestor_db_v2',
+  'maciel_motors_gestor_db',
+]
 
 function createDefaultSettings(): Settings {
   return {
@@ -30,7 +34,7 @@ function createDefaultUsers(): User[] {
     {
       id: 'user_admin',
       username: 'admin',
-      password: 'admin123',
+      password: 'MacielMotors123',
       nome: 'Administrador',
       role: 'admin',
       active: true,
