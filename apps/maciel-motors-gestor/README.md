@@ -27,9 +27,14 @@ npm run build
 
 Publicar a pasta `dist`. O arquivo `netlify.toml` já está configurado.
 
-## Acesso demo
+## Acesso inicial
+
+O sistema inicia **zerado** (sem veículos, vendas, despesas, clientes ou histórico).
+Os usuários padrão permanecem para o primeiro login:
 
 - Usuário: `admin`
 - Senha: `admin123`
 
 Também: `maciel` / `maciel123`
+
+Dados de demonstração podem ser carregados opcionalmente em **Backup → Restaurar backup demo**.

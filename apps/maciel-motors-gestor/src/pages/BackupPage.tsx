@@ -64,7 +64,8 @@ export function BackupPage() {
         <section className="panel space-y-4 p-5">
           <h2 className="font-display text-lg font-semibold tracking-wide">Restaurar / Resetar</h2>
           <p className="text-sm text-white/55">
-            Restaurar demo recarrega os dados de exemplo. Resetar limpa tudo mantendo usuários padrão.
+            O sistema inicia zerado. Restaurar demo carrega dados de exemplo (opcional).
+            Resetar limpa tudo mantendo usuários padrão.
           </p>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => setConfirmSeed(true)}>

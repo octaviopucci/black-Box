@@ -10,7 +10,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 |---------|---------|--------|
 | **Maciel Motors Gestor** | [/maciel-motors/](/maciel-motors/) | Ativo |
 
-Login demo Maciel: `admin` / `admin123`
+Login inicial Maciel: `admin` / `admin123` (sistema inicia zerado)
 
 ## Stack
 

@@ -2,9 +2,11 @@ import type { Database, Settings, User } from '@/types'
 import { generateId, nowISO } from '@/utils'
 import { seedDatabase } from '@/data/seed'
 
-const DB_KEY = 'maciel_motors_gestor_db_v2'
+/** v3: starts empty (no demo seed). Bumped so browsers with old demo data get a clean slate. */
+const DB_KEY = 'maciel_motors_gestor_db_v3'
 const SESSION_KEY = 'maciel_motors_gestor_session'
 const REMEMBER_KEY = 'maciel_motors_gestor_remember'
+const LEGACY_DB_KEYS = ['maciel_motors_gestor_db_v2', 'maciel_motors_gestor_db']
 
 function createDefaultSettings(): Settings {
   return {
@@ -58,13 +60,20 @@ export function createEmptyDatabase(): Database {
   }
 }
 
+function purgeLegacyDatabases(): void {
+  for (const key of LEGACY_DB_KEYS) {
+    localStorage.removeItem(key)
+  }
+}
+
 export function loadDatabase(): Database {
   try {
+    purgeLegacyDatabases()
     const raw = localStorage.getItem(DB_KEY)
     if (!raw) {
-      const seeded = seedDatabase()
-      saveDatabase(seeded)
-      return seeded
+      const empty = createEmptyDatabase()
+      saveDatabase(empty)
+      return empty
     }
     const parsed = JSON.parse(raw) as Database
     return {
@@ -77,9 +86,9 @@ export function loadDatabase(): Database {
       history: parsed.history || [],
     }
   } catch {
-    const seeded = seedDatabase()
-    saveDatabase(seeded)
-    return seeded
+    const empty = createEmptyDatabase()
+    saveDatabase(empty)
+    return empty
   }
 }
 

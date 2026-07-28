@@ -100,7 +100,7 @@ export function LoginPage() {
           </Button>
 
           <p className="text-center text-xs text-white/35">
-            Acesso demo: <span className="text-white/60">admin / admin123</span>
+            Acesso inicial: <span className="text-white/60">admin / admin123</span>
           </p>
         </form>
       </motion.div>
