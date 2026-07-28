@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --bg: #0f0f0f;
+  --panel: #1b1b1b;
+  --border: #3a3a3a;
+  --accent: #c41e3a;
+  --text: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at top left, rgba(196, 30, 58, 0.08), transparent 40%),
+    radial-gradient(ellipse at bottom right, rgba(58, 58, 58, 0.25), transparent 45%),
+    #0f0f0f;
+  color: #fff;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f0f0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 999px;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-brand-gray/60 bg-brand-graphite/90 shadow-card backdrop-blur;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-brand-gray/70 bg-brand-black/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-brand-red/70 focus:ring-2 focus:ring-brand-red/20;
+  }
+
+  .label-field {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-white/55;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-red px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-red-dim disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-brand-gray/80 bg-brand-graphite px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/30 hover:bg-brand-gray/40 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm text-white/70 transition hover:bg-white/5 hover:text-white;
+  }
+}

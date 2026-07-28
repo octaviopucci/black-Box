@@ -1,0 +1,14 @@
+node_modules
+dist
+public
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
+.vercel
+.netlify
+apps/*/node_modules
+apps/*/dist
+portal/node_modules
+portal/dist

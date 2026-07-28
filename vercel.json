@@ -1,0 +1,17 @@
+{
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "public",
+  "framework": null,
+  "rewrites": [
+    { "source": "/maciel-motors/(.*)", "destination": "/maciel-motors/index.html" },
+    { "source": "/((?!maciel-motors|assets|favicon|icons).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ]
+}

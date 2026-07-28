@@ -1,0 +1,18 @@
+{
+  "name": "black-box",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Black Box — plataforma de hospedagem e demos de projetos para clientes",
+  "scripts": {
+    "dev:portal": "npm --prefix portal run dev",
+    "dev:maciel": "npm --prefix apps/maciel-motors-gestor run dev",
+    "build:maciel": "npm --prefix apps/maciel-motors-gestor ci --include=dev && VITE_BASE=/maciel-motors/ npm --prefix apps/maciel-motors-gestor run build",
+    "build:portal": "npm --prefix portal ci --include=dev && npm --prefix portal run build",
+    "build": "npm run build:portal && npm run build:maciel && node scripts/assemble-dist.mjs",
+    "vercel-build": "npm run build",
+    "preview": "npx --yes serve -s dist -l 4173"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

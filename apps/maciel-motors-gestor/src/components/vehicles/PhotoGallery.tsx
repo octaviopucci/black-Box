@@ -1,0 +1,118 @@
+import { ImagePlus, Star, Trash2 } from 'lucide-react'
+import { useRef } from 'react'
+import { Button } from '@/components/ui/Button'
+
+interface PhotoGalleryProps {
+  photos: string[]
+  mainIndex: number
+  onChange: (photos: string[], mainIndex: number) => void
+  max?: number
+  editable?: boolean
+}
+
+async function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+export function PhotoGallery({
+  photos,
+  mainIndex,
+  onChange,
+  max = 20,
+  editable = true,
+}: PhotoGalleryProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files?.length) return
+    const remaining = max - photos.length
+    const selected = Array.from(files).slice(0, remaining)
+    const urls = await Promise.all(selected.map(fileToDataUrl))
+    onChange([...photos, ...urls], photos.length ? mainIndex : 0)
+  }
+
+  const remove = (index: number) => {
+    const next = photos.filter((_, i) => i !== index)
+    let nextMain = mainIndex
+    if (index === mainIndex) nextMain = 0
+    else if (index < mainIndex) nextMain = Math.max(0, mainIndex - 1)
+    onChange(next, next.length ? Math.min(nextMain, next.length - 1) : 0)
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-white/60">
+          {photos.length}/{max} fotos · clique na estrela para definir a principal
+        </p>
+        {editable ? (
+          <>
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFiles(e.target.files)}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={photos.length >= max}
+              onClick={() => inputRef.current?.click()}
+            >
+              <ImagePlus className="h-4 w-4" />
+              Upload
+            </Button>
+          </>
+        ) : null}
+      </div>
+
+      {photos.length ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {photos.map((src, i) => (
+            <div
+              key={`${i}-${src.slice(0, 32)}`}
+              className={`relative aspect-[4/3] overflow-hidden rounded-xl border ${
+                i === mainIndex ? 'border-brand-red shadow-glow' : 'border-brand-gray/50'
+              }`}
+            >
+              <img src={src} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" />
+              {editable ? (
+                <div className="absolute inset-x-0 bottom-0 flex justify-between bg-gradient-to-t from-black/80 to-transparent p-2">
+                  <button
+                    type="button"
+                    className="rounded-lg bg-black/40 p-1.5 text-white hover:text-amber-300"
+                    onClick={() => onChange(photos, i)}
+                    title="Definir principal"
+                  >
+                    <Star
+                      className={`h-4 w-4 ${i === mainIndex ? 'fill-amber-300 text-amber-300' : ''}`}
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-lg bg-black/40 p-1.5 text-white hover:text-red-400"
+                    onClick={() => remove(i)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex aspect-[21/9] items-center justify-center rounded-xl border border-dashed border-brand-gray/60 bg-brand-black/40 text-sm text-white/40">
+          Nenhuma foto adicionada
+        </div>
+      )}
+    </div>
+  )
+}
