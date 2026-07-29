@@ -57,7 +57,7 @@ export function Hero() {
             transition={{ duration: 0.7 }}
             className="mb-6 inline-flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-bold uppercase tracking-[0.28em] text-fog/70"
           >
-            <span className="rounded-full bg-wine px-3 py-1.5 text-snow">{site.tagline}</span>
+            <span className="rounded-full bg-aqua px-3 py-1.5 text-snow">{site.tagline}</span>
             <span>{site.crm}</span>
           </motion.p>
 
@@ -67,7 +67,7 @@ export function Hero() {
 
           <h1
             ref={titleRef}
-            className="font-display text-[clamp(2.4rem,7vw,4.8rem)] font-extrabold leading-[0.98] tracking-tight text-balance"
+            className="font-display text-[clamp(2.4rem,7vw,4.8rem)] font-semibold leading-[0.98] tracking-tight text-balance"
           >
             {lines.map((line) => (
               <span key={line} className="block overflow-hidden">
@@ -97,7 +97,7 @@ export function Hero() {
               href={bookingUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 rounded-full bg-wine px-6 py-3.5 text-sm font-bold text-snow transition hover:bg-wine-soft"
+              className="group inline-flex items-center gap-2 rounded-full bg-aqua px-6 py-3.5 text-sm font-bold text-snow transition hover:bg-aqua-soft"
             >
               Agendar consulta
               <ArrowDownRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
@@ -106,7 +106,7 @@ export function Hero() {
               href={site.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-snow/25 px-5 py-3.5 text-sm font-semibold text-snow/90 transition hover:border-volt/60 hover:text-volt"
+              className="inline-flex items-center gap-2 rounded-full border border-snow/25 px-5 py-3.5 text-sm font-semibold text-snow/90 transition hover:border-aqua-light/70 hover:text-aqua-light"
             >
               <InstagramIcon className="h-4 w-4" />
               {site.instagramHandle}
@@ -125,7 +125,7 @@ export function Hero() {
           </p>
           <a
             href="#modulacao"
-            className="group flex items-center gap-2 text-sm font-semibold text-snow/55 transition hover:text-volt"
+            className="group flex items-center gap-2 text-sm font-semibold text-snow/55 transition hover:text-aqua-light"
           >
             Entender a modulação
             <ArrowDownRight className="h-4 w-4 transition group-hover:translate-y-0.5" />

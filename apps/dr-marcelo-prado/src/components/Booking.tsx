@@ -12,7 +12,7 @@ export function Booking() {
             <div className="p-8 sm:p-12 lg:p-14">
               <Reveal>
                 <SectionEyebrow light>Agendar</SectionEyebrow>
-                <h2 className="font-display text-[clamp(2.2rem,5vw,3.4rem)] font-extrabold leading-[1.05] tracking-tight text-balance">
+                <h2 className="font-display text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1.05] tracking-tight text-balance">
                   Pronto para calibrar o seu corpo?
                 </h2>
                 <p className="mt-5 max-w-lg text-base leading-relaxed text-snow/55">
@@ -27,7 +27,7 @@ export function Booking() {
                     href={bookingUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full bg-wine px-6 py-3.5 text-sm font-bold text-snow transition hover:bg-wine-soft"
+                    className="group inline-flex items-center gap-2 rounded-full bg-aqua px-6 py-3.5 text-sm font-bold text-snow transition hover:bg-aqua-soft"
                   >
                     Abrir Linktree
                     <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -36,7 +36,7 @@ export function Booking() {
                     href={site.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-snow/20 px-5 py-3.5 text-sm font-semibold text-snow/90 transition hover:border-volt/50 hover:text-volt"
+                    className="inline-flex items-center gap-2 rounded-full border border-snow/20 px-5 py-3.5 text-sm font-semibold text-snow/90 transition hover:border-aqua-light/60 hover:text-aqua-light"
                   >
                     <InstagramIcon className="h-4 w-4" />
                     Mensagem no Instagram
@@ -47,7 +47,7 @@ export function Booking() {
 
             <div className="border-t border-snow/10 bg-ink-soft/80 p-8 sm:p-10 lg:border-l lg:border-t-0 lg:p-12">
               <Reveal delay={0.15}>
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.28em] text-volt">
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.28em] text-aqua-light">
                   Locais
                 </h3>
                 <ul className="mt-5 space-y-5">
@@ -62,7 +62,7 @@ export function Booking() {
                         href={loc.mapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-2 inline-flex items-center gap-2 pl-7 text-sm font-semibold text-volt transition hover:text-volt-soft"
+                        className="mt-2 inline-flex items-center gap-2 pl-7 text-sm font-semibold text-volt transition hover:text-aqua-light"
                       >
                         Mapa
                         <ExternalLink className="h-3.5 w-3.5" />

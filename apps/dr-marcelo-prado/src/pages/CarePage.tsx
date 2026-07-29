@@ -28,14 +28,14 @@ export function CarePage() {
           <div className="relative mx-auto max-w-7xl px-5 pb-20 sm:px-8 sm:pb-28">
             <Link
               to={{ pathname: '/', hash: 'cuidados' }}
-              className="inline-flex items-center gap-2 text-sm text-snow/55 transition hover:text-volt"
+              className="inline-flex items-center gap-2 text-sm text-snow/55 transition hover:text-aqua-light"
             >
               <ArrowLeft className="h-4 w-4" />
               Todos os cuidados
             </Link>
             <Reveal>
               <SectionEyebrow light>{area.short}</SectionEyebrow>
-              <h1 className="mt-2 max-w-3xl font-display text-[clamp(2.6rem,7vw,4.5rem)] font-extrabold leading-[1] tracking-tight">
+              <h1 className="mt-2 max-w-3xl font-display text-[clamp(2.6rem,7vw,4.5rem)] font-semibold leading-[1] tracking-tight">
                 {area.title}
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-relaxed text-snow/60 sm:text-lg">
@@ -60,7 +60,7 @@ export function CarePage() {
         <section className="py-20 sm:py-28">
           <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[1.1fr_0.9fr]">
             <Reveal>
-              <h2 className="font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+              <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
                 Como a modulação se aplica aqui
               </h2>
               <p className="mt-5 text-base leading-relaxed text-mute sm:text-lg">
@@ -83,7 +83,7 @@ export function CarePage() {
                     href={area.ig}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-bold text-wine transition hover:text-wine-soft"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-aqua transition hover:text-aqua-soft"
                   >
                     Ver no Instagram
                     <ArrowUpRight className="h-4 w-4" />
@@ -94,13 +94,13 @@ export function CarePage() {
 
             <Reveal delay={0.1}>
               <div className="border border-line bg-fog-soft/70 p-8">
-                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-wine">
+                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-aqua">
                   Sinais frequentes
                 </p>
                 <ul className="mt-6 space-y-4">
                   {area.signals.map((s) => (
                     <li key={s} className="flex items-center gap-3 border-b border-line pb-4 last:border-0">
-                      <span className="h-2 w-2 rounded-full bg-wine" />
+                      <span className="h-2 w-2 rounded-full bg-aqua" />
                       <span className="font-semibold text-ink">{s}</span>
                     </li>
                   ))}
@@ -121,10 +121,10 @@ export function CarePage() {
                 <Link
                   key={o.id}
                   to={`/cuidado/${o.id}`}
-                  className="group border border-line bg-snow p-5 transition hover:border-wine/40"
+                  className="group border border-line bg-snow p-5 transition hover:border-aqua/40"
                 >
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-mute">{o.short}</p>
-                  <p className="mt-2 font-display text-xl font-bold text-ink group-hover:text-wine">
+                  <p className="mt-2 font-display text-xl font-bold text-ink group-hover:text-aqua">
                     {o.title}
                   </p>
                 </Link>

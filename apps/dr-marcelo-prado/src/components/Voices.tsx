@@ -10,7 +10,7 @@ export function Voices() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal>
           <SectionEyebrow>Vozes</SectionEyebrow>
-          <h2 className="max-w-xl font-display text-[clamp(2.2rem,5vw,3.3rem)] font-extrabold leading-[1.05] tracking-tight text-ink text-balance">
+          <h2 className="max-w-xl font-display text-[clamp(2.2rem,5vw,3.3rem)] font-semibold leading-[1.05] tracking-tight text-ink text-balance">
             Clareza depois da consulta.
           </h2>
         </Reveal>
@@ -43,7 +43,7 @@ export function Faq() {
       <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[0.85fr_1.15fr]">
         <Reveal>
           <SectionEyebrow>Perguntas</SectionEyebrow>
-          <h2 className="font-display text-[clamp(2rem,4vw,2.8rem)] font-extrabold leading-[1.08] tracking-tight text-ink text-balance">
+          <h2 className="font-display text-[clamp(2rem,4vw,2.8rem)] font-semibold leading-[1.08] tracking-tight text-ink text-balance">
             Antes de marcar, algumas respostas.
           </h2>
           <p className="mt-4 text-mute">
@@ -65,7 +65,7 @@ export function Faq() {
                   >
                     <span className="font-bold text-ink">{item.q}</span>
                     <ChevronDown
-                      className={`h-5 w-5 shrink-0 text-wine transition ${isOpen ? 'rotate-180' : ''}`}
+                      className={`h-5 w-5 shrink-0 text-aqua transition ${isOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
                   <AnimatePresence initial={false}>

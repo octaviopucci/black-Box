@@ -10,7 +10,7 @@ export function CareAreas() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <Reveal>
             <SectionEyebrow light>Cuidados</SectionEyebrow>
-            <h2 className="max-w-xl font-display text-[clamp(2.2rem,5vw,3.4rem)] font-extrabold leading-[1.05] tracking-tight text-balance">
+            <h2 className="max-w-xl font-display text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1.05] tracking-tight text-balance">
               Cinco eixos da modulação aplicada.
             </h2>
           </Reveal>
@@ -41,7 +41,7 @@ export function CareAreas() {
                   <div className="absolute inset-0 bg-ink/25" />
                 </div>
                 <div className="flex items-center gap-4 py-7 pr-4 lg:py-8">
-                  <span className="font-display text-2xl font-extrabold text-wine-soft">
+                  <span className="font-display text-2xl font-semibold text-aqua-soft">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <div>
@@ -64,7 +64,7 @@ export function CareAreas() {
                       </span>
                     ))}
                   </div>
-                  <span className="inline-flex items-center gap-1.5 text-sm font-bold text-volt">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-bold text-aqua-light">
                     Abrir
                     <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </span>

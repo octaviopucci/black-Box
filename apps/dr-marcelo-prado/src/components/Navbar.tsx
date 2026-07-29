@@ -36,7 +36,7 @@ export function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
         <Link to="/" className="group flex items-center gap-3" aria-label={`${site.name} — início`}>
           <span
-            className={`flex h-10 w-10 items-center justify-center rounded-xl font-display text-sm font-extrabold tracking-tight ${
+            className={`flex h-10 w-10 items-center justify-center rounded-xl font-display text-sm font-semibold tracking-tight ${
               solid ? 'bg-ink text-snow' : 'bg-snow/10 text-snow ring-1 ring-snow/20'
             }`}
           >
@@ -70,7 +70,7 @@ export function Navbar() {
             href={bookingUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-wine px-5 py-2.5 text-sm font-bold text-snow transition hover:bg-wine-soft"
+            className="rounded-full bg-aqua px-5 py-2.5 text-sm font-bold text-snow transition hover:bg-aqua-soft"
           >
             Agendar consulta
           </a>

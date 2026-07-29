@@ -25,7 +25,7 @@ export default function App() {
       <Suspense
         fallback={
           <div className="flex min-h-screen items-center justify-center bg-ink text-snow">
-            <p className="font-display text-4xl tracking-tight text-volt">{site.shortName}</p>
+            <p className="font-display text-4xl tracking-tight {site.shortName}">{site.shortName}</p>
           </div>
         }
       >

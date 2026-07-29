@@ -9,7 +9,7 @@ export function Feed() {
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <Reveal>
             <SectionEyebrow light>Instagram</SectionEyebrow>
-            <h2 className="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-tight">
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3rem)] font-semibold tracking-tight">
               Conteúdo real do consultório.
             </h2>
           </Reveal>
@@ -18,7 +18,7 @@ export function Feed() {
               href={site.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-bold text-volt transition hover:text-volt-soft"
+              className="inline-flex items-center gap-2 text-sm font-bold text-volt transition hover:text-aqua-light"
             >
               <InstagramIcon className="h-4 w-4" />
               {site.instagramHandle} · {site.followers}
