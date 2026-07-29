@@ -41,8 +41,9 @@ export function Hero() {
               className="h-full w-full object-cover"
               fetchPriority="high"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,17,16,0.92)_0%,rgba(18,17,16,0.45)_48%,rgba(31,58,48,0.35)_100%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(196,52,42,0.22),transparent_55%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,17,16,0.94)_0%,rgba(18,17,16,0.62)_42%,rgba(18,17,16,0.28)_72%,rgba(31,58,48,0.4)_100%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_15%,rgba(196,52,42,0.2),transparent_50%)]" />
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink/70 to-transparent" />
           </motion.div>
         </AnimatePresence>
       </motion.div>

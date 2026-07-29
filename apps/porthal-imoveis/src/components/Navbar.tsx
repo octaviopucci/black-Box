@@ -49,18 +49,12 @@ export function Navbar({ solid = false }: { solid?: boolean }) {
       }`}
     >
       <div className="container-page flex h-[4.75rem] items-center justify-between">
-        <Link to="/" className="relative z-10 flex items-center gap-3" aria-label={site.name}>
-          <img src={site.logo} alt="" className="h-10 w-auto object-contain sm:h-11" />
-          <div className={light ? 'text-ink' : 'text-white'}>
-            <p className="font-display text-[1.65rem] leading-none tracking-tight">Porthal</p>
-            <p
-              className={`mt-1 text-[10px] uppercase tracking-[0.32em] ${
-                light ? 'text-mute' : 'text-white/60'
-              }`}
-            >
-              Imóveis
-            </p>
-          </div>
+        <Link to="/" className="relative z-10 flex items-center" aria-label={site.name}>
+          <img
+            src={site.logo}
+            alt={site.name}
+            className="h-11 w-auto object-contain sm:h-12"
+          />
         </Link>
 
         <nav className="hidden items-center gap-7 xl:flex" aria-label="Principal">

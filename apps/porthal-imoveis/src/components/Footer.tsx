@@ -17,12 +17,12 @@ export function Footer() {
       <div className="container-page py-16 sm:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
           <div>
-            <Link to="/" className="inline-flex items-center gap-3">
-              <img src={site.logo} alt="" className="h-11 w-auto object-contain brightness-0 invert" />
-              <div>
-                <p className="font-display text-3xl leading-none tracking-tight">Porthal</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.32em] text-white/45">Imóveis</p>
-              </div>
+            <Link to="/" className="inline-flex items-center" aria-label={site.name}>
+              <img
+                src={site.logo}
+                alt={site.name}
+                className="h-12 w-auto object-contain brightness-0 invert"
+              />
             </Link>
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-white/55">
               {site.tagline}. Consultoria imobiliária com transparência em Capão Bonito e região.

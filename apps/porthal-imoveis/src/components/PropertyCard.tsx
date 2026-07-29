@@ -27,12 +27,18 @@ export function PropertyCard({
         className="group relative block overflow-hidden bg-ink text-white"
       >
         <div className="relative aspect-[4/5] overflow-hidden">
-          <img
-            src={property.image}
-            alt={cleanTitle(property.title)}
-            className="h-full w-full object-cover transition duration-[1100ms] ease-cinematic group-hover:scale-[1.06]"
-            loading="lazy"
-          />
+          {property.image ? (
+            <img
+              src={property.image}
+              alt={cleanTitle(property.title)}
+              className="h-full w-full object-cover transition duration-[1100ms] ease-cinematic group-hover:scale-[1.06]"
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-stone text-mute">
+              Sem foto
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-transparent opacity-95" />
           <div className="absolute left-4 top-4 flex flex-wrap gap-2">
             <span
@@ -66,7 +72,7 @@ export function PropertyCard({
                 Valor à vista
               </p>
             ) : null}
-            <h3 className="mt-4 font-display text-[1.45rem] leading-tight tracking-tight sm:text-[1.65rem]">
+            <h3 className="mt-4 line-clamp-2 font-display text-[1.45rem] leading-tight tracking-tight sm:text-[1.65rem]">
               {cleanTitle(property.title)}
             </h3>
             <p className="mt-2 flex items-start gap-1.5 text-sm text-white/65">
