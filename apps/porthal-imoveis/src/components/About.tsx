@@ -1,62 +1,41 @@
-import { motion } from 'framer-motion'
-import { ShieldCheck, Sparkles, Scale } from 'lucide-react'
 import { site } from '../data/site'
-
-const pillars = [
-  {
-    icon: ShieldCheck,
-    title: 'Transparência',
-    text: 'Negociação clara, com acompanhamento jurídico e operacional em cada etapa.',
-  },
-  {
-    icon: Scale,
-    title: 'Ética profissional',
-    text: 'Intermediação segura e responsável, do primeiro contato à entrega das chaves.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Atendimento próximo',
-    text: 'Corretores especializados em Capão Bonito e região, com foco no seu objetivo.',
-  },
-]
+import { Reveal } from './Reveal'
 
 export function About() {
   return (
-    <section id="sobre" className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
-      <div className="grid items-start gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand">Sobre nós</p>
-          <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
-            Consultoria imobiliária com presença e critério
+    <section id="sobre" className="container-page scroll-mt-28 py-20 sm:py-28">
+      <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
+        <Reveal>
+          <p className="eyebrow">A imobiliária</p>
+          <h2 className="display-title mt-3 text-ink">
+            {site.headline.split(' ').slice(0, 2).join(' ')}
+            <span className="mt-1 block italic text-brand">
+              {site.headline.split(' ').slice(2).join(' ')}
+            </span>
           </h2>
-          <div className="mt-6 space-y-4 text-base leading-relaxed text-mute">
-            {site.about.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-        </motion.div>
+          <p className="mt-6 text-lg leading-relaxed text-mute">{site.description}</p>
+        </Reveal>
 
-        <div className="grid gap-4">
-          {pillars.map((pillar, i) => (
-            <motion.div
-              key={pillar.title}
-              initial={{ opacity: 0, x: 16 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
-              className="border-t border-line pt-5"
-            >
-              <pillar.icon className="h-5 w-5 text-brand" />
-              <h3 className="mt-3 font-display text-xl font-semibold text-ink">{pillar.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-mute">{pillar.text}</p>
-            </motion.div>
+        <div className="space-y-6">
+          {site.about.map((paragraph, i) => (
+            <Reveal key={paragraph.slice(0, 24)} delay={i * 0.08}>
+              <p className="border-l border-brand/40 pl-5 text-base leading-relaxed text-ink/80">
+                {paragraph}
+              </p>
+            </Reveal>
           ))}
         </div>
+      </div>
+
+      <div className="mt-16 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-3">
+        {site.pillars.map((pillar, i) => (
+          <Reveal key={pillar.title} delay={i * 0.06}>
+            <div className="h-full bg-paper p-7 sm:p-8">
+              <p className="font-display text-2xl tracking-tight text-ink">{pillar.title}</p>
+              <p className="mt-3 text-sm leading-relaxed text-mute">{pillar.text}</p>
+            </div>
+          </Reveal>
+        ))}
       </div>
     </section>
   )

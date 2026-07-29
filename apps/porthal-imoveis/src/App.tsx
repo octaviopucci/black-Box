@@ -1,8 +1,19 @@
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
-import { HomePage } from './pages/HomePage'
-import { PropertyDetailPage } from './pages/PropertyDetailPage'
-import { NotFoundPage } from './pages/NotFoundPage'
+import { lazy, Suspense, useEffect, type ReactNode } from 'react'
+import { SmoothScroll } from './components/SmoothScroll'
+
+const HomePage = lazy(() =>
+  import('./pages/HomePage').then((m) => ({ default: m.HomePage })),
+)
+const PropertyDetailPage = lazy(() =>
+  import('./pages/PropertyDetailPage').then((m) => ({ default: m.PropertyDetailPage })),
+)
+const CatalogPage = lazy(() =>
+  import('./pages/CatalogPage').then((m) => ({ default: m.CatalogPage })),
+)
+const NotFoundPage = lazy(() =>
+  import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
+)
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -12,15 +23,56 @@ function ScrollToTop() {
   return null
 }
 
+function PageFallback() {
+  return (
+    <div className="grid min-h-[60vh] place-items-center bg-paper text-sm text-mute">
+      Carregando experiência…
+    </div>
+  )
+}
+
+function LazyPage({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<PageFallback />}>{children}</Suspense>
+}
+
 export default function App() {
   return (
-    <>
+    <SmoothScroll>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/imovel/:slug" element={<PropertyDetailPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route
+          path="/"
+          element={
+            <LazyPage>
+              <HomePage />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="/imoveis"
+          element={
+            <LazyPage>
+              <CatalogPage />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="/imovel/:slug"
+          element={
+            <LazyPage>
+              <PropertyDetailPage />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <LazyPage>
+              <NotFoundPage />
+            </LazyPage>
+          }
+        />
       </Routes>
-    </>
+    </SmoothScroll>
   )
 }

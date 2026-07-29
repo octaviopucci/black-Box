@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navbar } from '../components/Navbar'
 import { Hero } from '../components/Hero'
+import { MarqueeStrip } from '../components/MarqueeStrip'
 import { PropertySearch, type SearchFilters } from '../components/PropertySearch'
 import { FeaturedProperties } from '../components/FeaturedProperties'
 import { Rentals } from '../components/Rentals'
@@ -29,6 +30,7 @@ export function HomePage() {
       <main>
         <Hero />
         <PropertySearch onFilter={setFilters} />
+        <MarqueeStrip />
         <FeaturedProperties filterIds={saleFilterIds} />
         <Rentals filterIds={rentFilterIds} />
         <RuralHighlights />
