@@ -1,11 +1,8 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { HomePage } from './pages/HomePage'
-import { site } from './data/site'
+import { Experience } from './pages/Experience'
 
-const SpecialtyPage = lazy(() =>
-  import('./pages/SpecialtyPage').then((m) => ({ default: m.SpecialtyPage })),
-)
+const PathPage = lazy(() => import('./pages/PathPage').then((m) => ({ default: m.PathPage })))
 const NotFoundPage = lazy(() =>
   import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
 )
@@ -24,14 +21,14 @@ export default function App() {
       <ScrollToTop />
       <Suspense
         fallback={
-          <div className="flex min-h-screen items-center justify-center bg-abyss text-snow">
-            <p className="font-display text-4xl tracking-tight">{site.shortName}</p>
+          <div className="flex min-h-screen items-center justify-center bg-void">
+            <p className="font-display text-5xl tracking-tight text-signal">DNA</p>
           </div>
         }
       >
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/especialidade/:id" element={<SpecialtyPage />} />
+          <Route path="/" element={<Experience />} />
+          <Route path="/cuidado/:id" element={<PathPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

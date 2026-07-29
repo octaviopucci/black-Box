@@ -1,19 +1,13 @@
-# Clínica DNA
+# Clínica DNA — Fio Vivo
 
-Site premium da Clínica DNA (Capão Bonito/SP) — demo Black Box.
-
-## Stack
-
-React 19 · Vite · TypeScript · Tailwind · Framer Motion · GSAP
+Experiência digital original: narrativa contínua ligada por um fio luminoso.
 
 ## Dev
 
 ```bash
 npm run dev:dna
-# ou
-npm --prefix apps/clinica-dna run dev
 ```
 
-## Conteúdo
+## Conceito
 
-Fontes: Instagram [@clinicadnacb](https://www.instagram.com/clinicadnacb), dados públicos (endereço, CNPJ, pediatria), WhatsApp `(15) 99852-2020`.
+**Fio Vivo** — o visitante segue um fio de conexão (DNA da marca) através de imersão, manifesto tipográfico, corredor horizontal de especialidades, história, vozes e limiar de agendamento.

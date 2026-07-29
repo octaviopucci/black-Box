@@ -3,30 +3,24 @@
 @tailwind utilities;
 
 :root {
-  --abyss: #07111f;
-  --navy: #0b1a33;
-  --aqua: #7eb6d4;
-  --aqua-soft: #b7d7e8;
-  --life: #e8a07a;
-  --paper: #f7fafc;
-  --ink: #0c1524;
-  --mute: #5a6b7d;
+  --void: #040910;
+  --deep: #0a1628;
+  --signal: #a8d4e8;
+  --paper: #f4f7f9;
+  --ink: #0e1724;
+  --mute: #617388;
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Sora', system-ui, sans-serif;
-  color: var(--ink);
-  background:
-    radial-gradient(ellipse 70% 45% at 8% -5%, rgba(126, 182, 212, 0.18), transparent 55%),
-    radial-gradient(ellipse 50% 35% at 100% 0%, rgba(232, 160, 122, 0.1), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(126, 182, 212, 0.08), transparent 55%),
-    linear-gradient(180deg, #fbfdff 0%, var(--paper) 42%, #eef4f8 100%);
+  font-family: 'Urbanist', system-ui, sans-serif;
+  color: var(--paper);
+  background: var(--void);
 }
 
 body::before {
@@ -34,51 +28,22 @@ body::before {
   pointer-events: none;
   position: fixed;
   inset: 0;
-  z-index: 80;
-  opacity: 0.028;
+  z-index: 90;
+  opacity: 0.03;
   background-image: theme('backgroundImage.grain');
-  background-size: 180px 180px;
-  mix-blend-mode: multiply;
+  background-size: 200px 200px;
+  mix-blend-mode: soft-light;
 }
 
 ::selection {
-  background: rgba(126, 182, 212, 0.35);
-  color: var(--ink);
+  background: rgba(168, 212, 232, 0.4);
+  color: var(--void);
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
-
-  .mask-fade-b {
-    mask-image: linear-gradient(180deg, #000 65%, transparent);
-  }
-
-  .glass {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(18px) saturate(1.2);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-  }
-
-  .glass-dark {
-    background: rgba(7, 17, 31, 0.55);
-    backdrop-filter: blur(20px) saturate(1.15);
-    -webkit-backdrop-filter: blur(20px) saturate(1.15);
-  }
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  animation: marquee 36s linear infinite;
 }
 
 .has-custom-cursor,
@@ -86,18 +51,13 @@ body::before {
   cursor: none !important;
 }
 
+.corridor-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .animate-marquee,
-  .animate-float,
-  .animate-orbit,
-  .animate-pulse-soft {
-    animation: none !important;
-  }
-
   *,
   *::before,
   *::after {

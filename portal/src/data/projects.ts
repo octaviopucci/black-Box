@@ -66,10 +66,10 @@ export const projects: ClientProject[] = [
     name: 'Clínica DNA',
     client: 'Clínica DNA · Capão Bonito',
     description:
-      'Experiência digital premium para clínica multidisciplinar: hero cinematográfico, especialidades, jornada de cuidado e conversão via WhatsApp.',
+      'Experiência “Fio Vivo”: narrativa contínua com fio luminoso, manifesto tipográfico, corredor horizontal de especialidades e limiar WhatsApp.',
     href: '/clinica-dna/',
     status: 'demo',
-    tags: ['React', 'Saúde', 'Premium'],
+    tags: ['React', 'Saúde', 'Awwwards'],
   },
   {
     id: 'dr-marcelo-prado',
