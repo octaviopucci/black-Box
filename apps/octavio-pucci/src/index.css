@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #070707;
+  --ink: #0e0e0e;
+  --bone: #e8e2d6;
+  --gold: #b8956a;
+  --ash: #8a8680;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Figtree', system-ui, sans-serif;
+  color: var(--bone);
+  background:
+    radial-gradient(ellipse 55% 40% at 80% 0%, rgba(184, 149, 106, 0.08), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 10% 30%, rgba(232, 226, 214, 0.03), transparent 50%),
+    linear-gradient(180deg, #070707 0%, #0e0e0e 45%, #070707 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.04;
+  background-image: theme('backgroundImage.grain');
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+
+::selection {
+  background: rgba(184, 149, 106, 0.4);
+  color: #070707;
+}
+
+@layer components {
+  .eyebrow {
+    @apply inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.36em] text-gold;
+  }
+
+  .display-title {
+    @apply font-display text-balance leading-[1.05];
+  }
+
+  .cta-gold {
+    @apply inline-flex items-center gap-2 rounded-sm bg-gold px-6 py-3.5 text-sm font-semibold tracking-wide text-void transition duration-500 ease-ink hover:bg-gold-soft;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center gap-2 rounded-sm border border-bone/20 px-5 py-3.5 text-sm font-medium text-bone/85 transition duration-500 ease-ink hover:border-gold hover:text-gold-soft;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none !important;
+}
+
+.skin-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.needle-path {
+  stroke-dasharray: 6 12;
+  animation: dashFlow 14s linear infinite;
+}
+
+@keyframes dashFlow {
+  to {
+    stroke-dashoffset: -280;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .needle-path,
+  .animate-ink-pulse,
+  .animate-needle-drift {
+    animation: none !important;
+  }
+}

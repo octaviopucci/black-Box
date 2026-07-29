@@ -91,4 +91,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Saúde', 'Awwwards'],
   },
+  {
+    id: 'octavio-pucci',
+    name: 'Octávio Pucci Tattoo',
+    client: 'Octávio Pucci · Capão Bonito',
+    description:
+      'Experiência “Predestinado”: narrativa em tinta preta e cinza, linguagens (realismo, coberturas, fine line), arquivo de pele e orçamento WhatsApp — studio privado.',
+    href: '/octavio-pucci/',
+    status: 'demo',
+    tags: ['React', 'Tattoo', 'Awwwards'],
+  },
 ]
