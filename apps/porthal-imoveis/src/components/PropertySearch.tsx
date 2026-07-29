@@ -50,7 +50,7 @@ export function PropertySearch({
       const part = p.address.split('-').pop()?.trim() || p.address
       if (part) set.add(part.replace(/,.*/, '').trim())
     }
-    return ['Todas', ...Array.from(set).toSorted()]
+    return ['Todas', ...Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))]
   }, [])
 
   function apply(
