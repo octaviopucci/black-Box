@@ -12,7 +12,7 @@ export function Story() {
     target: ref,
     offset: ['start end', 'end start'],
   })
-  const y = useTransform(scrollYProgress, [0, 1], ['8%', '-8%'])
+  const y = useTransform(scrollYProgress, [0, 1], ['10%', '-10%'])
 
   useEffect(() => {
     const root = ref.current
@@ -22,12 +22,12 @@ export function Story() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '[data-story]',
-        { opacity: 0, y: 36 },
+        { opacity: 0, y: 40 },
         {
           opacity: 1,
           y: 0,
-          duration: 1,
-          stagger: 0.14,
+          duration: 1.05,
+          stagger: 0.12,
           ease: 'power3.out',
           scrollTrigger: { trigger: root, start: 'top 72%' },
         },
@@ -40,33 +40,42 @@ export function Story() {
     <section
       id="presenca"
       ref={ref}
-      className="relative scroll-mt-24 overflow-hidden bg-paper py-28 text-ink sm:py-36"
+      className="relative scroll-mt-24 overflow-hidden bg-paper py-32 text-ink sm:py-40"
     >
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 sm:px-8 md:grid-cols-12 md:gap-10 md:pl-28">
+      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 sm:px-8 md:grid-cols-12 md:gap-12 md:pl-28">
         <div className="md:col-span-5">
-          <motion.div style={{ y }} className="relative overflow-hidden rounded-[2rem]">
-            <img
-              src={asset('hero-event.jpg')}
-              alt={site.name}
-              loading="lazy"
-              className="aspect-[4/5] w-full object-cover object-top"
-            />
-            <div className="absolute bottom-4 left-4 rounded-full bg-void/80 px-4 py-2 text-[11px] uppercase tracking-[0.28em] text-signal backdrop-blur">
-              Capão Bonito · Itapeva
-            </div>
-          </motion.div>
+          <div className="relative overflow-hidden">
+            <motion.div style={{ y }}>
+              <img
+                src={asset('hero-event.jpg')}
+                alt={site.name}
+                loading="lazy"
+                className="aspect-[4/5] w-full object-cover object-top"
+              />
+            </motion.div>
+            <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-ink/10" />
+          </div>
+          <p className="mt-4 text-[11px] uppercase tracking-[0.28em] text-mute">
+            Capão Bonito · Itapeva · On-line
+          </p>
         </div>
 
         <div className="md:col-span-7">
-          <p data-story className="text-[11px] font-semibold uppercase tracking-[0.38em] text-mute">
+          <p data-story className="text-[11px] font-semibold uppercase tracking-section text-mute">
             Presença
           </p>
           <h2
             data-story
-            className="mt-4 font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-[1.05] tracking-tight"
+            className="mt-4 font-display text-[clamp(2.3rem,5.2vw,3.7rem)] font-semibold leading-[1.04] tracking-tight"
           >
             Ciência com elegância humana
           </h2>
+          <p
+            data-story
+            className="mt-6 font-display text-xl italic leading-snug text-mute sm:text-2xl"
+          >
+            “Cada protocolo nasce do seu histórico — não de um protocolo genérico.”
+          </p>
           <div className="mt-8 space-y-5">
             {site.story.map((p) => (
               <p key={p} data-story className="text-base leading-relaxed text-mute sm:text-lg">
@@ -75,15 +84,15 @@ export function Story() {
             ))}
           </div>
 
-          <div data-story className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div data-story className="mt-12 grid gap-6 border-t border-line pt-8 sm:grid-cols-3">
             {[
               { k: site.crm, v: 'Registro profissional' },
               { k: 'Presencial', v: 'Duas cidades' },
               { k: 'On-line', v: 'Brasil inteiro' },
             ].map((item) => (
-              <div key={item.k} className="border-t border-line pt-4">
-                <p className="font-display text-xl font-semibold">{item.k}</p>
-                <p className="mt-1 text-sm text-mute">{item.v}</p>
+              <div key={item.k}>
+                <p className="font-display text-xl font-semibold tracking-tight">{item.k}</p>
+                <p className="mt-1.5 text-sm text-mute">{item.v}</p>
               </div>
             ))}
           </div>

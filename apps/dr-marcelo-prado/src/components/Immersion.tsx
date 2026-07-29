@@ -5,99 +5,104 @@ import { asset, bookingUrl, site } from '../data/site'
 
 export function Immersion() {
   const ref = useRef<HTMLElement>(null)
-  const ringRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end start'],
   })
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 0.8], [1, 1.12])
-  const ringScale = useTransform(scrollYProgress, [0, 1], [1, 1.4])
+  const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
+  const scale = useTransform(scrollYProgress, [0, 0.85], [1, 1.1])
+  const yText = useTransform(scrollYProgress, [0, 1], [0, -48])
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '[data-immerse]',
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.15, stagger: 0.12, ease: 'power3.out', delay: 0.2 },
-      )
-      gsap.fromTo(
-        ringRef.current,
-        { scale: 0.72, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.6, ease: 'power3.out' },
+        { y: 48, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.25, stagger: 0.14, ease: 'power3.out', delay: 0.15 },
       )
     }, ref)
     return () => ctx.revert()
   }, [])
 
   return (
-    <section ref={ref} className="relative min-h-[100svh] overflow-hidden bg-void">
+    <section id="imersao" ref={ref} className="relative min-h-[100svh] overflow-hidden bg-void">
       <motion.div style={{ scale, opacity }} className="absolute inset-0">
         <img
           src={asset('hero-doctor.jpg')}
           alt=""
-          className="h-full w-full object-cover object-[center_18%] opacity-50"
+          className="h-full w-full object-cover object-[center_16%] opacity-[0.58]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-void via-void/55 to-void" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(4,10,10,0.8)_70%)]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-void via-void/70 to-void/35" />
+        <div className="absolute inset-0 bg-gradient-to-t from-void via-void/25 to-void/55" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,transparent_0%,rgba(3,7,7,0.72)_72%)]" />
+      </motion.div>
+
+      {/* Couture pulse — single refined orb, not a logo clone */}
+      <motion.div
+        aria-hidden
+        style={{ opacity }}
+        className="pointer-events-none absolute right-[-8%] top-[18%] hidden h-[min(58vw,520px)] w-[min(58vw,520px)] lg:block"
+      >
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 48, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-0 rounded-full border border-signal/20"
+        />
+        <div className="absolute inset-[18%] rounded-full border border-champagne/15" />
+        <div className="absolute inset-[38%] rounded-full bg-signal/[0.04] blur-xl" />
+        <span className="absolute right-[12%] top-[28%] h-1.5 w-1.5 rounded-full bg-signal shadow-glow" />
       </motion.div>
 
       <motion.div
-        ref={ringRef}
-        style={{ scale: ringScale }}
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[min(78vw,540px)] w-[min(78vw,540px)] -translate-x-1/2 -translate-y-1/2"
+        style={{ y: yText }}
+        className="relative z-10 mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-32 sm:px-8 sm:pb-20 md:pl-28 lg:justify-center lg:pb-24"
       >
-        <div className="absolute inset-0 rounded-full border border-signal/25" />
-        <div className="absolute inset-[12%] rounded-full border border-signal/15" />
-        <div className="absolute inset-[28%] rounded-full border border-champagne/20" />
-        <span className="absolute -right-1 top-1/4 h-2.5 w-2.5 rounded-full bg-signal shadow-glow" />
-        <span className="absolute bottom-[18%] left-2 h-1.5 w-1.5 rounded-full bg-champagne" />
-      </motion.div>
-
-      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-center px-5 pb-20 pt-28 text-center sm:px-8">
-        <p data-immerse className="mb-6 text-[11px] font-medium uppercase tracking-[0.42em] text-signal/80">
+        <p data-immerse className="section-kicker mb-7">
           {site.specialty}
         </p>
 
-        <h1 data-immerse className="font-display leading-[0.9] tracking-tight text-paper">
-          <span className="block text-[clamp(1.15rem,3.2vw,1.65rem)] font-medium uppercase tracking-[0.28em] text-paper/55">
+        <h1 data-immerse className="font-display leading-[0.88] tracking-tight text-paper">
+          <span className="block text-[clamp(1.05rem,2.6vw,1.45rem)] font-medium uppercase tracking-[0.34em] text-paper/50">
             Dr. Marcelo
           </span>
-          <span className="mt-2 block text-[clamp(4.2rem,16vw,9.5rem)] font-semibold">Prado</span>
+          <span className="mt-1 block text-[clamp(4.6rem,18vw,10.5rem)] font-semibold">
+            Prado
+          </span>
         </h1>
 
-        <p data-immerse className="mt-8 max-w-md text-base font-light leading-relaxed text-paper/70 sm:text-lg">
+        <p
+          data-immerse
+          className="mt-7 max-w-md text-base font-light leading-relaxed text-paper/68 sm:text-lg"
+        >
           {site.promise}
         </p>
 
-        <div data-immerse className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href={bookingUrl()}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full bg-signal px-7 py-3.5 text-sm font-semibold text-void transition hover:bg-mist"
-          >
+        <div data-immerse className="mt-10 flex flex-wrap items-center gap-3">
+          <a href={bookingUrl()} target="_blank" rel="noreferrer" className="cta-primary">
             Agendar consulta
           </a>
-          <a
-            href="#corredor"
-            className="rounded-full border border-paper/20 px-7 py-3.5 text-sm font-medium text-paper/80 transition hover:border-signal/50 hover:text-signal"
-          >
+          <a href="#corredor" className="cta-ghost">
             Explorar o cuidado
           </a>
         </div>
 
-        <motion.p
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.4, duration: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-[0.35em] text-paper/35"
+          transition={{ delay: 1.5, duration: 1 }}
+          className="mt-14 flex items-center gap-4 text-[10px] uppercase tracking-[0.35em] text-paper/35"
         >
+          <span className="relative flex h-8 w-px overflow-hidden bg-paper/15">
+            <motion.span
+              className="absolute inset-x-0 top-0 h-3 bg-signal"
+              animate={{ y: [0, 20, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </span>
           Role para calibrar
-        </motion.p>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

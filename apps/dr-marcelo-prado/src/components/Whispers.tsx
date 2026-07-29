@@ -18,14 +18,14 @@ export function Whispers() {
       items.forEach((el, i) => {
         gsap.fromTo(
           el,
-          { opacity: 0, x: i % 2 === 0 ? -40 : 40, y: 20 },
+          { opacity: 0, y: 36 },
           {
             opacity: 1,
-            x: 0,
             y: 0,
-            duration: 1.05,
+            duration: 1.1,
             ease: 'power3.out',
-            scrollTrigger: { trigger: el, start: 'top 85%' },
+            delay: i * 0.05,
+            scrollTrigger: { trigger: el, start: 'top 84%' },
           },
         )
       })
@@ -34,22 +34,33 @@ export function Whispers() {
   }, [])
 
   return (
-    <section className="relative overflow-hidden bg-deep py-28 sm:py-36">
+    <section className="relative overflow-hidden bg-deep py-32 sm:py-40">
       <div className="mx-auto max-w-5xl px-5 sm:px-8 md:pl-28">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.38em] text-signal/70">
-          Vozes na calibração
-        </p>
-        <div className="mt-14 space-y-16 sm:space-y-24">
+        <div className="mb-16 flex items-end justify-between gap-6 border-b border-paper/10 pb-6">
+          <p className="section-kicker">Vozes na calibração</p>
+          <p className="hidden text-[11px] uppercase tracking-[0.28em] text-paper/30 sm:block">
+            Relatos reais
+          </p>
+        </div>
+        <div className="space-y-20 sm:space-y-28">
           {site.whispers.map((w, i) => (
             <blockquote
               key={w.who}
               data-whisper
-              className={`max-w-2xl ${i % 2 === 1 ? 'ml-auto text-right' : ''}`}
+              className={`relative max-w-2xl ${i % 2 === 1 ? 'ml-auto text-right' : ''}`}
             >
-              <p className="font-display text-[clamp(1.6rem,4vw,2.6rem)] font-medium italic leading-snug text-paper">
-                “{w.text}”
+              <span
+                aria-hidden
+                className={`absolute -top-8 font-display text-7xl leading-none text-signal/15 ${
+                  i % 2 === 1 ? 'right-0' : 'left-0'
+                }`}
+              >
+                “
+              </span>
+              <p className="font-display text-[clamp(1.55rem,3.8vw,2.55rem)] font-medium italic leading-snug text-paper">
+                {w.text}
               </p>
-              <footer className="mt-5 text-xs uppercase tracking-[0.28em] text-signal/70">
+              <footer className="mt-6 text-[11px] uppercase tracking-[0.28em] text-champagne/70">
                 {w.who}
               </footer>
             </blockquote>

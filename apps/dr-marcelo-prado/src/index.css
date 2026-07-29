@@ -3,12 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --void: #040a0a;
-  --deep: #0b1819;
-  --signal: #7ec8c9;
-  --paper: #f2f5f4;
-  --ink: #0e1717;
-  --mute: #6a7a7a;
+  --void: #030707;
+  --deep: #0a1415;
+  --signal: #6fb8b9;
+  --mist: #a9d7d8;
+  --champagne: #c9b8a4;
+  --paper: #f0f3f2;
+  --ink: #0b1212;
+  --mute: #6e7f7f;
 }
 
 html {
@@ -21,6 +23,8 @@ body {
   font-family: 'Urbanist', system-ui, sans-serif;
   color: var(--paper);
   background: var(--void);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body::before {
@@ -29,20 +33,59 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 90;
-  opacity: 0.03;
+  opacity: 0.035;
   background-image: theme('backgroundImage.grain');
-  background-size: 200px 200px;
+  background-size: 180px 180px;
   mix-blend-mode: soft-light;
 }
 
+body::after {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: theme('backgroundImage.aura');
+  opacity: 0.9;
+}
+
 ::selection {
-  background: rgba(126, 200, 201, 0.4);
+  background: rgba(111, 184, 185, 0.42);
   color: var(--void);
+}
+
+@layer components {
+  .section-kicker {
+    @apply text-[11px] font-semibold uppercase tracking-section text-signal/75;
+  }
+
+  .section-title {
+    @apply font-display font-semibold leading-[1.02] tracking-tight text-paper;
+  }
+
+  .field-line {
+    @apply mt-2 w-full border-b border-paper bg-transparent py-3.5 text-paper outline-none transition focus:border-signal;
+    border-bottom-color: rgb(240 243 242 / 0.12);
+  }
+
+  .cta-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-signal px-7 py-3.5 text-sm font-semibold text-void transition duration-500 ease-silk hover:bg-mist;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-paper px-7 py-3.5 text-sm font-medium text-paper transition duration-500 ease-silk hover:border-signal hover:text-signal;
+    border-color: rgb(240 243 242 / 0.18);
+    color: rgb(240 243 242 / 0.8);
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
   }
 }
 
