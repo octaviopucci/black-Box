@@ -1,14 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useMotionValue, useScroll, useTransform } from 'framer-motion'
 import { ArrowDownRight } from 'lucide-react'
 import gsap from 'gsap'
 import { featuredProperties } from '../data/properties'
 import { site, whatsappUrl } from '../data/site'
 
-const slides = [
+type Slide = {
+  src: string
+  label: string
+  slug?: string
+  price?: string
+}
+
+const slides: Slide[] = [
   { src: `${import.meta.env.BASE_URL}hero-1.jpg`, label: 'Capão Bonito' },
-  { src: `${import.meta.env.BASE_URL}hero-2.jpg`, label: 'Desde 1955' },
+  { src: `${import.meta.env.BASE_URL}hero-2.jpg`, label: `Desde ${site.since}` },
   ...featuredProperties
     .filter((p) => p.image)
     .slice(0, 4)
@@ -18,9 +25,14 @@ const slides = [
 export function Hero() {
   const [index, setIndex] = useState(0)
   const titleRef = useRef<HTMLHeadingElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 600], [0, 140])
   const opacity = useTransform(scrollY, [0, 450], [1, 0.35])
+  const parallaxX = useTransform(mx, [-0.5, 0.5], [-18, 18])
+  const parallaxY = useTransform(my, [-0.5, 0.5], [-12, 12])
 
   useEffect(() => {
     const id = window.setInterval(() => setIndex((i) => (i + 1) % slides.length), 6500)
@@ -38,11 +50,24 @@ export function Hero() {
     )
   }, [])
 
+  const onMove = (e: MouseEvent) => {
+    const el = sectionRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    mx.set((e.clientX - rect.left) / rect.width - 0.5)
+    my.set((e.clientY - rect.top) / rect.height - 0.5)
+  }
+
   const current = slides[index]
 
   return (
-    <section id="topo" className="relative min-h-[100svh] overflow-hidden bg-navy text-white">
-      <motion.div style={{ y, opacity }} className="absolute inset-0">
+    <section
+      id="topo"
+      ref={sectionRef}
+      onMouseMove={onMove}
+      className="relative min-h-[100svh] overflow-hidden bg-navy text-white"
+    >
+      <motion.div style={{ y, opacity, x: parallaxX }} className="absolute inset-[-3%]">
         <AnimatePresence mode="sync">
           <motion.div
             key={current.src + index}
@@ -51,8 +76,14 @@ export function Hero() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+            style={{ y: parallaxY }}
           >
-            <img src={current.src} alt={current.label} className="h-full w-full object-cover" />
+            <img
+              src={current.src}
+              alt={current.label}
+              className="h-full w-full object-cover"
+              fetchPriority={index === 0 ? 'high' : 'auto'}
+            />
             <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(6,20,38,0.92)_0%,rgba(11,31,58,0.55)_48%,rgba(12,74,140,0.35)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(196,163,90,0.18),transparent_45%)]" />
           </motion.div>
@@ -100,6 +131,7 @@ export function Hero() {
           >
             <a
               href="#buscar"
+              data-cursor="hover"
               className="inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-navy transition hover:bg-gold-soft"
             >
               Encontrar imóvel
@@ -107,6 +139,7 @@ export function Hero() {
             </a>
             <a
               href="#legado"
+              data-cursor="hover"
               className="inline-flex items-center rounded-full border border-white/25 bg-white/8 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/14"
             >
               Nossa história
@@ -136,7 +169,7 @@ export function Hero() {
               />
             ))}
           </div>
-          {'slug' in current && current.slug ? (
+          {current.slug ? (
             <Link
               to={`/imovel/${encodeURIComponent(current.slug)}`}
               className="max-w-sm text-right text-sm text-white/70 transition hover:text-white"

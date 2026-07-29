@@ -1,8 +1,13 @@
+import { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
 import { HomePage } from './pages/HomePage'
-import { PropertyDetailPage } from './pages/PropertyDetailPage'
-import { NotFoundPage } from './pages/NotFoundPage'
+
+const PropertyDetailPage = lazy(() =>
+  import('./pages/PropertyDetailPage').then((m) => ({ default: m.PropertyDetailPage })),
+)
+const NotFoundPage = lazy(() =>
+  import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
+)
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -16,11 +21,20 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/imovel/:slug" element={<PropertyDetailPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center bg-chalk text-navy">
+            <p className="font-display text-2xl">Márcio Mariano</p>
+          </div>
+        }
+      >
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/imovel/:slug" element={<PropertyDetailPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </>
   )
 }
+
