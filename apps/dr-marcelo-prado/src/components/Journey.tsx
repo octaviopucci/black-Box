@@ -34,16 +34,13 @@ export function Journey() {
             </svg>
           </div>
 
-          <ol className="space-y-8">
+          <ol className="space-y-0">
             {site.journey.map((step, i) => (
               <Reveal key={step.step} delay={0.08 * i}>
-                <li className="grid gap-4 rounded-[1.75rem] border border-line bg-bone/70 p-7 sm:grid-cols-[auto_1fr] sm:gap-8 sm:p-9">
-                  <div className="flex items-baseline gap-3 sm:flex-col sm:items-start">
-                    <span className="font-display text-4xl font-semibold text-signal-deep">
+                <li className="grid gap-4 border-t border-line py-10 last:border-b sm:grid-cols-[auto_1fr] sm:gap-10 sm:py-12">
+                  <div className="flex items-baseline gap-3 sm:flex-col sm:items-start sm:min-w-[5rem]">
+                    <span className="font-display text-5xl font-semibold leading-none text-signal-deep">
                       {step.step}
-                    </span>
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-mute lg:hidden">
-                      Etapa
                     </span>
                   </div>
                   <div>

@@ -27,7 +27,7 @@ export function CarePage() {
           </div>
           <div className="relative mx-auto max-w-7xl px-5 pb-20 sm:px-8 sm:pb-28">
             <Link
-              to="/#cuidados"
+              to={{ pathname: '/', hash: 'cuidados' }}
               className="inline-flex items-center gap-2 text-sm text-snow/60 transition hover:text-signal"
             >
               <ArrowLeft className="h-4 w-4" />
