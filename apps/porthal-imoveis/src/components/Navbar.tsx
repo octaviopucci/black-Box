@@ -4,7 +4,8 @@ import { Menu, X } from 'lucide-react'
 import { site, whatsappUrl } from '../data/site'
 
 const links = [
-  { href: '#imoveis', label: 'Imóveis' },
+  { href: '#comprar', label: 'Comprar' },
+  { href: '#alugar', label: 'Alugar' },
   { href: '#destaques', label: 'Sítios' },
   { href: '#sobre', label: 'Sobre' },
   { href: '#financie', label: 'Financie' },
@@ -29,28 +30,24 @@ export function Navbar() {
     }
   }, [open])
 
+  const light = scrolled || open
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled || open
-          ? 'border-b border-line/80 bg-paper/90 backdrop-blur-xl'
-          : 'bg-transparent'
+        light ? 'border-b border-line/70 bg-paper/85 backdrop-blur-2xl' : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-5 sm:px-8">
+      <div className="mx-auto flex h-[4.75rem] w-full max-w-7xl items-center justify-between px-5 sm:px-8">
         <a href="#topo" className="relative z-10 flex items-center gap-3">
-          <img
-            src={site.logo}
-            alt={site.name}
-            className="h-11 w-auto object-contain sm:h-12"
-          />
-          <div className={`${scrolled || open ? 'text-ink' : 'text-white'} hidden sm:block`}>
-            <p className="font-display text-xl font-semibold leading-none tracking-tight">
+          <img src={site.logo} alt={site.name} className="h-11 w-auto object-contain sm:h-12" />
+          <div className={light ? 'text-ink' : 'text-white'}>
+            <p className="font-display text-[1.35rem] font-semibold leading-none tracking-tight">
               Porthal
             </p>
             <p
-              className={`mt-1 text-[10px] uppercase tracking-[0.28em] ${
-                scrolled || open ? 'text-mute' : 'text-white/70'
+              className={`mt-1 text-[10px] uppercase tracking-[0.32em] ${
+                light ? 'text-mute' : 'text-white/65'
               }`}
             >
               Imóveis
@@ -58,13 +55,13 @@ export function Navbar() {
           </div>
         </a>
 
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-7 xl:flex">
           {links.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium tracking-wide transition ${
-                scrolled ? 'text-ink/75 hover:text-brand' : 'text-white/85 hover:text-white'
+              className={`text-[13px] font-medium tracking-[0.04em] transition ${
+                light ? 'text-ink/70 hover:text-brand' : 'text-white/80 hover:text-white'
               }`}
             >
               {link.label}
@@ -74,18 +71,16 @@ export function Navbar() {
             href={whatsappUrl()}
             target="_blank"
             rel="noreferrer"
-            className="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-deep"
+            className="rounded-full bg-brand px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-brand-deep"
           >
-            Falar no WhatsApp
+            WhatsApp
           </a>
         </nav>
 
         <button
           type="button"
           aria-label={open ? 'Fechar menu' : 'Abrir menu'}
-          className={`relative z-10 rounded-full p-2 lg:hidden ${
-            scrolled || open ? 'text-ink' : 'text-white'
-          }`}
+          className={`relative z-10 rounded-full p-2 xl:hidden ${light ? 'text-ink' : 'text-white'}`}
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -95,10 +90,10 @@ export function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="border-t border-line bg-paper px-5 py-8 lg:hidden"
+            exit={{ opacity: 0, y: -10 }}
+            className="border-t border-line bg-paper px-5 py-8 xl:hidden"
           >
             <div className="flex flex-col gap-5">
               {links.map((link) => (
@@ -106,7 +101,7 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="font-display text-2xl text-ink"
+                  className="font-display text-3xl text-ink"
                 >
                   {link.label}
                 </a>

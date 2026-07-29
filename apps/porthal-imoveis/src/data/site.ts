@@ -4,7 +4,7 @@ export const site = {
   tagline: 'Imóvel moeda forte',
   headline: 'Transformando seus sonhos em realidade',
   description:
-    'Somos especializados na compra, venda e aluguel de imóveis. Conte com a máxima transparência e atenção de um corretor especializado.',
+    'Compra, venda e aluguel de imóveis com transparência e atendimento especializado em Capão Bonito e região.',
   about: [
     'Precisando de uma solução ou querendo investir no mercado imobiliário, conte com a máxima transparência e atenção de corretor especializado.',
     'Somos especializados na compra, venda e aluguel de imóveis, prestamos toda assessoria necessária à realização de uma transação segura e tranquila, com acompanhamento jurídico e operacional de qualidade.',
