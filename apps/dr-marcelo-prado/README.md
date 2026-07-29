@@ -1,13 +1,9 @@
 # Dr. Marcelo Prado
 
-Experiência digital premium para endocrinologia aplicada — Itapeva/SP.
-
-## Desenvolvimento
+Experiência digital imersiva — Endocrinologia Aplicada.
 
 ```bash
 npm run dev:prado
-# ou
-npm --prefix apps/dr-marcelo-prado run dev
 ```
 
-Publicado em `/dr-marcelo-prado/` no monorepo Black Box.
+Publicado em `/dr-marcelo-prado/`.
