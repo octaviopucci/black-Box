@@ -16,7 +16,7 @@ export const projects: ClientProject[] = [
     name: 'Maciel Motors Gestor',
     client: 'Maciel Motors',
     description:
-      'Sistema completo de gestão para revenda de veículos: estoque, financeiro, clientes, relatórios e backup.',
+      'Sistema completo de gestão para revenda de veículos: estoque, financeiro, clientes, relatórios e backup. Login com entrada cinematográfica.',
     href: '/maciel-motors/',
     status: 'ativo',
     tags: ['React', 'Gestão', 'Automotivo'],

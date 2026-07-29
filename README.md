@@ -13,7 +13,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
-Comparação interativa: [/maciel-motors-x/](/maciel-motors-x/) (login animado, dados isolados)
+Comparação: [/maciel-motors/](/maciel-motors/) e [/maciel-motors-x/](/maciel-motors-x/) compartilham o login cinematográfico.
 
 ## Stack
 
