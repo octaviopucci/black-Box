@@ -10,6 +10,20 @@ export const site = {
     'Somos especializados na compra, venda e aluguel de imóveis, prestamos toda assessoria necessária à realização de uma transação segura e tranquila, com acompanhamento jurídico e operacional de qualidade.',
     'Reconhecidos pela ética profissional e transparência no mercado imobiliário, oferecemos a nossos clientes um atendimento personalizado, resultando em segurança e satisfação a todos os negócios realizados.',
   ],
+  pillars: [
+    {
+      title: 'Transparência',
+      text: 'Valores à vista claros e comunicação direta em cada etapa da negociação.',
+    },
+    {
+      title: 'Ética',
+      text: 'Assessoria jurídica e operacional para transações seguras e tranquilas.',
+    },
+    {
+      title: 'Proximidade',
+      text: 'Atendimento personalizado em Capão Bonito e região, do primeiro contato à chave.',
+    },
+  ],
   cnpj: '27.294.878/0001-33',
   address: 'Rua Nove de Julho, 210 — Comercial, Centro — Capão Bonito/SP, 18300-050',
   mapsUrl:

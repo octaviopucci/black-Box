@@ -5,12 +5,12 @@ import { Menu, X } from 'lucide-react'
 import { site, whatsappUrl } from '../data/site'
 
 const links = [
-  { href: '/#comprar', label: 'Comprar' },
-  { href: '/#alugar', label: 'Alugar' },
-  { href: '/#destaques', label: 'Sítios' },
-  { href: '/#sobre', label: 'Sobre' },
-  { href: '/#financie', label: 'Financie' },
-  { href: '/#contato', label: 'Contato' },
+  { href: '/imoveis?tx=sale', label: 'Comprar', hash: '#comprar' },
+  { href: '/imoveis?tx=rent', label: 'Alugar', hash: '#alugar' },
+  { href: '/#destaques', label: 'Sítios', hash: '#destaques' },
+  { href: '/imoveis', label: 'Catálogo', hash: null },
+  { href: '/#sobre', label: 'Sobre', hash: '#sobre' },
+  { href: '/#contato', label: 'Contato', hash: '#contato' },
 ]
 
 export function Navbar({ solid = false }: { solid?: boolean }) {
@@ -20,7 +20,7 @@ export function Navbar({ solid = false }: { solid?: boolean }) {
   const onHome = location.pathname === '/'
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
+    const onScroll = () => setScrolled(window.scrollY > 24)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -35,34 +35,37 @@ export function Navbar({ solid = false }: { solid?: boolean }) {
 
   const light = solid || scrolled || open || !onHome
 
+  function resolveHref(link: (typeof links)[number]) {
+    if (link.hash && onHome) return link.hash
+    return link.href
+  }
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        light ? 'border-b border-line/70 bg-paper/90 backdrop-blur-2xl' : 'bg-transparent'
+        light
+          ? 'border-b border-line/80 bg-paper/92 backdrop-blur-xl'
+          : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto flex h-[4.5rem] w-full max-w-7xl items-center justify-between px-5 sm:px-8">
-        <Link to="/" className="relative z-10 flex items-center gap-3">
-          <img src={site.logo} alt={site.name} className="h-10 w-auto object-contain sm:h-11" />
-          <div className={light ? 'text-ink' : 'text-white'}>
-            <p className="font-display text-xl font-semibold leading-none tracking-tight">Porthal</p>
-            <p
-              className={`mt-1 text-[10px] uppercase tracking-[0.3em] ${
-                light ? 'text-mute' : 'text-white/65'
-              }`}
-            >
-              Imóveis
-            </p>
-          </div>
+      <div className="container-page flex h-[4.75rem] items-center justify-between">
+        <Link to="/" className="relative z-10 flex items-center" aria-label={site.name}>
+          <img
+            src={site.logo}
+            alt={site.name}
+            className="h-11 w-auto object-contain sm:h-12"
+          />
         </Link>
 
-        <nav className="hidden items-center gap-6 xl:flex">
+        <nav className="hidden items-center gap-7 xl:flex" aria-label="Principal">
           {links.map((link) => (
             <a
-              key={link.href}
-              href={onHome ? link.href.replace('/#', '#') : link.href}
+              key={link.label}
+              href={resolveHref(link)}
               className={`text-[13px] font-medium tracking-wide transition ${
-                light ? 'text-ink/70 hover:text-brand' : 'text-white/80 hover:text-white'
+                light
+                  ? 'text-ink/70 hover:text-brand'
+                  : 'text-white/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)] hover:text-white'
               }`}
             >
               {link.label}
@@ -72,16 +75,17 @@ export function Navbar({ solid = false }: { solid?: boolean }) {
             href={whatsappUrl()}
             target="_blank"
             rel="noreferrer"
-            className="rounded-full bg-brand px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-brand-deep"
+            className="bg-brand px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-brand-deep"
           >
-            WhatsApp
+            Falar agora
           </a>
         </nav>
 
         <button
           type="button"
           aria-label={open ? 'Fechar menu' : 'Abrir menu'}
-          className={`relative z-10 rounded-full p-2 xl:hidden ${light ? 'text-ink' : 'text-white'}`}
+          aria-expanded={open}
+          className={`relative z-10 p-2 xl:hidden ${light ? 'text-ink' : 'text-white'}`}
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -89,27 +93,40 @@ export function Navbar({ solid = false }: { solid?: boolean }) {
       </div>
 
       <AnimatePresence>
-        {open && (
+        {open ? (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="border-t border-line bg-paper px-5 py-8 xl:hidden"
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="border-t border-line bg-paper px-5 py-10 xl:hidden"
           >
-            <div className="flex flex-col gap-5">
-              {links.map((link) => (
-                <a
-                  key={link.href}
-                  href={onHome ? link.href.replace('/#', '#') : link.href}
+            <div className="flex flex-col gap-6">
+              {links.map((link, i) => (
+                <motion.a
+                  key={link.label}
+                  href={resolveHref(link)}
                   onClick={() => setOpen(false)}
-                  className="font-display text-3xl text-ink"
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.04 * i }}
+                  className="font-display text-4xl text-ink"
                 >
                   {link.label}
-                </a>
+                </motion.a>
               ))}
+              <a
+                href={whatsappUrl()}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setOpen(false)}
+                className="btn-primary mt-2 w-fit"
+              >
+                WhatsApp
+              </a>
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </header>
   )

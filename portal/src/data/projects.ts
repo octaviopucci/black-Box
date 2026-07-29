@@ -36,10 +36,10 @@ export const projects: ClientProject[] = [
     name: 'Porthal Imóveis',
     client: 'Porthal Imóveis',
     description:
-      'Site premium e interativo para consultoria imobiliária de alto padrão em Capão Bonito/SP — hero cinematográfico, busca, destaques e simulador.',
+      'Experiência digital premium para consultoria imobiliária em Capão Bonito/SP — hero cinematográfico, catálogo completo, motion GSAP/Lenis e conversão via WhatsApp.',
     href: '/porthal-imoveis/',
     status: 'demo',
-    tags: ['React', 'Imobiliária', 'Premium'],
+    tags: ['React', 'Imobiliária', 'Awwwards'],
   },
   {
     id: 'sogov',

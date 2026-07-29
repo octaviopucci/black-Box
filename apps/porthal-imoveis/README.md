@@ -1,21 +1,16 @@
-# Porthal Imóveis — site premium
+# Porthal Imóveis — experiência digital premium
 
-Redesign premium e interativo da Porthal Imóveis Consultoria Imobiliária (Capão Bonito/SP).
+Reconstrução completa do site da Porthal Imóveis (Capão Bonito/SP).
 
 ## Stack
 
-- React + Vite + TypeScript
+- React 19 + Vite + TypeScript
 - Tailwind CSS
-- Framer Motion
+- Framer Motion + GSAP ScrollTrigger
+- Lenis (smooth scroll)
+- Catálogo real Tecimob (JSON)
 
 ## Desenvolvimento
-
-```bash
-npm install
-npm run dev
-```
-
-No monorepo Black Box:
 
 ```bash
 npm run dev:porthal

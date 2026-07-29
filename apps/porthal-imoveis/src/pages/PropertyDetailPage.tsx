@@ -1,5 +1,4 @@
-import type { ReactNode } from 'react'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
@@ -12,13 +11,16 @@ import {
   ChevronRight,
   MapPin,
   Maximize2,
+  X,
 } from 'lucide-react'
 import { getPropertyBySlug, relatedProperties } from '../data/properties'
 import { site, whatsappUrl } from '../data/site'
+import { cleanTitle } from '../lib/filters'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { WhatsAppButton } from '../components/WhatsAppButton'
 import { PropertyCard } from '../components/PropertyCard'
+import { Reveal } from '../components/Reveal'
 import { NotFoundPage } from './NotFoundPage'
 
 export function PropertyDetailPage() {
@@ -31,48 +33,53 @@ export function PropertyDetailPage() {
   const waMessage = useMemo(() => {
     if (!property) return site.whatsapp.message
     const kind = property.transaction === 'rent' ? 'aluguel' : 'compra'
-    return `Olá! Tenho interesse no imóvel Ref. ${property.reference} (${property.title}) para ${kind}. Valor à vista: ${property.cashPrice}.`
+    return `Olá! Tenho interesse no imóvel Ref. ${property.reference} (${cleanTitle(property.title)}) para ${kind}. Valor à vista: ${property.cashPrice}.`
   }, [property])
 
   if (!property) return <NotFoundPage />
 
   const related = relatedProperties(property, 3)
   const gallery = property.images.length ? property.images : [property.image]
+  const price = property.cashPrice || property.price
+  const mapSrc =
+    property.lat != null && property.lng != null
+      ? `https://www.openstreetmap.org/export/embed.html?bbox=${property.lng - 0.02}%2C${property.lat - 0.015}%2C${property.lng + 0.02}%2C${property.lat + 0.015}&layer=mapnik&marker=${property.lat}%2C${property.lng}`
+      : null
 
   return (
     <div className="min-h-screen bg-paper">
       <Navbar solid />
       <main className="pt-20">
-        <div className="mx-auto w-full max-w-7xl px-5 py-6 sm:px-8">
+        <div className="container-page py-6">
           <Link
-            to={isRent ? '/#alugar' : '/#comprar'}
+            to={isRent ? '/imoveis?tx=rent' : '/imoveis?tx=sale'}
             className="inline-flex items-center gap-2 text-sm font-medium text-mute transition hover:text-brand"
           >
             <ArrowLeft className="h-4 w-4" />
-            Voltar para imóveis
+            Voltar ao catálogo
           </Link>
         </div>
 
-        <section className="mx-auto grid w-full max-w-7xl gap-8 px-5 pb-16 lg:grid-cols-[1.35fr_0.65fr] sm:px-8">
+        <section className="container-page grid gap-10 pb-16 lg:grid-cols-[1.35fr_0.65fr]">
           <div>
-            <div className="relative overflow-hidden rounded-[1.5rem] bg-ink">
+            <div className="relative overflow-hidden bg-ink">
               <div className="relative aspect-[16/11]">
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={gallery[active]}
                     src={gallery[active]}
-                    alt={property.title}
-                    initial={{ opacity: 0.35 }}
-                    animate={{ opacity: 1 }}
+                    alt={cleanTitle(property.title)}
+                    initial={{ opacity: 0.3, scale: 1.02 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
+                    transition={{ duration: 0.45 }}
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                 </AnimatePresence>
                 <button
                   type="button"
                   onClick={() => setLightbox(true)}
-                  className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold text-ink"
+                  className="absolute bottom-4 right-4 inline-flex items-center gap-2 bg-white/92 px-3 py-2 text-xs font-semibold text-ink"
                 >
                   <Maximize2 className="h-3.5 w-3.5" />
                   Ampliar
@@ -98,149 +105,178 @@ export function PropertyDetailPage() {
                 <div className="flex gap-2 overflow-x-auto p-3">
                   {gallery.map((src, i) => (
                     <button
-                      key={`${src}-${i}`}
+                      key={src}
                       type="button"
                       onClick={() => setActive(i)}
-                      className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg ${
+                      className={`relative h-16 w-24 shrink-0 overflow-hidden ${
                         i === active ? 'ring-2 ring-brand' : 'opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={src} alt="" className="h-full w-full object-cover" />
+                      <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
                     </button>
                   ))}
                 </div>
               ) : null}
             </div>
 
-            <div className="mt-10">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
-                {isRent ? 'Locação' : 'Venda'} · Ref. {property.reference}
-              </p>
-              <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink sm:text-5xl">
-                {property.title}
+            <Reveal className="mt-10">
+              <div className="flex flex-wrap gap-2">
+                <span className="bg-brand px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white">
+                  {isRent ? 'Aluguel' : 'Venda'}
+                </span>
+                <span className="border border-line px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-mute">
+                  Ref. {property.reference}
+                </span>
+                {property.profile ? (
+                  <span className="border border-line px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-mute">
+                    {property.profile}
+                  </span>
+                ) : null}
+                {property.isFinanceable ? (
+                  <span className="border border-line px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-mute">
+                    Financiável
+                  </span>
+                ) : null}
+              </div>
+              <h1 className="mt-5 font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.02] tracking-tight text-ink">
+                {cleanTitle(property.title)}
               </h1>
               <p className="mt-3 flex items-start gap-2 text-mute">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                 {property.address}
+                {property.street ? ` · ${property.street}` : ''}
               </p>
+            </Reveal>
 
-              <div className="mt-6 flex flex-wrap gap-3 text-sm text-mute">
-                {property.bedrooms ? (
-                  <Spec icon={<BedDouble className="h-4 w-4" />} label={property.bedrooms} />
-                ) : null}
-                {property.bathrooms ? (
-                  <Spec icon={<Bath className="h-4 w-4" />} label={property.bathrooms} />
-                ) : null}
-                {property.garages ? (
-                  <Spec icon={<Car className="h-4 w-4" />} label={property.garages} />
-                ) : null}
-                {property.area ? <Spec label={property.area} /> : null}
-              </div>
-
-              {property.description ? (
-                <div className="mt-10">
-                  <h2 className="font-display text-2xl font-semibold text-ink">Sobre o imóvel</h2>
-                  <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-mute">
-                    {property.description}
-                  </p>
-                </div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {property.bedrooms ? (
+                <Spec icon={<BedDouble className="h-4 w-4" />} label="Dormitórios" value={property.bedrooms} />
               ) : null}
-
-              {property.areas.length > 0 ? (
-                <div className="mt-10">
-                  <h2 className="font-display text-2xl font-semibold text-ink">Áreas</h2>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {property.areas.map((a) => (
-                      <div key={`${a.title}-${a.value}`} className="border-t border-line pt-3">
-                        <p className="text-[11px] uppercase tracking-[0.16em] text-mute">{a.title}</p>
-                        <p className="mt-1 text-sm font-semibold text-ink">{a.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {property.bathrooms ? (
+                <Spec icon={<Bath className="h-4 w-4" />} label="Banheiros" value={property.bathrooms} />
               ) : null}
-
-              {property.characteristics.length > 0 ? (
-                <div className="mt-10">
-                  <h2 className="font-display text-2xl font-semibold text-ink">Características</h2>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {property.characteristics.map((c) => (
-                      <span
-                        key={c.title}
-                        className="rounded-full border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink"
-                      >
-                        {c.title}
-                        {c.quantity ? ` · ${c.quantity}` : ''}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+              {property.garages ? (
+                <Spec icon={<Car className="h-4 w-4" />} label="Vagas" value={property.garages} />
               ) : null}
             </div>
+
+            {property.description ? (
+              <Reveal className="mt-10">
+                <h2 className="font-display text-2xl tracking-tight">Sobre o imóvel</h2>
+                <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-ink/80">
+                  {property.description}
+                </p>
+              </Reveal>
+            ) : null}
+
+            {property.areas.length ? (
+              <Reveal className="mt-10">
+                <h2 className="font-display text-2xl tracking-tight">Áreas</h2>
+                <dl className="mt-4 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
+                  {property.areas.map((area) => (
+                    <div key={area.title} className="bg-paper p-4">
+                      <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-mute">
+                        {area.title}
+                      </dt>
+                      <dd className="mt-1 text-sm font-medium text-ink">{area.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </Reveal>
+            ) : null}
+
+            {property.characteristics.length ? (
+              <Reveal className="mt-10">
+                <h2 className="font-display text-2xl tracking-tight">Características</h2>
+                <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                  {property.characteristics.map((c) => (
+                    <li
+                      key={`${c.title}-${c.quantity}`}
+                      className="border border-line bg-white/60 px-4 py-3 text-sm text-ink/80"
+                    >
+                      {c.title}
+                      {c.quantity != null ? (
+                        <span className="ml-2 text-mute">× {c.quantity}</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
+            ) : null}
+
+            {mapSrc ? (
+              <Reveal className="mt-10">
+                <h2 className="font-display text-2xl tracking-tight">Localização</h2>
+                <div className="mt-4 overflow-hidden border border-line">
+                  <iframe
+                    title={`Mapa — ${cleanTitle(property.title)}`}
+                    src={mapSrc}
+                    className="h-64 w-full sm:h-80"
+                    loading="lazy"
+                  />
+                </div>
+              </Reveal>
+            ) : null}
           </div>
 
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-[1.5rem] border border-line bg-white p-6 shadow-soft">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-mute">
-                {isRent ? 'Valor do aluguel' : 'Valor à vista'}
+          <aside className="lg:sticky lg:top-28 lg:self-start">
+            <div className="border border-line bg-white p-6 shadow-soft sm:p-7">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-mute">
+                {isRent ? 'Valor mensal' : 'Valor à vista'}
               </p>
-              <p className="mt-2 font-display text-4xl font-semibold tracking-tight text-ink">
-                {property.cashPrice}
-                {isRent && property.cashPrice !== 'Consulte' ? (
-                  <span className="ml-1 text-base font-sans font-medium text-mute">/mês</span>
+              <p className="mt-2 font-display text-4xl tracking-tight text-ink">
+                {price}
+                {isRent && price !== 'Consulte' ? (
+                  <span className="ml-1 font-sans text-sm text-mute">/mês</span>
                 ) : null}
               </p>
-              {!isRent &&
-              property.totalPrice !== property.cashPrice &&
-              property.totalPrice !== 'Consulte' ? (
-                <p className="mt-2 text-sm text-mute">Total: {property.totalPrice}</p>
+              {property.previousPrice ? (
+                <p className="mt-2 text-sm text-mute line-through">{property.previousPrice}</p>
               ) : null}
-
-              <div className="mt-5 space-y-2 border-t border-line pt-5 text-sm text-mute">
-                {property.condominiumPrice ? (
-                  <p>
-                    Condomínio:{' '}
-                    <span className="font-semibold text-ink">{property.condominiumPrice}</span>
-                  </p>
-                ) : null}
-                {property.iptu ? (
-                  <p>
-                    IPTU: <span className="font-semibold text-ink">{property.iptu}</span>
-                  </p>
-                ) : null}
-                {property.isFinanceable ? (
-                  <p className="font-medium text-sale">Aceita financiamento</p>
-                ) : null}
-                {property.profile ? <p>Perfil: {property.profile}</p> : null}
-                {property.situation ? <p>Situação: {property.situation}</p> : null}
-              </div>
+              {property.condominiumPrice ? (
+                <p className="mt-3 text-sm text-mute">Condomínio: {property.condominiumPrice}</p>
+              ) : null}
+              {property.iptu ? (
+                <p className="mt-1 text-sm text-mute">IPTU: {property.iptu}</p>
+              ) : null}
+              {property.area ? (
+                <p className="mt-4 border-t border-line pt-4 text-sm text-ink/75">{property.area}</p>
+              ) : null}
 
               <a
                 href={whatsappUrl(waMessage)}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-deep"
+                className="btn-primary mt-6 w-full"
               >
-                Falar no WhatsApp
+                Quero este imóvel
                 <ArrowUpRight className="h-4 w-4" />
               </a>
               <a
-                href={site.phones[0].href}
-                className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-line px-5 py-3.5 text-sm font-semibold text-ink transition hover:border-brand hover:text-brand"
+                href={whatsappUrl(
+                  `Olá! Gostaria de agendar visita ao imóvel Ref. ${property.reference}.`,
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex w-full items-center justify-center border border-ink/15 px-6 py-3.5 text-sm font-semibold transition hover:border-brand hover:text-brand"
               >
-                Ligar {site.phones[0].label}
+                Agendar visita
               </a>
+              <p className="mt-4 text-xs leading-relaxed text-mute">
+                Atendimento Porthal via WhatsApp. Respondemos com fotos adicionais, condições e
+                próximos passos.
+              </p>
             </div>
           </aside>
         </section>
 
-        {related.length > 0 ? (
-          <section className="border-t border-line bg-white/50 py-16">
-            <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
-              <h2 className="font-display text-3xl font-semibold text-ink">Você também pode gostar</h2>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {related.map((p, i) => (
-                  <PropertyCard key={p.id} property={p} index={i} variant={p.transaction} />
+        {related.length ? (
+          <section className="border-t border-line bg-mist/50 py-16">
+            <div className="container-page">
+              <h2 className="font-display text-3xl tracking-tight">Imóveis relacionados</h2>
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((item, index) => (
+                  <PropertyCard key={item.id} property={item} index={index} />
                 ))}
               </div>
             </div>
@@ -256,20 +292,21 @@ export function PropertyDetailPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4"
+            className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/92 p-4"
             onClick={() => setLightbox(false)}
           >
             <button
               type="button"
-              className="absolute right-5 top-5 text-sm font-semibold text-white"
+              aria-label="Fechar"
+              className="absolute right-5 top-5 text-white"
               onClick={() => setLightbox(false)}
             >
-              Fechar
+              <X className="h-7 w-7" />
             </button>
             <img
               src={gallery[active]}
-              alt={property.title}
-              className="max-h-[85vh] max-w-full object-contain"
+              alt={cleanTitle(property.title)}
+              className="max-h-[88vh] max-w-full object-contain"
               onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
@@ -279,12 +316,15 @@ export function PropertyDetailPage() {
   )
 }
 
-function Spec({ icon, label }: { icon?: ReactNode; label: string }) {
+function Spec({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1.5">
-      {icon ? <span className="text-brand">{icon}</span> : null}
-      {label}
-    </span>
+    <div className="border border-line bg-white/70 px-4 py-3">
+      <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-mute">
+        {icon}
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-medium text-ink">{value}</p>
+    </div>
   )
 }
 
@@ -301,9 +341,10 @@ function NavBtn({
     <button
       type="button"
       onClick={onClick}
-      className={`absolute top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur hover:bg-black/55 ${
+      className={`absolute top-1/2 z-10 -translate-y-1/2 bg-white/90 p-2 text-ink ${
         side === 'left' ? 'left-3' : 'right-3'
       }`}
+      aria-label={side === 'left' ? 'Anterior' : 'Próxima'}
     >
       {children}
     </button>

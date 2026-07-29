@@ -8,11 +8,13 @@ export function WhatsAppButton() {
       href={whatsappUrl()}
       target="_blank"
       rel="noreferrer"
-      aria-label="WhatsApp"
-      initial={{ scale: 0.8, opacity: 0 }}
+      aria-label="Falar no WhatsApp"
+      initial={{ scale: 0.7, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      transition={{ delay: 1, type: 'spring', stiffness: 260, damping: 18 }}
-      className="fixed bottom-5 right-5 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#128C7E] text-white shadow-soft transition hover:scale-105 hover:bg-[#0f7a6e]"
+      transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.8 }}
+      whileHover={{ scale: 1.06 }}
+      whileTap={{ scale: 0.96 }}
+      className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#128C7E] text-white shadow-lift sm:bottom-7 sm:right-7"
     >
       <MessageCircle className="h-6 w-6" />
     </motion.a>

@@ -1,132 +1,116 @@
-import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
 import { Calculator } from 'lucide-react'
 import { whatsappUrl } from '../data/site'
+import { Reveal } from './Reveal'
 
 function currency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
 export function Financing() {
-  const [price, setPrice] = useState(650000)
-  const [down, setDown] = useState(20)
+  const [price, setPrice] = useState(450000)
+  const [entry, setEntry] = useState(90000)
   const [years, setYears] = useState(30)
-  const [rate, setRate] = useState(9.5)
+  const [rate, setRate] = useState(10.5)
 
   const result = useMemo(() => {
-    const financed = price * (1 - down / 100)
+    const principal = Math.max(price - entry, 0)
     const months = years * 12
     const monthlyRate = rate / 100 / 12
-    if (financed <= 0 || months <= 0) {
-      return { installment: 0, financed: 0, total: 0 }
+    if (principal <= 0 || months <= 0) {
+      return { installment: 0, principal, months }
     }
     const installment =
       monthlyRate === 0
-        ? financed / months
-        : (financed * monthlyRate * (1 + monthlyRate) ** months) /
-          ((1 + monthlyRate) ** months - 1)
-    return {
-      installment,
-      financed,
-      total: installment * months,
-    }
-  }, [price, down, years, rate])
+        ? principal / months
+        : (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months))
+    return { installment, principal, months }
+  }, [price, entry, years, rate])
+
+  const message = `Olá! Simulei financiamento no site da Porthal. Imóvel ~ ${currency(price)}, entrada ${currency(entry)}, ${years} anos. Gostaria de atendimento.`
 
   return (
-    <section id="financie" className="relative overflow-hidden py-20 sm:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(196,52,42,0.07),transparent_40%),linear-gradient(0deg,rgba(23,19,17,0.03),transparent)]" />
-      <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-5 lg:grid-cols-[1fr_1.05fr] sm:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          className="max-w-xl"
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand">Financie</p>
-          <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
-            Simulador de financiamento
+    <section id="financie" className="scroll-mt-28 bg-ink py-20 text-white sm:py-28">
+      <div className="container-page grid gap-12 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:gap-16">
+        <Reveal>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/45">
+            Financie
+          </p>
+          <h2 className="mt-3 font-display text-[clamp(2.5rem,5.5vw,4.2rem)] leading-[0.95] tracking-tight">
+            Simule e avance
+            <span className="mt-1 block italic text-white/75">com clareza</span>
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-mute">
-            Estime a parcela do seu próximo imóvel e fale com a Porthal para validar condições
-            bancárias e oportunidades alinhadas ao seu perfil.
+          <p className="mt-5 max-w-md text-base leading-relaxed text-white/65">
+            Estimativa ilustrativa para organizar o orçamento. A Porthal acompanha você na
+            conversa com o banco e na documentação — sem surpresas no caminho.
           </p>
           <a
-            href={whatsappUrl(
-              `Olá! Simulei financiamento de ${currency(price)} com entrada de ${down}% em ${years} anos. Podem me ajudar?`,
-            )}
+            href={whatsappUrl(message)}
             target="_blank"
             rel="noreferrer"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-deep"
+            className="btn-primary mt-8"
           >
             <Calculator className="h-4 w-4" />
-            Enviar simulação no WhatsApp
+            Quero falar sobre financiamento
           </a>
-        </motion.div>
+        </Reveal>
 
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-3xl border border-line bg-white p-6 shadow-soft sm:p-8"
-        >
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Valor do imóvel" value={currency(price)}>
-              <input
-                type="range"
-                min={150000}
-                max={4000000}
-                step={10000}
+        <Reveal delay={0.1}>
+          <div className="border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-8">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field
+                label="Valor do imóvel"
                 value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                className="w-full accent-brand"
+                min={80000}
+                max={5000000}
+                step={10000}
+                onChange={setPrice}
+                display={currency(price)}
               />
-            </Field>
-            <Field label="Entrada" value={`${down}%`}>
-              <input
-                type="range"
-                min={5}
-                max={70}
-                step={1}
-                value={down}
-                onChange={(e) => setDown(Number(e.target.value))}
-                className="w-full accent-brand"
+              <Field
+                label="Entrada"
+                value={entry}
+                min={0}
+                max={price}
+                step={5000}
+                onChange={setEntry}
+                display={currency(entry)}
               />
-            </Field>
-            <Field label="Prazo" value={`${years} anos`}>
-              <input
-                type="range"
+              <Field
+                label="Prazo (anos)"
+                value={years}
                 min={5}
                 max={35}
                 step={1}
-                value={years}
-                onChange={(e) => setYears(Number(e.target.value))}
-                className="w-full accent-brand"
+                onChange={setYears}
+                display={`${years} anos`}
               />
-            </Field>
-            <Field label="Taxa anual" value={`${rate.toFixed(1)}% a.a.`}>
-              <input
-                type="range"
-                min={6}
-                max={16}
-                step={0.1}
+              <Field
+                label="Taxa a.a. (%)"
                 value={rate}
-                onChange={(e) => setRate(Number(e.target.value))}
-                className="w-full accent-brand"
+                min={6}
+                max={18}
+                step={0.1}
+                onChange={setRate}
+                display={`${rate.toFixed(1)}%`}
               />
-            </Field>
-          </div>
+            </div>
 
-          <div className="mt-8 grid gap-4 rounded-2xl bg-ink px-5 py-6 text-white sm:grid-cols-3">
-            <Stat label="Financiado" value={currency(result.financed)} />
-            <Stat label="Parcela estimada" value={currency(result.installment)} highlight />
-            <Stat label="Total pago" value={currency(result.total)} />
+            <div className="mt-8 border-t border-white/10 pt-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">
+                Parcela estimada
+              </p>
+              <p className="mt-2 font-display text-4xl tracking-tight sm:text-5xl">
+                {currency(result.installment)}
+                <span className="ml-2 font-sans text-sm text-white/45">/mês</span>
+              </p>
+              <p className="mt-3 text-sm text-white/50">
+                Financiar cerca de {currency(result.principal)} em {result.months} meses. Simulação
+                aproximada — condições reais dependem do banco e do perfil do crédito.
+              </p>
+            </div>
           </div>
-          <p className="mt-4 text-xs leading-relaxed text-mute">
-            Simulação ilustrativa pelo sistema Price. Valores não constituem proposta de crédito.
-          </p>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   )
@@ -135,40 +119,35 @@ export function Financing() {
 function Field({
   label,
   value,
-  children,
+  min,
+  max,
+  step,
+  onChange,
+  display,
 }: {
   label: string
-  value: string
-  children: ReactNode
+  value: number
+  min: number
+  max: number
+  step: number
+  onChange: (v: number) => void
+  display: string
 }) {
   return (
     <label className="block">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-mute">
-          {label}
-        </span>
-        <span className="text-sm font-semibold text-ink">{value}</span>
-      </div>
-      {children}
+      <span className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+        {label}
+        <span className="text-white/80 normal-case tracking-normal">{display}</span>
+      </span>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="mt-3 w-full accent-brand"
+      />
     </label>
-  )
-}
-
-function Stat({
-  label,
-  value,
-  highlight,
-}: {
-  label: string
-  value: string
-  highlight?: boolean
-}) {
-  return (
-    <div>
-      <p className="text-[11px] uppercase tracking-[0.18em] text-white/50">{label}</p>
-      <p className={`mt-2 font-display text-2xl font-semibold ${highlight ? 'text-brand-soft' : ''}`}>
-        {value}
-      </p>
-    </div>
   )
 }
