@@ -8,7 +8,8 @@
     { "source": "/porthal-imoveis/(.*)", "destination": "/porthal-imoveis/index.html" },
     { "source": "/marcio-mariano/(.*)", "destination": "/marcio-mariano/index.html" },
     { "source": "/sogov/(.*)", "destination": "/sogov/index.html" },
-    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/clinica-dna/(.*)", "destination": "/clinica-dna/index.html" },
+    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
