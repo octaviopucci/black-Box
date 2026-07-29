@@ -71,4 +71,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Saúde', 'Premium'],
   },
+  {
+    id: 'dr-marcelo-prado',
+    name: 'Dr. Marcelo Prado',
+    client: 'Endocrinologia Aplicada · Itapeva',
+    description:
+      'Experiência digital narrativa para endocrinologia aplicada: cascata de sinais, cuidados hormonais, presencial e on-line, conversão via Instagram/Linktree.',
+    href: '/dr-marcelo-prado/',
+    status: 'demo',
+    tags: ['React', 'Saúde', 'Premium'],
+  },
 ]

@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #0a1612;
+  --celadon: #9bb8a8;
+  --signal: #c5e063;
+  --mist: #eef2ef;
+  --ink: #12201a;
+  --mute: #5c7268;
+  color-scheme: light dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Figtree', system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 70% 45% at 6% -8%, rgba(197, 224, 99, 0.1), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 100% 0%, rgba(155, 184, 168, 0.16), transparent 50%),
+    linear-gradient(180deg, #f7f9f7 0%, #eef2ef 48%, #e4ebe6 100%);
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.03;
+  background-image: theme('backgroundImage.grain');
+  background-size: 200px 200px;
+  mix-blend-mode: multiply;
+}
+
+::selection {
+  background: rgba(197, 224, 99, 0.45);
+  color: var(--ink);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    background: rgba(247, 249, 247, 0.72);
+    backdrop-filter: blur(18px) saturate(1.15);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  }
+
+  .glass-dark {
+    background: rgba(10, 22, 18, 0.58);
+    backdrop-filter: blur(20px) saturate(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(1.1);
+  }
+
+  .signal-ring {
+    box-shadow: 0 0 0 1px rgba(197, 224, 99, 0.35), 0 0 40px rgba(197, 224, 99, 0.2);
+  }
+}
+
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-pulse-node,
+  .animate-cascade-drift,
+  .animate-signal-flow {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

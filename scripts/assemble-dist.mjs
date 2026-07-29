@@ -11,6 +11,7 @@ const porthalDist = join(root, 'apps', 'porthal-imoveis', 'dist')
 const marcioDist = join(root, 'apps', 'marcio-mariano', 'dist')
 const sogovDist = join(root, 'apps', 'sogov', 'dist')
 const dnaDist = join(root, 'apps', 'clinica-dna', 'dist')
+const pradoDist = join(root, 'apps', 'dr-marcelo-prado', 'dist')
 
 if (!existsSync(portalDist)) throw new Error('portal/dist não encontrado — rode build:portal')
 if (!existsSync(macielDist)) throw new Error('apps/maciel-motors-gestor/dist não encontrado — rode build:maciel')
@@ -29,6 +30,9 @@ if (!existsSync(sogovDist)) {
 if (!existsSync(dnaDist)) {
   throw new Error('apps/clinica-dna/dist não encontrado — rode build:dna')
 }
+if (!existsSync(pradoDist)) {
+  throw new Error('apps/dr-marcelo-prado/dist não encontrado — rode build:prado')
+}
 
 function publish(target) {
   rmSync(target, { recursive: true, force: true })
@@ -46,10 +50,12 @@ function publish(target) {
   cpSync(sogovDist, join(target, 'sogov'), { recursive: true })
   mkdirSync(join(target, 'clinica-dna'), { recursive: true })
   cpSync(dnaDist, join(target, 'clinica-dna'), { recursive: true })
+  mkdirSync(join(target, 'dr-marcelo-prado'), { recursive: true })
+  cpSync(pradoDist, join(target, 'dr-marcelo-prado'), { recursive: true })
 }
 
 publish(out)
 // Vercel no celular usa Output Directory padrão "public" — espelha o dist.
 publish(publicOut)
 
-console.log('publicado em dist/ e public/ (portal + /maciel-motors/ + /maciel-motors-x/ + /porthal-imoveis/ + /marcio-mariano/ + /sogov/ + /clinica-dna/)')
+console.log('publicado em dist/ e public/ (portal + /maciel-motors/ + /maciel-motors-x/ + /porthal-imoveis/ + /marcio-mariano/ + /sogov/ + /clinica-dna/ + /dr-marcelo-prado/)')
