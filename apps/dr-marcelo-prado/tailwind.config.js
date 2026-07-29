@@ -15,11 +15,11 @@ export default {
           deep: '#D4D4D0',
         },
         aqua: {
-          DEFAULT: '#2A7A7D',
-          soft: '#3D9699',
-          deep: '#1E5F62',
-          mist: 'rgba(42, 122, 125, 0.12)',
-          light: '#7EC8CB',
+          DEFAULT: '#1A5F62',
+          soft: '#2A7A7D',
+          deep: '#134A4D',
+          mist: 'rgba(26, 95, 98, 0.14)',
+          light: '#5AADB0',
         },
         leaf: {
           DEFAULT: '#4F6B58',
@@ -35,13 +35,13 @@ export default {
         line: '#DCDCD7',
       },
       fontFamily: {
-        display: ['"Fraunces"', 'Georgia', 'serif'],
-        sans: ['"Figtree"', 'system-ui', 'sans-serif'],
+        display: ['"Outfit"', 'system-ui', 'sans-serif'],
+        sans: ['"Source Sans 3"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         soft: '0 24px 60px rgba(11, 11, 11, 0.08)',
         lift: '0 40px 100px rgba(11, 11, 11, 0.22)',
-        glow: '0 0 40px rgba(42, 122, 125, 0.35)',
+        glow: '0 0 40px rgba(26, 95, 98, 0.4)',
       },
       transitionTimingFunction: {
         silk: 'cubic-bezier(0.22, 1, 0.36, 1)',
