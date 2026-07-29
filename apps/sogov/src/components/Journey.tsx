@@ -7,12 +7,12 @@ const steps = [
   {
     id: 1,
     title: 'Identifique',
-    copy: 'Busca ou perfil — o sistema entende a intenção sem labirinto de menus.',
+    copy: 'Busca ou perfil — o gov.br entende a intenção sem labirinto de menus.',
   },
   {
     id: 2,
     title: 'Confirme',
-    copy: 'Dados essenciais pré-preenchidos com sua conta gov.br. Você só revisa.',
+    copy: 'Dados essenciais com sua conta gov.br. Você só revisa o necessário.',
   },
   {
     id: 3,
@@ -33,34 +33,39 @@ export function Journey({ service }: { service: Service | null }) {
   const activeService = service
 
   return (
-    <section id="jornada" className="scroll-mt-24 border-y border-line/80 bg-ink px-5 py-20 text-white sm:px-8 sm:py-28">
+    <section
+      id="jornada"
+      className="scroll-mt-28 bg-gov-darker px-5 py-20 text-white sm:px-8 sm:py-24"
+    >
       <div className="mx-auto grid w-full max-w-7xl gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.65 }}
+          transition={{ duration: 0.55 }}
         >
-          <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-flag-yellow">
+            Experiência gov.br
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
             Três passos. Sem burocracia visual.
           </h2>
-          <p className="mt-4 max-w-lg text-base leading-relaxed text-white/65 sm:text-lg">
-            A interface guia a jornada completa. Escolha um serviço na busca ou nos perfis e simule
-            o fluxo premium abaixo.
+          <p className="mt-4 max-w-lg text-base leading-relaxed text-white/70 sm:text-lg">
+            Mantém a confiança da identidade oficial e reduz atrito até a conclusão do serviço.
           </p>
 
           <ol className="mt-10 space-y-6">
             {steps.map((item, i) => (
               <li key={item.id} className="flex gap-4">
                 <span
-                  className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                    step >= i ? 'bg-brass text-ink' : 'bg-white/10 text-white/50'
+                  className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded text-sm font-extrabold ${
+                    step >= i ? 'bg-flag-yellow text-gov-darker' : 'bg-white/10 text-white/50'
                   }`}
                 >
                   {step > i || done ? <Check className="h-4 w-4" /> : item.id}
                 </span>
                 <div>
-                  <p className="font-display text-xl font-semibold">{item.title}</p>
+                  <p className="text-xl font-extrabold">{item.title}</p>
                   <p className="mt-1 text-sm leading-relaxed text-white/55">{item.copy}</p>
                 </div>
               </li>
@@ -69,14 +74,14 @@ export function Journey({ service }: { service: Service | null }) {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 22 }}
+          initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-8"
+          transition={{ duration: 0.6, delay: 0.08 }}
+          className="relative overflow-hidden rounded-lg border border-white/15 bg-gov-deep/60 p-6 backdrop-blur-sm sm:p-8"
         >
-          <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-brass/20 blur-3xl" />
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brass-soft">
+          <div className="absolute -right-10 -top-10 h-36 w-36 rotate-45 border border-flag-yellow/25" />
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-flag-yellow">
             Simulador interativo
           </p>
           <AnimatePresence mode="wait">
@@ -88,15 +93,15 @@ export function Journey({ service }: { service: Service | null }) {
                 exit={{ opacity: 0 }}
                 className="mt-6"
               >
-                <p className="font-display text-2xl font-semibold tracking-tight">
+                <p className="text-2xl font-extrabold tracking-tight">
                   Selecione um serviço para começar
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-white/55">
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
                   Use a busca, os essenciais ou um perfil. A jornada aparece aqui em tempo real.
                 </p>
                 <a
                   href="#busca"
-                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-brand"
+                  className="mt-8 inline-flex items-center gap-2 rounded bg-flag-yellow px-5 py-3 text-sm font-extrabold text-gov-darker"
                 >
                   Ir para a busca
                   <ChevronRight className="h-4 w-4" />
@@ -110,12 +115,12 @@ export function Journey({ service }: { service: Service | null }) {
                 exit={{ opacity: 0 }}
                 className="mt-6"
               >
-                <p className="font-display text-2xl font-semibold tracking-tight text-brass-soft">
+                <p className="text-2xl font-extrabold tracking-tight text-flag-yellow">
                   Serviço concluído
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-white/65">
+                <p className="mt-3 text-sm leading-relaxed text-white/70">
                   <strong className="text-white">{activeService.title}</strong> finalizado com
-                  protocolo digital. Tempo estimado: {activeService.time}.
+                  protocolo digital gov.br. Tempo estimado: {activeService.time}.
                 </p>
                 <button
                   type="button"
@@ -123,7 +128,7 @@ export function Journey({ service }: { service: Service | null }) {
                     setDone(false)
                     setStep(0)
                   }}
-                  className="mt-8 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="mt-8 rounded border border-white/30 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                 >
                   Simular de novo
                 </button>
@@ -136,17 +141,15 @@ export function Journey({ service }: { service: Service | null }) {
                 exit={{ opacity: 0, y: -8 }}
                 className="mt-6"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/50">
                   Passo {step + 1} de 3 · {activeService.category}
                 </p>
-                <p className="mt-3 font-display text-2xl font-semibold tracking-tight">
-                  {activeService.title}
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                <p className="mt-3 text-2xl font-extrabold tracking-tight">{activeService.title}</p>
+                <p className="mt-3 text-sm leading-relaxed text-white/65">
                   {step === 0 &&
-                    'Confirmamos que este é o serviço certo com base na sua busca. Você pode alterar a qualquer momento.'}
+                    'Confirmamos que este é o serviço certo. Você pode alterar a qualquer momento.'}
                   {step === 1 &&
-                    'Conta gov.br autenticada. Revisamos CPF, endereço e preferências de notificação antes de enviar.'}
+                    'Conta gov.br autenticada. Revisamos CPF e preferências antes de enviar.'}
                   {step === 2 &&
                     `Pronto para concluir. Estimativa de ${activeService.time} — comprovante e protocolo na hora.`}
                 </p>
@@ -155,7 +158,7 @@ export function Journey({ service }: { service: Service | null }) {
                     <button
                       type="button"
                       onClick={() => setStep((s) => s - 1)}
-                      className="rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/10"
+                      className="rounded border border-white/30 px-5 py-3 text-sm font-bold text-white/85 transition hover:bg-white/10"
                     >
                       Voltar
                     </button>
@@ -166,7 +169,7 @@ export function Journey({ service }: { service: Service | null }) {
                       if (step < 2) setStep((s) => s + 1)
                       else setDone(true)
                     }}
-                    className="inline-flex items-center gap-2 rounded-full bg-brass px-5 py-3 text-sm font-semibold text-ink transition hover:bg-brass-soft"
+                    className="inline-flex items-center gap-2 rounded bg-flag-yellow px-5 py-3 text-sm font-extrabold text-gov-darker transition hover:bg-white"
                   >
                     {step < 2 ? 'Continuar' : 'Concluir serviço'}
                     <ChevronRight className="h-4 w-4" />

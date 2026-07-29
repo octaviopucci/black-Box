@@ -3,14 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --brand: #0d4f3c;
-  --brand-deep: #083629;
-  --brass: #b8954a;
-  --ink: #102019;
-  --mute: #5a6b63;
-  --paper: #f3f7f5;
-  --mist: #e6eeea;
-  --line: #d5e0db;
+  --gov: #1351b4;
+  --gov-deep: #0c326f;
+  --gov-darker: #071d41;
+  --gov-soft: #d4e5ff;
+  --flag-green: #009c3b;
+  --flag-yellow: #ffdf00;
+  --flag-blue: #002776;
+  --ink: #333333;
+  --mute: #555555;
+  --paper: #ffffff;
+  --mist: #f8f8f8;
+  --line: #cccccc;
 }
 
 html {
@@ -20,17 +24,33 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Manrope', system-ui, sans-serif;
+  font-family: 'Noto Sans', Verdana, system-ui, sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(ellipse 65% 50% at 100% 0%, rgba(13, 79, 60, 0.1), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 0% 20%, rgba(184, 149, 74, 0.08), transparent 50%),
-    linear-gradient(180deg, #f7faf8 0%, var(--paper) 40%, #e9f0ec 100%);
+    radial-gradient(ellipse 70% 45% at 100% -10%, rgba(19, 81, 180, 0.07), transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, #f8f8f8 55%, #edf5ff 100%);
 }
 
 ::selection {
-  background: rgba(13, 79, 60, 0.2);
+  background: rgba(19, 81, 180, 0.22);
   color: var(--ink);
+}
+
+@layer components {
+  .flag-stripe {
+    background: linear-gradient(
+      90deg,
+      var(--flag-green) 0 33.33%,
+      var(--flag-yellow) 33.33% 66.66%,
+      var(--flag-blue) 66.66% 100%
+    );
+  }
+
+  .gov-diamond {
+    background:
+      linear-gradient(135deg, transparent 46%, rgba(255, 223, 0, 0.12) 46% 54%, transparent 54%),
+      linear-gradient(45deg, transparent 46%, rgba(0, 156, 59, 0.08) 46% 54%, transparent 54%);
+  }
 }
 
 @layer utilities {

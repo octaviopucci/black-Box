@@ -1,9 +1,10 @@
 export const site = {
   brand: 'gov.br',
-  tagline: 'Conceito premium',
-  headline: 'O governo mais perto de você',
+  org: 'Governo Federal',
+  tagline: 'Portal de Serviços',
+  headline: 'Serviços públicos com a cara do Brasil — mais claros, rápidos e humanos',
   description:
-    'Uma reinvenção do portal oficial: buscar, entender e concluir serviços públicos em poucos passos — com clareza, elegância e respeito ao cidadão.',
+    'Conceito premium do portal oficial: a identidade digital do Governo Federal, reinventada para concluir o que importa em poucos passos.',
   officialUrl: 'https://www.gov.br/pt-br',
 }
 
@@ -234,7 +235,7 @@ export const categories: { name: ServiceCategory; hint: string }[] = [
 ]
 
 export const heroImage =
-  'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?auto=format&fit=crop&w=2400&q=80'
+  'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=2400&q=80'
 
 export const trustStats = [
   { label: 'Serviços no portal', value: '5.642' },

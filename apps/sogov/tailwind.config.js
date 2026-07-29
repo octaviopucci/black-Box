@@ -4,28 +4,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          DEFAULT: '#0d4f3c',
-          deep: '#083629',
-          soft: '#1a7a5c',
-          mist: '#d8efe6',
+        gov: {
+          DEFAULT: '#1351B4',
+          light: '#2670E8',
+          soft: '#D4E5FF',
+          mist: '#EDF5FF',
+          deep: '#0C326F',
+          darker: '#071D41',
         },
-        brass: {
-          DEFAULT: '#b8954a',
-          soft: '#e8d7a8',
+        flag: {
+          green: '#009C3B',
+          yellow: '#FFDF00',
+          blue: '#002776',
         },
-        ink: '#102019',
-        mute: '#5a6b63',
-        line: '#d5e0db',
-        paper: '#f3f7f5',
-        mist: '#e6eeea',
+        success: '#268744',
+        ink: '#333333',
+        mute: '#555555',
+        line: '#CCCCCC',
+        paper: '#FFFFFF',
+        mist: '#F8F8F8',
+        wash: '#EDEDED',
       },
       fontFamily: {
-        display: ['"Syne"', 'system-ui', 'sans-serif'],
-        sans: ['"Manrope"', 'system-ui', 'sans-serif'],
+        sans: ['"Noto Sans"', 'Verdana', 'system-ui', 'sans-serif'],
+        display: ['"Noto Sans"', 'Verdana', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        soft: '0 20px 50px rgba(16, 32, 25, 0.08)',
+        soft: '0 8px 28px rgba(7, 29, 65, 0.08)',
+        gov: '0 4px 16px rgba(19, 81, 180, 0.18)',
       },
     },
   },

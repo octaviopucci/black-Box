@@ -4,58 +4,61 @@ import { trustStats } from '../data/site'
 
 export function Trust() {
   return (
-    <section className="px-5 py-20 sm:px-8 sm:py-28">
+    <section className="px-5 py-20 sm:px-8 sm:py-24">
       <div className="mx-auto w-full max-w-7xl">
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.65 }}
+          transition={{ duration: 0.55 }}
           className="max-w-2xl"
         >
-          <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-            Clareza gera confiança
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-gov">
+            Desempenho dos serviços
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl md:text-5xl">
+            A confiança do Governo Federal, com menos atrito
           </h2>
           <p className="mt-3 text-base leading-relaxed text-mute sm:text-lg">
-            O premium no setor público não é luxo — é redução de atrito, linguagem humana e
-            segurança perceptível em cada tela.
+            Premium no setor público é clareza, acessibilidade e conclusão — com a identidade que o
+            cidadão já reconhece.
           </p>
         </motion.div>
 
-        <div className="mt-12 grid gap-10 border-t border-line pt-10 sm:grid-cols-3">
+        <div className="mt-12 grid gap-8 border-t-4 border-gov/20 pt-10 sm:grid-cols-3">
           {trustStats.map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.45 }}
+              transition={{ delay: i * 0.07, duration: 0.4 }}
             >
-              <p className="font-display text-4xl font-bold tracking-tight text-brand sm:text-5xl">
+              <p className="font-display text-4xl font-extrabold tracking-tight text-gov sm:text-5xl">
                 {stat.value}
               </p>
-              <p className="mt-2 text-sm font-medium text-mute">{stat.label}</p>
+              <p className="mt-2 text-sm font-semibold text-mute">{stat.label}</p>
             </motion.div>
           ))}
         </div>
 
         <div className="mt-14 grid gap-8 sm:grid-cols-2">
           <div className="flex gap-4">
-            <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-brand" />
+            <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-gov" />
             <div>
-              <p className="font-display text-xl font-semibold text-ink">Identidade única</p>
+              <p className="text-xl font-extrabold text-ink">Conta gov.br</p>
               <p className="mt-2 text-sm leading-relaxed text-mute">
-                Login gov.br como âncora. Menos senhas, mais continuidade entre órgãos e apps.
+                Identidade única para acessar serviços de órgãos federais, com níveis de segurança
+                reconhecidos.
               </p>
             </div>
           </div>
           <div className="flex gap-4">
-            <Smartphone className="mt-1 h-6 w-6 shrink-0 text-brand" />
+            <Smartphone className="mt-1 h-6 w-6 shrink-0 text-gov" />
             <div>
-              <p className="font-display text-xl font-semibold text-ink">Mobile first real</p>
+              <p className="text-xl font-extrabold text-ink">Aplicativos oficiais</p>
               <p className="mt-2 text-sm leading-relaxed text-mute">
-                Jornadas pensadas para o polegar: busca grande, decisões claras, zero poluição
-                visual.
+                gov.br, Carteira Digital de Trânsito e Meu INSS — a mesma identidade, no bolso.
               </p>
             </div>
           </div>
