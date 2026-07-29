@@ -41,4 +41,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Imobiliária', 'Premium'],
   },
+  {
+    id: 'sogov',
+    name: 'gov.br Premium',
+    client: 'Conceito · Governo Federal',
+    description:
+      'Reinvenção sofisticada do portal gov.br: busca intuitiva, perfis cidadão, serviços essenciais e jornada interativa em 3 passos.',
+    href: '/sogov/',
+    status: 'demo',
+    tags: ['React', 'gov.br', 'Premium'],
+  },
 ]

@@ -11,6 +11,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Maciel Motors Gestor** | [/maciel-motors/](/maciel-motors/) | Ativo |
 | **Maciel Motors Gestor X** | [/maciel-motors-x/](/maciel-motors-x/) | Demo interativa |
 | **Porthal Imóveis** | [/porthal-imoveis/](/porthal-imoveis/) | Demo premium |
+| **gov.br Premium** | [/sogov/](/sogov/) | Conceito premium |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
@@ -33,6 +34,9 @@ npm run dev:maciel
 
 # Porthal Imóveis (demo premium)
 npm run dev:porthal
+
+# gov.br Premium (conceito)
+npm run dev:sogov
 
 # Build completo (igual Vercel)
 npm run build
