@@ -54,21 +54,22 @@ export function FeaturedShowcase() {
           >
             <Link
               to={`/imovel/${encodeURIComponent(p.slug)}`}
-              className="group relative block aspect-[3/4] overflow-hidden rounded-[1.75rem] bg-ink"
+              className="group block overflow-hidden rounded-[1.75rem] border border-line bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-lift"
             >
-              <img
-                src={p.image}
-                alt={p.title}
-                className="h-full w-full object-cover transition duration-[900ms] ease-luxury group-hover:scale-105"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-soft">
+              <div className="aspect-[4/5] overflow-hidden bg-ink">
+                <img
+                  src={p.image}
+                  alt={p.title}
+                  className="h-full w-full object-cover transition duration-[900ms] ease-luxury group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-5 sm:p-6">
+                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand">
                   À vista · {p.cashPrice}
                 </p>
-                <h3 className="mt-2 font-display text-3xl leading-tight">{p.title}</h3>
-                <p className="mt-2 text-sm text-white/65">{p.address}</p>
+                <h3 className="mt-2 font-display text-2xl leading-tight text-ink sm:text-3xl">{p.title}</h3>
+                <p className="mt-2 text-sm text-mute">{p.address}</p>
               </div>
             </Link>
           </motion.div>
