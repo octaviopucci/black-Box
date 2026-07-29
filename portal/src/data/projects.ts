@@ -42,6 +42,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Imobiliária', 'Premium'],
   },
   {
+    id: 'marcio-mariano',
+    name: 'Márcio Mariano',
+    client: 'Imobiliária Márcio Mariano',
+    description:
+      'Reconstrução premium da imobiliária tradicional de Capão Bonito — legado desde 1955, busca, catálogo, serviços e conversão via WhatsApp.',
+    href: '/marcio-mariano/',
+    status: 'demo',
+    tags: ['React', 'Imobiliária', 'Premium'],
+  },
+  {
     id: 'sogov',
     name: 'gov.br Premium',
     client: 'Conceito · Governo Federal',
