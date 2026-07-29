@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #c4342a;
+  --brand-deep: #9a2921;
+  --ink: #171311;
+  --mute: #5c534e;
+  --paper: #fbf8f5;
+  --mist: #f0ebe4;
+  --line: #e4ddd6;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(196, 52, 42, 0.09), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 0% 30%, rgba(196, 52, 42, 0.05), transparent 50%),
+    linear-gradient(180deg, #fffdfb 0%, var(--paper) 45%, #f3eee8 100%);
+}
+
+::selection {
+  background: rgba(196, 52, 42, 0.2);
+  color: var(--ink);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

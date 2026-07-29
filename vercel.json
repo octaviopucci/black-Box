@@ -5,7 +5,8 @@
   "rewrites": [
     { "source": "/maciel-motors-x/(.*)", "destination": "/maciel-motors-x/index.html" },
     { "source": "/maciel-motors/(.*)", "destination": "/maciel-motors/index.html" },
-    { "source": "/((?!maciel-motors-x|maciel-motors|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/porthal-imoveis/(.*)", "destination": "/porthal-imoveis/index.html" },
+    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
