@@ -23,6 +23,8 @@ export function Navbar() {
     }
   }, [open])
 
+  const onDark = !scrolled && !open
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition duration-500 ${
@@ -30,9 +32,16 @@ export function Navbar() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-        <a href="#topo" className="group flex items-center gap-3" aria-label={site.fullName}>
-          <BrandMark className="h-8 w-8 transition duration-500 group-hover:scale-105" />
-          <span className="font-display text-2xl font-semibold tracking-[0.18em] text-ink">
+        <a href="#topo" className="group flex items-center gap-2.5 sm:gap-3" aria-label={site.fullName}>
+          <BrandMark
+            tone={onDark ? 'gold' : 'gold'}
+            className="h-7 w-7 transition duration-500 group-hover:scale-105 sm:h-8 sm:w-8"
+          />
+          <span
+            className={`font-display text-xl font-semibold tracking-[0.16em] transition-colors duration-500 sm:text-2xl sm:tracking-[0.18em] ${
+              onDark ? 'text-porcelain' : 'text-ink'
+            }`}
+          >
             HARMONIE
           </span>
         </a>
@@ -42,7 +51,11 @@ export function Navbar() {
             <a
               key={item.href}
               href={item.href}
-              className="text-xs font-medium uppercase tracking-[0.22em] text-ink/55 transition hover:text-ink"
+              className={`text-xs font-medium uppercase tracking-[0.22em] transition ${
+                onDark
+                  ? 'text-porcelain/65 hover:text-porcelain'
+                  : 'text-ink/55 hover:text-ink'
+              }`}
             >
               {item.label}
             </a>
@@ -54,19 +67,31 @@ export function Navbar() {
             href={site.instagram}
             target="_blank"
             rel="noreferrer"
-            className="rounded-full p-2 text-ink/60 transition hover:text-gold-deep"
+            className={`rounded-full p-2 transition ${
+              onDark
+                ? 'text-porcelain/70 hover:text-gold-soft'
+                : 'text-ink/60 hover:text-gold-deep'
+            }`}
             aria-label="Instagram"
           >
             <InstagramIcon className="h-5 w-5" />
           </a>
-          <a href={whatsappUrl()} className="cta-ink" data-cursor>
+          <a
+            href={whatsappUrl()}
+            className={onDark ? 'cta-gold' : 'cta-ink'}
+            data-cursor
+          >
             Agendar
           </a>
         </div>
 
         <button
           type="button"
-          className="rounded-full border border-ink/10 p-2 lg:hidden"
+          className={`rounded-full border p-2 transition lg:hidden ${
+            onDark
+              ? 'border-porcelain/25 text-porcelain'
+              : 'border-ink/10 text-ink'
+          }`}
           aria-expanded={open}
           aria-controls="mobile-nav"
           aria-label={open ? 'Fechar menu' : 'Abrir menu'}

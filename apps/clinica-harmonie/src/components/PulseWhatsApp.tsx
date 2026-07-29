@@ -5,7 +5,7 @@ export function PulseWhatsApp() {
   return (
     <a
       href={whatsappUrl()}
-      className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-fern text-porcelain shadow-lift transition hover:scale-105 hover:bg-fern-soft sm:bottom-8 sm:right-8"
+      className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-fern text-porcelain shadow-lift transition hover:scale-105 hover:bg-fern-soft sm:bottom-8 sm:right-8 sm:h-14 sm:w-14"
       aria-label="Agendar pelo WhatsApp"
       data-cursor
     >
