@@ -20,7 +20,7 @@ export function HomePage() {
     <div className="min-h-screen">
       <a
         href="#modulacao"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:rounded-full focus:bg-wine focus:px-4 focus:py-2 focus:text-snow"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:rounded-full focus:bg-aqua focus:px-4 focus:py-2 focus:text-snow"
       >
         Pular para modulação
       </a>

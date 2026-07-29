@@ -35,12 +35,12 @@ export function SectionEyebrow({
   return (
     <p
       className={`mb-4 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.32em] ${
-        light ? 'text-fog/70' : 'text-wine'
+        light ? 'text-fog/70' : 'text-aqua'
       }`}
     >
       <span
         className={`inline-block h-1.5 w-1.5 rounded-full ${
-          light ? 'bg-volt animate-pulse-dot' : 'bg-wine'
+          light ? 'bg-aqua-light animate-pulse-dot' : 'bg-aqua'
         }`}
         aria-hidden
       />

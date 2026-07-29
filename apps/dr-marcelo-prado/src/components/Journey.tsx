@@ -12,7 +12,7 @@ export function Journey() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal>
           <SectionEyebrow>Jornada</SectionEyebrow>
-          <h2 className="max-w-2xl font-display text-[clamp(2.2rem,5vw,3.4rem)] font-extrabold leading-[1.05] tracking-tight text-ink text-balance">
+          <h2 className="max-w-2xl font-display text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1.05] tracking-tight text-ink text-balance">
             Do primeiro sintoma à modulação contínua.
           </h2>
         </Reveal>
@@ -24,13 +24,13 @@ export function Journey() {
                 data-cascade-line
                 d="M40 16 C40 120 16 180 40 280 C64 380 16 440 40 540"
                 fill="none"
-                stroke="#7A2E3D"
+                stroke="#2A7A7D"
                 strokeWidth="2"
                 strokeLinecap="round"
               />
-              <circle cx="40" cy="20" r="7" fill="#0B0B0B" stroke="#7A2E3D" strokeWidth="2" />
+              <circle cx="40" cy="20" r="7" fill="#0B0B0B" stroke="#2A7A7D" strokeWidth="2" />
               <circle cx="40" cy="280" r="7" fill="#0B0B0B" stroke="#4F6B58" strokeWidth="2" />
-              <circle cx="40" cy="536" r="7" fill="#7A2E3D" />
+              <circle cx="40" cy="536" r="7" fill="#2A7A7D" />
             </svg>
           </div>
 
@@ -38,7 +38,7 @@ export function Journey() {
             {site.journey.map((step, i) => (
               <Reveal key={step.step} delay={0.08 * i}>
                 <li className="grid gap-4 border-t border-line py-10 last:border-b sm:grid-cols-[auto_1fr] sm:gap-10 sm:py-12">
-                  <span className="font-display text-5xl font-extrabold leading-none text-wine">
+                  <span className="font-display text-5xl font-semibold leading-none text-aqua">
                     {step.step}
                   </span>
                   <div>

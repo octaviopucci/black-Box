@@ -8,7 +8,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.2fr_1fr_1fr]">
         <div>
           <Link to="/" className="inline-flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-wine font-display text-sm font-extrabold text-snow">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-aqua font-display text-sm font-semibold text-snow">
               {site.shortName}
             </span>
             <span>
@@ -22,13 +22,13 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-volt">Cuidados</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-aqua-light">Cuidados</p>
           <ul className="mt-5 space-y-3">
             {careAreas.map((area) => (
               <li key={area.id}>
                 <Link
                   to={`/cuidado/${area.id}`}
-                  className="text-sm text-snow/65 transition hover:text-volt"
+                  className="text-sm text-snow/65 transition hover:text-aqua-light"
                 >
                   {area.title}
                 </Link>
@@ -38,7 +38,7 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-volt">Contato</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-aqua-light">Contato</p>
           <ul className="mt-5 space-y-3 text-sm text-snow/65">
             {site.locations.map((l) => (
               <li key={l.id}>{l.city}</li>
@@ -49,14 +49,14 @@ export function Footer() {
                 href={site.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 transition hover:text-volt"
+                className="inline-flex items-center gap-2 transition hover:text-aqua-light"
               >
                 <InstagramIcon className="h-4 w-4" />
                 {site.instagramHandle}
               </a>
             </li>
             <li>
-              <a href={bookingUrl()} target="_blank" rel="noopener noreferrer" className="transition hover:text-volt">
+              <a href={bookingUrl()} target="_blank" rel="noopener noreferrer" className="transition hover:text-aqua-light">
                 Agendar via Linktree
               </a>
             </li>
