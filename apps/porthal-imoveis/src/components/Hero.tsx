@@ -21,7 +21,7 @@ export function Hero() {
   const current = slides[index]
 
   return (
-    <section id="topo" className="relative h-[100svh] min-h-[640px] overflow-hidden bg-ink text-white">
+    <section id="topo" className="relative flex min-h-[100svh] overflow-hidden bg-ink text-white">
       <motion.div style={{ y, opacity }} className="absolute inset-0">
         <AnimatePresence mode="sync">
           <motion.img
@@ -35,29 +35,29 @@ export function Hero() {
             className="absolute inset-0 h-full w-full object-cover"
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,9,8,0.35)_0%,rgba(10,9,8,0.15)_35%,rgba(10,9,8,0.82)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,9,8,0.4)_0%,rgba(10,9,8,0.2)_35%,rgba(10,9,8,0.88)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(196,52,42,0.35),transparent_45%)]" />
       </motion.div>
 
-      <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col justify-between px-5 pb-10 pt-28 sm:px-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between gap-8 px-5 pb-8 pt-28 sm:px-8 sm:pb-10 sm:pt-32">
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-[11px] font-bold uppercase tracking-[0.45em] text-white/70"
+          className="text-[10px] font-bold uppercase tracking-[0.35em] text-white/70 sm:text-[11px] sm:tracking-[0.45em]"
         >
           Capão Bonito · {site.tagline}
         </motion.p>
 
-        <div>
+        <div className="min-w-0">
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-5xl font-sans text-[clamp(4.2rem,14vw,10rem)] font-extrabold leading-[0.82] tracking-[-0.04em]"
+            className="w-full min-w-0 font-sans text-[clamp(2.5rem,calc((100vw-2.75rem)/6.35),9.5rem)] font-extrabold leading-[0.86] tracking-[-0.05em]"
           >
-            PORTHAL
-            <span className="mt-2 block font-display text-[0.42em] font-normal italic tracking-normal text-white/85">
+            <span className="block whitespace-nowrap">PORTHAL</span>
+            <span className="mt-3 block font-display text-[clamp(1.35rem,4.8vw,3.6rem)] font-normal italic tracking-normal text-white/85">
               imóveis de alto padrão
             </span>
           </motion.h1>
@@ -66,22 +66,22 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.8 }}
-            className="mt-8 flex flex-wrap items-end justify-between gap-6"
+            className="mt-6 flex flex-col gap-6 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between"
           >
-            <p className="max-w-md text-base leading-relaxed text-white/75 sm:text-lg">
+            <p className="max-w-md text-sm leading-relaxed text-white/75 sm:text-lg">
               Uma nova vitrine para comprar e alugar — curadoria local, valores à vista e atendimento
               próximo.
             </p>
             <div className="flex flex-wrap gap-3">
               <a
                 href="#comprar"
-                className="rounded-full bg-brand px-7 py-3.5 text-xs font-bold uppercase tracking-[0.18em] text-white transition hover:bg-brand-deep"
+                className="rounded-full bg-brand px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition hover:bg-brand-deep sm:px-7 sm:text-xs sm:tracking-[0.18em]"
               >
                 Explorar venda
               </a>
               <a
                 href="#alugar"
-                className="rounded-full border border-white/35 px-7 py-3.5 text-xs font-bold uppercase tracking-[0.18em] text-white transition hover:bg-white/10"
+                className="rounded-full border border-white/35 px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition hover:bg-white/10 sm:px-7 sm:text-xs sm:tracking-[0.18em]"
               >
                 Ver aluguel
               </a>
@@ -89,23 +89,23 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <div className="flex items-end justify-between gap-4 border-t border-white/15 pt-5">
+        <div className="flex items-end justify-between gap-4 border-t border-white/15 pt-4 sm:pt-5">
           {current ? (
-            <Link
-              to={`/imovel/${encodeURIComponent(current.slug)}`}
-              className="group max-w-sm"
-            >
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-soft">
+            <Link to={`/imovel/${encodeURIComponent(current.slug)}`} className="group min-w-0 max-w-[70%] sm:max-w-sm">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-soft sm:tracking-[0.24em]">
                 Destaque · à vista {current.cashPrice}
               </p>
-              <p className="mt-1 text-sm text-white/80 transition group-hover:text-white">
+              <p className="mt-1 line-clamp-2 text-sm text-white/80 transition group-hover:text-white">
                 {current.title}
               </p>
             </Link>
           ) : (
             <span />
           )}
-          <a href="#colecao" className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/60">
+          <a
+            href="#colecao"
+            className="inline-flex shrink-0 items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/60 sm:text-[11px] sm:tracking-[0.2em]"
+          >
             Descer
             <ArrowDown className="h-4 w-4 animate-bounce" />
           </a>
