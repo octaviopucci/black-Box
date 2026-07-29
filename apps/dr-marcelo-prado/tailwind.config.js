@@ -27,6 +27,10 @@ export default {
           mist: '#D9E5DD',
         },
         champagne: '#C4B5A0',
+        volt: {
+          DEFAULT: '#E8C547',
+          soft: '#F3DA7A',
+        },
         snow: '#FFFFFF',
         mute: '#646864',
         line: '#D8DCD8',
