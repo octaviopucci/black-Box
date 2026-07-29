@@ -61,4 +61,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'gov.br', 'Premium'],
   },
+  {
+    id: 'clinica-dna',
+    name: 'Clínica DNA',
+    client: 'Clínica DNA · Capão Bonito',
+    description:
+      'Experiência digital premium para clínica multidisciplinar: hero cinematográfico, especialidades, jornada de cuidado e conversão via WhatsApp.',
+    href: '/clinica-dna/',
+    status: 'demo',
+    tags: ['React', 'Saúde', 'Premium'],
+  },
 ]

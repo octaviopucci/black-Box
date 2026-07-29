@@ -13,6 +13,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Porthal Imóveis** | [/porthal-imoveis/](/porthal-imoveis/) | Demo premium |
 | **Márcio Mariano** | [/marcio-mariano/](/marcio-mariano/) | Demo premium |
 | **gov.br Premium** | [/sogov/](/sogov/) | Conceito premium |
+| **Clínica DNA** | [/clinica-dna/](/clinica-dna/) | Demo premium |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
@@ -41,6 +42,9 @@ npm run dev:marcio
 
 # gov.br Premium (conceito)
 npm run dev:sogov
+
+# Clínica DNA (demo premium)
+npm run dev:dna
 
 # Build completo (igual Vercel)
 npm run build
