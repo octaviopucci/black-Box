@@ -58,6 +58,7 @@ export const site = {
     { label: 'Modulação', href: '#modulacao' },
     { label: 'Cuidados', href: '#cuidados' },
     { label: 'Protocolo', href: '#protocolo' },
+    { label: 'Instagram', href: '#instagram' },
     { label: 'Sobre', href: '#sobre' },
     { label: 'Agendar', href: '#agendar' },
   ],
@@ -249,6 +250,21 @@ export const feed = [
     file: 'ig-06.jpg',
     caption: 'Osteoporose silenciosa — prevenir antes da fratura',
     href: 'https://www.instagram.com/p/DZU9vUYlryB/',
+  },
+  {
+    file: 'ig-04.jpg',
+    caption: 'Modulação hormonal com método e acompanhamento',
+    href: 'https://www.instagram.com/dr.marceloprado',
+  },
+  {
+    file: 'ig-05.jpg',
+    caption: 'Energia, libido e disposição — leitura clínica',
+    href: 'https://www.instagram.com/dr.marceloprado',
+  },
+  {
+    file: 'ig-07.jpg',
+    caption: 'Consultório · Capão Bonito e Itapeva',
+    href: 'https://www.instagram.com/dr.marceloprado',
   },
   {
     file: 'ig-11.jpg',
