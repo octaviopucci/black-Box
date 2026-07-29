@@ -81,4 +81,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Saúde', 'Premium'],
   },
+  {
+    id: 'clinica-harmonie',
+    name: 'Clínica Harmonie',
+    client: 'Harmonie · Itapeva',
+    description:
+      'Experiência “Ressonância”: narrativa harmônica com partitura de cuidados, Protocolo Harmonie, espaço vivo e conversão WhatsApp — saúde, beleza e bem-estar.',
+    href: '/clinica-harmonie/',
+    status: 'demo',
+    tags: ['React', 'Saúde', 'Awwwards'],
+  },
 ]

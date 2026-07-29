@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #12110f;
+  --porcelain: #f7f4ef;
+  --gold: #c4a574;
+  --fern: #2f4a3a;
+  --mute: #6e6860;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Sora', system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 60% 40% at 0% 0%, rgba(47, 74, 58, 0.08), transparent 55%),
+    radial-gradient(ellipse 50% 35% at 100% 10%, rgba(196, 165, 116, 0.12), transparent 50%),
+    linear-gradient(180deg, #faf8f4 0%, var(--porcelain) 45%, #efe9e0 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.028;
+  background-image: theme('backgroundImage.grain');
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+}
+
+::selection {
+  background: rgba(196, 165, 116, 0.35);
+  color: var(--ink);
+}
+
+@layer components {
+  .eyebrow {
+    @apply mb-4 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.34em] text-gold-deep;
+  }
+
+  .display-title {
+    @apply font-display font-semibold leading-[1.02] tracking-tight text-balance;
+  }
+
+  .cta-gold {
+    @apply inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3.5 text-sm font-semibold text-ink transition duration-500 ease-silk hover:bg-gold-soft;
+  }
+
+  .cta-ink {
+    @apply inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-porcelain transition duration-500 ease-silk hover:bg-ink-lift;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-ink/15 px-5 py-3.5 text-sm font-medium text-ink/80 transition duration-500 ease-silk hover:border-gold hover:text-gold-deep;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    background: rgba(247, 244, 239, 0.78);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  }
+}
+
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none !important;
+}
+
+.score-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.wave-path {
+  stroke-dasharray: 8 14;
+  animation: waveDash 18s linear infinite;
+}
+
+@keyframes waveDash {
+  to {
+    stroke-dashoffset: -400;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .wave-path {
+    animation: none;
+  }
+}

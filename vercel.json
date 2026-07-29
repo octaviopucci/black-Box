@@ -10,7 +10,8 @@
     { "source": "/sogov/(.*)", "destination": "/sogov/index.html" },
     { "source": "/clinica-dna/(.*)", "destination": "/clinica-dna/index.html" },
     { "source": "/dr-marcelo-prado/(.*)", "destination": "/dr-marcelo-prado/index.html" },
-    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/clinica-harmonie/(.*)", "destination": "/clinica-harmonie/index.html" },
+    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

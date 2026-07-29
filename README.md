@@ -15,6 +15,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **gov.br Premium** | [/sogov/](/sogov/) | Conceito premium |
 | **Clínica DNA** | [/clinica-dna/](/clinica-dna/) | Demo premium |
 | **Dr. Marcelo Prado** | [/dr-marcelo-prado/](/dr-marcelo-prado/) | Demo premium |
+| **Clínica Harmonie** | [/clinica-harmonie/](/clinica-harmonie/) | Demo premium |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
@@ -49,6 +50,9 @@ npm run dev:dna
 
 # Dr. Marcelo Prado (demo premium)
 npm run dev:prado
+
+# Clínica Harmonie (demo premium)
+npm run dev:harmonie
 
 # Build completo (igual Vercel)
 npm run build
