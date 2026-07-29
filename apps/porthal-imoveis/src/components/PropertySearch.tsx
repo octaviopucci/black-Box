@@ -50,7 +50,7 @@ export function PropertySearch({
       const part = p.address.split('-').pop()?.trim() || p.address
       if (part) set.add(part.replace(/,.*/, '').trim())
     }
-    return ['Todas', ...Array.from(set).sort()]
+    return ['Todas', ...Array.from(set).toSorted()]
   }, [])
 
   function apply(

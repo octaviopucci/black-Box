@@ -14,14 +14,7 @@ export function Footer() {
         </div>
         <div className="text-sm text-white/50">
           <p>© {new Date().getFullYear()} {site.name}. Todos os direitos reservados.</p>
-          <a
-            href={site.originalSite}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 inline-block text-white/70 transition hover:text-white"
-          >
-            Site oficial
-          </a>
+          <p className="mt-2 text-white/40">CNPJ {site.cnpj}</p>
         </div>
       </div>
     </footer>
