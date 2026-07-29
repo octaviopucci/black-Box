@@ -34,9 +34,22 @@ export function Space() {
             Cada detalhe pensado para você se sentir em casa — e em cuidado.
           </h2>
           <p className="mt-5 max-w-lg text-sm leading-relaxed text-porcelain/65">
-            Jardim vertical, madeira curva, luz quente. A Harmonie traduz bem-estar em atmosfera:
-            moderna, acolhedora e pronta para a sua experiência.
+            Jardim vertical, madeira ondulada, neon dourado. A Harmonie traduz bem-estar em
+            atmosfera: moderna, acolhedora e pronta para a sua experiência.
           </p>
+          <svg
+            aria-hidden
+            className="mt-8 w-full max-w-sm opacity-50"
+            viewBox="0 0 320 28"
+            fill="none"
+          >
+            <path
+              d="M0 18 C40 4, 80 26, 120 14 S200 2, 240 16 280 28, 320 12"
+              stroke="#C4A574"
+              strokeWidth="1.4"
+              className="wave-path"
+            />
+          </svg>
           <a
             href={site.mapsUrl}
             target="_blank"

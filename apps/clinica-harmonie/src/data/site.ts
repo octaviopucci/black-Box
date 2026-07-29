@@ -37,7 +37,7 @@ export const site = {
   ],
   story: [
     'Cuidar da sua saúde, bem-estar e autoestima começa aqui.',
-    'Somos uma clínica médica em Itapeva que une estética avançada, medicina regenerativa, nutrição, saúde mental e modulação hormonal sob o mesmo teto — com atenção, estratégia e resultado.',
+    'Somos uma clínica médica em Itapeva que une estética avançada, medicina regenerativa, nutrição, neurologia, saúde mental e modulação hormonal sob o mesmo teto — com atenção, estratégia e resultado.',
   ],
   principles: [
     {
@@ -105,13 +105,13 @@ export const careAreas: CareArea[] = [
     accent: 'Metabolismo',
   },
   {
-    id: 'mente',
-    title: 'Saúde mental',
-    line: 'Equilíbrio emocional com acolhimento',
+    id: 'neuro',
+    title: 'Saúde neurológica',
+    line: 'Sinais que merecem escuta especializada',
     detail:
-      'Psicologia para ansiedade, rotina e qualidade de vida — porque pedir ajuda também é autocuidado.',
+      'Esquecimentos, dores de cabeça, tonturas ou dificuldade de concentração — avaliação neurológica com atenção e clareza para cuidar do cérebro.',
     image: 'care-mind.jpg',
-    accent: 'Acolhimento',
+    accent: 'Neurologia',
   },
   {
     id: 'hormonal',
