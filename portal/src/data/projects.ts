@@ -76,7 +76,7 @@ export const projects: ClientProject[] = [
     name: 'Dr. Marcelo Prado',
     client: 'Endocrinologia Aplicada · Itapeva',
     description:
-      'Imersão sofisticada para endocrinologia aplicada: tipografia elegante, corredor de cuidado, Protocolo Harmonie e calibração narrativa — Capão Bonito, Itapeva e on-line.',
+      'Experiência imersiva chic para endocrinologia aplicada: narrativa editorial, corredor cinematográfico, Protocolo Harmonie e limiar de agendamento — Capão Bonito, Itapeva e on-line.',
     href: '/dr-marcelo-prado/',
     status: 'demo',
     tags: ['React', 'Saúde', 'Premium'],
