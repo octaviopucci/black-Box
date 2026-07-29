@@ -24,13 +24,13 @@ export function Journey() {
                 data-cascade-line
                 d="M40 16 C40 120 16 180 40 280 C64 380 16 440 40 540"
                 fill="none"
-                stroke="#2A7A7D"
+                stroke="#1A5F62"
                 strokeWidth="2"
                 strokeLinecap="round"
               />
-              <circle cx="40" cy="20" r="7" fill="#0B0B0B" stroke="#2A7A7D" strokeWidth="2" />
+              <circle cx="40" cy="20" r="7" fill="#0B0B0B" stroke="#1A5F62" strokeWidth="2" />
               <circle cx="40" cy="280" r="7" fill="#0B0B0B" stroke="#4F6B58" strokeWidth="2" />
-              <circle cx="40" cy="536" r="7" fill="#2A7A7D" />
+              <circle cx="40" cy="536" r="7" fill="#1A5F62" />
             </svg>
           </div>
 
