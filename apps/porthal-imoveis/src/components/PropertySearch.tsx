@@ -1,29 +1,15 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search } from 'lucide-react'
 import { properties, type Transaction } from '../data/properties'
 
-const types = ['Todos', 'Casa', 'Sobrado', 'Sítio', 'Área', 'Apartamento', 'Comercial', 'Terreno'] as const
+const types = ['Todos', 'Casa', 'Sobrado', 'Sítio', 'Área', 'Comercial', 'Terreno'] as const
 
 function inferType(title: string) {
   const t = title.toLowerCase()
-  if (t.includes('sítio') || t.includes('sitio') || t.includes('chácara') || t.includes('chacara'))
-    return 'Sítio'
+  if (t.includes('sítio') || t.includes('sitio') || t.includes('chácara') || t.includes('chacara')) return 'Sítio'
   if (t.includes('sobrado')) return 'Sobrado'
   if (t.includes('área') || t.includes('area') || t.includes('hotel')) return 'Área'
-  if (t.includes('apto') || t.includes('apartamento')) return 'Apartamento'
-  if (
-    t.includes('loja') ||
-    t.includes('ponto') ||
-    t.includes('sala comercial') ||
-    t.includes('galpão') ||
-    t.includes('galpao') ||
-    t.includes('prédio') ||
-    t.includes('predio') ||
-    t.includes('salão') ||
-    t.includes('salao')
-  )
-    return 'Comercial'
+  if (t.includes('loja') || t.includes('ponto') || t.includes('sala') || t.includes('galp') || t.includes('préd') || t.includes('pred') || t.includes('salão') || t.includes('salao')) return 'Comercial'
   if (t.includes('terreno')) return 'Terreno'
   if (t.includes('casa')) return 'Casa'
   return 'Outros'
@@ -34,14 +20,9 @@ export type SearchFilters = {
   transaction: Transaction | 'all'
 }
 
-export function PropertySearch({
-  onFilter,
-}: {
-  onFilter: (filters: SearchFilters) => void
-}) {
+export function PropertySearch({ onFilter }: { onFilter: (filters: SearchFilters) => void }) {
   const [query, setQuery] = useState('')
   const [type, setType] = useState<(typeof types)[number]>('Todos')
-  const [city, setCity] = useState('Todas')
   const [transaction, setTransaction] = useState<Transaction | 'all'>('all')
 
   const cities = useMemo(() => {
@@ -50,8 +31,9 @@ export function PropertySearch({
       const part = p.address.split('-').pop()?.trim() || p.address
       if (part) set.add(part.replace(/,.*/, '').trim())
     }
-    return ['Todas', ...Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))]
+    return ['Todas', ...Array.from(set).slice().sort((a, b) => a.localeCompare(b, 'pt-BR'))]
   }, [])
+  const [city, setCity] = useState('Todas')
 
   function apply(
     nextQuery = query,
@@ -75,105 +57,76 @@ export function PropertySearch({
   }
 
   return (
-    <section className="relative z-20 -mt-12 px-5 sm:px-8">
-      <motion.form
-        initial={{ opacity: 0, y: 28 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.35 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="rounded-[1.5rem] border border-line bg-white/80 p-3 shadow-soft backdrop-blur"
+    >
+      <div className="mb-3 flex gap-1 rounded-full bg-mist p-1">
+        {(
+          [
+            { id: 'all', label: 'Tudo' },
+            { id: 'sale', label: 'Comprar' },
+            { id: 'rent', label: 'Alugar' },
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => {
+              setTransaction(tab.id)
+              apply(query, type, city, tab.id)
+            }}
+            className={`flex-1 rounded-full px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] transition ${
+              transaction === tab.id ? 'bg-ink text-white' : 'text-mute hover:text-ink'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <form
+        className="grid gap-2 md:grid-cols-[1.4fr_1fr_1fr_auto]"
         onSubmit={(e) => {
           e.preventDefault()
           apply()
-          const target = transaction === 'rent' ? 'alugar' : 'comprar'
-          document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })
+          document
+            .getElementById(transaction === 'rent' ? 'alugar' : 'comprar')
+            ?.scrollIntoView({ behavior: 'smooth' })
         }}
-        className="mx-auto w-full max-w-7xl overflow-hidden rounded-[1.6rem] border border-white/60 bg-white/90 shadow-lift backdrop-blur-xl"
       >
-        <div className="flex border-b border-line/80">
-          {(
-            [
-              { id: 'all', label: 'Todos' },
-              { id: 'sale', label: 'Comprar' },
-              { id: 'rent', label: 'Alugar' },
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => {
-                setTransaction(tab.id)
-                apply(query, type, city, tab.id)
-              }}
-              className={`relative flex-1 px-4 py-3.5 text-sm font-semibold transition sm:flex-none sm:px-8 ${
-                transaction === tab.id ? 'text-brand' : 'text-mute hover:text-ink'
-              }`}
-            >
-              {tab.label}
-              {transaction === tab.id && (
-                <motion.span
-                  layoutId="search-tab"
-                  className="absolute inset-x-3 bottom-0 h-0.5 bg-brand"
-                />
-              )}
-            </button>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar bairro, tipo..."
+          className="rounded-xl border border-line bg-paper px-4 py-3 text-sm outline-none ring-brand/20 focus:ring-2"
+        />
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value as (typeof types)[number])}
+          className="rounded-xl border border-line bg-paper px-4 py-3 text-sm outline-none"
+        >
+          {types.map((t) => (
+            <option key={t}>{t}</option>
           ))}
-        </div>
-
-        <div className="grid gap-3 p-4 sm:grid-cols-[1.35fr_1fr_1fr_auto] sm:p-5">
-          <label className="block">
-            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-mute">
-              Buscar
-            </span>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Bairro, cidade ou tipo"
-              className="w-full rounded-xl border border-line bg-paper px-4 py-3 text-sm outline-none ring-brand/25 transition focus:ring-2"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-mute">
-              Tipo
-            </span>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value as (typeof types)[number])}
-              className="w-full rounded-xl border border-line bg-paper px-4 py-3 text-sm outline-none ring-brand/25 transition focus:ring-2"
-            >
-              {types.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-mute">
-              Cidade
-            </span>
-            <select
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full rounded-xl border border-line bg-paper px-4 py-3 text-sm outline-none ring-brand/25 transition focus:ring-2"
-            >
-              {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-deep sm:min-w-[148px]"
-            >
-              <Search className="h-4 w-4" />
-              Pesquisar
-            </button>
-          </div>
-        </div>
-      </motion.form>
-    </section>
+        </select>
+        <select
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="rounded-xl border border-line bg-paper px-4 py-3 text-sm outline-none"
+        >
+          {cities.map((c) => (
+            <option key={c}>{c}</option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="rounded-xl bg-brand px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-white hover:bg-brand-deep"
+        >
+          Filtrar
+        </button>
+      </form>
+    </motion.div>
   )
 }

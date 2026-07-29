@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Navbar } from '../components/Navbar'
 import { Hero } from '../components/Hero'
-import { PropertySearch, type SearchFilters } from '../components/PropertySearch'
+import { MarqueeStrip, Pathway } from '../components/Pathway'
+import { FeaturedShowcase } from '../components/FeaturedShowcase'
 import { FeaturedProperties } from '../components/FeaturedProperties'
+import { type SearchFilters } from '../components/PropertySearch'
 import { Rentals } from '../components/Rentals'
 import { RuralHighlights } from '../components/RuralHighlights'
 import { About } from '../components/About'
@@ -24,12 +26,14 @@ export function HomePage() {
     filters.ids === null ? null : filters.transaction === 'sale' ? [] : filters.ids
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <Navbar />
       <main>
         <Hero />
-        <PropertySearch onFilter={setFilters} />
-        <FeaturedProperties filterIds={saleFilterIds} />
+        <MarqueeStrip />
+        <Pathway />
+        <FeaturedShowcase />
+        <FeaturedProperties filterIds={saleFilterIds} onFilter={setFilters} />
         <Rentals filterIds={rentFilterIds} />
         <RuralHighlights />
         <About />
