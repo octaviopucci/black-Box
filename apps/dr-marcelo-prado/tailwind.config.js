@@ -4,23 +4,44 @@ export default {
   theme: {
     extend: {
       colors: {
-        void: '#040A0A',
-        deep: '#0B1819',
-        signal: '#7EC8C9',
-        mist: '#B8E0E1',
-        champagne: '#D4C4B0',
-        paper: '#F2F5F4',
-        ink: '#0E1717',
-        mute: '#6A7A7A',
-        line: '#C5D4D4',
+        ink: {
+          DEFAULT: '#0B0B0B',
+          soft: '#1A1A1A',
+          lift: '#2A2A2A',
+        },
+        fog: {
+          DEFAULT: '#F3F3F1',
+          soft: '#E8E8E5',
+          deep: '#D4D4D0',
+        },
+        aqua: {
+          DEFAULT: '#1A5F62',
+          soft: '#2A7A7D',
+          deep: '#134A4D',
+          mist: 'rgba(26, 95, 98, 0.14)',
+          light: '#5AADB0',
+        },
+        leaf: {
+          DEFAULT: '#4F6B58',
+          soft: '#7A9A84',
+          mist: '#D9E5DD',
+        },
+        volt: {
+          DEFAULT: '#E8C547',
+          soft: '#F3DA7A',
+        },
+        snow: '#FFFFFF',
+        mute: '#6B6B66',
+        line: '#DCDCD7',
       },
       fontFamily: {
-        display: ['"Bodoni Moda"', 'Georgia', 'serif'],
-        sans: ['"Urbanist"', 'system-ui', 'sans-serif'],
+        display: ['"Outfit"', 'system-ui', 'sans-serif'],
+        sans: ['"Source Sans 3"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        soft: '0 24px 60px rgba(4, 10, 10, 0.12)',
-        glow: '0 0 80px rgba(126, 200, 201, 0.3)',
+        soft: '0 24px 60px rgba(11, 11, 11, 0.08)',
+        lift: '0 40px 100px rgba(11, 11, 11, 0.22)',
+        glow: '0 0 40px rgba(26, 95, 98, 0.4)',
       },
       transitionTimingFunction: {
         silk: 'cubic-bezier(0.22, 1, 0.36, 1)',
@@ -28,6 +49,20 @@ export default {
       backgroundImage: {
         grain:
           "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
+      },
+      keyframes: {
+        pulseDot: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.7' },
+          '50%': { transform: 'scale(1.35)', opacity: '1' },
+        },
+        drift: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-14px)' },
+        },
+      },
+      animation: {
+        'pulse-dot': 'pulseDot 2.8s ease-in-out infinite',
+        drift: 'drift 9s ease-in-out infinite',
       },
     },
   },
