@@ -21,44 +21,38 @@ export function Navbar() {
     setOpen(false)
   }, [location.pathname])
 
-  const linkClass = scrolled || !onHome || open
-    ? 'text-ink/80 hover:text-ink'
-    : 'text-snow/80 hover:text-snow'
+  const solid = scrolled || !onHome || open
+  const linkClass = solid ? 'text-ink/75 hover:text-ink' : 'text-snow/75 hover:text-snow'
+
+  const navHref = (href: string) =>
+    onHome ? href : `${import.meta.env.BASE_URL}${href}`
 
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled || open
-          ? 'glass border-b border-line/60 shadow-soft'
-          : 'bg-transparent'
+        solid ? 'glass border-b border-line/70 shadow-soft' : 'bg-transparent'
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-        <Link
-          to="/"
-          className="group flex items-center gap-3"
-          aria-label={`${site.name} — início`}
-        >
+        <Link to="/" className="group flex items-center gap-3" aria-label={`${site.name} — início`}>
           <span
-            className={`flex h-10 w-10 items-center justify-center rounded-xl font-display text-sm font-semibold tracking-tight transition-colors ${
-              scrolled || !onHome || open
-                ? 'bg-void text-signal'
-                : 'bg-snow/10 text-signal signal-ring'
+            className={`flex h-10 w-10 items-center justify-center rounded-xl font-display text-sm font-extrabold tracking-tight ${
+              solid ? 'bg-ink text-snow' : 'bg-snow/10 text-snow ring-1 ring-snow/20'
             }`}
           >
             {site.shortName}
           </span>
           <span className="leading-tight">
             <span
-              className={`block font-display text-lg font-semibold tracking-tight ${
-                scrolled || !onHome || open ? 'text-ink' : 'text-snow'
+              className={`block font-display text-lg font-bold tracking-tight ${
+                solid ? 'text-ink' : 'text-snow'
               }`}
             >
               {site.name}
             </span>
             <span
-              className={`block text-[11px] font-medium uppercase tracking-[0.22em] ${
-                scrolled || !onHome || open ? 'text-mute' : 'text-snow/55'
+              className={`block text-[10px] font-semibold uppercase tracking-[0.22em] ${
+                solid ? 'text-mute' : 'text-snow/50'
               }`}
             >
               {site.specialty}
@@ -66,17 +60,9 @@ export function Navbar() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Principal">
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Principal">
           {site.nav.map((item) => (
-            <a
-              key={item.href}
-              href={
-                onHome
-                  ? item.href
-                  : `${import.meta.env.BASE_URL}${item.href.replace(/^#/, '#')}`
-              }
-              className={`text-sm font-medium transition-colors ${linkClass}`}
-            >
+            <a key={item.href} href={navHref(item.href)} className={`text-sm font-semibold transition-colors ${linkClass}`}>
               {item.label}
             </a>
           ))}
@@ -84,7 +70,7 @@ export function Navbar() {
             href={bookingUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-signal px-5 py-2.5 text-sm font-semibold text-void transition hover:bg-signal-soft"
+            className="rounded-full bg-wine px-5 py-2.5 text-sm font-bold text-snow transition hover:bg-wine-soft"
           >
             Agendar consulta
           </a>
@@ -92,9 +78,7 @@ export function Navbar() {
 
         <button
           type="button"
-          className={`rounded-full p-2.5 lg:hidden ${
-            scrolled || !onHome || open ? 'text-ink' : 'text-snow'
-          }`}
+          className={`rounded-full p-2.5 lg:hidden ${solid ? 'text-ink' : 'text-snow'}`}
           aria-expanded={open}
           aria-controls="mobile-nav"
           aria-label={open ? 'Fechar menu' : 'Abrir menu'}
@@ -119,12 +103,8 @@ export function Navbar() {
               {site.nav.map((item) => (
                 <a
                   key={item.href}
-                  href={
-                    onHome
-                      ? item.href
-                      : `${import.meta.env.BASE_URL}${item.href.replace(/^#/, '#')}`
-                  }
-                  className="rounded-xl px-3 py-3 text-base font-medium text-ink hover:bg-celadon-mist/50"
+                  href={navHref(item.href)}
+                  className="rounded-xl px-3 py-3 text-base font-semibold text-ink hover:bg-fog-soft"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}
@@ -134,7 +114,7 @@ export function Navbar() {
                 href={bookingUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 rounded-full bg-void px-5 py-3 text-center text-sm font-semibold text-signal"
+                className="mt-2 rounded-full bg-ink px-5 py-3 text-center text-sm font-bold text-snow"
                 onClick={() => setOpen(false)}
               >
                 Agendar consulta

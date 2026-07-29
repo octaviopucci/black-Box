@@ -10,8 +10,8 @@ export function Voices() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal>
           <SectionEyebrow>Vozes</SectionEyebrow>
-          <h2 className="max-w-xl font-display text-[clamp(2.2rem,5vw,3.3rem)] font-semibold leading-[1.05] tracking-tight text-void text-balance">
-            Clareza que se sente depois da consulta.
+          <h2 className="max-w-xl font-display text-[clamp(2.2rem,5vw,3.3rem)] font-extrabold leading-[1.05] tracking-tight text-ink text-balance">
+            Clareza depois da consulta.
           </h2>
         </Reveal>
 
@@ -19,11 +19,11 @@ export function Voices() {
           {site.testimonials.map((t, i) => (
             <Reveal key={t.name} delay={0.08 * i}>
               <figure className="grid gap-6 py-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.6fr)] lg:gap-16">
-                <blockquote className="font-display text-[clamp(1.35rem,3vw,1.85rem)] font-medium leading-snug tracking-tight text-void">
+                <blockquote className="font-display text-[clamp(1.35rem,3vw,1.85rem)] font-semibold leading-snug tracking-tight text-ink">
                   “{t.quote}”
                 </blockquote>
                 <figcaption className="flex flex-col justify-end lg:text-right">
-                  <p className="font-semibold text-void">{t.name}</p>
+                  <p className="font-bold text-ink">{t.name}</p>
                   <p className="mt-1 text-sm text-mute">{t.role}</p>
                 </figcaption>
               </figure>
@@ -39,11 +39,11 @@ export function Faq() {
   const [open, setOpen] = useState<number | null>(0)
 
   return (
-    <section className="border-t border-line bg-bone/40 py-24 sm:py-28">
+    <section className="border-t border-line bg-fog-soft/40 py-24 sm:py-28">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[0.85fr_1.15fr]">
         <Reveal>
           <SectionEyebrow>Perguntas</SectionEyebrow>
-          <h2 className="font-display text-[clamp(2rem,4vw,2.8rem)] font-semibold leading-[1.08] tracking-tight text-void text-balance">
+          <h2 className="font-display text-[clamp(2rem,4vw,2.8rem)] font-extrabold leading-[1.08] tracking-tight text-ink text-balance">
             Antes de marcar, algumas respostas.
           </h2>
           <p className="mt-4 text-mute">
@@ -56,16 +56,16 @@ export function Faq() {
             const isOpen = open === i
             return (
               <Reveal key={item.q} delay={0.05 * i}>
-                <div className="overflow-hidden rounded-2xl border border-line bg-snow">
+                <div className="overflow-hidden border border-line bg-snow">
                   <button
                     type="button"
                     className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6"
                     aria-expanded={isOpen}
                     onClick={() => setOpen(isOpen ? null : i)}
                   >
-                    <span className="font-semibold text-void">{item.q}</span>
+                    <span className="font-bold text-ink">{item.q}</span>
                     <ChevronDown
-                      className={`h-5 w-5 shrink-0 text-celadon-deep transition ${isOpen ? 'rotate-180' : ''}`}
+                      className={`h-5 w-5 shrink-0 text-wine transition ${isOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
                   <AnimatePresence initial={false}>

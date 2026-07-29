@@ -34,12 +34,14 @@ export function SectionEyebrow({
 }) {
   return (
     <p
-      className={`mb-4 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.32em] ${
-        light ? 'text-signal-soft' : 'text-celadon-deep'
+      className={`mb-4 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.32em] ${
+        light ? 'text-fog/70' : 'text-wine'
       }`}
     >
       <span
-        className={`inline-block h-1.5 w-1.5 rounded-full ${light ? 'bg-signal animate-pulse-node' : 'bg-signal-deep'}`}
+        className={`inline-block h-1.5 w-1.5 rounded-full ${
+          light ? 'bg-volt animate-pulse-dot' : 'bg-wine'
+        }`}
         aria-hidden
       />
       {children}

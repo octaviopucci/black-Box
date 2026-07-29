@@ -6,19 +6,18 @@ import { Reveal, SectionEyebrow } from './Reveal'
 export function Booking() {
   return (
     <section id="agendar" className="relative overflow-hidden py-24 sm:py-32">
-      <div className="pointer-events-none absolute inset-0 bg-mesh opacity-80" />
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="overflow-hidden rounded-[2.25rem] bg-void text-snow shadow-lift">
+        <div className="overflow-hidden rounded-[2.25rem] bg-ink text-snow shadow-lift">
           <div className="grid lg:grid-cols-[1.2fr_0.8fr]">
             <div className="p-8 sm:p-12 lg:p-14">
               <Reveal>
                 <SectionEyebrow light>Agendar</SectionEyebrow>
-                <h2 className="font-display text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1.05] tracking-tight text-balance">
-                  Pronto para ler os sinais do seu corpo?
+                <h2 className="font-display text-[clamp(2.2rem,5vw,3.4rem)] font-extrabold leading-[1.05] tracking-tight text-balance">
+                  Pronto para calibrar o seu corpo?
                 </h2>
-                <p className="mt-5 max-w-lg text-base leading-relaxed text-snow/60">
-                  Agende pelo Linktree ou Instagram. Informe se prefere presencial em Itapeva ou
-                  consulta on-line — e descreva, em poucas palavras, o que te trouxe até aqui.
+                <p className="mt-5 max-w-lg text-base leading-relaxed text-snow/55">
+                  Agende pelo Linktree ou Instagram. Informe Capão Bonito, Itapeva ou on-line — e o
+                  que te trouxe até aqui.
                 </p>
               </Reveal>
 
@@ -28,7 +27,7 @@ export function Booking() {
                     href={bookingUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full bg-signal px-6 py-3.5 text-sm font-semibold text-void transition hover:bg-signal-soft"
+                    className="group inline-flex items-center gap-2 rounded-full bg-wine px-6 py-3.5 text-sm font-bold text-snow transition hover:bg-wine-soft"
                   >
                     Abrir Linktree
                     <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -37,7 +36,7 @@ export function Booking() {
                     href={site.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-snow/20 px-5 py-3.5 text-sm font-medium text-snow/90 transition hover:border-signal/50 hover:text-signal"
+                    className="inline-flex items-center gap-2 rounded-full border border-snow/20 px-5 py-3.5 text-sm font-semibold text-snow/90 transition hover:border-volt/50 hover:text-volt"
                   >
                     <InstagramIcon className="h-4 w-4" />
                     Mensagem no Instagram
@@ -46,36 +45,34 @@ export function Booking() {
               </Reveal>
             </div>
 
-            <div className="border-t border-snow/10 bg-void-soft/80 p-8 sm:p-10 lg:border-l lg:border-t-0 lg:p-12">
+            <div className="border-t border-snow/10 bg-ink-soft/80 p-8 sm:p-10 lg:border-l lg:border-t-0 lg:p-12">
               <Reveal delay={0.15}>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-signal">
-                  Consultório
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.28em] text-volt">
+                  Locais
                 </h3>
-                <p className="mt-4 flex items-start gap-3 font-display text-xl font-semibold leading-snug">
-                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-celadon" aria-hidden />
-                  {site.address}
-                </p>
-                <a
-                  href={site.mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-celadon transition hover:text-signal"
-                >
-                  Ver no mapa
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-
-                <div className="mt-10 space-y-4 border-t border-snow/10 pt-8">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-snow/40">
-                      Modalidades
-                    </p>
-                    <p className="mt-1 text-sm text-snow/75">Presencial · On-line</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-snow/40">Registro</p>
-                    <p className="mt-1 text-sm text-snow/75">{site.crm}</p>
-                  </div>
+                <ul className="mt-5 space-y-5">
+                  {site.locations.map((loc) => (
+                    <li key={loc.id}>
+                      <p className="flex items-start gap-3 font-display text-lg font-bold leading-snug">
+                        <MapPin className="mt-1 h-4 w-4 shrink-0 text-leaf-soft" aria-hidden />
+                        {loc.city}
+                      </p>
+                      <p className="mt-1 pl-7 text-sm text-snow/50">{loc.address}</p>
+                      <a
+                        href={loc.mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-2 pl-7 text-sm font-semibold text-volt transition hover:text-volt-soft"
+                      >
+                        Mapa
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8 border-t border-snow/10 pt-6">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-snow/35">Registro</p>
+                  <p className="mt-1 text-sm text-snow/70">{site.crm}</p>
                 </div>
               </Reveal>
             </div>

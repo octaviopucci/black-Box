@@ -3,12 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --void: #0a1612;
-  --celadon: #9bb8a8;
-  --signal: #c5e063;
-  --mist: #eef2ef;
-  --ink: #12201a;
-  --mute: #5c7268;
+  --ink: #0b0b0b;
+  --fog: #f3f3f1;
+  --wine: #7a2e3d;
+  --leaf: #4f6b58;
+  --mute: #6b6b66;
   color-scheme: light dark;
 }
 
@@ -19,12 +18,12 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Figtree', system-ui, sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(ellipse 70% 45% at 6% -8%, rgba(197, 224, 99, 0.1), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 100% 0%, rgba(155, 184, 168, 0.16), transparent 50%),
-    linear-gradient(180deg, #f7f9f7 0%, #eef2ef 48%, #e4ebe6 100%);
+    radial-gradient(ellipse 60% 40% at 0% 0%, rgba(122, 46, 61, 0.07), transparent 55%),
+    radial-gradient(ellipse 50% 35% at 100% 5%, rgba(79, 107, 88, 0.08), transparent 50%),
+    linear-gradient(180deg, #f7f7f5 0%, var(--fog) 45%, #ebebe8 100%);
 }
 
 body::before {
@@ -33,14 +32,14 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 90;
-  opacity: 0.03;
+  opacity: 0.025;
   background-image: theme('backgroundImage.grain');
   background-size: 200px 200px;
   mix-blend-mode: multiply;
 }
 
 ::selection {
-  background: rgba(197, 224, 99, 0.45);
+  background: rgba(122, 46, 61, 0.28);
   color: var(--ink);
 }
 
@@ -50,19 +49,15 @@ body::before {
   }
 
   .glass {
-    background: rgba(247, 249, 247, 0.72);
-    backdrop-filter: blur(18px) saturate(1.15);
-    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    background: rgba(243, 243, 241, 0.78);
+    backdrop-filter: blur(18px) saturate(1.1);
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
   }
 
   .glass-dark {
-    background: rgba(10, 22, 18, 0.58);
-    backdrop-filter: blur(20px) saturate(1.1);
-    -webkit-backdrop-filter: blur(20px) saturate(1.1);
-  }
-
-  .signal-ring {
-    box-shadow: 0 0 0 1px rgba(197, 224, 99, 0.35), 0 0 40px rgba(197, 224, 99, 0.2);
+    background: rgba(11, 11, 11, 0.62);
+    backdrop-filter: blur(20px) saturate(1.05);
+    -webkit-backdrop-filter: blur(20px) saturate(1.05);
   }
 }
 
@@ -76,9 +71,8 @@ body::before {
     scroll-behavior: auto;
   }
 
-  .animate-pulse-node,
-  .animate-cascade-drift,
-  .animate-signal-flow {
+  .animate-pulse-dot,
+  .animate-drift {
     animation: none !important;
   }
 

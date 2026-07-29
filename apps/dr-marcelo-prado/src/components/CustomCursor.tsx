@@ -49,11 +49,7 @@ export function CustomCursor() {
       }}
       transition={{ type: 'spring', stiffness: 480, damping: 32, mass: 0.35 }}
     >
-      <div
-        className={`h-full w-full rounded-full border border-signal bg-signal/30 ${
-          hovering ? 'bg-signal/15' : ''
-        }`}
-      />
+      <div className="h-full w-full rounded-full border border-snow bg-snow/25" />
     </motion.div>
   )
 }

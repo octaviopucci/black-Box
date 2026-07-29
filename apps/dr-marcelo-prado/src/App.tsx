@@ -24,8 +24,8 @@ export default function App() {
       <ScrollToTop />
       <Suspense
         fallback={
-          <div className="flex min-h-screen items-center justify-center bg-void text-snow">
-            <p className="font-display text-4xl tracking-tight text-signal">{site.shortName}</p>
+          <div className="flex min-h-screen items-center justify-center bg-ink text-snow">
+            <p className="font-display text-4xl tracking-tight text-volt">{site.shortName}</p>
           </div>
         }
       >
