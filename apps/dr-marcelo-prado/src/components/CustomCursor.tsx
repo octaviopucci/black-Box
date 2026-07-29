@@ -20,7 +20,7 @@ export function CustomCursor() {
     const onLeave = () => setVisible(false)
     const onOver = (e: MouseEvent) => {
       const t = e.target as HTMLElement | null
-      setHovering(Boolean(t?.closest('a, button, [role="button"]')))
+      setHovering(Boolean(t?.closest('a, button, [role="button"], [data-cursor="hover"]')))
     }
 
     window.addEventListener('mousemove', onMove)
@@ -49,7 +49,7 @@ export function CustomCursor() {
       }}
       transition={{ type: 'spring', stiffness: 480, damping: 32, mass: 0.35 }}
     >
-      <div className="h-full w-full rounded-full border border-snow bg-snow/25" />
+      <div className="h-full w-full rounded-full border border-paper bg-paper/25" />
     </motion.div>
   )
 }
