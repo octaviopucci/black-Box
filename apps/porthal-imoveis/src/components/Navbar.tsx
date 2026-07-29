@@ -63,7 +63,9 @@ export function Navbar({ solid = false }: { solid?: boolean }) {
               key={link.label}
               href={resolveHref(link)}
               className={`text-[13px] font-medium tracking-wide transition ${
-                light ? 'text-ink/70 hover:text-brand' : 'text-white/78 hover:text-white'
+                light
+                  ? 'text-ink/70 hover:text-brand'
+                  : 'text-white/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)] hover:text-white'
               }`}
             >
               {link.label}
