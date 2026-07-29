@@ -3,26 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --void: #030707;
-  --deep: #0a1415;
-  --signal: #6fb8b9;
-  --mist: #a9d7d8;
-  --champagne: #c9b8a4;
-  --paper: #f0f3f2;
-  --ink: #0b1212;
-  --mute: #6e7f7f;
+  --ink: #0a0c0c;
+  --fog: #f4f5f3;
+  --aqua: #1a5f62;
+  --leaf: #4f6b58;
+  --mute: #646864;
+  --champagne: #c4b5a0;
+  color-scheme: light;
 }
 
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Urbanist', system-ui, sans-serif;
-  color: var(--paper);
-  background: var(--void);
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 55% 38% at 0% 0%, rgba(26, 95, 98, 0.11), transparent 55%),
+    radial-gradient(ellipse 45% 30% at 100% 8%, rgba(196, 181, 160, 0.1), transparent 48%),
+    linear-gradient(180deg, #f8f9f7 0%, var(--fog) 42%, #eceeea 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -33,49 +35,45 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 90;
-  opacity: 0.035;
+  opacity: 0.03;
   background-image: theme('backgroundImage.grain');
   background-size: 180px 180px;
-  mix-blend-mode: soft-light;
-}
-
-body::after {
-  content: '';
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  background: theme('backgroundImage.aura');
-  opacity: 0.9;
+  mix-blend-mode: multiply;
 }
 
 ::selection {
-  background: rgba(111, 184, 185, 0.42);
-  color: var(--void);
+  background: rgba(26, 95, 98, 0.28);
+  color: var(--ink);
 }
 
 @layer components {
-  .section-kicker {
-    @apply text-[11px] font-semibold uppercase tracking-section text-signal/75;
+  .eyebrow {
+    @apply mb-4 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.32em] text-aqua;
   }
 
-  .section-title {
-    @apply font-display font-semibold leading-[1.02] tracking-tight text-paper;
+  .eyebrow-light {
+    @apply mb-4 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.32em] text-fog;
+    color: rgb(244 245 243 / 0.7);
   }
 
-  .field-line {
-    @apply mt-2 w-full border-b border-paper bg-transparent py-3.5 text-paper outline-none transition focus:border-signal;
-    border-bottom-color: rgb(240 243 242 / 0.12);
+  .display-title {
+    @apply font-display font-semibold leading-[1.04] tracking-tight text-balance;
   }
 
-  .cta-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-signal px-7 py-3.5 text-sm font-semibold text-void transition duration-500 ease-silk hover:bg-mist;
+  .cta-aqua {
+    @apply inline-flex items-center gap-2 rounded-full bg-aqua px-6 py-3.5 text-sm font-bold text-snow transition duration-500 ease-silk hover:bg-aqua-soft;
   }
 
-  .cta-ghost {
-    @apply inline-flex items-center justify-center rounded-full border border-paper px-7 py-3.5 text-sm font-medium text-paper transition duration-500 ease-silk hover:border-signal hover:text-signal;
-    border-color: rgb(240 243 242 / 0.18);
-    color: rgb(240 243 242 / 0.8);
+  .cta-ghost-light {
+    @apply inline-flex items-center gap-2 rounded-full border border-snow px-5 py-3.5 text-sm font-semibold text-snow transition duration-500 ease-silk hover:border-aqua-light hover:text-aqua-light;
+    border-color: rgb(255 255 255 / 0.25);
+    color: rgb(255 255 255 / 0.9);
+  }
+
+  .cta-ghost-dark {
+    @apply inline-flex items-center gap-2 rounded-full border border-ink px-5 py-3.5 text-sm font-semibold text-ink transition duration-500 ease-silk hover:border-aqua hover:text-aqua;
+    border-color: rgb(10 12 12 / 0.15);
+    color: rgb(10 12 12 / 0.8);
   }
 }
 
@@ -84,8 +82,16 @@ body::after {
     text-wrap: balance;
   }
 
-  .mask-fade-b {
-    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+  .glass {
+    background: rgba(244, 245, 243, 0.82);
+    backdrop-filter: blur(18px) saturate(1.1);
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  }
+
+  .glass-dark {
+    background: rgba(10, 12, 12, 0.64);
+    backdrop-filter: blur(20px) saturate(1.05);
+    -webkit-backdrop-filter: blur(20px) saturate(1.05);
   }
 }
 
@@ -94,13 +100,16 @@ body::after {
   cursor: none !important;
 }
 
-.corridor-track {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-}
-
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-pulse-dot,
+  .animate-drift {
+    animation: none !important;
+  }
+
   *,
   *::before,
   *::after {
