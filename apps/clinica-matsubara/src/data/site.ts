@@ -113,8 +113,8 @@ export type TeamMember = {
 
 export const foundersDuo = {
   image: 'team/duo-hero.jpg',
-  alt: 'Dra. Carina Torresilha e Dra. Daniela Matsubara — fundadoras da Clínica Matsubara',
-  title: 'Carina & Daniela',
+  alt: 'Dra. Carina Torresilha e Dra. Danielle Matsubara — fundadoras da Clínica Matsubara',
+  title: 'Carina & Danielle',
   line: 'As fundadoras — odontologia e estética com a mesma presença.',
 } as const
 
@@ -122,14 +122,14 @@ export const team: TeamMember[] = [
   {
     id: 'carina',
     name: 'Dra. Carina Torresilha',
-    role: 'Odontologia · fundadora',
+    role: 'Esteticista · fundadora',
     note: 'Sócia-fundadora. Cuidado exclusivo, presença e condução clínica com excelência.',
     image: 'team/carina.jpg',
     objectPosition: 'center 18%',
   },
   {
-    id: 'daniela',
-    name: 'Dra. Daniela Matsubara',
+    id: 'danielle',
+    name: 'Dra. Danielle Matsubara',
     role: 'Odontologia · fundadora',
     note: 'Sócia-fundadora. Sorriso, reabilitação e atendimento humanizado no centro da jornada.',
     image: 'team/danielle.jpg',
@@ -149,15 +149,15 @@ export const team: TeamMember[] = [
     role: 'Implantes · odontologia',
     note: 'Implantes e reabilitação com técnica precisa — para um sorriso firme e duradouro.',
     image: 'team/gabriel.jpg',
-    objectPosition: 'center 20%',
+    objectPosition: 'center 18%',
   },
   {
-    id: 'lucas',
-    name: 'Dr. Lucas Wasilewski',
-    role: 'Pediatria · CRM SP 244816',
-    note: 'Cuidado infantil com presença e carinho — saúde que ensina pelo exemplo.',
-    image: 'team/lucas.jpg',
-    objectPosition: 'center 25%',
+    id: 'bruno',
+    name: 'Dr. Bruno',
+    role: 'Especialidades médicas',
+    note: 'Cuidado com presença e carinho — saúde que acompanha cada fase da vida.',
+    image: 'team/bruno.jpg',
+    objectPosition: 'center 18%',
   },
 ]
 
