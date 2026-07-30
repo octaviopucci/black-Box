@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --asphalt: #07080a;
+  --chrome: #e8eaed;
+  --signal: #c8102e;
+  --mute: #9aa0a8;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--chrome);
+  background:
+    radial-gradient(ellipse 50% 35% at 85% -5%, rgba(200, 16, 46, 0.12), transparent 55%),
+    radial-gradient(ellipse 40% 30% at 5% 20%, rgba(232, 234, 237, 0.04), transparent 50%),
+    linear-gradient(180deg, #07080a 0%, #0e1014 42%, #07080a 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.035;
+  background-image: theme('backgroundImage.grain');
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+
+::selection {
+  background: rgba(200, 16, 46, 0.45);
+  color: #fff;
+}
+
+@layer components {
+  .eyebrow {
+    @apply inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.34em] text-signal;
+  }
+
+  .display-title {
+    @apply font-display text-balance uppercase leading-[0.92] tracking-[0.02em];
+  }
+
+  .brand-title {
+    @apply font-brand text-balance uppercase italic leading-none tracking-tight;
+  }
+
+  .cta-signal {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-signal px-6 py-3.5 text-sm font-semibold tracking-wide text-chrome-soft transition duration-500 ease-drive hover:bg-signal-soft;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-chrome/20 px-5 py-3.5 text-sm font-medium text-chrome/85 transition duration-500 ease-drive hover:border-signal hover:text-chrome-soft;
+  }
+
+  .spec-chip {
+    @apply inline-flex items-center gap-2 border border-line bg-asphalt-soft/60 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-chrome-mute;
+  }
+
+  .lane-rule {
+    @apply relative h-px w-full overflow-hidden bg-line;
+  }
+
+  .lane-rule::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: theme('backgroundImage.road');
+    background-size: 48px 100%;
+    animation: laneSlide 1.8s linear infinite;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes laneSlide {
+  to {
+    background-position: 48px 0;
+  }
+}
+
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .lane-rule::after,
+  .animate-headlight,
+  .animate-lane-dash,
+  .animate-speed-pulse {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" fill="#07080A"/>
+  <path d="M8 38 C18 34, 26 22, 34 20 C44 17, 50 18, 56 24" stroke="#E8EAED" stroke-width="2.2"/>
+  <path d="M20 42c2.4-2.6 5.6-2.6 8 0" stroke="#9AA0A8" stroke-width="1.6"/>
+  <path d="M40 42c2.4-2.6 5.6-2.6 8 0" stroke="#9AA0A8" stroke-width="1.6"/>
+  <text x="10" y="18" fill="#E8EAED" font-family="Arial Black, Arial, sans-serif" font-size="12" font-style="italic" font-weight="700">N.A.</text>
+</svg>

@@ -101,4 +101,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Tattoo', 'Awwwards'],
   },
+  {
+    id: 'na-veiculos',
+    name: 'NA Veículos',
+    client: 'N.A Veículos · Capão Bonito',
+    description:
+      'Experiência “Trajetória”: catálogo real do Instagram com disponíveis e vendidos, valores, descrição completa e conversão WhatsApp — seminovos em Capão Bonito/SP.',
+    href: '/na-veiculos/',
+    status: 'demo',
+    tags: ['React', 'Automotivo', 'Awwwards'],
+  },
 ]
