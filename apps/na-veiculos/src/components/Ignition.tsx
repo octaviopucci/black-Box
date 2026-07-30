@@ -40,10 +40,7 @@ export function Ignition({ onDone }: Props) {
             animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
             transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            <BrandLockup
-              banner
-              className="mx-auto w-[min(92vw,920px)]"
-            />
+            <BrandLockup className="mx-auto w-[min(64vw,644px)]" />
             <motion.div
               className="pointer-events-none absolute inset-0 overflow-hidden"
               initial={{ opacity: 0 }}

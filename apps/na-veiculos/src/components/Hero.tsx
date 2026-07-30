@@ -119,8 +119,7 @@ export function Hero() {
           className="relative w-full max-w-6xl"
         >
           <BrandLockup
-            banner
-            className="mx-auto w-[min(96vw,1100px)] drop-shadow-[0_20px_60px_rgba(0,0,0,0.55)]"
+            className="mx-auto w-[min(67vw,770px)] drop-shadow-[0_20px_60px_rgba(0,0,0,0.55)]"
           />
           <div
             className="pointer-events-none absolute inset-0 overflow-hidden"

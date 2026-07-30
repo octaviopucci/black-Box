@@ -7,21 +7,22 @@ type Props = {
   to?: string | null
 }
 
+/** Header/footer sizes already -30% vs previous */
 const sizeClass = {
-  sm: 'h-8 w-auto sm:h-9',
-  md: 'h-10 w-auto sm:h-11',
-  lg: 'h-12 w-auto',
+  sm: 'h-[1.4rem] w-auto sm:h-[1.575rem]',
+  md: 'h-[1.75rem] w-auto sm:h-[1.925rem]',
+  lg: 'h-[2.1rem] w-auto',
 } as const
 
-/** Logo oficial PNG transparente — header / footer */
+/** Logo oficial vetorizada (SVG) — header / footer */
 export function BrandMark({ className = '', size = 'md', to = '/' }: Props) {
   const mark = (
     <img
-      src={assetUrl('brand/logo.png')}
+      src={assetUrl('brand/logo.svg')}
       alt="N.A. Veículos"
       className={`${sizeClass[size]} object-contain ${className}`}
-      width={296}
-      height={101}
+      width={800}
+      height={230}
       decoding="async"
     />
   )
@@ -34,21 +35,20 @@ export function BrandMark({ className = '', size = 'md', to = '/' }: Props) {
   )
 }
 
-/** Logo oficial PNG transparente — banner / intro */
+/** Logo oficial vetorizada — banner / intro (−30%) */
 export function BrandLockup({
   className = '',
-  banner = false,
 }: {
   className?: string
   banner?: boolean
 }) {
   return (
     <img
-      src={assetUrl(banner ? 'brand/logo-banner.png' : 'brand/logo.png')}
+      src={assetUrl('brand/logo.svg')}
       alt="N.A. Veículos"
       className={`h-auto w-auto object-contain ${className}`}
-      width={banner ? 1184 : 296}
-      height={banner ? 404 : 101}
+      width={1600}
+      height={460}
       decoding="async"
     />
   )
