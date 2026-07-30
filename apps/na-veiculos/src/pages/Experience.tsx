@@ -3,7 +3,6 @@ import { PageProgress } from '../components/PageProgress'
 import { CustomCursor } from '../components/CustomCursor'
 import { Ignition } from '../components/Ignition'
 import { Hero } from '../components/Hero'
-import { Truths } from '../components/Truths'
 import { Garage } from '../components/Garage'
 import { Entregas } from '../components/Entregas'
 import { Negocio } from '../components/Negocio'
@@ -21,7 +20,6 @@ export function Experience() {
       <Navbar />
       <main>
         <Hero />
-        <Truths />
         <Garage />
         <Entregas />
         <Negocio />
