@@ -79,7 +79,7 @@ export function Hero() {
           className="pointer-events-none absolute inset-0 opacity-70 mix-blend-screen"
           style={{
             background:
-              'radial-gradient(420px circle at var(--x, 70%) var(--y, 35%), rgba(212,162,90,0.22), transparent 55%)',
+              'radial-gradient(420px circle at var(--x, 70%) var(--y, 35%), rgba(200,16,46,0.22), transparent 55%)',
           }}
           aria-hidden
         />
@@ -104,7 +104,7 @@ export function Hero() {
         className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-end px-6 pb-20 pt-32 sm:px-10 sm:pb-24 lg:justify-center lg:pb-28"
       >
         <div data-hero className="mb-8">
-          <BrandLockup className="h-auto w-[min(88vw,420px)]" />
+          <BrandLockup className="w-[min(52vw,200px)] sm:w-[220px]" />
         </div>
 
         <p data-hero className="eyebrow mb-5">

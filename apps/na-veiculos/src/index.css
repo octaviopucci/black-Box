@@ -5,7 +5,7 @@
 :root {
   --ink: #08090b;
   --paper: #eceef2;
-  --lamp: #d4a25a;
+  --lamp: #c8102e;
   --mute: #9ba1ad;
   color-scheme: dark;
 }
@@ -20,7 +20,7 @@ body {
   font-family: 'Outfit', system-ui, sans-serif;
   color: var(--paper);
   background:
-    radial-gradient(ellipse 55% 40% at 90% -10%, rgba(212, 162, 90, 0.12), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 90% -10%, rgba(200, 16, 46, 0.12), transparent 55%),
     radial-gradient(ellipse 40% 35% at 0% 30%, rgba(236, 238, 242, 0.04), transparent 50%),
     #08090b;
   -webkit-font-smoothing: antialiased;
@@ -40,7 +40,7 @@ body::before {
 }
 
 ::selection {
-  background: rgba(212, 162, 90, 0.4);
+  background: rgba(200, 16, 46, 0.4);
   color: #08090b;
 }
 

@@ -40,16 +40,10 @@ export function Ignition({ onDone }: Props) {
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             >
-              <BrandLockup className="h-auto w-[min(78vw,380px)]" />
+              <BrandLockup className="mx-auto w-[min(56vw,220px)]" />
             </motion.div>
-            <motion.div
-              className="mx-auto mt-8 h-px w-24 origin-left bg-lamp"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1.1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            />
             <motion.p
-              className="mt-5 text-center font-mono text-[10px] uppercase tracking-[0.35em] text-paper-mute"
+              className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.35em] text-paper-mute"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.6 }}

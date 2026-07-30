@@ -17,10 +17,10 @@ export default {
           deep: '#6E7583',
         },
         lamp: {
-          DEFAULT: '#D4A25A',
-          soft: '#E6BD7A',
-          deep: '#A67A3A',
-          mist: 'rgba(212, 162, 90, 0.16)',
+          DEFAULT: '#C8102E',
+          soft: '#E83A52',
+          deep: '#8E0B20',
+          mist: 'rgba(200, 16, 46, 0.16)',
         },
         line: 'rgba(236, 238, 242, 0.12)',
       },
@@ -31,7 +31,7 @@ export default {
       },
       boxShadow: {
         stage: '0 40px 100px rgba(0, 0, 0, 0.55)',
-        lamp: '0 0 60px rgba(212, 162, 90, 0.28)',
+        lamp: '0 0 60px rgba(200, 16, 46, 0.28)',
       },
       transitionTimingFunction: {
         cinema: 'cubic-bezier(0.16, 1, 0.3, 1)',
