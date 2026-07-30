@@ -9,6 +9,7 @@ import { assetUrl } from '../lib/asset'
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
+  const logoRef = useRef<HTMLDivElement>(null)
   const spotRef = useRef<HTMLDivElement>(null)
   const heroVehicle = availableVehicles[0]
   const { scrollYProgress } = useScroll({
@@ -16,25 +17,33 @@ export function Hero() {
     offset: ['start start', 'end start'],
   })
   const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '16%'])
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.18])
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, 80])
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.2])
+  const logoScale = useTransform(scrollYProgress, [0, 0.85], [1, 0.72])
+  const logoOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0.15])
+  const contentOpacity = useTransform(scrollYProgress, [0.15, 0.75], [1, 0])
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 70])
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '[data-hero]',
-        { y: 42, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1.15,
-          stagger: 0.1,
-          ease: 'power3.out',
-          delay: 0.35,
-        },
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+      tl.fromTo(
+        logoRef.current,
+        { opacity: 0, scale: 1.35, filter: 'blur(18px)', y: 40 },
+        { opacity: 1, scale: 1, filter: 'blur(0px)', y: 0, duration: 1.55 },
       )
+        .fromTo(
+          '[data-hero]',
+          { y: 36, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, stagger: 0.1 },
+          '-=0.55',
+        )
+        .fromTo(
+          '[data-logo-shine]',
+          { x: '-120%' },
+          { x: '120%', duration: 1.4, ease: 'power2.inOut' },
+          '-=1.1',
+        )
     }, sectionRef)
 
     const section = sectionRef.current
@@ -71,20 +80,20 @@ export function Hero() {
           className="h-full w-full object-cover object-[center_42%] animate-drift"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-ink/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-ink/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/80 via-ink/55 to-ink" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-ink/35 to-ink/55" />
         <div className="absolute inset-0 bg-vignette" />
         <div
           ref={spotRef}
-          className="pointer-events-none absolute inset-0 opacity-70 mix-blend-screen"
+          className="pointer-events-none absolute inset-0 opacity-80 mix-blend-screen"
           style={{
             background:
-              'radial-gradient(420px circle at var(--x, 70%) var(--y, 35%), rgba(200,16,46,0.22), transparent 55%)',
+              'radial-gradient(480px circle at var(--x, 50%) var(--y, 40%), rgba(200,16,46,0.28), transparent 55%)',
           }}
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -left-[10%] top-[20%] h-[50vh] w-[65vw] rotate-[-12deg] bg-gradient-to-r from-lamp/25 via-lamp/5 to-transparent blur-3xl animate-flicker"
+          className="pointer-events-none absolute left-1/2 top-[30%] h-[55vh] w-[90vw] -translate-x-1/2 bg-gradient-to-r from-transparent via-lamp/20 to-transparent blur-3xl animate-flicker"
           aria-hidden
         />
       </motion.div>
@@ -101,32 +110,50 @@ export function Hero() {
 
       <motion.div
         style={{ opacity: contentOpacity, y: contentY }}
-        className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-end px-6 pb-20 pt-32 sm:px-10 sm:pb-24 lg:justify-center lg:pb-28"
+        className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col items-center justify-center px-6 pb-16 pt-28 text-center sm:px-10 sm:pb-20"
       >
-        <div data-hero className="mb-8">
-          <BrandLockup className="w-[min(52vw,200px)] sm:w-[220px]" />
-        </div>
+        {/* Full-bleed brand banner */}
+        <motion.div
+          ref={logoRef}
+          style={{ scale: logoScale, opacity: logoOpacity }}
+          className="relative w-full max-w-6xl"
+        >
+          <BrandLockup
+            banner
+            className="mx-auto w-[min(96vw,1100px)] drop-shadow-[0_20px_60px_rgba(0,0,0,0.55)]"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+            aria-hidden
+          >
+            <div
+              data-logo-shine
+              className="absolute inset-y-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent"
+            />
+          </div>
+        </motion.div>
 
-        <p data-hero className="eyebrow mb-5">
+        <p data-hero className="eyebrow mt-10 mb-5 justify-center">
           <span className="h-px w-8 bg-lamp" aria-hidden />
           {site.city}
+          <span className="h-px w-8 bg-lamp" aria-hidden />
         </p>
 
         <h1
           data-hero
-          className="display max-w-3xl text-[clamp(2.4rem,6.5vw,4.6rem)] leading-[1.02] text-paper-soft"
+          className="display max-w-3xl text-[clamp(2rem,5.5vw,3.8rem)] leading-[1.05] text-paper-soft"
         >
           {site.headline}
         </h1>
 
         <p
           data-hero
-          className="mt-6 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl"
+          className="mt-5 max-w-xl text-base leading-relaxed text-paper/75 sm:text-lg"
         >
           {site.lead}
         </p>
 
-        <div data-hero className="mt-10 flex flex-wrap items-center gap-3">
+        <div data-hero className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <a href="#estoque" className="cta-lamp" data-cursor="Estoque">
             Ver estoque
             <ArrowDown className="h-4 w-4" aria-hidden />
@@ -145,7 +172,7 @@ export function Hero() {
 
         <div
           data-hero
-          className="mt-12 flex flex-wrap gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper-mute"
+          className="mt-10 flex flex-wrap justify-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper-mute"
         >
           <span className="plaque">{availableVehicles.length} disponíveis</span>
           <span className="plaque">{site.address.street}</span>
