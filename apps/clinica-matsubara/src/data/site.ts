@@ -78,7 +78,7 @@ export const careRivers: CareRiver[] = [
     detail:
       'Do cuidado preventivo ao implante: saúde bucal com técnica precisa e ambiente que respeita o seu ritmo.',
     image: 'care/odontologia.jpg',
-    accents: ['Implantes', 'Clareamento', 'Reabilitação', 'Prevenção'],
+    accents: ['Implantes', 'Endodontia', 'Ortodontia', 'Estética restauradora'],
   },
   {
     id: 'estetica',
@@ -88,7 +88,7 @@ export const careRivers: CareRiver[] = [
     detail:
       'Harmonização facial e corporal, Heccus Turbo e protocolos avançados — resultados naturais, elegantes e planejados.',
     image: 'care/estetica.jpg',
-    accents: ['Harmonização', 'Heccus Turbo', 'Facial', 'Corporal'],
+    accents: ['Harmonização facial', 'Corporal', 'Heccus Turbo', 'Laserterapia'],
   },
   {
     id: 'especialidades',
@@ -96,9 +96,9 @@ export const careRivers: CareRiver[] = [
     title: 'Especialidades',
     line: 'Cuidar também por dentro',
     detail:
-      'Psicologia e especialidades médicas no mesmo endereço — porque autoestima, metabolismo e equilíbrio emocional caminham juntos.',
+      'Psicologia, pediatria e especialidades no mesmo endereço — porque saúde, autoestima e equilíbrio emocional caminham juntos.',
     image: 'care/especialidades.jpg',
-    accents: ['Psicologia', 'Bem-estar', 'Acompanhamento', 'Escuta'],
+    accents: ['Psicologia', 'Pediatria', 'Bem-estar', 'Acompanhamento'],
   },
 ]
 
@@ -115,25 +115,33 @@ export const foundersDuo = {
   image: 'team/duo-hero.jpg',
   alt: 'Dra. Carina Torresilha e Dra. Danielle Matsubara — fundadoras da Clínica Matsubara',
   title: 'Carina & Danielle',
-  line: 'As fundadoras — odontologia e estética com a mesma presença.',
+  line: 'As fundadoras — estética e odontologia com a mesma presença.',
 } as const
 
 export const team: TeamMember[] = [
   {
     id: 'carina',
     name: 'Dra. Carina Torresilha',
-    role: 'Esteticista · fundadora',
-    note: 'Sócia-fundadora. Cuidado exclusivo, presença e condução clínica com excelência.',
+    role: 'Estética avançada · fundadora',
+    note: 'Sócia-fundadora. Farmacêutica bioquímica — harmonização corporal e estética com presença e excelência.',
     image: 'team/carina.jpg',
     objectPosition: 'center 18%',
   },
   {
     id: 'danielle',
     name: 'Dra. Danielle Matsubara',
-    role: 'Odontologia · fundadora',
-    note: 'Sócia-fundadora. Sorriso, reabilitação e atendimento humanizado no centro da jornada.',
+    role: 'Endodontia · fundadora',
+    note: 'Sócia-fundadora. Dentista especialista em canal — sorriso e reabilitação com atendimento humanizado.',
     image: 'team/danielle.jpg',
     objectPosition: 'center 18%',
+  },
+  {
+    id: 'larissa',
+    name: 'Dra. Larissa Lima',
+    role: 'Harmonização facial',
+    note: 'Biomédica esteta — resultados sutis e elegantes, com plano pensado para cada paciente.',
+    image: 'team/larissa.jpg',
+    objectPosition: 'center 12%',
   },
   {
     id: 'gabriela',
@@ -145,19 +153,19 @@ export const team: TeamMember[] = [
   },
   {
     id: 'gabriel',
-    name: 'Dr. Gabriel Bueno',
-    role: 'Implantes · odontologia',
+    name: 'Dr. Gabriel Linhares Bueno',
+    role: 'Implantodontia',
     note: 'Implantes e reabilitação com técnica precisa — para um sorriso firme e duradouro.',
     image: 'team/gabriel.jpg',
     objectPosition: 'center 18%',
   },
   {
-    id: 'bruno',
-    name: 'Dr. Bruno',
-    role: 'Especialidades médicas',
-    note: 'Cuidado com presença e carinho — saúde que acompanha cada fase da vida.',
-    image: 'team/bruno.jpg',
-    objectPosition: 'center 18%',
+    id: 'lucas',
+    name: 'Dr. Lucas Rodrigues Wasilewski',
+    role: 'Pediatria · CRM 244816/SP',
+    note: 'Médico com pós em pediatria e psiquiatria infantil — atendimento adulto e infantil na Matsubara.',
+    image: 'team/lucas.jpg',
+    objectPosition: 'center 12%',
   },
 ]
 
