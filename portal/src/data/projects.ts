@@ -111,4 +111,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Automotivo', 'Awwwards'],
   },
+  {
+    id: 'clinica-matsubara',
+    name: 'Clínica Matsubara',
+    client: 'Matsubara · Capão Bonito',
+    description:
+      'Experiência “A Versão”: narrativa boutique com rios de cuidado (odontologia, estética, especialidades), espaço real e conversão WhatsApp — identidade burgundy e rose.',
+    href: '/clinica-matsubara/',
+    status: 'demo',
+    tags: ['React', 'Saúde', 'Awwwards'],
+  },
 ]

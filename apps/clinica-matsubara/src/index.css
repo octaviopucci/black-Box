@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --wine: #78243c;
+  --wine-deep: #5c1a2c;
+  --rose: #c48a94;
+  --cream: #f9f4f1;
+  --ink: #1a1214;
+  --mute: #7a6b6e;
+  --brass: #c4a06a;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 55% 40% at 0% 0%, rgba(120, 36, 60, 0.07), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 100% 8%, rgba(196, 138, 148, 0.14), transparent 50%),
+    linear-gradient(180deg, #fdfaf8 0%, var(--cream) 42%, #efe6e0 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.03;
+  background-image: theme('backgroundImage.grain');
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+}
+
+::selection {
+  background: rgba(120, 36, 60, 0.22);
+  color: var(--ink);
+}
+
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none !important;
+}
+
+@layer components {
+  .eyebrow {
+    @apply mb-4 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.34em] text-wine;
+  }
+
+  .display-title {
+    @apply font-display font-semibold leading-[1.02] tracking-tight text-balance;
+  }
+
+  .cta-wine {
+    @apply inline-flex items-center gap-2 rounded-full bg-wine px-6 py-3.5 text-sm font-semibold text-cream transition duration-500 ease-silk hover:bg-wine-soft;
+  }
+
+  .cta-ink {
+    @apply inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-cream transition duration-500 ease-silk hover:bg-ink-lift;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-ink/15 px-5 py-3.5 text-sm font-medium text-ink/80 transition duration-500 ease-silk hover:border-wine hover:text-wine;
+  }
+
+  .wave-mask {
+    clip-path: ellipse(120% 100% at 50% 0%);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    background: rgba(249, 244, 241, 0.82);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .sr-only:focus,
+  .focus\:not-sr-only:focus {
+    position: fixed;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}

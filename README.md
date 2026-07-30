@@ -18,6 +18,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Clínica Harmonie** | [/clinica-harmonie/](/clinica-harmonie/) | Demo premium |
 | **Octávio Pucci Tattoo** | [/octavio-pucci/](/octavio-pucci/) | Demo premium |
 | **NA Veículos** | [/na-veiculos/](/na-veiculos/) | Demo premium |
+| **Clínica Matsubara** | [/clinica-matsubara/](/clinica-matsubara/) | Demo premium |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
@@ -61,6 +62,9 @@ npm run dev:pucci
 
 # NA Veículos (demo premium)
 npm run dev:na
+
+# Clínica Matsubara (demo premium)
+npm run dev:matsubara
 
 # Build completo (igual Vercel)
 npm run build
