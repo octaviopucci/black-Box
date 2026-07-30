@@ -4,6 +4,7 @@ import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { PulseWhatsApp } from '../components/PulseWhatsApp'
 import { PageProgress } from '../components/PageProgress'
+import { CustomCursor } from '../components/CustomCursor'
 import {
   formatPrice,
   getVehicle,
@@ -21,17 +22,22 @@ function Specs({ vehicle }: { vehicle: Vehicle }) {
       ? { label: 'Câmbio', value: vehicle.transmission }
       : null,
     vehicle.fuel ? { label: 'Combustível', value: vehicle.fuel } : null,
-    { label: 'Status', value: vehicle.status === 'sold' ? 'Vendido' : 'Disponível' },
+    {
+      label: 'Status',
+      value: vehicle.status === 'sold' ? 'Entregue' : 'Disponível',
+    },
   ].filter(Boolean) as { label: string; value: string }[]
 
   return (
     <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className="border border-line bg-asphalt-lift p-4">
-          <dt className="font-mono text-[10px] uppercase tracking-[0.22em] text-chrome-mute">
+        <div key={item.label} className="border border-line bg-ink-lift p-4">
+          <dt className="font-mono text-[10px] uppercase tracking-[0.22em] text-paper-mute">
             {item.label}
           </dt>
-          <dd className="mt-2 text-sm font-semibold text-chrome-soft">{item.value}</dd>
+          <dd className="mt-2 text-sm font-semibold text-paper-soft">
+            {item.value}
+          </dd>
         </div>
       ))}
     </dl>
@@ -45,9 +51,11 @@ export function VehiclePage() {
   if (!vehicle) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-5 text-center">
-        <h1 className="display-title text-4xl text-chrome-soft">Veículo não encontrado</h1>
-        <Link to="/" className="cta-signal">
-          Voltar ao catálogo
+        <h1 className="display text-4xl text-paper-soft">
+          Veículo não encontrado
+        </h1>
+        <Link to="/" className="cta-lamp">
+          Voltar ao estoque
         </Link>
       </div>
     )
@@ -62,55 +70,57 @@ export function VehiclePage() {
   return (
     <>
       <PageProgress />
+      <CustomCursor />
       <Navbar />
       <main className="pb-20 pt-24">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-7xl px-6 sm:px-10">
           <Link
-            to={sold ? '/#entregas' : '/#pista'}
-            className="inline-flex items-center gap-2 text-sm text-chrome-mute transition hover:text-chrome-soft"
+            to={sold ? '/#entregas' : '/#estoque'}
+            className="inline-flex items-center gap-2 text-sm text-paper-mute transition hover:text-paper-soft"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
-            Voltar ao catálogo
+            Voltar
           </Link>
 
           <div className="mt-8 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
             <Reveal>
-              <div className="overflow-hidden border border-line">
+              <div className="relative overflow-hidden border border-line">
                 <img
                   src={assetUrl(vehicle.image)}
                   alt={vehicle.title}
                   className="aspect-[16/11] w-full object-cover"
                   fetchPriority="high"
                 />
+                <div className="pointer-events-none absolute inset-3 border border-paper/10" aria-hidden />
               </div>
             </Reveal>
 
-            <Reveal delay={0.1}>
+            <Reveal delay={0.08}>
               <p className="eyebrow mb-4">
-                <span className="h-px w-8 bg-signal" aria-hidden />
-                {sold ? 'Arquivo de entregas' : 'Disponível na pista'}
+                <span className="h-px w-8 bg-lamp" aria-hidden />
+                {sold ? 'Entrega' : 'Disponível na loja'}
               </p>
-              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-chrome-mute">
+              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-paper-mute">
                 {vehicle.brand}
                 {vehicle.year ? ` · ${vehicle.year}` : ''}
               </p>
-              <h1 className="mt-3 font-display text-[clamp(2.2rem,5vw,3.6rem)] uppercase tracking-[0.04em] text-chrome-soft">
+              <h1 className="mt-3 font-display text-[clamp(2rem,4.5vw,3.2rem)] font-semibold tracking-tight text-paper-soft">
                 {vehicle.model}
               </h1>
 
               {!sold && (
-                <p className="mt-5 font-brand text-4xl italic text-signal sm:text-5xl">
+                <p className="mt-5 font-display text-4xl font-semibold text-lamp sm:text-5xl">
                   {priceLabel}
                 </p>
               )}
 
               {sold && vehicle.praise && (
-                <p className="mt-5 border-l-2 border-signal pl-4 text-lg text-chrome/80">
+                <p className="mt-5 border-l-2 border-lamp pl-4 text-lg text-paper/80">
                   {vehicle.praise}
                 </p>
               )}
 
-              <p className="mt-6 leading-relaxed text-chrome/75">
+              <p className="mt-6 leading-relaxed text-paper/75">
                 {vehicle.description}
               </p>
 
@@ -120,16 +130,16 @@ export function VehiclePage() {
 
               {vehicle.features.length > 0 && (
                 <div className="mt-10">
-                  <h2 className="font-mono text-[11px] uppercase tracking-[0.28em] text-chrome-mute">
-                    Opcionais & detalhes
+                  <h2 className="font-mono text-[11px] uppercase tracking-[0.28em] text-paper-mute">
+                    Opcionais
                   </h2>
                   <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                     {vehicle.features.map((f) => (
                       <li
                         key={f}
-                        className="flex items-center gap-3 border border-line/80 px-3 py-2.5 text-sm text-chrome/80"
+                        className="flex items-center gap-3 border border-line/80 px-3 py-2.5 text-sm text-paper/80"
                       >
-                        <span className="h-1 w-1 rounded-full bg-signal" aria-hidden />
+                        <span className="h-1 w-1 rounded-full bg-lamp" aria-hidden />
                         {f}
                       </li>
                     ))}
@@ -143,10 +153,11 @@ export function VehiclePage() {
                     href={vehicleWhatsApp(vehicle.title, priceLabel)}
                     target="_blank"
                     rel="noreferrer"
-                    className="cta-signal"
+                    className="cta-lamp"
+                    data-cursor="WhatsApp"
                   >
                     <MessageCircle className="h-4 w-4" aria-hidden />
-                    Quero este veículo
+                    Perguntar sobre este carro
                   </a>
                 )}
                 <a
@@ -155,12 +166,12 @@ export function VehiclePage() {
                   rel="noreferrer"
                   className="cta-ghost"
                 >
-                  Ver no Instagram
+                  Ver post no Instagram
                   <ExternalLink className="h-4 w-4" aria-hidden />
                 </a>
               </div>
 
-              <p className="mt-8 text-xs leading-relaxed text-chrome-mute">
+              <p className="mt-8 text-xs leading-relaxed text-paper-mute">
                 {site.address.street}, {site.city}. Financiamento em até 60x ·
                 cartão em até 36x · trocas e consignação.
               </p>
@@ -169,15 +180,16 @@ export function VehiclePage() {
 
           {related.length > 0 && !sold && (
             <section className="mt-20 border-t border-line pt-14">
-              <h2 className="display-title text-3xl text-chrome-soft sm:text-4xl">
-                Continuar na pista
+              <h2 className="display text-3xl text-paper-soft sm:text-4xl">
+                Outros disponíveis
               </h2>
               <div className="mt-8 grid gap-5 sm:grid-cols-3">
                 {related.map((v) => (
                   <Link
                     key={v.id}
                     to={`/veiculo/${v.id}`}
-                    className="group border border-line transition hover:border-signal/50"
+                    className="group border border-line transition hover:border-lamp/50"
+                    data-cursor="Abrir"
                   >
                     <img
                       src={assetUrl(v.image)}
@@ -186,12 +198,10 @@ export function VehiclePage() {
                       loading="lazy"
                     />
                     <div className="p-4">
-                      <p className="font-display text-xl uppercase text-chrome-soft">
+                      <p className="font-display text-lg font-semibold text-paper-soft">
                         {v.model}
                       </p>
-                      <p className="mt-1 font-brand italic text-signal">
-                        {formatPrice(v.price)}
-                      </p>
+                      <p className="mt-1 text-lamp">{formatPrice(v.price)}</p>
                     </div>
                   </Link>
                 ))}

@@ -1,88 +1,157 @@
-import { ArrowDownRight, MapPin } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import gsap from 'gsap'
+import { ArrowDown, MessageCircle } from 'lucide-react'
 import { site, whatsappHref } from '../data/site'
 import { availableVehicles } from '../data/vehicles'
-import { useMotion } from '../hooks/useMotion'
+import { BrandLockup } from './BrandMark'
 import { assetUrl } from '../lib/asset'
 
 export function Hero() {
-  const { reduced } = useMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+  const spotRef = useRef<HTMLDivElement>(null)
   const heroVehicle = availableVehicles[0]
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  })
+  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '16%'])
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.18])
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 80])
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '[data-hero]',
+        { y: 42, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.15,
+          stagger: 0.1,
+          ease: 'power3.out',
+          delay: 0.35,
+        },
+      )
+    }, sectionRef)
+
+    const section = sectionRef.current
+    const spot = spotRef.current
+    if (section && spot && window.matchMedia('(pointer: fine)').matches) {
+      const onMove = (e: PointerEvent) => {
+        const rect = section.getBoundingClientRect()
+        const x = ((e.clientX - rect.left) / rect.width) * 100
+        const y = ((e.clientY - rect.top) / rect.height) * 100
+        gsap.to(spot, {
+          '--x': `${x}%`,
+          '--y': `${y}%`,
+          duration: 0.7,
+          ease: 'power2.out',
+        })
+      }
+      section.addEventListener('pointermove', onMove)
+      ctx.add(() => section.removeEventListener('pointermove', onMove))
+    }
+
+    return () => ctx.revert()
+  }, [])
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden">
-      <div className="absolute inset-0">
+    <section
+      id="topo"
+      ref={sectionRef}
+      className="relative min-h-[100svh] overflow-hidden bg-ink"
+    >
+      <motion.div style={{ y: imgY, scale: imgScale }} className="absolute inset-0">
         <img
           src={assetUrl(heroVehicle.image)}
-          alt=""
-          className="h-full w-full object-cover object-[center_40%] scale-105"
+          alt={heroVehicle.title}
+          className="h-full w-full object-cover object-[center_42%] animate-drift"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-asphalt via-asphalt/85 to-asphalt/35" />
-        <div className="absolute inset-0 bg-gradient-to-t from-asphalt via-asphalt/40 to-asphalt/55" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-ink/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-ink/50" />
         <div className="absolute inset-0 bg-vignette" />
-        {!reduced && (
-          <div
-            className="pointer-events-none absolute -left-1/4 top-1/4 h-[42vh] w-[70vw] rotate-[-8deg] bg-gradient-to-r from-signal/25 via-chrome/10 to-transparent blur-3xl animate-headlight"
-            aria-hidden
-          />
-        )}
+        <div
+          ref={spotRef}
+          className="pointer-events-none absolute inset-0 opacity-70 mix-blend-screen"
+          style={{
+            background:
+              'radial-gradient(420px circle at var(--x, 70%) var(--y, 35%), rgba(212,162,90,0.22), transparent 55%)',
+          }}
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -left-[10%] top-[20%] h-[50vh] w-[65vw] rotate-[-12deg] bg-gradient-to-r from-lamp/25 via-lamp/5 to-transparent blur-3xl animate-flicker"
+          aria-hidden
+        />
+      </motion.div>
+
+      <div
+        className="pointer-events-none absolute inset-5 border border-paper/10 sm:inset-8"
+        aria-hidden
+      >
+        <span className="absolute left-0 top-0 h-8 w-8 border-l border-t border-lamp/60" />
+        <span className="absolute right-0 top-0 h-8 w-8 border-r border-t border-lamp/60" />
+        <span className="absolute bottom-0 left-0 h-8 w-8 border-b border-l border-lamp/60" />
+        <span className="absolute bottom-0 right-0 h-8 w-8 border-b border-r border-lamp/60" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-end px-5 pb-16 pt-32 sm:px-8 sm:pb-20 lg:px-10 lg:pb-24">
-        <motion.div
-          initial={reduced ? false : { opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-4xl"
+      <motion.div
+        style={{ opacity: contentOpacity, y: contentY }}
+        className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-end px-6 pb-20 pt-32 sm:px-10 sm:pb-24 lg:justify-center lg:pb-28"
+      >
+        <div data-hero className="mb-8">
+          <BrandLockup className="h-auto w-[min(88vw,420px)]" />
+        </div>
+
+        <p data-hero className="eyebrow mb-5">
+          <span className="h-px w-8 bg-lamp" aria-hidden />
+          {site.city}
+        </p>
+
+        <h1
+          data-hero
+          className="display max-w-3xl text-[clamp(2.4rem,6.5vw,4.6rem)] leading-[1.02] text-paper-soft"
         >
-          <p className="eyebrow mb-6">
-            <span className="h-px w-8 bg-signal" aria-hidden />
-            Capão Bonito · SP
-          </p>
+          {site.headline}
+        </h1>
 
-          <h1 className="brand-title text-[clamp(4.2rem,16vw,9.5rem)] text-chrome-soft">
-            N.A.
-          </h1>
-          <p className="mt-2 font-display text-[clamp(1.8rem,6vw,3.4rem)] uppercase tracking-[0.18em] text-chrome">
-            Veículos
-          </p>
+        <p
+          data-hero
+          className="mt-6 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl"
+        >
+          {site.lead}
+        </p>
 
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-chrome/80 sm:text-xl">
-            {site.headline} Novos e seminovos com valor transparente, descrição
-            completa e atendimento humano.
-          </p>
+        <div data-hero className="mt-10 flex flex-wrap items-center gap-3">
+          <a href="#estoque" className="cta-lamp" data-cursor="Estoque">
+            Ver estoque
+            <ArrowDown className="h-4 w-4" aria-hidden />
+          </a>
+          <a
+            href={whatsappHref()}
+            target="_blank"
+            rel="noreferrer"
+            className="cta-ghost"
+            data-cursor="WhatsApp"
+          >
+            <MessageCircle className="h-4 w-4" aria-hidden />
+            Chamar no WhatsApp
+          </a>
+        </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a href="#pista" className="cta-signal">
-              Ver disponíveis
-              <ArrowDownRight className="h-4 w-4" aria-hidden />
-            </a>
-            <a
-              href={whatsappHref()}
-              target="_blank"
-              rel="noreferrer"
-              className="cta-ghost"
-            >
-              Negociar agora
-            </a>
-          </div>
-
-          <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-chrome-mute">
-            <span className="inline-flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-signal" aria-hidden />
-              {site.address.street}
-            </span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em]">
-              {availableVehicles.length} no estoque · Instagram {site.followers}
-            </span>
-          </div>
-        </motion.div>
-      </div>
-
-      <div className="pointer-events-none absolute bottom-0 inset-x-0 h-px">
-        <div className="lane-rule" />
-      </div>
+        <div
+          data-hero
+          className="mt-12 flex flex-wrap gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper-mute"
+        >
+          <span className="plaque">{availableVehicles.length} disponíveis</span>
+          <span className="plaque">{site.address.street}</span>
+          <span className="plaque">{site.whatsapp.label}</span>
+        </div>
+      </motion.div>
     </section>
   )
 }

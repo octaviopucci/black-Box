@@ -1,82 +1,82 @@
 import { Link } from 'react-router-dom'
-import { ArrowUpRight } from 'lucide-react'
-import type { Vehicle } from '../data/vehicles'
-import { formatPrice } from '../data/vehicles'
+import { formatPrice, type Vehicle } from '../data/vehicles'
 import { assetUrl } from '../lib/asset'
 
 type Props = {
   vehicle: Vehicle
   index?: number
-  variant?: 'lane' | 'archive'
+  variant?: 'garage' | 'delivery'
 }
 
-export function VehicleTile({ vehicle, index = 0, variant = 'lane' }: Props) {
+export function VehicleTile({ vehicle, index = 0, variant = 'garage' }: Props) {
   const sold = vehicle.status === 'sold'
-  const number = String(index + 1).padStart(2, '0')
+  const num = String(index + 1).padStart(2, '0')
 
   return (
     <Link
       to={`/veiculo/${vehicle.id}`}
-      className={`group relative block overflow-hidden border border-line bg-asphalt-lift transition duration-500 ease-drive hover:border-signal/50 ${
-        variant === 'archive' ? 'opacity-95' : ''
-      }`}
+      data-cursor={sold ? 'Entrega' : 'Abrir'}
+      className="group relative block w-full overflow-hidden border border-line bg-ink-lift transition duration-500 ease-cinema hover:border-lamp/45"
     >
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
           src={assetUrl(vehicle.image)}
           alt={vehicle.title}
-          className="h-full w-full object-cover transition duration-700 ease-drive group-hover:scale-[1.04]"
+          className="h-full w-full object-cover transition duration-[900ms] ease-cinema group-hover:scale-[1.05]"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-asphalt via-transparent to-transparent opacity-90" />
-        <div className="absolute left-4 top-4 flex items-center gap-2">
-          <span className="spec-chip bg-asphalt/70 backdrop-blur-sm">
-            {number}
-          </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
+
+        {/* Window-sticker artifact */}
+        <div className="absolute left-4 top-4 flex flex-col gap-2">
+          <span className="plaque bg-ink/75">{num}</span>
           <span
-            className={`spec-chip backdrop-blur-sm ${
-              sold
-                ? 'border-chrome/25 bg-asphalt/70 text-chrome-mute'
-                : 'border-signal/40 bg-signal/20 text-chrome-soft'
+            className={`plaque ${
+              sold ? 'border-paper/20 text-paper-mute' : 'border-lamp/50 text-lamp'
             }`}
           >
-            {sold ? 'Vendido' : 'Disponível'}
+            {sold ? 'Entregue' : 'Disponível'}
           </span>
         </div>
-        <ArrowUpRight
-          className="absolute right-4 top-4 h-5 w-5 text-chrome-soft opacity-0 transition duration-500 group-hover:opacity-100"
-          aria-hidden
-        />
-      </div>
 
-      <div className="relative space-y-3 p-5 sm:p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-chrome-mute">
-              {vehicle.brand}
-              {vehicle.year ? ` · ${vehicle.year}` : ''}
+        {!sold && (
+          <div className="absolute bottom-4 right-4 border border-lamp/40 bg-ink/80 px-3 py-2 backdrop-blur-sm">
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-lamp">
+              Valor
             </p>
-            <h3 className="mt-2 font-display text-2xl uppercase tracking-[0.04em] text-chrome-soft sm:text-[1.7rem]">
-              {vehicle.model}
-            </h3>
-          </div>
-          {!sold && (
-            <p className="shrink-0 font-brand text-xl italic text-signal sm:text-2xl">
+            <p className="font-display text-xl font-semibold text-paper-soft">
               {formatPrice(vehicle.price)}
             </p>
-          )}
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3 p-5 sm:p-6">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-paper-mute">
+            {vehicle.brand}
+            {vehicle.year ? ` · ${vehicle.year}` : ''}
+          </p>
+          <h3 className="mt-2 font-display text-[1.35rem] font-semibold leading-tight tracking-tight text-paper-soft sm:text-2xl">
+            {vehicle.model}
+          </h3>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {(sold
-            ? [vehicle.praise ? 'Sonho entregue' : 'Entregue']
-            : vehicle.highlights.slice(0, 3)
-          ).map((item) => (
-            <span key={item} className="spec-chip">
-              {item.length > 28 ? `${item.slice(0, 28)}…` : item}
-            </span>
-          ))}
-        </div>
+        {variant === 'garage' && !sold && (
+          <div className="flex flex-wrap gap-2">
+            {vehicle.highlights.slice(0, 3).map((h) => (
+              <span key={h} className="plaque">
+                {h}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {sold && vehicle.praise && (
+          <p className="line-clamp-2 text-sm leading-relaxed text-paper/65">
+            {vehicle.praise}
+          </p>
+        )}
       </div>
     </Link>
   )

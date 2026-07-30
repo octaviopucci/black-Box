@@ -1,59 +1,89 @@
-import { Reveal } from './Reveal'
+import { useEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { site, whatsappHref } from '../data/site'
 
+gsap.registerPlugin(ScrollTrigger)
+
 export function Negocio() {
+  const ref = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '[data-deal]',
+        { x: -24, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.85,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: ref.current,
+            start: 'top 70%',
+            once: true,
+          },
+        },
+      )
+    }, ref)
+    return () => ctx.revert()
+  }, [])
+
   return (
     <section
-      id="negocio"
-      className="relative border-b border-line px-5 py-24 sm:px-8 sm:py-28 lg:px-10"
-      aria-labelledby="negocio-title"
+      id="como-comprar"
+      ref={ref}
+      className="relative border-b border-line px-6 py-24 sm:px-10 sm:py-28"
+      aria-labelledby="como-title"
     >
       <div className="mx-auto max-w-7xl">
-        <Reveal>
-          <p className="eyebrow mb-4">
-            <span className="h-px w-8 bg-signal" aria-hidden />
-            Como fechamos
-          </p>
-          <h2
-            id="negocio-title"
-            className="display-title max-w-3xl text-[clamp(2.4rem,6vw,4rem)] text-chrome-soft"
-          >
-            Negócio sem atrito, do crédito à troca
-          </h2>
-        </Reveal>
+        <p data-deal className="eyebrow mb-4">
+          <span className="h-px w-8 bg-lamp" aria-hidden />
+          Como comprar
+        </p>
+        <h2
+          data-deal
+          id="como-title"
+          className="display max-w-3xl text-[clamp(2.2rem,5vw,3.4rem)] text-paper-soft"
+        >
+          Quatro jeitos de fechar com a NA
+        </h2>
 
-        <div className="mt-14 grid gap-0 border border-line md:grid-cols-2">
+        <ol className="mt-14 divide-y divide-line border border-line">
           {site.services.map((service, index) => (
-            <Reveal
+            <li
               key={service.id}
-              delay={index * 0.06}
-              className="group border-line p-7 transition duration-500 hover:bg-asphalt-soft/50 sm:p-9 md:odd:border-r md:[&:nth-child(-n+2)]:border-b"
+              data-deal
+              className="grid gap-4 p-6 transition duration-500 hover:bg-ink-lift/60 sm:grid-cols-[5rem_1fr] sm:items-start sm:gap-10 sm:p-8"
             >
-              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-signal">
-                0{index + 1}
-              </p>
-              <h3 className="mt-5 font-display text-3xl uppercase tracking-[0.04em] text-chrome-soft">
-                {service.title}
-              </h3>
-              <p className="mt-2 text-sm font-medium uppercase tracking-[0.16em] text-chrome-mute">
-                {service.line}
-              </p>
-              <p className="mt-5 max-w-md leading-relaxed text-chrome/70">
-                {service.detail}
-              </p>
-            </Reveal>
+              <span className="font-mono text-sm text-lamp">0{index + 1}</span>
+              <div>
+                <h3 className="font-display text-2xl font-semibold tracking-tight text-paper-soft">
+                  {service.title}
+                </h3>
+                <p className="mt-3 max-w-2xl leading-relaxed text-paper/70">
+                  {service.detail}
+                </p>
+              </div>
+            </li>
           ))}
-        </div>
+        </ol>
 
-        <Reveal delay={0.1} className="mt-12 flex flex-wrap items-center gap-4">
-          <a href={whatsappHref('Olá, NA Veículos! Quero simular um financiamento.')} target="_blank" rel="noreferrer" className="cta-signal">
-            Simular financiamento
+        <div data-deal className="mt-10">
+          <a
+            href={whatsappHref(
+              'Olá! Quero simular financiamento / troca na NA Veículos.',
+            )}
+            target="_blank"
+            rel="noreferrer"
+            className="cta-lamp"
+            data-cursor="Simular"
+          >
+            Simular no WhatsApp
           </a>
-          <p className="max-w-md text-sm text-chrome-mute">
-            Também no Mercado Livre / Mercado Pago — mais uma via para aprovar
-            crédito e finalizar com praticidade.
-          </p>
-        </Reveal>
+        </div>
       </div>
     </section>
   )

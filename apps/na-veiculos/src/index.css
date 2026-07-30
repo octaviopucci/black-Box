@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --asphalt: #07080a;
-  --chrome: #e8eaed;
-  --signal: #c8102e;
-  --mute: #9aa0a8;
+  --ink: #08090b;
+  --paper: #eceef2;
+  --lamp: #d4a25a;
+  --mute: #9ba1ad;
   color-scheme: dark;
 }
 
@@ -17,12 +17,12 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Manrope', system-ui, sans-serif;
-  color: var(--chrome);
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: var(--paper);
   background:
-    radial-gradient(ellipse 50% 35% at 85% -5%, rgba(200, 16, 46, 0.12), transparent 55%),
-    radial-gradient(ellipse 40% 30% at 5% 20%, rgba(232, 234, 237, 0.04), transparent 50%),
-    linear-gradient(180deg, #07080a 0%, #0e1014 42%, #07080a 100%);
+    radial-gradient(ellipse 55% 40% at 90% -10%, rgba(212, 162, 90, 0.12), transparent 55%),
+    radial-gradient(ellipse 40% 35% at 0% 30%, rgba(236, 238, 242, 0.04), transparent 50%),
+    #08090b;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -32,54 +32,37 @@ body::before {
   pointer-events: none;
   position: fixed;
   inset: 0;
-  z-index: 90;
-  opacity: 0.035;
+  z-index: 80;
+  opacity: 0.04;
   background-image: theme('backgroundImage.grain');
   background-size: 180px 180px;
   mix-blend-mode: overlay;
 }
 
 ::selection {
-  background: rgba(200, 16, 46, 0.45);
-  color: #fff;
+  background: rgba(212, 162, 90, 0.4);
+  color: #08090b;
 }
 
 @layer components {
   .eyebrow {
-    @apply inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.34em] text-signal;
+    @apply inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-lamp;
   }
 
-  .display-title {
-    @apply font-display text-balance uppercase leading-[0.92] tracking-[0.02em];
+  .display {
+    @apply font-display font-semibold tracking-[-0.03em] text-balance;
   }
 
-  .brand-title {
-    @apply font-brand text-balance uppercase italic leading-none tracking-tight;
-  }
-
-  .cta-signal {
-    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-signal px-6 py-3.5 text-sm font-semibold tracking-wide text-chrome-soft transition duration-500 ease-drive hover:bg-signal-soft;
+  .cta-lamp {
+    @apply inline-flex items-center justify-center gap-2 rounded-[2px] bg-lamp px-6 py-3.5 text-sm font-semibold tracking-wide text-ink transition duration-500 ease-cinema hover:bg-lamp-soft;
   }
 
   .cta-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-chrome/20 px-5 py-3.5 text-sm font-medium text-chrome/85 transition duration-500 ease-drive hover:border-signal hover:text-chrome-soft;
+    @apply inline-flex items-center justify-center gap-2 rounded-[2px] border border-paper/20 px-5 py-3.5 text-sm font-medium text-paper/85 transition duration-500 ease-cinema hover:border-lamp hover:text-paper;
   }
 
-  .spec-chip {
-    @apply inline-flex items-center gap-2 border border-line bg-asphalt-soft/60 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-chrome-mute;
-  }
-
-  .lane-rule {
-    @apply relative h-px w-full overflow-hidden bg-line;
-  }
-
-  .lane-rule::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: theme('backgroundImage.road');
-    background-size: 48px 100%;
-    animation: laneSlide 1.8s linear infinite;
+  .plaque {
+    @apply border border-line bg-ink-lift/80 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-paper-mute backdrop-blur-sm;
   }
 }
 
@@ -87,11 +70,9 @@ body::before {
   .text-balance {
     text-wrap: balance;
   }
-}
 
-@keyframes laneSlide {
-  to {
-    background-position: 48px 0;
+  .mask-fade-x {
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
   }
 }
 
@@ -100,15 +81,19 @@ body::before {
   cursor: none !important;
 }
 
+.garage-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
-  .lane-rule::after,
-  .animate-headlight,
-  .animate-lane-dash,
-  .animate-speed-pulse {
+  .animate-flicker,
+  .animate-drift {
     animation: none !important;
   }
 }

@@ -8,7 +8,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
+    const onScroll = () => setScrolled(window.scrollY > 20)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -25,19 +25,19 @@ export function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition duration-500 ${
         scrolled || open
-          ? 'border-b border-line bg-asphalt/85 backdrop-blur-md'
+          ? 'border-b border-line bg-ink/90 backdrop-blur-md'
           : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-10">
-        <BrandMark compact={scrolled} />
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 sm:px-10">
+        <BrandMark size={scrolled ? 'sm' : 'md'} />
 
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Principal">
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Principal">
           {site.nav.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="text-[12px] font-semibold uppercase tracking-[0.22em] text-chrome-mute transition hover:text-chrome-soft"
+              className="text-[12px] font-medium uppercase tracking-[0.18em] text-paper-mute transition hover:text-paper-soft"
             >
               {item.label}
             </a>
@@ -49,14 +49,15 @@ export function Navbar() {
             href={whatsappHref()}
             target="_blank"
             rel="noreferrer"
-            className="cta-signal hidden sm:inline-flex"
+            className="cta-lamp hidden sm:inline-flex"
+            data-cursor="WhatsApp"
           >
             <MessageCircle className="h-4 w-4" aria-hidden />
             WhatsApp
           </a>
           <button
             type="button"
-            className="grid h-11 w-11 place-items-center border border-line text-chrome lg:hidden"
+            className="grid h-11 w-11 place-items-center border border-line text-paper lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? 'Fechar menu' : 'Abrir menu'}
@@ -68,16 +69,13 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div
-          id="mobile-nav"
-          className="border-t border-line bg-asphalt px-5 py-6 lg:hidden"
-        >
+        <div id="mobile-nav" className="border-t border-line bg-ink px-6 py-6 lg:hidden">
           <nav className="flex flex-col gap-4" aria-label="Mobile">
             {site.nav.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="font-display text-3xl uppercase tracking-[0.06em] text-chrome-soft"
+                className="font-display text-3xl font-semibold tracking-tight text-paper-soft"
                 onClick={() => setOpen(false)}
               >
                 {item.label}
@@ -87,7 +85,7 @@ export function Navbar() {
               href={whatsappHref()}
               target="_blank"
               rel="noreferrer"
-              className="cta-signal mt-2 w-full"
+              className="cta-lamp mt-2 w-full"
               onClick={() => setOpen(false)}
             >
               <MessageCircle className="h-4 w-4" aria-hidden />

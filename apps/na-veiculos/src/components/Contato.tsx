@@ -1,57 +1,88 @@
+import { useEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MessageCircle } from 'lucide-react'
-import { Reveal } from './Reveal'
 import { InstagramIcon } from './InstagramIcon'
 import { site, whatsappHref } from '../data/site'
 
+gsap.registerPlugin(ScrollTrigger)
+
 export function Contato() {
+  const ref = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '[data-falar]',
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: ref.current,
+            start: 'top 75%',
+            once: true,
+          },
+        },
+      )
+    }, ref)
+    return () => ctx.revert()
+  }, [])
+
   return (
     <section
-      id="contato"
-      className="relative overflow-hidden px-5 py-24 sm:px-8 sm:py-32 lg:px-10"
-      aria-labelledby="contato-title"
+      id="falar"
+      ref={ref}
+      className="relative overflow-hidden px-6 py-24 sm:px-10 sm:py-32"
+      aria-labelledby="falar-title"
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-signal/15 via-transparent to-transparent"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-lamp/15 via-transparent to-transparent"
         aria-hidden
       />
       <div className="relative mx-auto max-w-7xl">
-        <Reveal>
-          <p className="eyebrow mb-4">
-            <span className="h-px w-8 bg-signal" aria-hidden />
-            Limiar
-          </p>
-          <h2
-            id="contato-title"
-            className="display-title max-w-4xl text-[clamp(2.8rem,8vw,5.5rem)] text-chrome-soft"
-          >
-            Pronto para a próxima trajetória?
-          </h2>
-          <p className="mt-6 max-w-2xl text-lg text-chrome/75">
-            Chame no WhatsApp oficial, diga o modelo — e a gente acelera a
-            negociação com clareza.
-          </p>
-        </Reveal>
+        <p data-falar className="eyebrow mb-4">
+          <span className="h-px w-8 bg-lamp" aria-hidden />
+          Próximo passo
+        </p>
+        <h2
+          data-falar
+          id="falar-title"
+          className="display max-w-4xl text-[clamp(2.4rem,7vw,4.8rem)] text-paper-soft"
+        >
+          Achou o carro? Chama a gente.
+        </h2>
+        <p data-falar className="mt-6 max-w-2xl text-lg text-paper/75">
+          Diz o modelo no WhatsApp — respondemos com disponibilidade, simulação
+          e o que precisar para fechar com segurança.
+        </p>
 
-        <Reveal delay={0.12} className="mt-12 flex flex-wrap gap-4">
+        <div data-falar className="mt-12 flex flex-wrap gap-3">
           <a
             href={whatsappHref()}
             target="_blank"
             rel="noreferrer"
-            className="cta-signal min-w-[220px]"
+            className="cta-lamp min-w-[220px]"
+            data-cursor="WhatsApp"
           >
             <MessageCircle className="h-4 w-4" aria-hidden />
-            Falar no WhatsApp
+            {site.whatsapp.label}
           </a>
           <a
             href={site.instagram}
             target="_blank"
             rel="noreferrer"
             className="cta-ghost"
+            data-cursor="Instagram"
           >
             <InstagramIcon className="h-4 w-4" />
             {site.instagramHandle}
           </a>
-        </Reveal>
+        </div>
       </div>
     </section>
   )

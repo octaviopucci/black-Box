@@ -1,15 +1,14 @@
 export const site = {
   name: 'NA Veículos',
   legalName: 'N.A. Veiculos Ltda',
-  brand: 'N.A.',
+  brand: 'NA',
   brandFull: 'NA VEÍCULOS',
-  mantra: 'Trajetória',
   tagline: 'Transformamos seu sonho em realidade',
   headline: 'Seu sonho está aqui.',
+  lead:
+    'Novos e seminovos em Capão Bonito — com preço no anúncio, foto da loja e conversa direta no WhatsApp.',
   description:
-    'NA Veículos — novos e seminovos em Capão Bonito/SP. Catálogo real com valores, descrição completa, financiamento, trocas e consignação. Atendimento pelo WhatsApp.',
-  promise:
-    'Estoque real da loja, transparência no valor e negociação humana — do primeiro olhar à entrega das chaves.',
+    'NA Veículos em Capão Bonito/SP: catálogo de novos e seminovos com valores, opcionais, financiamento, trocas e consignação. Atendimento pelo WhatsApp (15) 99653-2750.',
   instagram: 'https://www.instagram.com/n.aveiculos__/',
   instagramHandle: '@n.aveiculos__',
   facebook: 'https://www.facebook.com/profile.php?id=100008066959463',
@@ -21,7 +20,7 @@ export const site = {
   whatsapp: {
     label: '(15) 99653-2750',
     number: '5515996532750',
-    message: 'Olá, NA Veículos! Vim pelo site e quero saber mais sobre um veículo.',
+    message: 'Olá! Vim pelo site da NA Veículos e quero saber mais sobre os carros disponíveis.',
   },
   address: {
     street: 'Rua Altino Arantes, 635',
@@ -29,59 +28,60 @@ export const site = {
     city: 'Capão Bonito',
     state: 'SP',
     cep: '18300-290',
-    landmark: 'Próximo às Lojas Cem',
+    landmark: 'Perto das Lojas Cem',
     maps: 'https://www.google.com/maps/search/?api=1&query=Rua+Altino+Arantes+635+Cap%C3%A3o+Bonito+SP',
   },
   city: 'Capão Bonito/SP',
-  followers: '6.1k',
-  posts: '1.7k+',
+  followers: '6,1 mil',
   cnpj: '49.138.934/0001-83',
   nav: [
-    { label: 'Disponíveis', href: '#pista' },
-    { label: 'Vendidos', href: '#entregas' },
-    { label: 'Negócio', href: '#negocio' },
+    { label: 'Estoque', href: '#estoque' },
+    { label: 'Entregas', href: '#entregas' },
+    { label: 'Como comprar', href: '#como-comprar' },
     { label: 'Loja', href: '#loja' },
-    { label: 'Contato', href: '#contato' },
+    { label: 'WhatsApp', href: '#falar' },
   ],
-  manifesto: [
-    'Há quem procure um carro.',
-    'Há quem procure o próximo capítulo.',
-    'Na NA, os dois se encontram no asfalto.',
+  truths: [
+    {
+      title: 'Preço no anúncio',
+      text: 'O valor que você vê é o valor da loja. Sem teatro de “chama no privado pra saber”.',
+    },
+    {
+      title: 'Foto do carro real',
+      text: 'Cada unidade é a que está na NA. Sem banco de imagem, sem carro de outro estado.',
+    },
+    {
+      title: 'Negociação humana',
+      text: 'Financiamento, troca ou consignação — a gente fecha olhando o seu caso, não um roteiro.',
+    },
   ],
   services: [
     {
       id: 'financiamento',
       title: 'Financiamento em até 60x',
-      line: 'Taxas pensadas para fechar',
       detail:
-        'Simulação na hora, crédito sob medida e clareza do primeiro ao último boleto — inclusive via Mercado Pago / Mercado Livre.',
+        'Simulamos na hora. Também dá para usar crédito do Mercado Pago / Mercado Livre.',
     },
     {
       id: 'cartao',
       title: 'Cartão em até 36x',
-      line: 'Parcelamento direto',
-      detail:
-        'Flexibilidade para quem prefere cartão de crédito sem abrir mão do veículo certo.',
+      detail: 'Para quem prefere parcelar no cartão e levar o carro sem espera longa de banco.',
     },
     {
       id: 'troca',
-      title: 'Trocas & consignação',
-      line: 'Seu usado entra na conta',
-      detail:
-        'Avaliamos seu veículo com transparência e colocamos a consignação para trabalhar a seu favor.',
+      title: 'Troca do seu usado',
+      detail: 'Avaliamos o que você tem hoje e abatemos na negociação com transparência.',
     },
     {
-      id: 'presenca',
-      title: 'Loja física',
-      line: 'Negocie com quem você vê',
-      detail:
-        'Rua Altino Arantes, 635 — Centro. Capão Bonito/SP. Sem anúncio fora do Instagram e Facebook oficiais.',
+      id: 'consignacao',
+      title: 'Consignação',
+      detail: 'Quer vender com a gente? Deixamos o carro na loja e cuidamos da exposição.',
     },
   ],
   warnings: [
-    'Não anunciamos fora do Instagram e Facebook oficiais.',
-    'WhatsApp oficial: (15) 99653-2750.',
-    'Na dúvida, venha até a loja física.',
+    'A NA só anuncia no Instagram e no Facebook oficiais.',
+    'WhatsApp da loja: (15) 99653-2750 — qualquer outro número, desconfie.',
+    'Prefere segurança? Venha até a Rua Altino Arantes, 635.',
   ],
 } as const
 
@@ -91,8 +91,8 @@ export function whatsappHref(message?: string) {
 }
 
 export function vehicleWhatsApp(title: string, priceLabel?: string) {
-  const priceBit = priceLabel ? ` (${priceLabel})` : ''
+  const priceBit = priceLabel ? ` por ${priceLabel}` : ''
   return whatsappHref(
-    `Olá, NA Veículos! Vim pelo site e tenho interesse no ${title}${priceBit}.`,
+    `Olá! Vim pelo site e quero saber sobre o ${title}${priceBit}. Ainda está disponível?`,
   )
 }
