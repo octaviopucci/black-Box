@@ -5,8 +5,7 @@ export const site = {
   brandFull: 'NA VEÍCULOS',
   tagline: 'Transformamos seu sonho em realidade',
   headline: 'Seu sonho está aqui.',
-  lead:
-    'Novos e seminovos em Capão Bonito — com preço no anúncio, foto da loja e conversa direta no WhatsApp.',
+  lead: 'Novos e seminovos em Capão Bonito',
   description:
     'NA Veículos em Capão Bonito/SP: catálogo de novos e seminovos com valores, opcionais, financiamento, trocas e consignação. Atendimento pelo WhatsApp (15) 99653-2750.',
   instagram: 'https://www.instagram.com/n.aveiculos__/',
