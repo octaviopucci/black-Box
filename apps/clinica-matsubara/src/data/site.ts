@@ -102,18 +102,38 @@ export const careRivers: CareRiver[] = [
   },
 ]
 
-export const team = [
+export type TeamMember = {
+  id: string
+  name: string
+  role: string
+  note: string
+  image: string
+  objectPosition?: string
+}
+
+export const foundersDuo = {
+  image: 'team/duo-hero.jpg',
+  alt: 'Dra. Carina Torresilha e Dra. Daniela Matsubara — fundadoras da Clínica Matsubara',
+  title: 'Carina & Daniela',
+  line: 'As fundadoras — odontologia e estética com a mesma presença.',
+} as const
+
+export const team: TeamMember[] = [
   {
     id: 'carina',
     name: 'Dra. Carina Torresilha',
     role: 'Odontologia · fundadora',
-    note: 'Cuidado exclusivo, presença e condução clínica com excelência.',
+    note: 'Sócia-fundadora. Cuidado exclusivo, presença e condução clínica com excelência.',
+    image: 'team/carina.jpg',
+    objectPosition: 'center 18%',
   },
   {
-    id: 'equipe',
-    name: 'Equipe multidisciplinar',
-    role: 'Odontologia · estética · saúde',
-    note: 'Profissionais preparados para transformar autoestima em qualidade de vida.',
+    id: 'daniela',
+    name: 'Dra. Daniela Matsubara',
+    role: 'Odontologia · fundadora',
+    note: 'Sócia-fundadora. Sorriso, reabilitação e atendimento humanizado no centro da jornada.',
+    image: 'team/danielle.jpg',
+    objectPosition: 'center 18%',
   },
   {
     id: 'gabriela',
@@ -121,8 +141,25 @@ export const team = [
     role: 'Psicologia',
     note: 'Cuidado emocional acolhedor — equilíbrio e bem-estar com escuta humanizada.',
     image: 'team/gabriela.jpg',
+    objectPosition: 'center 12%',
   },
-] as const
+  {
+    id: 'gabriel',
+    name: 'Dr. Gabriel Bueno',
+    role: 'Implantes · odontologia',
+    note: 'Implantes e reabilitação com técnica precisa — para um sorriso firme e duradouro.',
+    image: 'team/gabriel.jpg',
+    objectPosition: 'center 20%',
+  },
+  {
+    id: 'lucas',
+    name: 'Dr. Lucas Wasilewski',
+    role: 'Pediatria · CRM SP 244816',
+    note: 'Cuidado infantil com presença e carinho — saúde que ensina pelo exemplo.',
+    image: 'team/lucas.jpg',
+    objectPosition: 'center 25%',
+  },
+]
 
 export const whispers = [
   {

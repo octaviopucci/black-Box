@@ -1,83 +1,86 @@
-import { asset, team } from '../data/site'
+import { asset, foundersDuo, team } from '../data/site'
 import { Reveal } from './Reveal'
 
 export function Equipe() {
   return (
     <section id="equipe" className="relative overflow-hidden bg-cream-soft py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="grid items-end gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
-          <Reveal>
-            <p className="eyebrow">
-              <span className="h-px w-8 bg-wine/40" />
-              Presença
-            </p>
-            <h2 className="display-title mt-4 text-[clamp(2.4rem,5.5vw,4.2rem)]">
-              Rostos que sustentam o cuidado.
-            </h2>
-            <p className="mt-5 text-mute">
-              Uma equipe multidisciplinar com odontologia, estética e saúde emocional —
-              preparada para cuidar da sua versão com excelência e acolhimento.
-            </p>
-          </Reveal>
+        <Reveal>
+          <p className="eyebrow">
+            <span className="h-px w-8 bg-wine/40" />
+            Presença
+          </p>
+          <h2 className="display-title mt-4 max-w-3xl text-[clamp(2.4rem,5.5vw,4.2rem)]">
+            Quem cuida da sua versão.
+          </h2>
+          <p className="mt-5 max-w-xl text-mute">
+            Fundadoras, especialidades e presença real — cada profissional com foto e nome,
+            como na clínica.
+          </p>
+        </Reveal>
 
-          <Reveal delay={0.1}>
-            <div className="relative overflow-hidden rounded-[2rem]">
-              <img
-                src={asset('team/founders.jpg')}
-                alt="Equipe Clínica Matsubara — profissionais em uniforme bege"
-                className="aspect-[5/4] w-full object-cover object-[center_20%]"
-                loading="lazy"
-              />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-wine-deep/90 to-transparent p-6 text-cream sm:p-8">
-                <p className="font-script text-3xl text-rose-soft">Dra. Carina Torresilha</p>
-                <p className="mt-1 text-sm text-cream/75">Fundadora · Odontologia e Estética</p>
-              </div>
-            </div>
-          </Reveal>
-        </div>
+        {/* Duo real Instagram — brand wine fade */}
+        <Reveal delay={0.08}>
+          <figure className="relative mt-12 overflow-hidden rounded-[2rem]">
+            <img
+              src={asset(foundersDuo.image)}
+              alt={foundersDuo.alt}
+              className="aspect-[16/10] w-full object-cover object-[center_18%] sm:aspect-[2.2/1]"
+              loading="lazy"
+            />
+            {/* Brand color fade — burgundy/wine */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  'linear-gradient(105deg, rgba(92,26,44,0.88) 0%, rgba(120,36,60,0.55) 38%, rgba(120,36,60,0.12) 62%, transparent 78%), linear-gradient(to top, rgba(92,26,44,0.82) 0%, transparent 45%)',
+              }}
+            />
+            <figcaption className="absolute inset-x-0 bottom-0 z-10 p-6 text-cream sm:p-10">
+              <p className="font-script text-[clamp(2.4rem,6vw,3.6rem)] leading-none text-rose-soft">
+                {foundersDuo.title}
+              </p>
+              <p className="mt-2 max-w-md text-sm text-cream/80 sm:text-base">{foundersDuo.line}</p>
+              <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-cream/55">
+                Dra. Carina Torresilha · Dra. Daniela Matsubara
+              </p>
+            </figcaption>
+          </figure>
+        </Reveal>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-3">
+        {/* Full team with real photos */}
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {team.map((member, i) => (
-            <Reveal key={member.id} delay={0.06 * i}>
-              <article className="flex h-full flex-col justify-between rounded-[1.75rem] border border-wine/10 bg-cream p-6">
-                {'image' in member && member.image ? (
+            <Reveal key={member.id} delay={0.05 * i}>
+              <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-wine/10 bg-cream">
+                <div className="relative aspect-[4/5] overflow-hidden">
                   <img
                     src={asset(member.image)}
                     alt={member.name}
-                    className="mb-5 aspect-square w-full rounded-[1.25rem] object-cover object-top"
+                    className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+                    style={{ objectPosition: member.objectPosition ?? 'center top' }}
                     loading="lazy"
                   />
-                ) : (
-                  <div className="mb-5 flex aspect-[5/3] items-end rounded-[1.25rem] bg-wine/90 p-5">
-                    <BrandInitials name={member.name} />
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-wine-deep/70 via-transparent to-transparent opacity-90"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 p-4 text-cream">
+                    <h3 className="font-display text-xl font-semibold leading-tight sm:text-2xl">
+                      {member.name}
+                    </h3>
+                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-rose-soft">
+                      {member.role}
+                    </p>
                   </div>
-                )}
-                <div>
-                  <h3 className="font-display text-2xl font-semibold text-ink">{member.name}</h3>
-                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-wine">
-                    {member.role}
-                  </p>
-                  <p className="mt-3 text-sm leading-relaxed text-mute">{member.note}</p>
                 </div>
+                <p className="p-4 text-sm leading-relaxed text-mute">{member.note}</p>
               </article>
             </Reveal>
           ))}
         </div>
       </div>
     </section>
-  )
-}
-
-function BrandInitials({ name }: { name: string }) {
-  const initials = name
-    .split(' ')
-    .filter((w) => !['Dra.', 'Dr.', 'e', '·'].includes(w))
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-  return (
-    <span className="font-display text-4xl font-semibold tracking-tight text-rose-soft">
-      {initials || 'CM'}
-    </span>
   )
 }
