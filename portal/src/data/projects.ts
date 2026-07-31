@@ -121,4 +121,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Saúde', 'Awwwards'],
   },
+  {
+    id: 'danielle-matsubara',
+    name: 'Dra. Danielle Matsubara',
+    client: 'Danielle Matsubara · Capão Bonito',
+    description:
+      'Experiência “A Escuta”: site pessoal da endodontista e fundadora — voz em primeira pessoa, walk físico da clínica e conversão WhatsApp.',
+    href: '/danielle-matsubara/',
+    status: 'demo',
+    tags: ['React', 'Saúde', 'Awwwards'],
+  },
 ]

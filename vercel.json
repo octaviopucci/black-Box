@@ -14,7 +14,8 @@
     { "source": "/octavio-pucci/(.*)", "destination": "/octavio-pucci/index.html" },
     { "source": "/na-veiculos/(.*)", "destination": "/na-veiculos/index.html" },
     { "source": "/clinica-matsubara/(.*)", "destination": "/clinica-matsubara/index.html" },
-    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/danielle-matsubara/(.*)", "destination": "/danielle-matsubara/index.html" },
+    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
