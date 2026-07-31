@@ -42,9 +42,9 @@ export function AgendarPage() {
 
           <Reveal immediate delay={0.1} className="overflow-hidden rounded-[2rem]">
             <img
-              src={asset('space/consultorio.jpg')}
-              alt="Consultório Matsubara"
-              className="aspect-[5/4] w-full object-cover"
+              src={asset('space/presenca.jpg')}
+              alt="Dra. Danielle Matsubara"
+              className="aspect-[5/4] w-full object-cover object-top"
               loading="lazy"
             />
           </Reveal>
