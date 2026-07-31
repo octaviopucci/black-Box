@@ -96,9 +96,9 @@ export const careRivers: CareRiver[] = [
     title: 'Especialidades',
     line: 'Cuidar também por dentro',
     detail:
-      'Psicologia, pediatria e especialidades no mesmo endereço — porque saúde, autoestima e equilíbrio emocional caminham juntos.',
+      'Psicologia, pediatria, nutrologia e especialidades no mesmo endereço — porque saúde, autoestima e equilíbrio caminham juntos.',
     image: 'care/especialidades.jpg',
-    accents: ['Psicologia', 'Pediatria', 'Bem-estar', 'Acompanhamento'],
+    accents: ['Psicologia', 'Pediatria', 'Nutrologia', 'Bem-estar'],
   },
 ]
 
@@ -142,6 +142,14 @@ export const team: TeamMember[] = [
     note: 'Biomédica esteta — resultados sutis e elegantes, com plano pensado para cada paciente.',
     image: 'team/larissa.jpg',
     objectPosition: 'center 12%',
+  },
+  {
+    id: 'aryanna',
+    name: 'Dra. Aryanna Lustre',
+    role: 'Medicina · Nutrologia',
+    note: 'Emagrecimento saudável, metabolismo e longevidade — ciência com escuta para transformar hábitos.',
+    image: 'team/aryanna.jpg',
+    objectPosition: 'center 14%',
   },
   {
     id: 'gabriela',
