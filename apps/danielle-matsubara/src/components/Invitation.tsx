@@ -1,13 +1,14 @@
 import { ArrowUpRight, MapPin } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Reveal } from './Reveal'
 import { asset, site, whatsappUrl } from '../data/site'
 import { InstagramIcon } from './InstagramIcon'
 
-export function Threshold() {
+export function Invitation() {
   return (
-    <section id="agendar" className="relative overflow-hidden px-5 py-20 sm:px-8 sm:py-28">
+    <section className="relative overflow-hidden px-5 py-20 sm:px-8 sm:py-28">
       <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[2rem] bg-wine-deep text-cream lg:grid-cols-2">
-        <div className="relative min-h-[280px] lg:min-h-full">
+        <div className="relative min-h-[260px] lg:min-h-full">
           <img
             src={asset('hero.jpg')}
             alt="Recepção da Clínica Matsubara"
@@ -26,8 +27,7 @@ export function Threshold() {
               Vamos marcar o momento da sua escuta.
             </h2>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-cream/60">
-              Avaliação pelo WhatsApp — sem fricção. Conte o que sente e eu te oriento o melhor
-              caminho.
+              Avaliação pelo WhatsApp, sem fricção. Conte o que sente e eu oriento o melhor caminho.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -35,16 +35,13 @@ export function Threshold() {
                 Agendar no WhatsApp
                 <ArrowUpRight className="h-4 w-4" />
               </a>
-              <a
-                href={site.instagram}
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                to="/agendar"
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-cream/25 px-5 py-3.5 text-sm font-medium text-cream/85 transition hover:border-rose hover:text-rose-soft"
                 data-cursor
               >
-                <InstagramIcon className="h-4 w-4" />
-                Instagram
-              </a>
+                Ver como funciona
+              </Link>
             </div>
 
             <a
@@ -56,6 +53,17 @@ export function Threshold() {
             >
               <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{site.address}</span>
+            </a>
+
+            <a
+              href={site.instagram}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex items-center gap-2 text-sm text-cream/50 transition hover:text-rose-soft"
+              data-cursor
+            >
+              <InstagramIcon className="h-4 w-4" />
+              {site.instagramHandle}
             </a>
           </Reveal>
         </div>

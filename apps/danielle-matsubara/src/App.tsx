@@ -1,7 +1,22 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { Experience } from './pages/Experience'
+import { HomePage } from './pages/HomePage'
 
+const SobrePage = lazy(() =>
+  import('./pages/SobrePage').then((m) => ({ default: m.SobrePage })),
+)
+const EndodontiaPage = lazy(() =>
+  import('./pages/EndodontiaPage').then((m) => ({ default: m.EndodontiaPage })),
+)
+const EspacoPage = lazy(() =>
+  import('./pages/EspacoPage').then((m) => ({ default: m.EspacoPage })),
+)
+const AgendarPage = lazy(() =>
+  import('./pages/AgendarPage').then((m) => ({ default: m.AgendarPage })),
+)
+const PrivacidadePage = lazy(() =>
+  import('./pages/PrivacidadePage').then((m) => ({ default: m.PrivacidadePage })),
+)
 const NotFoundPage = lazy(() =>
   import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
 )
@@ -28,7 +43,12 @@ export default function App() {
         }
       >
         <Routes>
-          <Route path="/" element={<Experience />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/sobre" element={<SobrePage />} />
+          <Route path="/endodontia" element={<EndodontiaPage />} />
+          <Route path="/espaco" element={<EspacoPage />} />
+          <Route path="/agendar" element={<AgendarPage />} />
+          <Route path="/privacidade" element={<PrivacidadePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

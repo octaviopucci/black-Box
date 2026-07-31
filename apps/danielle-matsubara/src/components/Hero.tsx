@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import { asset, site, whatsappUrl } from '../data/site'
@@ -33,7 +34,7 @@ export function Hero() {
       <motion.div style={{ y: imgY, scale: imgScale }} className="absolute inset-0">
         <img
           src={asset('portrait.jpg')}
-          alt="Dra. Danielle Matsubara — endodontia e fundadora da Clínica Matsubara"
+          alt="Dra. Danielle Matsubara, endodontia e fundadora da Clínica Matsubara"
           className="h-full w-full object-cover object-[center_16%] sm:object-[center_12%]"
           fetchPriority="high"
         />
@@ -81,7 +82,7 @@ export function Hero() {
             {...enter(0.24)}
             className="mt-2 hidden max-w-md text-[12px] leading-relaxed text-cream/75 sm:mt-3.5 sm:block sm:text-[15px]"
           >
-            Canal com precisão e presença — sorriso firme, sem o medo de antes.
+            {site.lead}
           </motion.p>
 
           <motion.div
@@ -96,11 +97,18 @@ export function Hero() {
               Agendar comigo
               <ArrowUpRight className="h-4 w-4" />
             </a>
+            <Link
+              to="/espaco"
+              className="hidden items-center justify-center gap-2 rounded-full border border-cream/25 px-5 py-3 text-sm font-medium text-cream/85 transition hover:border-rose hover:text-rose-soft sm:inline-flex sm:py-3.5"
+              data-cursor
+            >
+              Entrar no espaço
+            </Link>
             <a
               href={site.instagram}
               target="_blank"
               rel="noreferrer"
-              className="hidden items-center justify-center gap-2 rounded-full border border-cream/25 px-5 py-3 text-sm font-medium text-cream/85 transition hover:border-rose hover:text-rose-soft sm:inline-flex sm:py-3.5"
+              className="hidden items-center justify-center gap-2 rounded-full border border-cream/25 px-5 py-3 text-sm font-medium text-cream/85 transition hover:border-rose hover:text-rose-soft md:inline-flex sm:py-3.5"
               data-cursor
             >
               <InstagramIcon className="h-4 w-4" />
@@ -112,7 +120,7 @@ export function Hero() {
             {...enter(0.36)}
             className="mt-3.5 hidden text-[10px] uppercase tracking-[0.18em] text-cream/45 sm:mt-6 sm:block sm:tracking-[0.22em]"
           >
-            {site.clinic} · Av. Adhemar de Barros, 737
+            {site.clinic} · {site.addressShort}
           </motion.p>
         </div>
       </div>
