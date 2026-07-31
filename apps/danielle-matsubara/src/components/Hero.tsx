@@ -79,7 +79,7 @@ export function Hero() {
 
           <motion.p
             {...enter(0.24)}
-            className="mt-2 max-w-md text-[12px] leading-relaxed text-cream/75 sm:mt-3.5 sm:text-[15px]"
+            className="mt-2 hidden max-w-md text-[12px] leading-relaxed text-cream/75 sm:mt-3.5 sm:block sm:text-[15px]"
           >
             Canal com precisão e presença — sorriso firme, sem o medo de antes.
           </motion.p>
