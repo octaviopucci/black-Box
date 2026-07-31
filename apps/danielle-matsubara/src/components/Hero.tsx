@@ -72,7 +72,7 @@ export function Hero() {
 
           <motion.p
             {...enter(0.18)}
-            className="mt-2 max-w-lg font-script text-[clamp(1.3rem,3.6vw,2.35rem)] leading-none text-signal-soft sm:mt-4"
+            className="mt-2 hidden max-w-lg font-script text-[clamp(1.3rem,3.6vw,2.35rem)] leading-none text-signal-soft sm:mt-4 sm:block"
           >
             {site.headline}
           </motion.p>
@@ -100,7 +100,7 @@ export function Hero() {
               href={site.instagram}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-cream/25 px-5 py-3 text-sm font-medium text-cream/85 transition hover:border-rose hover:text-rose-soft sm:justify-start sm:py-3.5"
+              className="hidden items-center justify-center gap-2 rounded-full border border-cream/25 px-5 py-3 text-sm font-medium text-cream/85 transition hover:border-rose hover:text-rose-soft sm:inline-flex sm:py-3.5"
               data-cursor
             >
               <InstagramIcon className="h-4 w-4" />
