@@ -43,7 +43,7 @@ export function Equipe() {
               </p>
               <p className="mt-2 max-w-md text-sm text-cream/80 sm:text-base">{foundersDuo.line}</p>
               <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-cream/55">
-                Dra. Carina Torresilha · Dra. Danielle Matsubara
+                Dra. Carina Matsubara Torresilha · Dra. Danielle Matsubara
               </p>
             </figcaption>
           </figure>

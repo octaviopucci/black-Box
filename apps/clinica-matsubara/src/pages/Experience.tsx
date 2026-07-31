@@ -6,6 +6,7 @@ import { Versao } from '../components/Versao'
 import { Rivers } from '../components/Rivers'
 import { Espaco } from '../components/Espaco'
 import { Equipe } from '../components/Equipe'
+import { Instagram } from '../components/Instagram'
 import { Whispers } from '../components/Whispers'
 import { Threshold } from '../components/Threshold'
 import { Footer } from '../components/Footer'
@@ -29,6 +30,7 @@ export function Experience() {
         <Rivers />
         <Espaco />
         <Equipe />
+        <Instagram />
         <Whispers />
         <Threshold />
       </main>

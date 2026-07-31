@@ -29,6 +29,7 @@ export const site = {
     { label: 'Cuidados', href: '#cuidados' },
     { label: 'Espaço', href: '#espaco' },
     { label: 'Equipe', href: '#equipe' },
+    { label: 'Instagram', href: '#instagram' },
     { label: 'Agendar', href: '#agendar' },
   ],
   manifesto: [
@@ -121,9 +122,9 @@ export const foundersDuo = {
 export const team: TeamMember[] = [
   {
     id: 'carina',
-    name: 'Dra. Carina Torresilha',
+    name: 'Dra. Carina Matsubara Torresilha',
     role: 'Estética avançada · fundadora',
-    note: 'Sócia-fundadora. Farmacêutica bioquímica — harmonização corporal e estética com presença e excelência.',
+    note: 'Sócia-fundadora. Farmacêutica bioquímica — harmonização corporal, Heccus e estética com presença.',
     image: 'team/carina.jpg',
     objectPosition: 'center 18%',
   },
@@ -131,7 +132,7 @@ export const team: TeamMember[] = [
     id: 'danielle',
     name: 'Dra. Danielle Matsubara',
     role: 'Endodontia · fundadora',
-    note: 'Sócia-fundadora. Dentista especialista em canal — sorriso e reabilitação com atendimento humanizado.',
+    note: 'Sócia-fundadora. Dentista especialista em canal — odontologia, clareamento e reabilitação humanizada.',
     image: 'team/danielle.jpg',
     objectPosition: 'center 18%',
   },
@@ -154,8 +155,8 @@ export const team: TeamMember[] = [
   {
     id: 'gabriela',
     name: 'Dra. Gabriela Lara',
-    role: 'Psicologia',
-    note: 'Cuidado emocional acolhedor — equilíbrio e bem-estar com escuta humanizada.',
+    role: 'Psicologia · CRP 06/217802',
+    note: 'Atendimento presencial na Matsubara — cuidado emocional, autoconhecimento e bem-estar.',
     image: 'team/gabriela.jpg',
     objectPosition: 'center 12%',
   },
@@ -174,6 +175,71 @@ export const team: TeamMember[] = [
     note: 'Médico com pós em pediatria e psiquiatria infantil — atendimento adulto e infantil na Matsubara.',
     image: 'team/lucas.jpg',
     objectPosition: 'center 12%',
+  },
+]
+
+export type InstagramPost = {
+  id: string
+  image: string
+  caption: string
+  href: string
+}
+
+/** Conteúdos oficiais de @clinicamatsubara_ */
+export const instagramPosts: InstagramPost[] = [
+  {
+    id: 'ig-00',
+    image: 'moments/ig-00.jpg',
+    caption: 'Venha conhecer nossos serviços',
+    href: 'https://www.instagram.com/p/DayyEcKiUZA/',
+  },
+  {
+    id: 'ig-01',
+    image: 'moments/ig-01.jpg',
+    caption: 'Aqui cada cliente é único',
+    href: 'https://www.instagram.com/p/CuXIxZTu1eL/',
+  },
+  {
+    id: 'ig-05',
+    image: 'moments/ig-05.jpg',
+    caption: 'Boas-vindas à Dra. Gabriela Lara',
+    href: 'https://www.instagram.com/p/DZ3kD1tCe7z/',
+  },
+  {
+    id: 'ig-04',
+    image: 'moments/ig-04.jpg',
+    caption: 'Heccus Turbo — gordura localizada',
+    href: 'https://www.instagram.com/p/DbZIf10JBYl/',
+  },
+  {
+    id: 'ig-03',
+    image: 'moments/ig-03.jpg',
+    caption: 'Salas climatizadas para o seu conforto',
+    href: 'https://www.instagram.com/p/DbZJSKRp2hH/',
+  },
+  {
+    id: 'ig-02',
+    image: 'moments/ig-02.jpg',
+    caption: 'Sala disponível para locação',
+    href: 'https://www.instagram.com/p/DZwHt4Qkd54/',
+  },
+  {
+    id: 'ig-08',
+    image: 'moments/ig-08.jpg',
+    caption: 'Cuidado emocional com a psicologia',
+    href: 'https://www.instagram.com/p/DZ3kD1tCe7z/',
+  },
+  {
+    id: 'ig-06',
+    image: 'moments/ig-06.jpg',
+    caption: 'Resultados e presença na clínica',
+    href: 'https://www.instagram.com/clinicamatsubara_/',
+  },
+  {
+    id: 'ig-10',
+    image: 'moments/ig-10.jpg',
+    caption: 'Experiência Matsubara no dia a dia',
+    href: 'https://www.instagram.com/clinicamatsubara_/',
   },
 ]
 
