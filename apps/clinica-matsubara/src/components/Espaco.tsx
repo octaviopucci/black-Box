@@ -8,20 +8,23 @@ const frames = [
     label: 'Recepção',
     line: 'Acolhimento que se sente ao entrar',
     wide: true,
+    objectPosition: 'center 45%',
   },
   {
     src: 'space/consultorio.jpg',
-    alt: 'Consultório climatizado com acabamento em mármore',
+    alt: 'Consultório moderno em tons cream com mármore e luz quente',
     label: 'Consultório',
     line: 'Precisão em ambiente sereno',
     wide: false,
+    objectPosition: 'center center',
   },
   {
     src: 'space/sala.jpg',
-    alt: 'Sala de atendimento moderna e climatizada',
+    alt: 'Sala de atendimento climatizada com acabamento boutique',
     label: 'Salas climatizadas',
     line: 'Conforto térmico do início ao fim',
     wide: false,
+    objectPosition: 'center center',
   },
 ] as const
 
@@ -57,6 +60,7 @@ export function Espaco() {
                   className={`w-full object-cover transition duration-700 group-hover:scale-[1.03] ${
                     frame.wide ? 'aspect-[21/9] sm:aspect-[2.4/1]' : 'aspect-[4/3]'
                   }`}
+                  style={{ objectPosition: frame.objectPosition }}
                   loading="lazy"
                 />
                 <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent p-6 text-cream sm:p-8">
