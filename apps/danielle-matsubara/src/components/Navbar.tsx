@@ -21,10 +21,12 @@ export function Navbar() {
     }
   }, [open])
 
+  const solid = scrolled || open
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition duration-500 ${
-        scrolled || open ? 'glass shadow-soft' : 'bg-transparent'
+        solid ? 'glass shadow-soft' : 'bg-transparent'
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8 sm:py-4">
@@ -34,7 +36,11 @@ export function Navbar() {
             alt=""
             className="h-9 w-9 rounded-full object-cover ring-1 ring-wine/20"
           />
-          <span className="font-display text-lg font-semibold leading-none tracking-tight text-ink sm:text-xl">
+          <span
+            className={`font-display text-lg font-semibold leading-none tracking-tight sm:text-xl ${
+              solid ? 'text-ink' : 'text-cream'
+            }`}
+          >
             Danielle
           </span>
         </a>
@@ -44,7 +50,9 @@ export function Navbar() {
             <a
               key={item.href}
               href={item.href}
-              className="text-[11px] font-medium uppercase tracking-[0.22em] text-ink/55 transition hover:text-wine"
+              className={`text-[11px] font-medium uppercase tracking-[0.22em] transition ${
+                solid ? 'text-ink/55 hover:text-wine' : 'text-cream/70 hover:text-cream'
+              }`}
               data-cursor
             >
               {item.label}
@@ -55,14 +63,20 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <a
             href={whatsappUrl()}
-            className="hidden rounded-full bg-wine px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-cream transition hover:bg-wine-soft sm:inline-flex"
+            className={`hidden rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition sm:inline-flex ${
+              solid
+                ? 'bg-wine text-cream hover:bg-wine-soft'
+                : 'bg-cream/15 text-cream hover:bg-cream/25'
+            }`}
             data-cursor
           >
             Agendar
           </a>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/10 text-ink lg:hidden"
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-full border lg:hidden ${
+              solid ? 'border-ink/10 text-ink' : 'border-cream/25 text-cream'
+            }`}
             aria-label={open ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}

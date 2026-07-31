@@ -46,11 +46,11 @@ export function Oficio() {
           ))}
         </div>
 
-        <Reveal className="mt-16 grid gap-4 sm:grid-cols-3">
+        <Reveal className="mt-16 grid gap-8 border-t border-cream/15 pt-10 sm:grid-cols-3 sm:gap-10">
           {site.journey.map((step) => (
-            <div key={step.step} className="rounded-3xl bg-wine/50 px-5 py-6 ring-1 ring-cream/10">
-              <p className="font-display text-3xl text-rose-soft">{step.step}</p>
-              <h3 className="mt-2 text-lg font-semibold text-cream">{step.title}</h3>
+            <div key={step.step}>
+              <p className="font-display text-4xl text-rose-soft">{step.step}</p>
+              <h3 className="mt-3 text-lg font-semibold text-cream">{step.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-cream/55">{step.description}</p>
             </div>
           ))}
