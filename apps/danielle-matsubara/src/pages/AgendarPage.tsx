@@ -40,7 +40,7 @@ export function AgendarPage() {
             <p className="mt-4 text-sm text-cream/45">{site.phone.label}</p>
           </Reveal>
 
-          <Reveal delay={0.1} className="overflow-hidden rounded-[2rem]">
+          <Reveal immediate delay={0.1} className="overflow-hidden rounded-[2rem]">
             <img
               src={asset('space/consultorio.jpg')}
               alt="Consultório Matsubara"

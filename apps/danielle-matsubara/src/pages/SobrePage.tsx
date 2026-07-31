@@ -19,7 +19,7 @@ export function SobrePage() {
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-cream/70">{site.about.lead}</p>
           </Reveal>
-          <Reveal delay={0.1} className="overflow-hidden rounded-[2rem]">
+          <Reveal immediate delay={0.1} className="overflow-hidden rounded-[2rem]">
             <img
               src={asset('portrait.jpg')}
               alt={site.title}
