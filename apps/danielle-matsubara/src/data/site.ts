@@ -1,7 +1,7 @@
 /** DNA: presença calma, precisão acolhedora, boutique feminina, autoridade humanizada.
  * Objetivo de negócio: agendamentos via WhatsApp.
  * Conceito: A Escuta.
- * Regra de copy: nunca usar travessão (—).
+ * Regra de copy: nunca usar travessao.
  */
 
 export const site = {
