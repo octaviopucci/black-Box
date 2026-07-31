@@ -17,7 +17,7 @@ export function AgendarPage() {
     <Shell>
       <section className="relative overflow-hidden bg-wine-deep px-5 pb-16 pt-28 text-cream sm:px-8 sm:pb-24 sm:pt-32">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-center">
-          <Reveal>
+          <Reveal immediate>
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-rose-soft">
               Agendar
             </p>

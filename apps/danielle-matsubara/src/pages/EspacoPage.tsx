@@ -62,7 +62,7 @@ export function EspacoPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-wine-deep via-wine-deep/60 to-wine-deep/40" />
         <div className="relative z-10 mx-auto flex min-h-[70svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 sm:px-8 sm:pb-20">
-          <Reveal>
+          <Reveal immediate>
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-rose-soft">
               Espaço
             </p>

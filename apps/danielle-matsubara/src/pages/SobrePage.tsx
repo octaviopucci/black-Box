@@ -12,7 +12,7 @@ export function SobrePage() {
     <Shell>
       <section className="relative overflow-hidden bg-wine-deep px-5 pb-16 pt-28 text-cream sm:px-8 sm:pb-20 sm:pt-32">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-end">
-          <Reveal>
+          <Reveal immediate>
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-rose-soft">Sobre</p>
             <h1 className="mt-4 font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
               {site.about.title}
