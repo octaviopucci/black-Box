@@ -176,6 +176,30 @@ export const team: TeamMember[] = [
     image: 'team/lucas.jpg',
     objectPosition: 'center 12%',
   },
+  {
+    id: 'tainara',
+    name: 'Dra. Tainara Desidera',
+    role: 'Ortodontia · Odontopediatria · CRO 113726',
+    note: 'Alinha sorrisos com tecnologia, conforto e excelência — aparelhos metálicos, estéticos e alinhadores para todas as idades.',
+    image: 'team/tainara.jpg',
+    objectPosition: 'center 18%',
+  },
+  {
+    id: 'larissa-costa',
+    name: 'Dra. Larissa Costa',
+    role: 'Laserterapia · Dentística',
+    note: 'Laserterapia para alívio da dor, efeito anti-inflamatório e cicatrização mais rápida — com restauração estética e funcional do sorriso.',
+    image: 'team/larissa-costa.jpg',
+    objectPosition: 'center 14%',
+  },
+  {
+    id: 'lucineia',
+    name: 'Lucineia Gomes',
+    role: 'Massoterapia · Terapia corporal',
+    note: 'Massagem relaxante, terapêutica, redutora, drenagem linfática, facial, reflexologia podal e Topcorpus — toque que alivia e transforma.',
+    image: 'team/lucineia.jpg',
+    objectPosition: 'center 16%',
+  },
 ]
 
 export type InstagramPost = {
