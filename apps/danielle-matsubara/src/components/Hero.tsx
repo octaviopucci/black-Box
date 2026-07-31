@@ -19,9 +19,9 @@ export function Hero() {
     reduced
       ? undefined
       : {
-          initial: { opacity: 0.001, y: 20 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
+          initial: { y: 16 },
+          animate: { y: 0 },
+          transition: { duration: 0.85, delay, ease: [0.22, 1, 0.36, 1] as const },
         }
 
   return (
