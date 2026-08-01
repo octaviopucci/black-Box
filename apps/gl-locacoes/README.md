@@ -1,5 +1,9 @@
-# G&L Fest Locações
+# G&L Locações de Brinquedos
 
-Site demo da G&L Fest — locação de brinquedos infláveis, decoração e barraquinhas.
+Experiência digital da G&L Locações (Capão Bonito e região).
 
-Publicado em `/gl-locacoes/` no Black Box.
+- Instagram: [@gllocacoes_de_brinquedos](https://www.instagram.com/gllocacoes_de_brinquedos/)
+- Slogan: Diversão Garantida
+- Publicação: `/gl-locacoes/` no Black Box
+
+Fotos e identidade visual extraídas do Instagram oficial da marca.

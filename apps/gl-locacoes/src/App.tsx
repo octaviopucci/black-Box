@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { Experience } from './pages/Experience'
+import { BrandMark } from './components/BrandMark'
 
 const NotFoundPage = lazy(() =>
   import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
@@ -20,10 +21,9 @@ export default function App() {
       <ScrollToTop />
       <Suspense
         fallback={
-          <div className="flex min-h-screen items-center justify-center bg-night">
-            <p className="font-brand text-4xl font-extrabold tracking-tight text-sun sm:text-5xl">
-              G&amp;L Fest
-            </p>
+          <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-navy">
+            <BrandMark className="h-20 w-20" />
+            <p className="font-brand text-3xl font-bold text-sun">G&amp;L Locações</p>
           </div>
         }
       >

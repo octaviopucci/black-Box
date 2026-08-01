@@ -133,10 +133,10 @@ export const projects: ClientProject[] = [
   },
   {
     id: 'gl-locacoes',
-    name: 'G&L Fest',
-    client: 'G&L Fest Locações · Brasília',
+    name: 'G&L Locações',
+    client: 'G&L Locações de Brinquedos · Capão Bonito',
     description:
-      'Locação de brinquedos infláveis, decoração temática e barraquinhas — catálogo, momentos e orçamento WhatsApp para festas e eventos.',
+      'Experiência “Diversão Garantida”: pula-pula, piscina de bolinhas, escorregadores e toboágua com fotos reais do Instagram e reserva WhatsApp.',
     href: '/gl-locacoes/',
     status: 'demo',
     tags: ['React', 'Eventos', 'Locação'],

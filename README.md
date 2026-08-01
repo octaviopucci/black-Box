@@ -20,7 +20,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **NA Veículos** | [/na-veiculos/](/na-veiculos/) | Demo premium |
 | **Clínica Matsubara** | [/clinica-matsubara/](/clinica-matsubara/) | Demo premium |
 | **Dra. Danielle Matsubara** | [/danielle-matsubara/](/danielle-matsubara/) | Demo premium |
-| **G&L Fest** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
+| **G&L Locações** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
