@@ -20,6 +20,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **NA Veículos** | [/na-veiculos/](/na-veiculos/) | Demo premium |
 | **Clínica Matsubara** | [/clinica-matsubara/](/clinica-matsubara/) | Demo premium |
 | **Dra. Danielle Matsubara** | [/danielle-matsubara/](/danielle-matsubara/) | Demo premium |
+| **G&L Fest** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
@@ -69,6 +70,9 @@ npm run dev:matsubara
 
 # Dra. Danielle Matsubara (demo premium)
 npm run dev:danielle
+
+# G&L Fest Locações (demo premium)
+npm run dev:gl
 
 # Build completo (igual Vercel)
 npm run build

@@ -131,4 +131,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Saúde', 'Awwwards'],
   },
+  {
+    id: 'gl-locacoes',
+    name: 'G&L Fest',
+    client: 'G&L Fest Locações · Brasília',
+    description:
+      'Locação de brinquedos infláveis, decoração temática e barraquinhas — catálogo, momentos e orçamento WhatsApp para festas e eventos.',
+    href: '/gl-locacoes/',
+    status: 'demo',
+    tags: ['React', 'Eventos', 'Locação'],
+  },
 ]

@@ -17,6 +17,7 @@
     "dev:na": "npm --prefix apps/na-veiculos run dev",
     "dev:matsubara": "npm --prefix apps/clinica-matsubara run dev",
     "dev:danielle": "npm --prefix apps/danielle-matsubara run dev",
+    "dev:gl": "npm --prefix apps/gl-locacoes run dev",
     "build:maciel": "npm --prefix apps/maciel-motors-gestor ci --include=dev && VITE_BASE=/maciel-motors/ VITE_OUT_DIR=dist npm --prefix apps/maciel-motors-gestor run build",
     "build:maciel-x": "VITE_INTERACTIVE=1 VITE_BASE=/maciel-motors-x/ VITE_OUT_DIR=dist-x npm --prefix apps/maciel-motors-gestor run build",
     "build:porthal": "npm --prefix apps/porthal-imoveis ci --include=dev && VITE_BASE=/porthal-imoveis/ VITE_OUT_DIR=dist npm --prefix apps/porthal-imoveis run build",
@@ -29,8 +30,9 @@
     "build:na": "npm --prefix apps/na-veiculos ci --include=dev && VITE_BASE=/na-veiculos/ VITE_OUT_DIR=dist npm --prefix apps/na-veiculos run build",
     "build:matsubara": "npm --prefix apps/clinica-matsubara ci --include=dev && VITE_BASE=/clinica-matsubara/ VITE_OUT_DIR=dist npm --prefix apps/clinica-matsubara run build",
     "build:danielle": "npm --prefix apps/danielle-matsubara ci --include=dev && VITE_BASE=/danielle-matsubara/ VITE_OUT_DIR=dist npm --prefix apps/danielle-matsubara run build",
+    "build:gl": "npm --prefix apps/gl-locacoes ci --include=dev && VITE_BASE=/gl-locacoes/ VITE_OUT_DIR=dist npm --prefix apps/gl-locacoes run build",
     "build:portal": "npm --prefix portal ci --include=dev && npm --prefix portal run build",
-    "build": "npm run build:portal && npm run build:maciel && npm run build:maciel-x && npm run build:porthal && npm run build:marcio && npm run build:sogov && npm run build:dna && npm run build:prado && npm run build:harmonie && npm run build:pucci && npm run build:na && npm run build:matsubara && npm run build:danielle && node scripts/assemble-dist.mjs",
+    "build": "npm run build:portal && npm run build:maciel && npm run build:maciel-x && npm run build:porthal && npm run build:marcio && npm run build:sogov && npm run build:dna && npm run build:prado && npm run build:harmonie && npm run build:pucci && npm run build:na && npm run build:matsubara && npm run build:danielle && npm run build:gl && node scripts/assemble-dist.mjs",
     "vercel-build": "npm run build",
     "preview": "npx --yes serve -s dist -l 4173"
   },
