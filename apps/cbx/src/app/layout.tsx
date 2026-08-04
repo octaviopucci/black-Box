@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { AppProviders } from '@/components/providers/app-providers'
 import { BRAND } from '@/constants/brand'
+import { assetPath } from '@/lib/asset-path'
 import './globals.css'
 
 const geistSans = Geist({
@@ -14,12 +15,14 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+const logoIcon = assetPath('/brand/logo.png')
+
 export const metadata: Metadata = {
   title: 'CBX — O Marketplace de Capão Bonito',
   description: BRAND.slogan,
   icons: {
-    icon: '/brand/logo.png',
-    apple: '/brand/logo.png',
+    icon: logoIcon,
+    apple: logoIcon,
   },
 }
 

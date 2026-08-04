@@ -3,9 +3,9 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { BRAND, ROUTES } from '@/constants/brand'
 import { useAppStore } from '@/stores/app-store'
+import { assetPath } from '@/lib/asset-path'
 import { fadeIn, scaleIn } from '@/animations/variants'
 
 export default function SplashPage() {
@@ -34,13 +34,15 @@ export default function SplashPage() {
           transition={{ delay: 0.1 }}
           className="relative"
         >
-          <Image
-            src="/brand/logo.png"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={assetPath('/brand/logo.png')}
             alt={BRAND.name}
             width={280}
             height={280}
-            priority
             className="h-auto w-[min(72vw,280px)] object-contain drop-shadow-[0_0_40px_rgba(168,85,247,0.45)]"
+            decoding="async"
+            fetchPriority="high"
           />
         </motion.div>
 
