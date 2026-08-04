@@ -1,0 +1,52 @@
+import type { Company } from '@/types'
+import { img } from './images'
+
+export const companies: Company[] = [
+  {
+    id: 'company-1',
+    name: 'TechCapão Informática Ltda',
+    logo: img.store.tech.logo,
+    cover: img.store.tech.cover,
+    description: 'Empresa de tecnologia fundada em Capão Bonito em 2015. Referência em vendas de equipamentos de informática e assistência técnica no Vale do Ribeira.',
+    category: 'Tecnologia',
+    city: 'Capão Bonito',
+    verified: true,
+    rating: 4.9,
+    storeId: 'store-1',
+  },
+  {
+    id: 'company-2',
+    name: 'Grupo AutoPeças do Vale',
+    logo: img.store.auto.logo,
+    cover: img.store.auto.cover,
+    description: 'Rede de autopeças com unidade em Capão Bonito e distribuição para Apiaí, Guapiara e região. Mais de 20 anos de experiência no mercado automotivo.',
+    category: 'Automotivo',
+    city: 'Capão Bonito',
+    verified: true,
+    rating: 4.8,
+    storeId: 'store-2',
+  },
+  {
+    id: 'company-3',
+    name: 'CBX Serviços Digitais',
+    logo: img.office(),
+    cover: img.cover('company-cbx-servicos'),
+    description: 'Agência de marketing digital e desenvolvimento web para pequenos negócios de Capão Bonito. Criadores da plataforma CBX Marketplace.',
+    category: 'Serviços Digitais',
+    city: 'Capão Bonito',
+    verified: true,
+    rating: 5.0,
+  },
+  {
+    id: 'company-4',
+    name: 'Construtora Horizonte',
+    logo: img.store.home.logo,
+    cover: img.house(2),
+    description: 'Construtora e incorporadora com projetos residenciais e comerciais em Capão Bonito. Especializada em casas de médio padrão nos bairros Jardim Europa e Vila Nova.',
+    category: 'Construção Civil',
+    city: 'Capão Bonito',
+    verified: true,
+    rating: 4.7,
+    storeId: 'store-3',
+  },
+]

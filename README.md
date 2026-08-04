@@ -21,6 +21,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Clínica Matsubara** | [/clinica-matsubara/](/clinica-matsubara/) | Demo premium |
 | **Dra. Danielle Matsubara** | [/danielle-matsubara/](/danielle-matsubara/) | Demo premium |
 | **G&L Locações** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
+| **CBX** | [/cbx/](/cbx/) | Marketplace demo |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
@@ -73,6 +74,9 @@ npm run dev:danielle
 
 # G&L Fest Locações (demo premium)
 npm run dev:gl
+
+# CBX — Marketplace Capão Bonito
+npm run dev:cbx
 
 # Build completo (igual Vercel)
 npm run build
