@@ -46,7 +46,7 @@ export default async function VendedorPage({ params }: PageProps) {
     <PageShell>
       <div className="relative h-36 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/20 md:h-48">
         <Image
-          src={`https://picsum.photos/seed/cover-${seller.id}/1200/400`}
+          src={`https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&h=400&fit=crop&sig=${seller.id}`}
           alt=""
           fill
           className="object-cover opacity-60"

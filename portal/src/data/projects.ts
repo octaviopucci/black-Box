@@ -141,4 +141,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['React', 'Eventos', 'Locação'],
   },
+  {
+    id: 'cbx',
+    name: 'CBX',
+    client: 'CBX · Capão Bonito',
+    description:
+      'Marketplace local de Capão Bonito: comprar e vender com experiência premium — home rica, chat, anúncios, planos e lojas. 100% front-end mockado.',
+    href: '/cbx/',
+    status: 'demo',
+    tags: ['Next.js', 'Marketplace', 'Premium'],
+  },
 ]

@@ -18,6 +18,7 @@ const naDist = join(root, 'apps', 'na-veiculos', 'dist')
 const matsubaraDist = join(root, 'apps', 'clinica-matsubara', 'dist')
 const danielleDist = join(root, 'apps', 'danielle-matsubara', 'dist')
 const glDist = join(root, 'apps', 'gl-locacoes', 'dist')
+const cbxDist = join(root, 'apps', 'cbx', 'out')
 
 if (!existsSync(portalDist)) throw new Error('portal/dist não encontrado — rode build:portal')
 if (!existsSync(macielDist)) throw new Error('apps/maciel-motors-gestor/dist não encontrado — rode build:maciel')
@@ -57,6 +58,9 @@ if (!existsSync(danielleDist)) {
 if (!existsSync(glDist)) {
   throw new Error('apps/gl-locacoes/dist não encontrado — rode build:gl')
 }
+if (!existsSync(cbxDist)) {
+  throw new Error('apps/cbx/out não encontrado — rode build:cbx')
+}
 
 function publish(target) {
   rmSync(target, { recursive: true, force: true })
@@ -88,10 +92,12 @@ function publish(target) {
   cpSync(danielleDist, join(target, 'danielle-matsubara'), { recursive: true })
   mkdirSync(join(target, 'gl-locacoes'), { recursive: true })
   cpSync(glDist, join(target, 'gl-locacoes'), { recursive: true })
+  mkdirSync(join(target, 'cbx'), { recursive: true })
+  cpSync(cbxDist, join(target, 'cbx'), { recursive: true })
 }
 
 publish(out)
 // Vercel no celular usa Output Directory padrão "public" — espelha o dist.
 publish(publicOut)
 
-console.log('publicado em dist/ e public/ (portal + /maciel-motors/ + /maciel-motors-x/ + /porthal-imoveis/ + /marcio-mariano/ + /sogov/ + /clinica-dna/ + /dr-marcelo-prado/ + /clinica-harmonie/ + /octavio-pucci/ + /na-veiculos/ + /clinica-matsubara/ + /danielle-matsubara/ + /gl-locacoes/)')
+console.log('publicado em dist/ e public/ (portal + /maciel-motors/ + /maciel-motors-x/ + /porthal-imoveis/ + /marcio-mariano/ + /sogov/ + /clinica-dna/ + /dr-marcelo-prado/ + /clinica-harmonie/ + /octavio-pucci/ + /na-veiculos/ + /clinica-matsubara/ + /danielle-matsubara/ + /gl-locacoes/ + /cbx/)')

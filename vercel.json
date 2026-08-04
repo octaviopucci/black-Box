@@ -16,7 +16,7 @@
     { "source": "/clinica-matsubara/(.*)", "destination": "/clinica-matsubara/index.html" },
     { "source": "/danielle-matsubara/(.*)", "destination": "/danielle-matsubara/index.html" },
     { "source": "/gl-locacoes/(.*)", "destination": "/gl-locacoes/index.html" },
-    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/((?!maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

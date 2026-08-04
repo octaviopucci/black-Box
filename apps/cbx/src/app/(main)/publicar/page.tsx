@@ -62,7 +62,7 @@ export default function PublicarPage() {
     const seed = `pub-${Date.now()}-${draft.images.length}`
     draft.setField('images', [
       ...draft.images,
-      `https://picsum.photos/seed/${seed}/800/800`,
+      `https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&sig=${seed}`,
     ])
   }, [draft])
 
