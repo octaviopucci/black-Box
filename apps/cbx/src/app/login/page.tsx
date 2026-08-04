@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Mail, Lock } from 'lucide-react'
 import { BRAND, ROUTES } from '@/constants/brand'
 import { useAppStore } from '@/stores/app-store'
+import { BrandLogo } from '@/components/brand/brand-assets'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { fadeIn } from '@/animations/variants'
@@ -41,8 +42,8 @@ export default function LoginPage() {
         className="w-full max-w-md"
       >
         <div className="mb-8 text-center">
-          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-[#9333ea] to-accent text-lg font-bold text-white shadow-lg shadow-primary/25">
-            CB
+          <div className="mx-auto flex justify-center rounded-2xl bg-black p-2 shadow-lg shadow-primary/20">
+            <BrandLogo size={96} href={null} priority className="rounded-xl" />
           </div>
           <h1 className="mt-4 text-2xl font-bold tracking-tight">Entrar no {BRAND.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{BRAND.tagline}</p>

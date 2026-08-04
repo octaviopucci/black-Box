@@ -13,7 +13,8 @@ import {
   HelpCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { BRAND, ROUTES } from '@/constants/brand'
+import { ROUTES } from '@/constants/brand'
+import { BrandLogo } from '@/components/brand/brand-assets'
 
 const links = [
   { href: ROUTES.home, label: 'Início', icon: Home },
@@ -31,15 +32,9 @@ export function Sidebar() {
 
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-border/70 bg-card p-4 lg:block">
-      <Link href={ROUTES.home} className="mb-8 flex items-center gap-2.5 px-2">
-        <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-[#9333ea] to-accent text-sm font-bold text-white shadow-md shadow-primary/25">
-          CB
-        </span>
-        <span>
-          <span className="block text-lg font-bold tracking-tight">{BRAND.name}</span>
-          <span className="text-[11px] text-muted-foreground">Capão Bonito</span>
-        </span>
-      </Link>
+      <div className="mb-8 px-1">
+        <BrandLogo size={72} className="rounded-xl bg-black" />
+      </div>
       <nav aria-label="Menu lateral">
         <ul className="space-y-1">
           {links.map((link) => {

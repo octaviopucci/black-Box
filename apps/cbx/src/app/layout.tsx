@@ -17,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'CBX — O Marketplace de Capão Bonito',
   description: BRAND.slogan,
+  icons: {
+    icon: '/brand/logo.png',
+    apple: '/brand/logo.png',
+  },
 }
 
 export default function RootLayout({

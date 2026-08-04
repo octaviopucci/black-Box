@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { BRAND, ROUTES } from '@/constants/brand'
 import { useAppStore } from '@/stores/app-store'
 import { fadeIn, scaleIn } from '@/animations/variants'
@@ -14,12 +15,12 @@ export default function SplashPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.replace(onboardingDone ? ROUTES.home : ROUTES.onboarding)
-    }, 2000)
+    }, 2400)
     return () => clearTimeout(timer)
   }, [router, onboardingDone])
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 px-6">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-black px-6">
       <motion.div
         variants={fadeIn}
         initial="hidden"
@@ -30,35 +31,24 @@ export default function SplashPage() {
           variants={scaleIn}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.15 }}
-          className="flex size-24 items-center justify-center rounded-3xl bg-gradient-to-br from-primary via-[#9333ea] to-accent text-3xl font-bold text-white shadow-2xl shadow-primary/30"
+          transition={{ delay: 0.1 }}
+          className="relative"
         >
-          CB
+          <Image
+            src="/brand/logo.png"
+            alt={BRAND.name}
+            width={280}
+            height={280}
+            priority
+            className="h-auto w-[min(72vw,280px)] object-contain drop-shadow-[0_0_40px_rgba(168,85,247,0.45)]"
+          />
         </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.4 }}
-          className="mt-8 text-4xl font-bold tracking-tight text-foreground"
-        >
-          {BRAND.name}
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.4 }}
-          className="mt-2 text-lg text-muted-foreground"
-        >
-          {BRAND.slogan}
-        </motion.p>
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-12 flex gap-1.5"
+          transition={{ delay: 0.9 }}
+          className="mt-10 flex gap-1.5"
           aria-hidden
         >
           {[0, 1, 2].map((i) => (

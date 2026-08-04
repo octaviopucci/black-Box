@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Crown, ChevronRight } from 'lucide-react'
 
-import { HeroBanner, HorizontalAd, PromoBanner } from '@/components/banners/hero-banner'
+import { BrandBanner } from '@/components/brand/brand-assets'
+import { HorizontalAd, PromoBanner } from '@/components/banners/hero-banner'
 import { CategoryCard } from '@/components/cards/category-card'
 import { CompanyCard } from '@/components/cards/company-card'
 import { ProductCard } from '@/components/cards/product-card'
@@ -44,7 +45,6 @@ export default function HomePage() {
   const { isFavorite, toggleFavorite, recentViews } = useAppStore()
 
   const categories = categoryService.list()
-  const banners = contentService.banners()
   const promotions = contentService.promotions()
   const allProducts = productService.list()
   const sponsored = productService.sponsored()
@@ -84,10 +84,10 @@ export default function HomePage() {
         </Container>
       </ScrollSection>
 
-      {/* Hero */}
-      <ScrollSection>
+      {/* Official brand banner */}
+      <ScrollSection className="pt-2">
         <Container>
-          {banners[0] && <HeroBanner banner={banners[0]} />}
+          <BrandBanner priority className="shadow-xl shadow-primary/10" />
         </Container>
       </ScrollSection>
 

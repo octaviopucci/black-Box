@@ -1,9 +1,8 @@
 'use client'
 
-import Link from 'next/link'
-import { Bell, Heart, MapPin } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { BRAND, ROUTES } from '@/constants/brand'
+import { Bell, Heart } from 'lucide-react'
+import { ROUTES } from '@/constants/brand'
+import { BrandLogo } from '@/components/brand/brand-assets'
 import { IconButton } from '@/components/ui/icon-button'
 import { SearchInput } from '@/components/ui/search-input'
 import { useAppStore } from '@/stores/app-store'
@@ -37,21 +36,7 @@ export function AppHeader({ showSearch = true, sticky = true }: AppHeaderProps) 
       }
     >
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-        <Link href={ROUTES.home} className="flex shrink-0 items-center gap-2" aria-label="CBX início">
-          <motion.span
-            whileHover={{ scale: 1.05 }}
-            className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-[#9333ea] to-accent text-sm font-bold text-white shadow-md shadow-primary/25"
-          >
-            CB
-          </motion.span>
-          <span className="hidden">
-            <span className="block text-base font-bold tracking-tight text-foreground">{BRAND.name}</span>
-            <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-              <MapPin className="size-2.5" aria-hidden />
-              Capão Bonito
-            </span>
-          </span>
-        </Link>
+        <BrandLogo size={44} className="rounded-lg bg-black" />
 
         {showSearch && (
           <div className="min-w-0 flex-1">

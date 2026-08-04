@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MapPin, Megaphone, Store } from 'lucide-react'
-import { BRAND, ROUTES } from '@/constants/brand'
+import { ROUTES } from '@/constants/brand'
 import { useAppStore } from '@/stores/app-store'
+import { BrandLogo } from '@/components/brand/brand-assets'
 import { Button } from '@/components/ui/button'
 import { fadeIn, slideInRight } from '@/animations/variants'
 
@@ -56,7 +57,7 @@ export default function OnboardingPage() {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background">
       <header className="flex items-center justify-between px-4 py-4">
-        <span className="text-sm font-semibold text-muted-foreground">{BRAND.name}</span>
+        <BrandLogo size={36} href={null} className="rounded-md bg-black" />
         <Link
           href={ROUTES.home}
           onClick={() => {

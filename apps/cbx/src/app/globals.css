@@ -21,9 +21,9 @@
   --secondary: #ff6b2c;
   --secondary-foreground: #ffffff;
   --secondary-hover: #ea580c;
-  --accent: #e91e8c;
-  --accent-foreground: #ffffff;
-  --accent-hover: #c0266e;
+  --accent: #84cc16;
+  --accent-foreground: #14141f;
+  --accent-hover: #65a30d;
 
   /* Feedback */
   --success: #16a34a;
@@ -39,9 +39,9 @@
   --sponsored-foreground: #9a3412;
 
   /* Gradients */
-  --gradient-brand: linear-gradient(135deg, #6d28d9 0%, #9333ea 45%, #e91e8c 100%);
+  --gradient-brand: linear-gradient(135deg, #6d28d9 0%, #9333ea 40%, #f97316 70%, #84cc16 100%);
   --gradient-warm: linear-gradient(135deg, #ff6b2c 0%, #f59e0b 100%);
-  --gradient-hero: linear-gradient(120deg, #6d28d9 0%, #7c3aed 40%, #db2777 100%);
+  --gradient-hero: linear-gradient(120deg, #6d28d9 0%, #7c3aed 40%, #f97316 100%);
   --gradient-surface: radial-gradient(1200px 600px at 10% -10%, rgba(109, 40, 217, 0.08), transparent 55%),
     radial-gradient(900px 500px at 100% 0%, rgba(255, 107, 44, 0.06), transparent 50%),
     #f7f7fb;
