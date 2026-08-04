@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { LucideIcon } from 'lucide-react'
@@ -58,17 +57,7 @@ function CategoryCard({ category, href, className }: CategoryCardProps) {
           className="flex size-12 shrink-0 items-center justify-center rounded-xl"
           style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
         >
-          {category.image ? (
-            <Image
-              src={category.image}
-              alt=""
-              width={28}
-              height={28}
-              className="object-contain"
-            />
-          ) : (
-            <Icon className="size-6" aria-hidden />
-          )}
+          <Icon className="size-6" aria-hidden />
         </div>
 
         <div className="min-w-0 flex-1">

@@ -44,7 +44,7 @@ export function AppHeader({ showSearch = true, sticky = true }: AppHeaderProps) 
           >
             CB
           </motion.span>
-          <span className="hidden sm:block">
+          <span className="hidden">
             <span className="block text-base font-bold tracking-tight text-foreground">{BRAND.name}</span>
             <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
               <MapPin className="size-2.5" aria-hidden />

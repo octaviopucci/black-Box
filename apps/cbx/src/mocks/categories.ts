@@ -8,7 +8,7 @@ export const categories: Category[] = [
     icon: 'Smartphone',
     color: '#3B82F6',
     productCount: 48,
-    image: 'https://picsum.photos/seed/cat-eletronicos/400/300',
+    image: '',
   },
   {
     id: 'cat-veiculos',
@@ -17,7 +17,7 @@ export const categories: Category[] = [
     icon: 'Car',
     color: '#EF4444',
     productCount: 22,
-    image: 'https://picsum.photos/seed/cat-veiculos/400/300',
+    image: '',
   },
   {
     id: 'cat-imoveis',
@@ -26,7 +26,7 @@ export const categories: Category[] = [
     icon: 'Home',
     color: '#10B981',
     productCount: 15,
-    image: 'https://picsum.photos/seed/cat-imoveis/400/300',
+    image: '',
   },
   {
     id: 'cat-moda',
@@ -35,7 +35,7 @@ export const categories: Category[] = [
     icon: 'Shirt',
     color: '#EC4899',
     productCount: 67,
-    image: 'https://picsum.photos/seed/cat-moda/400/300',
+    image: '',
   },
   {
     id: 'cat-casa',
@@ -44,7 +44,7 @@ export const categories: Category[] = [
     icon: 'Sofa',
     color: '#F59E0B',
     productCount: 39,
-    image: 'https://picsum.photos/seed/cat-casa/400/300',
+    image: '',
   },
   {
     id: 'cat-games',
@@ -53,7 +53,7 @@ export const categories: Category[] = [
     icon: 'Gamepad2',
     color: '#8B5CF6',
     productCount: 31,
-    image: 'https://picsum.photos/seed/cat-games/400/300',
+    image: '',
   },
   {
     id: 'cat-esportes',
@@ -62,7 +62,7 @@ export const categories: Category[] = [
     icon: 'Dumbbell',
     color: '#06B6D4',
     productCount: 28,
-    image: 'https://picsum.photos/seed/cat-esportes/400/300',
+    image: '',
   },
   {
     id: 'cat-infantil',
@@ -71,7 +71,7 @@ export const categories: Category[] = [
     icon: 'Baby',
     color: '#F472B6',
     productCount: 44,
-    image: 'https://picsum.photos/seed/cat-infantil/400/300',
+    image: '',
   },
   {
     id: 'cat-servicos',
@@ -80,7 +80,7 @@ export const categories: Category[] = [
     icon: 'Wrench',
     color: '#64748B',
     productCount: 18,
-    image: 'https://picsum.photos/seed/cat-servicos/400/300',
+    image: '',
   },
   {
     id: 'cat-livros',
@@ -89,7 +89,7 @@ export const categories: Category[] = [
     icon: 'BookOpen',
     color: '#A16207',
     productCount: 52,
-    image: 'https://picsum.photos/seed/cat-livros/400/300',
+    image: '',
   },
   {
     id: 'cat-pets',
@@ -98,7 +98,7 @@ export const categories: Category[] = [
     icon: 'PawPrint',
     color: '#D97706',
     productCount: 21,
-    image: 'https://picsum.photos/seed/cat-pets/400/300',
+    image: '',
   },
   {
     id: 'cat-empregos',
@@ -107,6 +107,6 @@ export const categories: Category[] = [
     icon: 'Briefcase',
     color: '#1E40AF',
     productCount: 9,
-    image: 'https://picsum.photos/seed/cat-empregos/400/300',
+    image: '',
   },
 ]

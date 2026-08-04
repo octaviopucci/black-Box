@@ -54,7 +54,7 @@ export default function OnboardingPage() {
   const Icon = slide.icon
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background">
       <header className="flex items-center justify-between px-4 py-4">
         <span className="text-sm font-semibold text-muted-foreground">{BRAND.name}</span>
         <Link

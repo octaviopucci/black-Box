@@ -1,11 +1,12 @@
 import type { Company } from '@/types'
+import { img } from './images'
 
 export const companies: Company[] = [
   {
     id: 'company-1',
     name: 'TechCapão Informática Ltda',
-    logo: 'https://picsum.photos/seed/company-techcapao/200/200',
-    cover: 'https://picsum.photos/seed/company-techcapao-cover/1200/400',
+    logo: img.store.tech.logo,
+    cover: img.store.tech.cover,
     description: 'Empresa de tecnologia fundada em Capão Bonito em 2015. Referência em vendas de equipamentos de informática e assistência técnica no Vale do Ribeira.',
     category: 'Tecnologia',
     city: 'Capão Bonito',
@@ -16,8 +17,8 @@ export const companies: Company[] = [
   {
     id: 'company-2',
     name: 'Grupo AutoPeças do Vale',
-    logo: 'https://picsum.photos/seed/company-autopecas/200/200',
-    cover: 'https://picsum.photos/seed/company-autopecas-cover/1200/400',
+    logo: img.store.auto.logo,
+    cover: img.store.auto.cover,
     description: 'Rede de autopeças com unidade em Capão Bonito e distribuição para Apiaí, Guapiara e região. Mais de 20 anos de experiência no mercado automotivo.',
     category: 'Automotivo',
     city: 'Capão Bonito',
@@ -28,8 +29,8 @@ export const companies: Company[] = [
   {
     id: 'company-3',
     name: 'CBX Serviços Digitais',
-    logo: 'https://picsum.photos/seed/company-cbx-servicos/200/200',
-    cover: 'https://picsum.photos/seed/company-cbx-servicos-cover/1200/400',
+    logo: img.office(),
+    cover: img.cover('company-cbx-servicos'),
     description: 'Agência de marketing digital e desenvolvimento web para pequenos negócios de Capão Bonito. Criadores da plataforma CBX Marketplace.',
     category: 'Serviços Digitais',
     city: 'Capão Bonito',
@@ -39,8 +40,8 @@ export const companies: Company[] = [
   {
     id: 'company-4',
     name: 'Construtora Horizonte',
-    logo: 'https://picsum.photos/seed/company-horizonte/200/200',
-    cover: 'https://picsum.photos/seed/company-horizonte-cover/1200/400',
+    logo: img.store.home.logo,
+    cover: img.house(2),
     description: 'Construtora e incorporadora com projetos residenciais e comerciais em Capão Bonito. Especializada em casas de médio padrão nos bairros Jardim Europa e Vila Nova.',
     category: 'Construção Civil',
     city: 'Capão Bonito',
