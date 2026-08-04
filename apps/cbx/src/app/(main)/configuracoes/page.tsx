@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   Bell,
   ChevronRight,
+  Crown,
   Globe,
   Lock,
   Moon,
@@ -14,13 +15,20 @@ import {
 
 import { Container, PageShell, SectionHeader } from '@/components/layout/page-shell'
 import { Switch } from '@/components/ui/switch'
+import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/constants/brand'
+import { useAdsStore } from '@/stores/ads-store'
+import type { PlanTier } from '@/types'
 
 export default function ConfiguracoesPage() {
   const [notifications, setNotifications] = useState(true)
   const [emailAlerts, setEmailAlerts] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
   const [marketing, setMarketing] = useState(true)
+  const planOverride = useAdsStore((s) => s.planOverride)
+  const setPlanOverride = useAdsStore((s) => s.setPlanOverride)
+  const getEffectivePlan = useAdsStore((s) => s.getEffectivePlan)
+  const effectivePlan = getEffectivePlan()
 
   const toggles = [
     {
@@ -62,10 +70,35 @@ export default function ConfiguracoesPage() {
     { href: ROUTES.termos, label: 'Termos de uso', icon: Lock },
   ]
 
+  const demoPlans: PlanTier[] = ['gratuito', 'premium', 'empresarial']
+
   return (
     <PageShell>
       <Container className="py-6">
         <SectionHeader title="Configurações" subtitle="Personalize sua experiência no CBX" />
+
+        <div className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Crown className="size-4 text-primary" />
+            <p className="text-sm font-semibold">Plano atual (demo): {effectivePlan}</p>
+          </div>
+          <p className="mb-3 text-xs text-muted-foreground">
+            No gratuito, abertura, publicação, WhatsApp e chat pedem anúncio em vídeo. Premium e
+            Empresarial ficam sem anúncios.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {demoPlans.map((plan) => (
+              <Button
+                key={plan}
+                size="sm"
+                variant={planOverride === plan ? 'default' : 'outline'}
+                onClick={() => setPlanOverride(plan)}
+              >
+                {plan}
+              </Button>
+            ))}
+          </div>
+        </div>
 
         <div className="mb-8 overflow-hidden rounded-xl border border-border/60 bg-card">
           {toggles.map((toggle, i) => {
@@ -82,7 +115,11 @@ export default function ConfiguracoesPage() {
                   <p className="text-sm font-medium">{toggle.label}</p>
                   <p className="text-xs text-muted-foreground">{toggle.description}</p>
                 </div>
-                <Switch checked={toggle.checked} onCheckedChange={toggle.onChange} />
+                <Switch
+                  checked={toggle.checked}
+                  onCheckedChange={toggle.onChange}
+                  aria-label={toggle.label}
+                />
               </div>
             )
           })}

@@ -9,10 +9,11 @@ export const plans: Plan[] = [
     description: 'Ideal para quem está começando a vender em Capão Bonito. Publique até 5 anúncios e alcance compradores da região.',
     features: [
       'Até 5 anúncios ativos',
-      'Chat com compradores',
+      'Chat e WhatsApp com anúncio em vídeo',
       'Perfil básico de vendedor',
       'Aparece nas buscas locais',
       'Suporte por e-mail',
+      'Anúncios patrocinados no app (monetização)',
     ],
   },
   {
@@ -23,6 +24,8 @@ export const plans: Plan[] = [
     description: 'Para vendedores frequentes que querem mais visibilidade no marketplace de Capão Bonito.',
     features: [
       'Até 30 anúncios ativos',
+      'Sem anúncios em vídeo',
+      'Chat e WhatsApp liberados',
       'Destaque em 3 anúncios por mês',
       'Selo de vendedor verificado',
       'Estatísticas de visualizações',
@@ -40,6 +43,7 @@ export const plans: Plan[] = [
     description: 'Solução completa para lojas e empresas da região com vitrine profissional e anúncios patrocinados.',
     features: [
       'Anúncios ilimitados',
+      'Sem anúncios em vídeo',
       'Loja virtual personalizada',
       '5 anúncios patrocinados por mês',
       'Banner na página inicial',

@@ -29,6 +29,7 @@ import { IconButton } from '@/components/ui/icon-button'
 import { BRAND, ROUTES } from '@/constants/brand'
 import { productService, userService } from '@/services'
 import { useAppStore } from '@/stores/app-store'
+import { useAdGate } from '@/hooks/use-ad-gate'
 import type { Product } from '@/types'
 import { staggerContainer, staggerItem } from '@/animations/variants'
 
@@ -47,6 +48,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [imageIndex, setImageIndex] = useState(0)
   const [direction, setDirection] = useState(0)
   const { addRecentView, toggleFavorite, isFavorite } = useAppStore()
+  const { runWithAd, isAdFree } = useAdGate()
 
   const seller = userService.get(product.sellerId)
   const related = productService.related(product.id).filter((p) => p.id !== product.id)
@@ -94,6 +96,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   const handleReport = () => {
     toast.info('Denúncia registrada. Nossa equipe irá analisar em breve.')
+  }
+
+  const openChat = () => {
+    runWithAd('chat', () => router.push(ROUTES.chat))
+  }
+
+  const openWhatsApp = () => {
+    runWithAd('whatsapp', () => {
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
+    })
   }
 
   return (
@@ -308,15 +320,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 </Link>
                 <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{seller.bio}</p>
                 <div className="mt-4 flex gap-2">
-                  <Button className="flex-1" onClick={() => router.push(ROUTES.chat)}>
+                  <Button className="flex-1" onClick={openChat}>
                     <MessageCircle className="size-4" />
-                    Chat
+                    Chat{!isAdFree ? ' · ad' : ''}
                   </Button>
-                  <Button variant="success" className="flex-1" asChild>
-                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                      <Phone className="size-4" />
-                      WhatsApp
-                    </a>
+                  <Button variant="success" className="flex-1" onClick={openWhatsApp}>
+                    <Phone className="size-4" />
+                    WhatsApp{!isAdFree ? ' · ad' : ''}
                   </Button>
                 </div>
               </div>
@@ -349,15 +359,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
       {/* Sticky bottom actions */}
       <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border/80 bg-card/95 p-3 backdrop-blur-xl md:bottom-0">
         <Container className="flex items-center gap-2 !px-0">
-          <Button className="flex-1" onClick={() => router.push(ROUTES.chat)}>
+          <Button className="flex-1" onClick={openChat}>
             <MessageCircle className="size-4" />
             Chat
           </Button>
-          <Button variant="success" className="flex-1" asChild>
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <Phone className="size-4" />
-              WhatsApp
-            </a>
+          <Button variant="success" className="flex-1" onClick={openWhatsApp}>
+            <Phone className="size-4" />
+            WhatsApp
           </Button>
           <IconButton
             variant={isFavorite(product.id) ? 'soft' : 'outline'}

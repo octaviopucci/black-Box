@@ -14,7 +14,7 @@ export const users: User[] = [
     verified: true,
     phoneVerified: true,
     memberSince: '2024-03-15',
-    plan: 'premium',
+    plan: 'gratuito',
     rating: 4.8,
     reviewCount: 23,
     salesCount: 12,
