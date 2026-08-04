@@ -1,16 +1,19 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Camera,
   Check,
   ChevronLeft,
   ChevronRight,
+  Lock,
   MapPin,
   PartyPopper,
+  Play,
   Sparkles,
   X,
 } from 'lucide-react'
@@ -25,6 +28,7 @@ import { PriceTag } from '@/components/ui/price-tag'
 import { ROUTES } from '@/constants/brand'
 import { categoryService, contentService } from '@/services'
 import { usePublishStore } from '@/stores/app-store'
+import { useAdGate } from '@/hooks/use-ad-gate'
 import { cn, formatCurrency } from '@/lib/utils'
 
 const STEP_LABELS = [
@@ -53,6 +57,13 @@ export default function PublicarPage() {
   const categories = categoryService.list()
   const plans = contentService.plans()
   const progress = Math.round((draft.step / (STEP_LABELS.length - 1)) * 100)
+  const { runWithAd, isUnlocked, isAdFree } = useAdGate()
+  const router = useRouter()
+  const [gateOpen, setGateOpen] = useState(isAdFree || isUnlocked('publish'))
+
+  useEffect(() => {
+    if (isAdFree || isUnlocked('publish')) setGateOpen(true)
+  }, [isAdFree, isUnlocked])
 
   const addPhoto = useCallback(() => {
     if (draft.images.length >= 8) {
@@ -65,6 +76,34 @@ export default function PublicarPage() {
       `https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&sig=${seed}`,
     ])
   }, [draft])
+
+  if (!gateOpen) {
+    return (
+      <PageShell>
+        <Container className="py-10">
+          <div className="mx-auto max-w-md rounded-2xl border border-border/60 bg-card p-8 text-center shadow-sm">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-secondary/15 text-secondary">
+              <Lock className="size-6" aria-hidden />
+            </div>
+            <h1 className="mt-4 text-xl font-bold tracking-tight">Publicar no plano gratuito</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Assista a um anúncio em vídeo para liberar a criação do anúncio — ou publique sem
+              anúncios no Premium.
+            </p>
+            <div className="mt-6 flex flex-col gap-2">
+              <Button onClick={() => runWithAd('publish', () => setGateOpen(true))}>
+                <Play className="size-4" />
+                Assistir e publicar
+              </Button>
+              <Button variant="outline" onClick={() => router.push(ROUTES.planos)}>
+                Ver planos sem anúncios
+              </Button>
+            </div>
+          </div>
+        </Container>
+      </PageShell>
+    )
+  }
 
   const removePhoto = (index: number) => {
     draft.setField(
