@@ -1,8 +1,8 @@
 import type { AdCreative } from '@/types/ads'
 
 /**
- * Mock ad inventory — replace with AdMob rewarded / AdSense units later.
- * Keep the service surface stable so UI does not change.
+ * Mock ad inventory — replace with AdMob rewarded when running inside Capacitor.
+ * Keep this service surface stable so UI (RewardedAdHost / useAdGate) does not change.
  */
 const CREATIVES: AdCreative[] = [
   {
@@ -37,19 +37,63 @@ const CREATIVES: AdCreative[] = [
   },
 ]
 
+/** Google AdMob test unit IDs — replace with real IDs before production release. */
+export const ADMOB_TEST_IDS = {
+  androidAppId: 'ca-app-pub-3940256099942544~3347511713',
+  iosAppId: 'ca-app-pub-3940256099942544~1458002511',
+  rewarded: {
+    android: 'ca-app-pub-3940256099942544/5224354917',
+    ios: 'ca-app-pub-3940256099942544/1712485313',
+  },
+  interstitial: {
+    android: 'ca-app-pub-3940256099942544/1033173712',
+    ios: 'ca-app-pub-3940256099942544/4411468910',
+  },
+} as const
+
+function isNativeRuntime(): boolean {
+  if (typeof window === 'undefined') return false
+  const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
+  return Boolean(cap?.isNativePlatform?.())
+}
+
 export const adsService = {
-  /** Pick a creative for a placement (mock rotation). */
+  isNative: isNativeRuntime,
+
   getCreative: (): AdCreative => {
     const i = Math.floor(Math.random() * CREATIVES.length)
     return CREATIVES[i]!
   },
 
   /**
-   * Future: load AdMob RewardedAd / AdSense interstitial here.
-   * Signature kept for drop-in SDK integration.
+   * Load a rewarded unit.
+   * - Web / demo: mock ready
+   * - Native (Capacitor): wire `@capacitor-community/admob` here
+   *
+   * Example (after installing the plugin):
+   * ```ts
+   * import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob'
+   * await AdMob.prepareRewardVideoAd({ adId: ADMOB_TEST_IDS.rewarded.android })
+   * ```
    */
-  async loadRewarded(_placementId: string): Promise<{ ready: boolean }> {
+  async loadRewarded(_placementId: string): Promise<{ ready: boolean; provider: 'mock' | 'admob' }> {
+    if (isNativeRuntime()) {
+      // TODO: AdMob.prepareRewardVideoAd({ adId: ... })
+      await new Promise((r) => setTimeout(r, 200))
+      return { ready: true, provider: 'admob' }
+    }
     await new Promise((r) => setTimeout(r, 280))
-    return { ready: true }
+    return { ready: true, provider: 'mock' }
+  },
+
+  /**
+   * Show rewarded ad. On native, resolve only after the user earns the reward.
+   */
+  async showRewarded(_placementId: string): Promise<{ earned: boolean }> {
+    if (isNativeRuntime()) {
+      // TODO: AdMob.showRewardVideoAd() + listen to Rewarded event
+      return { earned: true }
+    }
+    return { earned: true }
   },
 }

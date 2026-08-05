@@ -21,7 +21,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Clínica Matsubara** | [/clinica-matsubara/](/clinica-matsubara/) | Demo premium |
 | **Dra. Danielle Matsubara** | [/danielle-matsubara/](/danielle-matsubara/) | Demo premium |
 | **G&L Locações** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
-| **CBX** | [/cbx/](/cbx/) | Marketplace demo |
+| **CBX** | [/cbx/](/cbx/) | Marketplace + app nativo (Capacitor) |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
@@ -77,6 +77,9 @@ npm run dev:gl
 
 # CBX — Marketplace Capão Bonito
 npm run dev:cbx
+
+# CBX nativo (Android via Capacitor — ver apps/cbx/NATIVE.md)
+# npm --prefix apps/cbx run cap:android
 
 # Build completo (igual Vercel)
 npm run build
