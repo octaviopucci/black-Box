@@ -5,10 +5,25 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:web": "NEXT_BASE_PATH=/cbx next build",
+    "build:native": "NEXT_BASE_PATH= NEXT_PUBLIC_BASE_PATH= next build",
+    "cap:sync": "npx cap sync",
+    "cap:android": "npm run build:native && npx cap sync android && npx cap open android",
+    "cap:ios": "npm run build:native && npx cap sync ios && npx cap open ios",
+    "native:android": "npm run build:native && npx cap sync android",
+    "native:ios": "npm run build:native && npx cap sync ios",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.0",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
     "@hookform/resolvers": "^5.7.1",
     "@radix-ui/react-accordion": "^1.2.20",
     "@radix-ui/react-avatar": "^1.2.6",
@@ -40,6 +55,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

@@ -1,47 +1,50 @@
 # CBX — O Marketplace de Capão Bonito
 
-Primeira versão visual (100% front-end) do marketplace local CBX.
+Marketplace local Capão Bonito — front-end visual + shell nativo (Capacitor).
 
 ## Stack
 
 - Next.js 15 (App Router) + React 19 + TypeScript
-- Tailwind CSS v4 + Design System próprio
-- Framer Motion · Lucide · shadcn/Radix
-- React Hook Form + Zod (preparados)
-- Zustand (estado fake)
-- Mock Repository / Service Pattern
+- Tailwind CSS v4 · Framer Motion · Zustand · Radix
+- **Capacitor 8** → Android / iOS
+- Ads: mock rewarded (web) → AdMob (nativo)
 
-## Desenvolvimento
+## Desenvolvimento web
 
 ```bash
-# Na raiz do monorepo
-npm run dev:cbx
-
-# Ou direto
+npm run dev:cbx   # na raiz do monorepo
+# ou
 cd apps/cbx && npm run dev
 ```
 
-Abre em `http://localhost:3000`.
-
-## Build estático (Black Box)
+## Build web (Black Box / Vercel)
 
 ```bash
 NEXT_BASE_PATH=/cbx npm run build
-# saída em apps/cbx/out → publicada em /cbx/
+# out/ → /cbx/ em blckbox.vercel.app
+```
+
+## App nativo
+
+Guia completo: **[NATIVE.md](./NATIVE.md)**
+
+```bash
+cd apps/cbx
+npm run build:native
+npx cap add android    # primeira vez
+npx cap sync
+npm run cap:android    # abre Android Studio
 ```
 
 ## Arquitetura
 
 ```
 src/
-  app/           # rotas (auth + marketplace)
-  components/    # UI, cards, layout, navigation, banners
-  services/      # camada de serviço (mock)
-  repositories/  # padrão repository (mock → futuro Prisma)
-  mocks/         # dados fictícios
-  stores/        # Zustand
-  types/         # contratos TypeScript
-  lib/schemas.ts # Zod preparado
+  app/           # rotas
+  components/    # UI + ads (RewardedAdHost)
+  services/      # mock + adsService (AdMob-ready)
+  repositories/
+  stores/        # Zustand (app + ads)
+  types/
+android/ | ios/  # gerados pelo Capacitor
 ```
-
-Pronto para futura integração com Neon, Prisma, autenticação, upload, pagamentos, chat em tempo real, geolocalização e push — sem implementar nada disso nesta etapa.
