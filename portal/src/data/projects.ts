@@ -151,4 +151,14 @@ export const projects: ClientProject[] = [
     status: 'demo',
     tags: ['Next.js', 'Marketplace', 'Premium'],
   },
+  {
+    id: 'pix-gateway',
+    name: 'PIX Gateway',
+    client: 'Black Box · uso próprio',
+    description:
+      'API Pix multi-conta/chave, QR grátis na sua chave e confirmação automática via webhook. Painel em /pix e API em /api/pix.',
+    href: '/pix/',
+    status: 'ativo',
+    tags: ['API', 'Pix', 'Gateway'],
+  },
 ]

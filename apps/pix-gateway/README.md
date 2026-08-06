@@ -35,7 +35,21 @@ Bancos com API Pix/webhook (ex.: **Inter Empresas**) conseguem apontar o webhook
 
 > Resumo: **receber é grátis**. **Saber automaticamente que pagou** depende do webhook do seu banco (também sem taxa de PSP).
 
-## Subir
+## Deploy (blckbox.vercel.app)
+
+- Painel: https://blckbox.vercel.app/pix/
+- API health: https://blckbox.vercel.app/api/pix/health
+- Endpoints: https://blckbox.vercel.app/api/pix/v1/...
+
+Variáveis no Vercel (Production):
+
+- `PIX_GATEWAY_API_KEY` — obrigatória (troque o default)
+- `PUBLIC_BASE_URL=https://blckbox.vercel.app`
+- `BLOB_READ_WRITE_TOKEN` — recomendado (Vercel Blob) para persistir dados entre cold starts
+
+Sem Blob, a API funciona, mas o store em `/tmp` pode resetar.
+
+## Subir local
 
 ```bash
 cd apps/pix-gateway
