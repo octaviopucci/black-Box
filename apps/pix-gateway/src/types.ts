@@ -1,4 +1,4 @@
-export type ProviderKind = 'asaas'
+export type ProviderKind = 'native' | 'asaas'
 
 export type PixKeyType = 'cpf' | 'cnpj' | 'email' | 'phone' | 'evp'
 
@@ -13,7 +13,7 @@ export interface AccountRecord {
   id: string
   name: string
   provider: ProviderKind
-  /** JSON criptografado em produção; hoje: JSON com apiKey, apiUrl, webhookToken */
+  /** native: merchantName/city/webhookToken | asaas: apiKey/... */
   credentialsJson: string
   active: number
   createdAt: string
@@ -62,13 +62,18 @@ export interface WebhookEventRecord {
   createdAt: string
 }
 
+/** Conta gratuita: Pix cai direto na sua chave. Sem taxa de PSP. */
+export interface NativeCredentials {
+  merchantName: string
+  merchantCity: string
+  /** Token para autenticar webhooks de Pix recebido */
+  webhookToken?: string
+}
+
 export interface AsaasCredentials {
   apiKey: string
-  /** https://api.asaas.com or https://api-sandbox.asaas.com */
   apiUrl?: string
-  /** Token opcional enviado pelo Asaas no webhook (access_token query ou header) */
   webhookToken?: string
-  /** Customer Asaas padrão quando a cobrança não envia CPF/CNPJ */
   defaultCustomerId?: string
 }
 
@@ -100,4 +105,5 @@ export interface NormalizedWebhookEvent {
   status: ChargeStatus | null
   paidAt: string | null
   raw: unknown
+  matchTxid?: string
 }

@@ -3,6 +3,7 @@ import type { Db } from '../db/index.js'
 import type {
   AccountRecord,
   AsaasCredentials,
+  NativeCredentials,
   PixKeyRecord,
   PixKeyType,
   ProviderKind,
@@ -14,10 +15,22 @@ function now(): string {
   return new Date().toISOString()
 }
 
-export function parseCredentials(json: string): AsaasCredentials {
+export function parseNativeCredentials(json: string): NativeCredentials {
+  const data = JSON.parse(json) as NativeCredentials
+  if (!data.merchantName || !data.merchantCity) {
+    throw new Error('credentials.merchantName e merchantCity são obrigatórios no modo native')
+  }
+  return {
+    merchantName: data.merchantName,
+    merchantCity: data.merchantCity,
+    webhookToken: data.webhookToken,
+  }
+}
+
+export function parseAsaasCredentials(json: string): AsaasCredentials {
   const data = JSON.parse(json) as AsaasCredentials
   if (!data.apiKey || typeof data.apiKey !== 'string') {
-    throw new Error('credentials.apiKey é obrigatório')
+    throw new Error('credentials.apiKey é obrigatório para Asaas')
   }
   return {
     apiKey: data.apiKey,
@@ -27,27 +40,50 @@ export function parseCredentials(json: string): AsaasCredentials {
   }
 }
 
+/** @deprecated use parseAsaasCredentials / parseNativeCredentials */
+export function parseCredentials(json: string): AsaasCredentials {
+  return parseAsaasCredentials(json)
+}
+
 export function createAccount(
   db: Db,
   input: {
     name: string
     provider?: ProviderKind
-    apiKey: string
-    apiUrl?: string
+    // native
+    merchantName?: string
+    merchantCity?: string
     webhookToken?: string
+    // asaas (opcional, pago)
+    apiKey?: string
+    apiUrl?: string
     defaultCustomerId?: string
   },
 ): AccountRecord {
-  const account: AccountRecord = {
-    id: `acc_${id()}`,
-    name: input.name,
-    provider: input.provider ?? 'asaas',
-    credentialsJson: JSON.stringify({
+  const provider: ProviderKind = input.provider ?? 'native'
+  let credentialsJson: string
+
+  if (provider === 'native') {
+    credentialsJson = JSON.stringify({
+      merchantName: input.merchantName ?? input.name,
+      merchantCity: input.merchantCity ?? 'SAO PAULO',
+      webhookToken: input.webhookToken,
+    } satisfies NativeCredentials)
+  } else {
+    if (!input.apiKey) throw new Error('apiKey é obrigatório para provider asaas')
+    credentialsJson = JSON.stringify({
       apiKey: input.apiKey,
       apiUrl: input.apiUrl ?? 'https://api-sandbox.asaas.com',
       webhookToken: input.webhookToken,
       defaultCustomerId: input.defaultCustomerId,
-    } satisfies AsaasCredentials),
+    } satisfies AsaasCredentials)
+  }
+
+  const account: AccountRecord = {
+    id: `acc_${id()}`,
+    name: input.name,
+    provider,
+    credentialsJson,
     active: 1,
     createdAt: now(),
     updatedAt: now(),
@@ -90,16 +126,31 @@ export function getAccount(db: Db, accountId: string): AccountRecord | undefined
 }
 
 export function publicAccount(account: AccountRecord) {
-  const creds = parseCredentials(account.credentialsJson)
-  return {
+  const base = {
     id: account.id,
     name: account.name,
     provider: account.provider,
     active: Boolean(account.active),
-    apiUrl: creds.apiUrl,
-    hasWebhookToken: Boolean(creds.webhookToken),
+    fee: account.provider === 'native' ? 0 : 'asaas',
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
+  }
+
+  if (account.provider === 'native') {
+    const creds = parseNativeCredentials(account.credentialsJson)
+    return {
+      ...base,
+      merchantName: creds.merchantName,
+      merchantCity: creds.merchantCity,
+      hasWebhookToken: Boolean(creds.webhookToken),
+    }
+  }
+
+  const creds = parseAsaasCredentials(account.credentialsJson)
+  return {
+    ...base,
+    apiUrl: creds.apiUrl,
+    hasWebhookToken: Boolean(creds.webhookToken),
   }
 }
 
@@ -160,6 +211,34 @@ export function getPixKey(db: Db, keyId: string): PixKeyRecord | undefined {
        FROM pix_keys WHERE id = ?`,
     )
     .get(keyId) as unknown as PixKeyRecord | undefined
+}
+
+export function pickPixKeyForAccount(db: Db, accountId: string): PixKeyRecord {
+  const keys = listPixKeys(db, accountId).filter((k) => k.active === 1)
+  if (keys.length === 0) {
+    throw new Error(
+      'Conta native precisa de ao menos uma chave Pix. POST /v1/accounts/:id/keys',
+    )
+  }
+
+  // least used today
+  const start = new Date()
+  start.setHours(0, 0, 0, 0)
+  const startIso = start.toISOString()
+  let best = keys[0]!
+  let bestCount = Number.POSITIVE_INFINITY
+  for (const key of keys) {
+    const row = db
+      .prepare(
+        `SELECT COUNT(*) AS c FROM charges WHERE pix_key_id = ? AND created_at >= ?`,
+      )
+      .get(key.id, startIso) as { c: number }
+    if (row.c < bestCount) {
+      best = key
+      bestCount = row.c
+    }
+  }
+  return best
 }
 
 export function publicPixKey(key: PixKeyRecord) {

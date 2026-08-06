@@ -11,10 +11,14 @@ import {
 
 const createAccountSchema = z.object({
   name: z.string().min(1).max(120),
-  provider: z.literal('asaas').default('asaas'),
-  apiKey: z.string().min(10),
-  apiUrl: z.string().url().optional(),
+  provider: z.enum(['native', 'asaas']).default('native'),
+  // native (grátis)
+  merchantName: z.string().min(1).max(25).optional(),
+  merchantCity: z.string().min(1).max(15).optional(),
   webhookToken: z.string().min(8).optional(),
+  // asaas (pago — opcional)
+  apiKey: z.string().min(10).optional(),
+  apiUrl: z.string().url().optional(),
   defaultCustomerId: z.string().optional(),
 })
 
@@ -27,20 +31,40 @@ const createKeySchema = z.object({
 export const accountsRoutes: FastifyPluginAsync = async (app) => {
   app.post('/v1/accounts', async (request, reply) => {
     const body = createAccountSchema.parse(request.body)
-    const account = createAccount(app.db, {
-      name: body.name,
-      provider: body.provider,
-      apiKey: body.apiKey,
-      apiUrl: body.apiUrl,
-      webhookToken: body.webhookToken,
-      defaultCustomerId: body.defaultCustomerId,
-    })
 
-    return reply.code(201).send({
-      account: publicAccount(account),
-      webhookUrl: `${app.config.PUBLIC_BASE_URL}/v1/webhooks/asaas/${account.id}`,
-      hint: 'No painel Asaas, cadastre esta webhookUrl e use o mesmo webhookToken (se definiu). Eventos: PAYMENT_CONFIRMED, PAYMENT_RECEIVED.',
-    })
+    if (body.provider === 'asaas' && !body.apiKey) {
+      return reply.code(400).send({ error: 'apiKey é obrigatório para provider asaas' })
+    }
+
+    try {
+      const account = createAccount(app.db, {
+        name: body.name,
+        provider: body.provider,
+        merchantName: body.merchantName,
+        merchantCity: body.merchantCity,
+        webhookToken: body.webhookToken,
+        apiKey: body.apiKey,
+        apiUrl: body.apiUrl,
+        defaultCustomerId: body.defaultCustomerId,
+      })
+
+      const webhookPath =
+        account.provider === 'native'
+          ? `/v1/webhooks/native/${account.id}`
+          : `/v1/webhooks/asaas/${account.id}`
+
+      return reply.code(201).send({
+        account: publicAccount(account),
+        webhookUrl: `${app.config.PUBLIC_BASE_URL}${webhookPath}`,
+        hint:
+          account.provider === 'native'
+            ? 'Modo grátis: cadastre suas chaves Pix e aponte o webhook de Pix recebido do seu banco (formato Bacen) para webhookUrl. Taxa: R$ 0.'
+            : 'Modo Asaas (pago ~R$1,99/Pix). Cadastre webhookUrl no painel Asaas.',
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao criar conta'
+      return reply.code(400).send({ error: message })
+    }
   })
 
   app.get('/v1/accounts', async () => {

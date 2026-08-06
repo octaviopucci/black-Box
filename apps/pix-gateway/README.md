@@ -1,85 +1,68 @@
-# PIX Gateway (próprio)
+# PIX Gateway (próprio) — modo grátis
 
-Gateway PIX **multi-conta / multi-chave** para uso próprio, no estilo de um PSP — com **confirmação automática** via webhook Asaas + reconciliação periódica.
+Gateway PIX **multi-conta / multi-chave** para uso próprio.
 
-> Pix real é liquidado pelo Bacen através do Asaas (PSP). Sua API é a camada própria que orquestra várias contas, padroniza o contrato e atualiza status sozinha.
+## Modo padrão: `native` (R$ 0)
 
-## Por que Asaas?
+| O quê | Custo |
+|-------|--------|
+| Gerar QR / copia-e-cola | **Grátis** |
+| Dinheiro cair na **sua** chave Pix | **Grátis** (taxa do seu banco; na maioria PF/PJ digital = R$ 0 para receber) |
+| Asaas / outro PSP | **Não usado** |
 
-É o caminho **mais fácil** com confirmação automática:
+A API gera o BR Code Bacen com a **sua chave** + valor + `txid`. Quem paga envia Pix direto para você — sem intermediário cobrando ~R$ 2.
 
-- API key simples
-- Cobrança PIX + QR / copia-e-cola
-- Webhook quando o pagamento cai (`PAYMENT_RECEIVED` / `PAYMENT_CONFIRMED`)
+### Confirmação automática (ainda grátis)
 
-Sem PSP, não existe como saber automaticamente que o Pix foi pago.
+Quando o Pix chega, o banco precisa **avisar** o gateway (webhook no formato Bacen):
 
-## Stack
+```json
+{
+  "pix": [
+    {
+      "txid": "mesmoTxidDoQR",
+      "valor": "25.00",
+      "horario": "2026-08-06T20:00:00Z",
+      "endToEndId": "E..."
+    }
+  ]
+}
+```
 
-- Node 22 + TypeScript + Fastify
-- SQLite (`node:sqlite`)
-- Provider: **Asaas** (sandbox ou produção)
-- Auth: `X-Api-Key` / `Bearer`
+URL: `POST /v1/webhooks/native/:accountId?token=SEU_TOKEN`
+
+Bancos com API Pix/webhook (ex.: **Inter Empresas**) conseguem apontar o webhook de Pix recebido para essa URL. Sem esse aviso do banco, o QR funciona e o dinheiro cai, mas o status na API não vira `paid` sozinho.
+
+> Resumo: **receber é grátis**. **Saber automaticamente que pagou** depende do webhook do seu banco (também sem taxa de PSP).
 
 ## Subir
 
 ```bash
 cd apps/pix-gateway
 cp .env.example .env
-# edite PIX_GATEWAY_API_KEY
 npm install
 npm run dev
+# ou no monorepo: npm run dev:pix
 ```
 
-API em `http://localhost:8787`.
+## Uso rápido
 
-Do monorepo:
-
-```bash
-npm run dev:pix
-```
-
-## Fluxo automático
-
-```
-1. Cadastre N contas Asaas (API keys diferentes)
-2. (Opcional) Cadastre chaves PIX como rótulos/organização
-3. Crie cobrança → gateway escolhe a conta → Asaas gera QR
-4. Cliente paga
-5. Asaas chama seu webhook → status vira paid
-6. Se o webhook falhar, a reconciliação (30s) consulta o Asaas e atualiza
-```
-
-## 1) Criar conta (Asaas)
+### 1) Conta grátis
 
 ```bash
 curl -s -X POST http://localhost:8787/v1/accounts \
   -H "X-Api-Key: SUA_CHAVE_GATEWAY" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Conta Pessoal 1",
-    "apiKey": "$aact_hmlg_...",
-    "apiUrl": "https://api-sandbox.asaas.com",
+    "name": "Conta Nubank",
+    "provider": "native",
+    "merchantName": "SEU NOME",
+    "merchantCity": "SAO PAULO",
     "webhookToken": "um-segredo-forte"
   }'
 ```
 
-A resposta traz `webhookUrl`, por exemplo:
-
-`https://SEU_DOMINIO/v1/webhooks/asaas/acc_xxx`
-
-No painel Asaas → **Integrações → Webhooks**, cadastre essa URL e o mesmo `webhookToken`.  
-Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED` (e opcionalmente estorno).
-
-Repita para cada conta. Cada uma tem sua API key e sua webhook URL.
-
-### Produção Asaas
-
-Use `"apiUrl": "https://api.asaas.com"` e a API key de produção.
-
-## 2) (Opcional) Registrar chaves PIX
-
-Serve para organizar / forçar conta por chave. A liquidação continua no Asaas da conta.
+### 2) Suas chaves Pix (várias)
 
 ```bash
 curl -s -X POST http://localhost:8787/v1/accounts/acc_xxx/keys \
@@ -92,94 +75,54 @@ curl -s -X POST http://localhost:8787/v1/accounts/acc_xxx/keys \
   }'
 ```
 
-## 3) Criar cobrança
+Repita para CPF, e-mail, telefone, outras contas.
+
+### 3) Cobrança (QR real, taxa 0)
 
 ```bash
 curl -s -X POST http://localhost:8787/v1/charges \
   -H "X-Api-Key: SUA_CHAVE_GATEWAY" \
-  -H "Idempotency-Key: pedido-1001" \
+  -H "Idempotency-Key: pedido-1" \
   -H "Content-Type: application/json" \
   -d '{
     "amountCents": 15000,
-    "description": "Serviço X",
-    "routing": "round_robin",
-    "customerName": "Cliente",
-    "customerCpfCnpj": "24971563792"
+    "description": "Servico",
+    "routing": "round_robin"
   }'
 ```
 
-Resposta inclui `copyPaste`, `qrCodeBase64` e `status: "pending"`.
+Use `copyPaste` / `qrCodeBase64`. Status inicia `pending` e vira `paid` quando o webhook chegar com o mesmo `txid`.
 
-### Roteamento
+### 4) Webhook (automático)
+
+Aponte o webhook de Pix recebido do banco para a `webhookUrl` da conta, ou teste:
+
+```bash
+curl -s -X POST "http://localhost:8787/v1/webhooks/native/acc_xxx?token=um-segredo-forte" \
+  -H "Content-Type: application/json" \
+  -d '{"pix":[{"txid":"TXID_DA_COBRANCA","valor":"150.00","horario":"2026-08-06T20:00:00Z"}]}'
+```
+
+## Roteamento entre contas/chaves
 
 | `routing` | Comportamento |
 |-----------|----------------|
+| `round_robin` | Alterna contas (padrão) |
+| `least_used_today` | Conta com menos cobranças no dia |
 | `explicit` | Exige `accountId` |
-| `round_robin` | Alterna contas ativas (padrão) |
-| `least_used_today` | Usa a conta com menos cobranças no dia |
 
-Também pode forçar: `"accountId": "acc_xxx"` ou `"pixKeyId": "key_xxx"`.
+Também: `"pixKeyId": "key_xxx"` ou `"accountId": "acc_xxx"`.
 
-### Customer
+## Asaas (opcional, pago)
 
-O Asaas exige cliente. Opções:
-
-1. Enviar `customerCpfCnpj` (e opcionalmente nome/email) em cada cobrança  
-2. Ou cadastrar `defaultCustomerId` na conta:
-
-```json
-{
-  "name": "Conta 1",
-  "apiKey": "...",
-  "defaultCustomerId": "cus_000005..."
-}
-```
-
-## 4) Consultar status (já automático via webhook)
-
-```bash
-curl -s http://localhost:8787/v1/charges/chg_xxx \
-  -H "X-Api-Key: SUA_CHAVE_GATEWAY"
-```
-
-Fallback explícito (o reconciler já faz isso sozinho):
-
-```bash
-curl -s -X POST http://localhost:8787/v1/charges/chg_xxx/sync \
-  -H "X-Api-Key: SUA_CHAVE_GATEWAY"
-```
-
-## Endpoints
-
-| Método | Rota | Auth |
-|--------|------|------|
-| GET | `/health` | pública |
-| POST | `/v1/accounts` | API key |
-| GET | `/v1/accounts` | API key |
-| POST | `/v1/accounts/:id/keys` | API key |
-| GET | `/v1/accounts/:id/keys` | API key |
-| GET | `/v1/keys` | API key |
-| POST | `/v1/charges` | API key |
-| GET | `/v1/charges` | API key |
-| GET | `/v1/charges/:id` | API key |
-| POST | `/v1/charges/:id/sync` | API key |
-| POST | `/v1/webhooks/asaas` | token Asaas |
-| POST | `/v1/webhooks/asaas/:accountId` | token Asaas |
-
-## Segurança
-
-- Não committe `.env` nem API keys Asaas
-- Use `webhookToken` por conta
-- Exponha a API só na sua rede/VPS com HTTPS
-- Troque `PIX_GATEWAY_API_KEY` por um segredo longo
-- Webhooks precisam de URL pública (túnel `cloudflared`/`ngrok` em dev)
+Se um dia quiser PSP com webhook pronto: `"provider": "asaas"` + `apiKey` (~R$ 0,99–1,99 por Pix pago). Não é necessário para o modo grátis.
 
 ## Testes
 
 ```bash
-cd apps/pix-gateway && npm test
+npm test
 ```
 
-## Limite importante
+## Limite
 
-Isto é para **uso próprio** com contas Asaas suas. Operar Pix para terceiros como se fosse um gateway comercial exige autorização de PSP no Bacen.
+Uso **próprio** com **suas** chaves. Operar Pix para terceiros como gateway comercial exige autorização de PSP no Bacen.

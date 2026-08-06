@@ -41,7 +41,9 @@ export async function buildApp(config: AppConfig, db: Db): Promise<FastifyInstan
     ok: true,
     service: 'pix-gateway',
     automaticConfirmation: true,
-    provider: 'asaas',
+    defaultProvider: 'native',
+    fee: 0,
+    note: 'Modo native: Pix grátis na sua chave. Confirmação automática via webhook Bacen/Pix recebido.',
   }))
 
   // Webhooks públicos (auth própria via token Asaas)

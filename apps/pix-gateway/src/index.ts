@@ -23,8 +23,8 @@ async function main() {
 
   await app.listen({ port: config.PORT, host: '0.0.0.0' })
   app.log.info(`PIX Gateway em http://0.0.0.0:${config.PORT}`)
-  app.log.info(`Confirmação automática: webhook Asaas + reconciliação a cada 30s`)
-  app.log.info(`Webhook: ${config.PUBLIC_BASE_URL}/v1/webhooks/asaas/:accountId`)
+  app.log.info(`Confirmação automática: webhook native (Bacen) / Asaas + expiração pending`)
+  app.log.info(`Webhook grátis: ${config.PUBLIC_BASE_URL}/v1/webhooks/native/:accountId`)
 }
 
 main().catch((err) => {

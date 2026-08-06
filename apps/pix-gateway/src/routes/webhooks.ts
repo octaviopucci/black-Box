@@ -13,15 +13,68 @@ function extractToken(request: {
       : typeof query.token === 'string'
         ? query.token
         : undefined
-  const header = request.headers['asaas-access-token']
-  const h = typeof header === 'string' ? header : undefined
+  const header =
+    (typeof request.headers['x-webhook-token'] === 'string'
+      ? request.headers['x-webhook-token']
+      : undefined) ??
+    (typeof request.headers['asaas-access-token'] === 'string'
+      ? request.headers['asaas-access-token']
+      : undefined)
   const auth = request.headers.authorization
   const bearer = typeof auth === 'string' && auth.startsWith('Bearer ') ? auth.slice(7) : undefined
-  return q ?? h ?? bearer
+  return q ?? header ?? bearer
 }
 
 export const webhooksRoutes: FastifyPluginAsync = async (app) => {
-  // Webhook por conta (recomendado com várias contas)
+  // Native (grátis) — formato Bacen / Pix recebido
+  app.post('/v1/webhooks/native/:accountId', async (request, reply) => {
+    const params = z.object({ accountId: z.string() }).parse(request.params)
+    try {
+      const result = processProviderWebhook(app.db, {
+        provider: 'native',
+        payload: request.body,
+        token: extractToken(request),
+        accountId: params.accountId,
+      })
+      return reply.code(200).send(result)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Webhook inválido'
+      return reply.code(401).send({ error: message })
+    }
+  })
+
+  app.post('/v1/webhooks/native', async (request, reply) => {
+    try {
+      const result = processProviderWebhook(app.db, {
+        provider: 'native',
+        payload: request.body,
+        token: extractToken(request),
+      })
+      return reply.code(200).send(result)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Webhook inválido'
+      return reply.code(401).send({ error: message })
+    }
+  })
+
+  // Alias Bacen-style
+  app.post('/v1/webhooks/pix/:accountId', async (request, reply) => {
+    const params = z.object({ accountId: z.string() }).parse(request.params)
+    try {
+      const result = processProviderWebhook(app.db, {
+        provider: 'native',
+        payload: request.body,
+        token: extractToken(request),
+        accountId: params.accountId,
+      })
+      return reply.code(200).send(result)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Webhook inválido'
+      return reply.code(401).send({ error: message })
+    }
+  })
+
+  // Asaas (pago, opcional)
   app.post('/v1/webhooks/asaas/:accountId', async (request, reply) => {
     const params = z.object({ accountId: z.string() }).parse(request.params)
     try {
@@ -38,7 +91,6 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
     }
   })
 
-  // Webhook global (útil com 1 conta ou token único)
   app.post('/v1/webhooks/asaas', async (request, reply) => {
     try {
       const result = processProviderWebhook(app.db, {

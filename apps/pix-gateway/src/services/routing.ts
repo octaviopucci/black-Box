@@ -37,7 +37,7 @@ export function pickAccount(
 
   const accounts = activeAccounts(db)
   if (accounts.length === 0) {
-    throw new Error('Nenhuma conta ativa cadastrada. Crie uma conta Asaas primeiro.')
+    throw new Error('Nenhuma conta ativa cadastrada. Crie uma conta native e adicione chaves Pix.')
   }
 
   const strategy = options.routing ?? 'round_robin'

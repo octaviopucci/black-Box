@@ -1,8 +1,15 @@
 import { customAlphabet } from 'nanoid'
 import type { Db } from '../db/index.js'
-import { getProvider } from '../providers/asaas.js'
+import { getProvider as getAsaasProvider } from '../providers/asaas.js'
+import { nativeCreateCharge } from '../providers/native.js'
 import type { ChargeRecord, ChargeStatus, CreateChargeInput } from '../types.js'
-import { getPixKey, parseCredentials } from './accounts.js'
+import {
+  getAccount,
+  getPixKey,
+  parseAsaasCredentials,
+  parseNativeCredentials,
+  pickPixKeyForAccount,
+} from './accounts.js'
 import { pickAccount } from './routing.js'
 
 const id = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 16)
@@ -79,6 +86,12 @@ export function getChargeByProviderId(
   return row ? mapRow(row) : undefined
 }
 
+export function getChargeByTxid(db: Db, txid: string): ChargeRecord | undefined {
+  const clean = txid.replace(/[^a-zA-Z0-9]/g, '')
+  const row = db.prepare(`${selectSql} WHERE txid = ?`).get(clean) as Record<string, unknown> | undefined
+  return row ? mapRow(row) : undefined
+}
+
 export function listCharges(db: Db, limit = 50): ChargeRecord[] {
   const rows = db.prepare(`${selectSql} ORDER BY created_at DESC LIMIT ?`).all(limit) as Record<
     string,
@@ -103,6 +116,7 @@ export function publicCharge(charge: ChargeRecord) {
     expiresAt: charge.expiresAt,
     paidAt: charge.paidAt,
     externalRef: charge.externalRef,
+    fee: charge.provider === 'native' ? 0 : undefined,
     createdAt: charge.createdAt,
     updatedAt: charge.updatedAt,
   }
@@ -138,9 +152,21 @@ export async function createCharge(
     routing: input.routing,
   })
 
-  const credentials = parseCredentials(account.credentialsJson)
-  const provider = getProvider(account.provider)
-  const created = await provider.createCharge(input, credentials)
+  let created
+  if (account.provider === 'native') {
+    const pixKey = pixKeyId
+      ? getPixKey(db, pixKeyId)!
+      : pickPixKeyForAccount(db, account.id)
+    pixKeyId = pixKey.id
+    created = await nativeCreateCharge(input, {
+      credentials: parseNativeCredentials(account.credentialsJson),
+      pixKey,
+    })
+  } else {
+    const credentials = parseAsaasCredentials(account.credentialsJson)
+    const provider = getAsaasProvider('asaas')
+    created = await provider.createCharge(input, credentials)
+  }
 
   const chargeId = `chg_${id()}`
   const ts = now()
@@ -184,7 +210,6 @@ export function updateChargeStatus(
   const current = getCharge(db, chargeId)
   if (!current) return undefined
 
-  // Não regride de paid
   if (current.status === 'paid' && status !== 'refunded') {
     return current
   }
@@ -196,28 +221,32 @@ export function updateChargeStatus(
   return getCharge(db, chargeId)
 }
 
-/** Reconcilia com o PSP (fallback se webhook falhar). */
 export async function syncChargeFromProvider(db: Db, chargeId: string): Promise<ChargeRecord> {
   const charge = getCharge(db, chargeId)
   if (!charge) throw new Error('Cobrança não encontrada')
+
+  if (charge.provider === 'native') {
+    // Native não consulta PSP: status só muda por webhook de Pix recebido.
+    // Expira automaticamente se passou expiresAt.
+    if (
+      charge.status === 'pending' &&
+      charge.expiresAt &&
+      new Date(charge.expiresAt).getTime() < Date.now()
+    ) {
+      return updateChargeStatus(db, charge.id, 'expired') ?? charge
+    }
+    return charge
+  }
+
   if (!charge.providerChargeId) throw new Error('Cobrança sem providerChargeId')
 
-  const account = db
-    .prepare(
-      `SELECT id, name, provider, credentials_json AS credentialsJson, active,
-              created_at AS createdAt, updated_at AS updatedAt FROM accounts WHERE id = ?`,
-    )
-    .get(charge.accountId) as
-    | {
-        id: string
-        credentialsJson: string
-        provider: 'asaas'
-      }
-    | undefined
-
+  const account = getAccount(db, charge.accountId)
   if (!account) throw new Error('Conta da cobrança não encontrada')
 
-  const provider = getProvider(account.provider)
-  const remote = await provider.getCharge(charge.providerChargeId, parseCredentials(account.credentialsJson))
+  const provider = getAsaasProvider('asaas')
+  const remote = await provider.getCharge(
+    charge.providerChargeId,
+    parseAsaasCredentials(account.credentialsJson),
+  )
   return updateChargeStatus(db, charge.id, remote.status, remote.paidAt) ?? charge
 }
