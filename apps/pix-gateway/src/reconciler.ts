@@ -1,9 +1,6 @@
-import type { Db } from './db/index.js'
+import type { Db } from './db/json-store.js'
 import { listCharges, syncChargeFromProvider } from './services/charges.js'
 
-/**
- * Fallback automático: se o webhook atrasar/falhar, reconsulta cobranças pending no PSP.
- */
 export function startReconciler(
   db: Db,
   options: { intervalMs?: number; log?: (msg: string) => void } = {},
@@ -19,6 +16,7 @@ export function startReconciler(
           const updated = await syncChargeFromProvider(db, charge.id)
           if (updated.status !== 'pending') {
             log(`reconcile ${charge.id} -> ${updated.status}`)
+            await db.persist()
           }
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err)

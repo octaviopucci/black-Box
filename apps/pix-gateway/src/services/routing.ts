@@ -1,19 +1,14 @@
-import type { Db } from '../db/index.js'
+import type { Db } from '../db/json-store.js'
 import type { AccountRecord, RoutingStrategy } from '../types.js'
 import { getAccount, listAccounts } from './accounts.js'
 
 function getRouteCursor(db: Db): number {
-  const row = db.prepare(`SELECT value FROM routing_state WHERE key = 'round_robin'`).get() as
-    | { value: string }
-    | undefined
-  return row ? Number(row.value) || 0 : 0
+  return Number(db.data().routing.round_robin) || 0
 }
 
 function setRouteCursor(db: Db, value: number): void {
-  db.prepare(
-    `INSERT INTO routing_state (key, value) VALUES ('round_robin', ?)
-     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
-  ).run(String(value))
+  db.data().routing.round_robin = String(value)
+  db.markDirty()
 }
 
 function activeAccounts(db: Db): AccountRecord[] {
@@ -55,21 +50,17 @@ export function pickAccount(
     let bestCount = Number.POSITIVE_INFINITY
 
     for (const account of accounts) {
-      const row = db
-        .prepare(
-          `SELECT COUNT(*) AS c FROM charges
-           WHERE account_id = ? AND created_at >= ?`,
-        )
-        .get(account.id, startIso) as { c: number }
-      if (row.c < bestCount) {
+      const c = db
+        .data()
+        .charges.filter((ch) => ch.accountId === account.id && ch.createdAt >= startIso).length
+      if (c < bestCount) {
         best = account
-        bestCount = row.c
+        bestCount = c
       }
     }
     return best
   }
 
-  // round_robin
   const cursor = getRouteCursor(db)
   const index = cursor % accounts.length
   setRouteCursor(db, cursor + 1)

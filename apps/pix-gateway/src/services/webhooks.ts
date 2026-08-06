@@ -1,8 +1,8 @@
 import { customAlphabet } from 'nanoid'
-import type { Db } from '../db/index.js'
+import type { Db } from '../db/json-store.js'
 import { getProvider } from '../providers/asaas.js'
 import { parseNativeWebhook } from '../providers/native.js'
-import type { AccountRecord, ProviderKind } from '../types.js'
+import type { AccountRecord, ProviderKind, WebhookEventRecord } from '../types.js'
 import {
   listAccounts,
   parseAsaasCredentials,
@@ -75,19 +75,18 @@ export function processProviderWebhook(
 
   if (input.provider === 'native') {
     const events = parseNativeWebhook(input.payload)
-    db.prepare(
-      `INSERT INTO webhook_events (
-        id, account_id, provider, event_type, provider_charge_id, payload_json, processed, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, 0, ?)`,
-    ).run(
-      eventId,
-      account?.id ?? null,
-      'native',
-      events[0]?.eventType ?? 'UNKNOWN',
-      events[0]?.providerChargeId ?? null,
-      JSON.stringify(input.payload),
-      now(),
-    )
+    const wh: WebhookEventRecord = {
+      id: eventId,
+      accountId: account?.id ?? null,
+      provider: 'native',
+      eventType: events[0]?.eventType ?? 'UNKNOWN',
+      providerChargeId: events[0]?.providerChargeId ?? null,
+      payloadJson: JSON.stringify(input.payload),
+      processed: 0,
+      createdAt: now(),
+    }
+    db.data().webhookEvents.push(wh)
+    db.markDirty()
 
     const results: Array<{ chargeId: string | null; status: string | null; txid?: string }> = []
     let anyProcessed = false
@@ -117,29 +116,28 @@ export function processProviderWebhook(
     }
 
     if (anyProcessed) {
-      db.prepare(`UPDATE webhook_events SET processed = 1 WHERE id = ?`).run(eventId)
+      wh.processed = 1
+      db.markDirty()
     }
 
     return { accepted: true, processed: anyProcessed, results, eventId }
   }
 
-  // Asaas
   const provider = getProvider('asaas')
   const normalized = provider.parseWebhook(input.payload)
 
-  db.prepare(
-    `INSERT INTO webhook_events (
-      id, account_id, provider, event_type, provider_charge_id, payload_json, processed, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, 0, ?)`,
-  ).run(
-    eventId,
-    account?.id ?? null,
-    'asaas',
-    normalized?.eventType ?? 'UNKNOWN',
-    normalized?.providerChargeId ?? null,
-    JSON.stringify(input.payload),
-    now(),
-  )
+  const wh: WebhookEventRecord = {
+    id: eventId,
+    accountId: account?.id ?? null,
+    provider: 'asaas',
+    eventType: normalized?.eventType ?? 'UNKNOWN',
+    providerChargeId: normalized?.providerChargeId ?? null,
+    payloadJson: JSON.stringify(input.payload),
+    processed: 0,
+    createdAt: now(),
+  }
+  db.data().webhookEvents.push(wh)
+  db.markDirty()
 
   if (!normalized?.providerChargeId || !normalized.status) {
     return {
@@ -161,7 +159,8 @@ export function processProviderWebhook(
   }
 
   const updated = updateChargeStatus(db, charge.id, normalized.status, normalized.paidAt)
-  db.prepare(`UPDATE webhook_events SET processed = 1 WHERE id = ?`).run(eventId)
+  wh.processed = 1
+  db.markDirty()
 
   return {
     accepted: true,

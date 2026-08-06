@@ -94,10 +94,13 @@ function publish(target) {
   cpSync(glDist, join(target, 'gl-locacoes'), { recursive: true })
   mkdirSync(join(target, 'cbx'), { recursive: true })
   cpSync(cbxDist, join(target, 'cbx'), { recursive: true })
+  const pixWeb = join(root, 'apps', 'pix-gateway', 'web')
+  mkdirSync(join(target, 'pix'), { recursive: true })
+  cpSync(pixWeb, join(target, 'pix'), { recursive: true })
 }
 
 publish(out)
 // Vercel no celular usa Output Directory padrão "public" — espelha o dist.
 publish(publicOut)
 
-console.log('publicado em dist/ e public/ (portal + /maciel-motors/ + /maciel-motors-x/ + /porthal-imoveis/ + /marcio-mariano/ + /sogov/ + /clinica-dna/ + /dr-marcelo-prado/ + /clinica-harmonie/ + /octavio-pucci/ + /na-veiculos/ + /clinica-matsubara/ + /danielle-matsubara/ + /gl-locacoes/ + /cbx/)')
+console.log('publicado em dist/ e public/ (portal + apps + /pix/)')

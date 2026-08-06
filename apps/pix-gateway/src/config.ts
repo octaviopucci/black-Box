@@ -3,9 +3,11 @@ import { z } from 'zod'
 const envSchema = z.object({
   PIX_GATEWAY_API_KEY: z.string().min(8).default('dev-local-api-key-change-me'),
   PORT: z.coerce.number().int().positive().default(8787),
-  DATABASE_PATH: z.string().default('./data/pix-gateway.db'),
+  DATABASE_PATH: z.string().default('./data/pix-gateway-store.json'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PUBLIC_BASE_URL: z.string().url().default('http://localhost:8787'),
+  /** Prefixo público quando atrás de /api/pix na Vercel */
+  API_PREFIX: z.string().default(''),
 })
 
 export type AppConfig = z.infer<typeof envSchema>

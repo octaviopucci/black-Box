@@ -1,5 +1,5 @@
 import { customAlphabet } from 'nanoid'
-import type { Db } from '../db/index.js'
+import type { Db } from '../db/json-store.js'
 import { getProvider as getAsaasProvider } from '../providers/asaas.js'
 import { nativeCreateCharge } from '../providers/native.js'
 import type { ChargeRecord, ChargeStatus, CreateChargeInput } from '../types.js'
@@ -18,61 +18,12 @@ function now(): string {
   return new Date().toISOString()
 }
 
-function mapRow(row: Record<string, unknown>): ChargeRecord {
-  return {
-    id: row.id as string,
-    accountId: row.accountId as string,
-    pixKeyId: (row.pixKeyId as string | null) ?? null,
-    provider: row.provider as ChargeRecord['provider'],
-    providerChargeId: (row.providerChargeId as string | null) ?? null,
-    txid: row.txid as string,
-    amountCents: row.amountCents as number,
-    description: (row.description as string | null) ?? null,
-    status: row.status as ChargeStatus,
-    copyPaste: (row.copyPaste as string | null) ?? null,
-    qrCodeBase64: (row.qrCodeBase64 as string | null) ?? null,
-    expiresAt: (row.expiresAt as string | null) ?? null,
-    paidAt: (row.paidAt as string | null) ?? null,
-    externalRef: (row.externalRef as string | null) ?? null,
-    idempotencyKey: (row.idempotencyKey as string | null) ?? null,
-    rawJson: (row.rawJson as string | null) ?? null,
-    createdAt: row.createdAt as string,
-    updatedAt: row.updatedAt as string,
-  }
-}
-
-const selectSql = `
-  SELECT id,
-         account_id AS accountId,
-         pix_key_id AS pixKeyId,
-         provider,
-         provider_charge_id AS providerChargeId,
-         txid,
-         amount_cents AS amountCents,
-         description,
-         status,
-         copy_paste AS copyPaste,
-         qr_code_base64 AS qrCodeBase64,
-         expires_at AS expiresAt,
-         paid_at AS paidAt,
-         external_ref AS externalRef,
-         idempotency_key AS idempotencyKey,
-         raw_json AS rawJson,
-         created_at AS createdAt,
-         updated_at AS updatedAt
-  FROM charges
-`
-
 export function getCharge(db: Db, chargeId: string): ChargeRecord | undefined {
-  const row = db.prepare(`${selectSql} WHERE id = ?`).get(chargeId) as Record<string, unknown> | undefined
-  return row ? mapRow(row) : undefined
+  return db.data().charges.find((c) => c.id === chargeId)
 }
 
 export function getChargeByIdempotency(db: Db, key: string): ChargeRecord | undefined {
-  const row = db.prepare(`${selectSql} WHERE idempotency_key = ?`).get(key) as
-    | Record<string, unknown>
-    | undefined
-  return row ? mapRow(row) : undefined
+  return db.data().charges.find((c) => c.idempotencyKey === key)
 }
 
 export function getChargeByProviderId(
@@ -80,24 +31,20 @@ export function getChargeByProviderId(
   provider: string,
   providerChargeId: string,
 ): ChargeRecord | undefined {
-  const row = db
-    .prepare(`${selectSql} WHERE provider = ? AND provider_charge_id = ?`)
-    .get(provider, providerChargeId) as Record<string, unknown> | undefined
-  return row ? mapRow(row) : undefined
+  return db
+    .data()
+    .charges.find((c) => c.provider === provider && c.providerChargeId === providerChargeId)
 }
 
 export function getChargeByTxid(db: Db, txid: string): ChargeRecord | undefined {
   const clean = txid.replace(/[^a-zA-Z0-9]/g, '')
-  const row = db.prepare(`${selectSql} WHERE txid = ?`).get(clean) as Record<string, unknown> | undefined
-  return row ? mapRow(row) : undefined
+  return db.data().charges.find((c) => c.txid === clean)
 }
 
 export function listCharges(db: Db, limit = 50): ChargeRecord[] {
-  const rows = db.prepare(`${selectSql} ORDER BY created_at DESC LIMIT ?`).all(limit) as Record<
-    string,
-    unknown
-  >[]
-  return rows.map(mapRow)
+  return [...db.data().charges]
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, limit)
 }
 
 export function publicCharge(charge: ChargeRecord) {
@@ -154,9 +101,7 @@ export async function createCharge(
 
   let created
   if (account.provider === 'native') {
-    const pixKey = pixKeyId
-      ? getPixKey(db, pixKeyId)!
-      : pickPixKeyForAccount(db, account.id)
+    const pixKey = pixKeyId ? getPixKey(db, pixKeyId)! : pickPixKeyForAccount(db, account.id)
     pixKeyId = pixKey.id
     created = await nativeCreateCharge(input, {
       credentials: parseNativeCredentials(account.credentialsJson),
@@ -168,37 +113,31 @@ export async function createCharge(
     created = await provider.createCharge(input, credentials)
   }
 
-  const chargeId = `chg_${id()}`
   const ts = now()
-
-  db.prepare(
-    `INSERT INTO charges (
-      id, account_id, pix_key_id, provider, provider_charge_id, txid, amount_cents, description,
-      status, copy_paste, qr_code_base64, expires_at, paid_at, external_ref, idempotency_key,
-      raw_json, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(
-    chargeId,
-    account.id,
+  const charge: ChargeRecord = {
+    id: `chg_${id()}`,
+    accountId: account.id,
     pixKeyId,
-    account.provider,
-    created.providerChargeId,
-    created.txid,
-    input.amountCents,
-    input.description ?? null,
-    'pending',
-    created.copyPaste,
-    created.qrCodeBase64,
-    created.expiresAt,
-    null,
-    input.externalRef ?? null,
-    idempotencyKey ?? null,
-    JSON.stringify(created.raw),
-    ts,
-    ts,
-  )
+    provider: account.provider,
+    providerChargeId: created.providerChargeId,
+    txid: created.txid,
+    amountCents: input.amountCents,
+    description: input.description ?? null,
+    status: 'pending',
+    copyPaste: created.copyPaste,
+    qrCodeBase64: created.qrCodeBase64,
+    expiresAt: created.expiresAt,
+    paidAt: null,
+    externalRef: input.externalRef ?? null,
+    idempotencyKey: idempotencyKey ?? null,
+    rawJson: JSON.stringify(created.raw),
+    createdAt: ts,
+    updatedAt: ts,
+  }
 
-  return getCharge(db, chargeId)!
+  db.data().charges.push(charge)
+  db.markDirty()
+  return charge
 }
 
 export function updateChargeStatus(
@@ -214,11 +153,11 @@ export function updateChargeStatus(
     return current
   }
 
-  db.prepare(
-    `UPDATE charges SET status = ?, paid_at = COALESCE(?, paid_at), updated_at = ? WHERE id = ?`,
-  ).run(status, paidAt, now(), chargeId)
-
-  return getCharge(db, chargeId)
+  current.status = status
+  if (paidAt) current.paidAt = paidAt
+  current.updatedAt = now()
+  db.markDirty()
+  return current
 }
 
 export async function syncChargeFromProvider(db: Db, chargeId: string): Promise<ChargeRecord> {
@@ -226,8 +165,6 @@ export async function syncChargeFromProvider(db: Db, chargeId: string): Promise<
   if (!charge) throw new Error('Cobrança não encontrada')
 
   if (charge.provider === 'native') {
-    // Native não consulta PSP: status só muda por webhook de Pix recebido.
-    // Expira automaticamente se passou expiresAt.
     if (
       charge.status === 'pending' &&
       charge.expiresAt &&

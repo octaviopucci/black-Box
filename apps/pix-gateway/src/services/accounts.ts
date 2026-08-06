@@ -1,5 +1,5 @@
 import { customAlphabet } from 'nanoid'
-import type { Db } from '../db/index.js'
+import type { Db } from '../db/json-store.js'
 import type {
   AccountRecord,
   AsaasCredentials,
@@ -40,7 +40,6 @@ export function parseAsaasCredentials(json: string): AsaasCredentials {
   }
 }
 
-/** @deprecated use parseAsaasCredentials / parseNativeCredentials */
 export function parseCredentials(json: string): AsaasCredentials {
   return parseAsaasCredentials(json)
 }
@@ -50,11 +49,9 @@ export function createAccount(
   input: {
     name: string
     provider?: ProviderKind
-    // native
     merchantName?: string
     merchantCity?: string
     webhookToken?: string
-    // asaas (opcional, pago)
     apiKey?: string
     apiUrl?: string
     defaultCustomerId?: string
@@ -89,40 +86,17 @@ export function createAccount(
     updatedAt: now(),
   }
 
-  db.prepare(
-    `INSERT INTO accounts (id, name, provider, credentials_json, active, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  ).run(
-    account.id,
-    account.name,
-    account.provider,
-    account.credentialsJson,
-    account.active,
-    account.createdAt,
-    account.updatedAt,
-  )
-
+  db.data().accounts.push(account)
+  db.markDirty()
   return account
 }
 
 export function listAccounts(db: Db): AccountRecord[] {
-  return db
-    .prepare(
-      `SELECT id, name, provider, credentials_json AS credentialsJson, active,
-              created_at AS createdAt, updated_at AS updatedAt
-       FROM accounts ORDER BY created_at ASC`,
-    )
-    .all() as unknown as AccountRecord[]
+  return [...db.data().accounts].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 }
 
 export function getAccount(db: Db, accountId: string): AccountRecord | undefined {
-  return db
-    .prepare(
-      `SELECT id, name, provider, credentials_json AS credentialsJson, active,
-              created_at AS createdAt, updated_at AS updatedAt
-       FROM accounts WHERE id = ?`,
-    )
-    .get(accountId) as unknown as AccountRecord | undefined
+  return db.data().accounts.find((a) => a.id === accountId)
 }
 
 export function publicAccount(account: AccountRecord) {
@@ -176,41 +150,19 @@ export function createPixKey(
     createdAt: now(),
   }
 
-  db.prepare(
-    `INSERT INTO pix_keys (id, account_id, label, key_type, key_value, active, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  ).run(key.id, key.accountId, key.label, key.keyType, key.keyValue, key.active, key.createdAt)
-
+  db.data().pixKeys.push(key)
+  db.markDirty()
   return key
 }
 
 export function listPixKeys(db: Db, accountId?: string): PixKeyRecord[] {
-  if (accountId) {
-    return db
-      .prepare(
-        `SELECT id, account_id AS accountId, label, key_type AS keyType, key_value AS keyValue,
-                active, created_at AS createdAt
-         FROM pix_keys WHERE account_id = ? ORDER BY created_at ASC`,
-      )
-      .all(accountId) as unknown as PixKeyRecord[]
-  }
-  return db
-    .prepare(
-      `SELECT id, account_id AS accountId, label, key_type AS keyType, key_value AS keyValue,
-              active, created_at AS createdAt
-       FROM pix_keys ORDER BY created_at ASC`,
-    )
-    .all() as unknown as PixKeyRecord[]
+  const keys = db.data().pixKeys
+  const filtered = accountId ? keys.filter((k) => k.accountId === accountId) : keys
+  return [...filtered].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 }
 
 export function getPixKey(db: Db, keyId: string): PixKeyRecord | undefined {
-  return db
-    .prepare(
-      `SELECT id, account_id AS accountId, label, key_type AS keyType, key_value AS keyValue,
-              active, created_at AS createdAt
-       FROM pix_keys WHERE id = ?`,
-    )
-    .get(keyId) as unknown as PixKeyRecord | undefined
+  return db.data().pixKeys.find((k) => k.id === keyId)
 }
 
 export function pickPixKeyForAccount(db: Db, accountId: string): PixKeyRecord {
@@ -221,21 +173,18 @@ export function pickPixKeyForAccount(db: Db, accountId: string): PixKeyRecord {
     )
   }
 
-  // least used today
   const start = new Date()
   start.setHours(0, 0, 0, 0)
   const startIso = start.toISOString()
   let best = keys[0]!
   let bestCount = Number.POSITIVE_INFINITY
   for (const key of keys) {
-    const row = db
-      .prepare(
-        `SELECT COUNT(*) AS c FROM charges WHERE pix_key_id = ? AND created_at >= ?`,
-      )
-      .get(key.id, startIso) as { c: number }
-    if (row.c < bestCount) {
+    const c = db
+      .data()
+      .charges.filter((ch) => ch.pixKeyId === key.id && ch.createdAt >= startIso).length
+    if (c < bestCount) {
       best = key
-      bestCount = row.c
+      bestCount = c
     }
   }
   return best

@@ -50,12 +50,13 @@ export const accountsRoutes: FastifyPluginAsync = async (app) => {
 
       const webhookPath =
         account.provider === 'native'
-          ? `/v1/webhooks/native/${account.id}`
-          : `/v1/webhooks/asaas/${account.id}`
+          ? `${app.config.API_PREFIX}/v1/webhooks/native/${account.id}`
+          : `${app.config.API_PREFIX}/v1/webhooks/asaas/${account.id}`
 
       return reply.code(201).send({
         account: publicAccount(account),
         webhookUrl: `${app.config.PUBLIC_BASE_URL}${webhookPath}`,
+        apiBase: `${app.config.PUBLIC_BASE_URL}${app.config.API_PREFIX || ''}`,
         hint:
           account.provider === 'native'
             ? 'Modo grátis: cadastre suas chaves Pix e aponte o webhook de Pix recebido do seu banco (formato Bacen) para webhookUrl. Taxa: R$ 0.'

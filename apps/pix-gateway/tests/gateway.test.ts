@@ -5,11 +5,11 @@ import { join } from 'node:path'
 import { after, before, describe, it } from 'node:test'
 import { buildApp } from '../src/app.js'
 import { loadConfig } from '../src/config.js'
-import { openDatabase } from '../src/db/index.js'
+import { JsonDatabase } from '../src/db/json-store.js'
 
 describe('pix-gateway native (grátis)', () => {
   const dir = mkdtempSync(join(tmpdir(), 'pix-gateway-'))
-  const dbPath = join(dir, 'test.db')
+  const dbPath = join(dir, 'test.json')
   const apiKey = 'test-gateway-api-key-12345'
   let app: Awaited<ReturnType<typeof buildApp>>
 
@@ -21,7 +21,7 @@ describe('pix-gateway native (grátis)', () => {
       NODE_ENV: 'test',
       PUBLIC_BASE_URL: 'http://localhost:8799',
     })
-    const db = openDatabase(dbPath)
+    const db = await JsonDatabase.open(dbPath)
     app = await buildApp(config, db)
     await app.ready()
   })
@@ -89,7 +89,6 @@ describe('pix-gateway native (grátis)', () => {
     assert.ok(charge.copyPaste.includes('br.gov.bcb.pix'))
     assert.ok(charge.copyPaste.includes('123e4567-e89b-12d3-a456-426614174000'))
 
-    // Confirmação automática (banco envia Pix recebido com mesmo txid)
     const wh = await app.inject({
       method: 'POST',
       url: `/v1/webhooks/native/${accountBody.account.id}?token=whsec_native_token`,

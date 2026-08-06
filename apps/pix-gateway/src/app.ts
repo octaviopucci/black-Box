@@ -3,7 +3,7 @@ import Fastify, { type FastifyInstance } from 'fastify'
 import { ZodError } from 'zod'
 import { requireApiKey } from './auth.js'
 import type { AppConfig } from './config.js'
-import type { Db } from './db/index.js'
+import type { Db } from './db/json-store.js'
 import { accountsRoutes } from './routes/accounts.js'
 import { chargesRoutes } from './routes/charges.js'
 import { webhooksRoutes } from './routes/webhooks.js'
@@ -23,7 +23,10 @@ export async function buildApp(config: AppConfig, db: Db): Promise<FastifyInstan
   app.decorate('db', db)
   app.decorate('config', config)
 
-  await app.register(cors, { origin: false })
+  await app.register(cors, {
+    origin: true,
+    allowedHeaders: ['Content-Type', 'X-Api-Key', 'Authorization', 'Idempotency-Key'],
+  })
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) {
@@ -46,10 +49,8 @@ export async function buildApp(config: AppConfig, db: Db): Promise<FastifyInstan
     note: 'Modo native: Pix grátis na sua chave. Confirmação automática via webhook Bacen/Pix recebido.',
   }))
 
-  // Webhooks públicos (auth própria via token Asaas)
   await app.register(webhooksRoutes)
 
-  // API autenticada
   await app.register(async (scoped) => {
     scoped.addHook('preHandler', async (request, reply) => {
       await requireApiKey(request, reply, config)

@@ -1,12 +1,19 @@
 import { loadConfig } from './config.js'
-import { openDatabase } from './db/index.js'
+import { JsonDatabase, resolveDatabasePath } from './db/json-store.js'
 import { buildApp } from './app.js'
 import { startReconciler } from './reconciler.js'
 
 async function main() {
   const config = loadConfig()
-  const db = openDatabase(config.DATABASE_PATH)
+  const dbPath = resolveDatabasePath(config.DATABASE_PATH)
+  const db = await JsonDatabase.open(dbPath)
   const app = await buildApp(config, db)
+
+  app.addHook('onResponse', async (request) => {
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+      await db.persist()
+    }
+  })
 
   const reconciler = startReconciler(db, {
     intervalMs: 30_000,
@@ -15,6 +22,7 @@ async function main() {
 
   const shutdown = async () => {
     reconciler.stop()
+    await db.persist()
     await app.close()
     process.exit(0)
   }
