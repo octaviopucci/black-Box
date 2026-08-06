@@ -11,5 +11,6 @@ node_modules
 apps/*/node_modules
 apps/*/dist
 apps/*/dist-x
+apps/pix-gateway/data
 portal/node_modules
 portal/dist

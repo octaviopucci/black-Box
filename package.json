@@ -19,6 +19,8 @@
     "dev:danielle": "npm --prefix apps/danielle-matsubara run dev",
     "dev:gl": "npm --prefix apps/gl-locacoes run dev",
     "dev:cbx": "npm --prefix apps/cbx run dev",
+    "dev:pix": "npm --prefix apps/pix-gateway run dev",
+    "test:pix": "npm --prefix apps/pix-gateway test",
     "build:maciel": "npm --prefix apps/maciel-motors-gestor ci --include=dev && VITE_BASE=/maciel-motors/ VITE_OUT_DIR=dist npm --prefix apps/maciel-motors-gestor run build",
     "build:maciel-x": "VITE_INTERACTIVE=1 VITE_BASE=/maciel-motors-x/ VITE_OUT_DIR=dist-x npm --prefix apps/maciel-motors-gestor run build",
     "build:porthal": "npm --prefix apps/porthal-imoveis ci --include=dev && VITE_BASE=/porthal-imoveis/ VITE_OUT_DIR=dist npm --prefix apps/porthal-imoveis run build",

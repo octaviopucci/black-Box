@@ -31,13 +31,17 @@ Comparação: [/maciel-motors/](/maciel-motors/) e [/maciel-motors-x/](/maciel-m
 
 - Portal Black Box (React + Vite + TypeScript)
 - Apps de cliente em `apps/`
-- Deploy unificado na **Vercel**
+- **PIX Gateway** em `apps/pix-gateway` (API própria multi-conta com confirmação automática via Asaas)
+- Deploy unificado na **Vercel** (sites); o gateway PIX roda à parte (`npm run dev:pix`)
 
 ## Desenvolvimento
 
 ```bash
 # Portal
 npm run dev:portal
+
+# PIX Gateway (API)
+npm run dev:pix
 
 # Maciel Motors (isolado)
 npm run dev:maciel
