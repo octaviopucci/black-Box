@@ -2,7 +2,7 @@ import { build } from 'esbuild'
 import { mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-const outfile = join(process.cwd(), 'api/pix/_gateway.cjs')
+const outfile = join(process.cwd(), 'api/_pix_gateway.cjs')
 mkdirSync(dirname(outfile), { recursive: true })
 
 await build({

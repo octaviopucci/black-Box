@@ -13,5 +13,6 @@ apps/*/dist
 apps/*/dist-x
 apps/pix-gateway/data
 api/pix/_gateway.cjs
+api/_pix_gateway.cjs
 portal/node_modules
 portal/dist

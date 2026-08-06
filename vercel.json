@@ -4,13 +4,15 @@
   "framework": null,
   "installCommand": "npm install",
   "functions": {
-    "api/pix/[...path].ts": {
+    "api/pix.ts": {
       "memory": 1024,
       "maxDuration": 30,
-      "includeFiles": "api/pix/_gateway.cjs"
+      "includeFiles": "api/_pix_gateway.cjs"
     }
   },
   "rewrites": [
+    { "source": "/api/pix", "destination": "/api/pix?path=health" },
+    { "source": "/api/pix/(.*)", "destination": "/api/pix?path=$1" },
     { "source": "/pix", "destination": "/pix/index.html" },
     { "source": "/pix/", "destination": "/pix/index.html" },
     { "source": "/maciel-motors-x/(.*)", "destination": "/maciel-motors-x/index.html" },

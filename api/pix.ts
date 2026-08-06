@@ -1,10 +1,34 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-// Bundle CJS gerado em vercel-build / bundle-pix-api.mjs
+// Bundle CJS gerado por scripts/bundle-pix-api.mjs
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const gateway = require('./_gateway.cjs') as {
-  getGateway: () => Promise<{ app: { inject: (opts: unknown) => Promise<{ statusCode: number; headers: Record<string, unknown>; body: string }> } }>
+const gateway = require('./_pix_gateway.cjs') as {
+  getGateway: () => Promise<{
+    app: {
+      inject: (opts: unknown) => Promise<{
+        statusCode: number
+        headers: Record<string, unknown>
+        body: string
+      }>
+    }
+  }>
   flushPersist: () => Promise<void>
+}
+
+function resolvePath(req: VercelRequest): string {
+  const q = req.query?.path
+  if (Array.isArray(q) && q.length > 0) {
+    return '/' + q.map(String).join('/')
+  }
+  if (typeof q === 'string' && q.length > 0) {
+    return '/' + q.replace(/^\/+/, '')
+  }
+
+  const originalUrl = req.url || '/'
+  const qIndex = originalUrl.indexOf('?')
+  const pathname = qIndex >= 0 ? originalUrl.slice(0, qIndex) : originalUrl
+  const stripped = pathname.replace(/^\/api\/pix\/?/, '/') || '/'
+  return stripped.startsWith('/') ? stripped : `/${stripped}`
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -13,10 +37,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const originalUrl = req.url || '/'
     const qIndex = originalUrl.indexOf('?')
-    const pathname = qIndex >= 0 ? originalUrl.slice(0, qIndex) : originalUrl
     const search = qIndex >= 0 ? originalUrl.slice(qIndex) : ''
-    const strippedPath = pathname.replace(/^\/api\/pix\/?/, '/') || '/'
-    const url = (strippedPath.startsWith('/') ? strippedPath : `/${strippedPath}`) + search
+    const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
+    params.delete('path')
+    const cleanSearch = params.toString() ? `?${params.toString()}` : ''
+    const url = resolvePath(req) + cleanSearch
 
     const payload =
       req.method === 'GET' || req.method === 'HEAD' || req.method === 'DELETE'
