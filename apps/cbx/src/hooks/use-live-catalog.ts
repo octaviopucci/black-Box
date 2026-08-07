@@ -5,22 +5,24 @@ import { liveCatalog } from '@/lib/live-catalog'
 import { categoryService, productService, userService } from '@/services'
 import type { Category, Product, User } from '@/types'
 
-const useApi = () => process.env.NEXT_PUBLIC_USE_API === '1'
+const apiOn = () => process.env.NEXT_PUBLIC_USE_API === '1'
 
 /** Home / browse: mocks first, then API when server mode is on. */
 export function useLiveProducts(params?: { q?: string; categoryId?: string }) {
+  const q = params?.q
+  const categoryId = params?.categoryId
   const [products, setProducts] = useState<Product[]>(() => {
-    if (params?.q) return productService.search(params.q)
-    if (params?.categoryId) return productService.byCategory(params.categoryId)
+    if (q) return productService.search(q)
+    if (categoryId) return productService.byCategory(categoryId)
     return productService.list()
   })
-  const [loading, setLoading] = useState(useApi())
+  const [loading, setLoading] = useState(apiOn())
 
   useEffect(() => {
     let cancelled = false
-    setLoading(useApi())
+    setLoading(apiOn())
     liveCatalog
-      .listProducts(params)
+      .listProducts({ q, categoryId })
       .then((list) => {
         if (!cancelled) setProducts(list)
       })
@@ -30,7 +32,7 @@ export function useLiveProducts(params?: { q?: string; categoryId?: string }) {
     return () => {
       cancelled = true
     }
-  }, [params?.q, params?.categoryId])
+  }, [q, categoryId])
 
   return { products, loading }
 }
@@ -56,7 +58,7 @@ export function useMyListings() {
   const [products, setProducts] = useState<Product[]>(() =>
     productService.bySeller(userService.current().id),
   )
-  const [loading, setLoading] = useState(useApi())
+  const [loading, setLoading] = useState(apiOn())
 
   useEffect(() => {
     let cancelled = false

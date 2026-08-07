@@ -4,7 +4,7 @@ import { SessionProvider } from 'next-auth/react'
 import { Toaster } from 'sonner'
 import { RewardedAdHost } from '@/components/ads/rewarded-ad-host'
 
-const useApi = process.env.NEXT_PUBLIC_USE_API === '1'
+const apiEnabled = process.env.NEXT_PUBLIC_USE_API === '1'
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const body = (
@@ -16,6 +16,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   )
 
   // SessionProvider hits /api/auth — only in server/API mode
-  if (!useApi) return body
+  if (!apiEnabled) return body
   return <SessionProvider>{body}</SessionProvider>
 }

@@ -1,10 +1,7 @@
 import type { Product, Category, User } from '@/types'
 import { productService, categoryService, userService } from '@/services'
 
-const useApi = () =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_USE_API === '1'
-    : process.env.NEXT_PUBLIC_USE_API === '1'
+const isApiEnabled = () => process.env.NEXT_PUBLIC_USE_API === '1'
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -24,7 +21,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 /** Hybrid client: API when server mode + DATABASE_URL; mocks otherwise. */
 export const liveCatalog = {
   async listProducts(params?: { q?: string; categoryId?: string; sellerId?: string }): Promise<Product[]> {
-    if (!useApi()) return productService.list()
+    if (!isApiEnabled()) return productService.list()
     try {
       const qs = new URLSearchParams()
       if (params?.q) qs.set('q', params.q)
@@ -38,7 +35,7 @@ export const liveCatalog = {
   },
 
   async getProduct(id: string): Promise<Product | undefined> {
-    if (!useApi()) return productService.get(id)
+    if (!isApiEnabled()) return productService.get(id)
     try {
       const data = await api<{ product: Product }>(`/api/products/${id}`)
       return data.product
@@ -48,7 +45,7 @@ export const liveCatalog = {
   },
 
   async listCategories(): Promise<Category[]> {
-    if (!useApi()) return categoryService.list()
+    if (!isApiEnabled()) return categoryService.list()
     try {
       const data = await api<{ categories: Category[] }>('/api/categories')
       return data.categories
@@ -88,7 +85,7 @@ export const liveCatalog = {
   },
 
   async me(): Promise<{ user: User; products: Product[] } | null> {
-    if (!useApi()) {
+    if (!isApiEnabled()) {
       return { user: userService.current(), products: productService.bySeller(userService.current().id) }
     }
     try {

@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# temp hide for static export build
+.cbx-static-hide/
+
 # production
 /build
 
