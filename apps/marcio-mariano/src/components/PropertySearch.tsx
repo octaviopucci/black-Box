@@ -1,100 +1,106 @@
-import { useMemo, useState } from 'react'
-import { Search as SearchIcon } from 'lucide-react'
-import { filterProperties, type Transaction } from '../data/properties'
+import { useMemo, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Search } from 'lucide-react'
 import { site } from '../data/site'
+import { properties, type Transaction } from '../data/properties'
 import { Reveal } from './Reveal'
 
 export type SearchFilters = {
-  ids: string[] | null
   transaction: 'all' | Transaction
+  city: string
+  query: string
+  minBeds: number
 }
 
-export function PropertySearch({ onFilter }: { onFilter: (f: SearchFilters) => void }) {
-  const [transaction, setTransaction] = useState<'all' | Transaction>('all')
-  const [city, setCity] = useState('all')
-  const [beds, setBeds] = useState(0)
-  const [query, setQuery] = useState('')
+const defaultFilters: SearchFilters = {
+  transaction: 'all',
+  city: 'all',
+  query: '',
+  minBeds: 0,
+}
 
-  const resultCount = useMemo(
-    () =>
-      filterProperties({
-        transaction,
-        city,
-        minBeds: beds || undefined,
-        query: query || undefined,
-      }).length,
-    [transaction, city, beds, query],
-  )
+export function PropertySearch({
+  onFilter,
+  mode = 'home',
+  initial,
+}: {
+  onFilter?: (filters: SearchFilters) => void
+  mode?: 'home' | 'page'
+  initial?: Partial<SearchFilters>
+}) {
+  const navigate = useNavigate()
+  const [filters, setFilters] = useState<SearchFilters>({ ...defaultFilters, ...initial })
 
-  const apply = () => {
-    const list = filterProperties({
-      transaction,
-      city,
-      minBeds: beds || undefined,
-      query: query || undefined,
-    })
-    onFilter({ ids: list.map((p) => p.id), transaction })
-    document.getElementById('imoveis')?.scrollIntoView({ behavior: 'smooth' })
+  const cities = useMemo(() => {
+    const fromData = Array.from(new Set(properties.map((p) => p.city))).sort()
+    return fromData.length ? fromData : [...site.cities]
+  }, [])
+
+  const update = (patch: Partial<SearchFilters>) => {
+    const next = { ...filters, ...patch }
+    setFilters(next)
+    onFilter?.(next)
+  }
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    const params = new URLSearchParams()
+    if (filters.transaction === 'sale') params.set('tipo', 'venda')
+    if (filters.transaction === 'rent') params.set('tipo', 'aluguel')
+    if (filters.city !== 'all') params.set('cidade', filters.city)
+    if (filters.minBeds) params.set('quartos', String(filters.minBeds))
+    if (filters.query) params.set('q', filters.query)
+    const qs = params.toString()
+    if (mode === 'home') {
+      navigate(`/imoveis${qs ? `?${qs}` : ''}`)
+      return
+    }
+    onFilter?.(filters)
+    navigate(`/imoveis${qs ? `?${qs}` : ''}`, { replace: true })
   }
 
   return (
-    <section id="buscar" className="relative z-20 -mt-10 px-5 sm:-mt-14 sm:px-8">
-      <Reveal className="mx-auto w-full max-w-7xl">
-        <div className="border border-line/80 bg-white/90 p-5 shadow-lift backdrop-blur-md sm:p-7">
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+    <section id="buscar" className={mode === 'home' ? '-mt-10 relative z-20 px-5 sm:px-8' : ''}>
+      <Reveal className="mx-auto w-full max-w-shell">
+        <form
+          onSubmit={submit}
+          className="border border-line bg-snow p-4 shadow-lift sm:p-6"
+        >
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
-                Busca inteligente
-              </p>
-              <h2 className="mt-1 font-display text-2xl font-semibold text-navy sm:text-3xl">
-                O imóvel certo, sem ruído
+              <p className="section-label">Busca inteligente</p>
+              <h2 className="mt-1 font-display text-xl font-semibold text-ink sm:text-2xl">
+                Encontre o imóvel certo
               </h2>
             </div>
-            <p className="text-sm text-mute">{resultCount} imóveis encontrados</p>
+            <p className="text-sm text-mute">{properties.length} imóveis no portfólio</p>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
-            <label className="block lg:col-span-2">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-mute">
-                Palavra-chave
-              </span>
-              <div className="relative">
-                <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mute" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Bairro, código, título…"
-                  className="w-full border border-line bg-chalk/60 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-brand"
-                />
-              </div>
-            </label>
-
-            <label className="block">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-mute">
-                Operação
-              </span>
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-ink">Operação</span>
               <select
-                value={transaction}
-                onChange={(e) => setTransaction(e.target.value as 'all' | Transaction)}
-                className="w-full border border-line bg-chalk/60 px-3 py-3 text-sm outline-none focus:border-brand"
+                className="input-field"
+                value={filters.transaction}
+                onChange={(e) =>
+                  update({ transaction: e.target.value as SearchFilters['transaction'] })
+                }
               >
                 <option value="all">Comprar ou alugar</option>
-                <option value="sale">Comprar</option>
-                <option value="rent">Alugar</option>
+                <option value="sale">Para comprar</option>
+                <option value="rent">Para alugar</option>
               </select>
             </label>
 
-            <label className="block">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-mute">
-                Cidade
-              </span>
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-ink">Cidade</span>
               <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full border border-line bg-chalk/60 px-3 py-3 text-sm outline-none focus:border-brand"
+                className="input-field"
+                value={filters.city}
+                onChange={(e) => update({ city: e.target.value })}
               >
-                <option value="all">Todas</option>
-                {site.cities.map((c) => (
+                <option value="all">Todas as cidades</option>
+                {cities.map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -102,14 +108,12 @@ export function PropertySearch({ onFilter }: { onFilter: (f: SearchFilters) => v
               </select>
             </label>
 
-            <label className="block">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-mute">
-                Quartos
-              </span>
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-ink">Quartos</span>
               <select
-                value={beds}
-                onChange={(e) => setBeds(Number(e.target.value))}
-                className="w-full border border-line bg-chalk/60 px-3 py-3 text-sm outline-none focus:border-brand"
+                className="input-field"
+                value={filters.minBeds}
+                onChange={(e) => update({ minBeds: Number(e.target.value) })}
               >
                 <option value={0}>Qualquer</option>
                 {[1, 2, 3, 4, 5].map((n) => (
@@ -119,31 +123,24 @@ export function PropertySearch({ onFilter }: { onFilter: (f: SearchFilters) => v
                 ))}
               </select>
             </label>
-          </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={apply}
-              className="rounded-full bg-navy px-7 py-3 text-sm font-semibold text-white transition hover:bg-brand"
-            >
-              Buscar imóveis
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setTransaction('all')
-                setCity('all')
-                setBeds(0)
-                setQuery('')
-                onFilter({ ids: null, transaction: 'all' })
-              }}
-              className="text-sm font-medium text-mute underline-offset-4 hover:text-navy hover:underline"
-            >
-              Limpar filtros
-            </button>
+            <label className="block text-sm lg:col-span-2">
+              <span className="mb-1.5 block font-medium text-ink">Palavra-chave</span>
+              <div className="flex gap-2">
+                <input
+                  className="input-field"
+                  placeholder="Bairro, referência ou tipo"
+                  value={filters.query}
+                  onChange={(e) => update({ query: e.target.value })}
+                />
+                <button type="submit" className="btn-blue shrink-0 px-5">
+                  <Search className="h-4 w-4" />
+                  Buscar
+                </button>
+              </div>
+            </label>
           </div>
-        </div>
+        </form>
       </Reveal>
     </section>
   )

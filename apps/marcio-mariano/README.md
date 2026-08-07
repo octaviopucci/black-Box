@@ -1,24 +1,31 @@
-# Márcio Mariano — site premium
+# Márcio Mariano Imóveis
 
-Redesign premium e interativo da Imobiliária Márcio Mariano (Capão Bonito/SP).
+Site premium da Imobiliária Márcio Mariano (Capão Bonito/SP), hospedado na Black Box.
 
 ## Stack
 
-- React + Vite + TypeScript
+- React 19 + Vite + TypeScript
 - Tailwind CSS
 - Framer Motion + GSAP
+- React Router
 
 ## Desenvolvimento
 
 ```bash
-npm install
-npm run dev
-```
-
-No monorepo Black Box:
-
-```bash
 npm run dev:marcio
+# ou
+npm --prefix apps/marcio-mariano run dev
 ```
 
-Publicado em `/marcio-mariano/`.
+Base path de produção: `/marcio-mariano/`
+
+## Páginas
+
+- `/` Home
+- `/imoveis` Portfólio com filtros
+- `/imovel/:slug` Detalhe
+- `/empresa` História e missão
+- `/servicos` Serviços
+- `/avaliacao` Avaliações ABNT/CAAVI
+- `/anunciar` Captação de proprietários
+- `/contato` Contato e WhatsApp
