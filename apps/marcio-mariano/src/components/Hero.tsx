@@ -6,20 +6,19 @@ import gsap from 'gsap'
 import { site, whatsappUrl } from '../data/site'
 
 export function Hero() {
-  const titleRef = useRef<HTMLHeadingElement>(null)
+  const brandRef = useRef<HTMLHeadingElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 120])
   const opacity = useTransform(scrollY, [0, 400], [1, 0.4])
 
   useEffect(() => {
-    if (!titleRef.current) return
+    if (!brandRef.current) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const words = titleRef.current.querySelectorAll('[data-word]')
     gsap.fromTo(
-      words,
-      { y: 56, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.05, stagger: 0.09, ease: 'power3.out', delay: 0.12 },
+      brandRef.current,
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.1, ease: 'power3.out', delay: 0.12 },
     )
   }, [])
 
@@ -42,23 +41,29 @@ export function Hero() {
 
       <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-shell flex-col justify-end px-5 pb-16 pt-28 sm:px-8 sm:pb-20">
         <div className="max-w-3xl">
-          <h1
-            ref={titleRef}
-            className="font-display text-[clamp(3rem,10vw,6.4rem)] font-semibold leading-[0.92] tracking-tight"
-          >
-            <span data-word className="inline-block">
-              Márcio
-            </span>{' '}
-            <span data-word className="inline-block text-gold">
-              Mariano
-            </span>
+          <h1 ref={brandRef} className="m-0">
+            <span className="sr-only">{site.brand}</span>
+            <img
+              src={`${import.meta.env.BASE_URL}brand/logo-wordmark-white.svg`}
+              alt=""
+              aria-hidden
+              className="h-auto w-[min(92vw,36rem)] max-w-full select-none"
+              draggable={false}
+            />
+            <img
+              src={`${import.meta.env.BASE_URL}brand/logo-tagline-red.svg`}
+              alt=""
+              aria-hidden
+              className="mt-2.5 h-auto w-[min(88vw,34rem)] max-w-full select-none"
+              draggable={false}
+            />
           </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.4 }}
-            className="mt-5 font-display text-xl font-medium text-white sm:text-2xl"
+            className="mt-6 font-display text-xl font-medium text-white sm:text-2xl"
           >
             {site.tagline}
           </motion.p>
