@@ -34,7 +34,7 @@ export function PropertyCard({
           <div className="absolute left-3 top-3 flex gap-2">
             <span
               className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
-                isRent ? 'bg-gold text-blue-deep' : 'bg-snow text-blue-deep'
+                isRent ? 'bg-gold text-blue-deep' : 'bg-blue text-white'
               }`}
             >
               {isRent ? 'Aluguel' : 'Venda'}

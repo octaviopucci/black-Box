@@ -67,7 +67,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.52 }}
-            className="mt-4 max-w-xl text-base leading-relaxed text-white/78 sm:text-lg"
+            className="mt-4 max-w-xl text-base leading-relaxed text-white/78 hyphens-none sm:text-lg"
           >
             Compra, venda e locação em Capão Bonito e região, com a solidez de uma família no
             mercado desde {site.since}.

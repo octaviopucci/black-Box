@@ -51,8 +51,8 @@ export function PropertyDetailPage() {
           </Link>
         </div>
 
-        <section className="mx-auto grid w-full max-w-shell gap-8 px-5 pb-16 lg:grid-cols-[1.35fr_0.65fr] sm:px-8">
-          <div>
+        <section className="mx-auto grid w-full max-w-shell gap-8 overflow-x-hidden px-5 pb-16 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)] sm:px-8">
+          <div className="min-w-0">
             <div className="relative overflow-hidden bg-blue-deep">
               <div className="relative aspect-[16/11]">
                 <AnimatePresence mode="wait">
@@ -103,7 +103,7 @@ export function PropertyDetailPage() {
                         i === active ? 'border-gold' : 'border-transparent opacity-70'
                       }`}
                     >
-                      <img src={src} alt="" className="h-full w-full object-cover" />
+                      <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
                     </button>
                   ))}
                 </div>
@@ -120,6 +120,9 @@ export function PropertyDetailPage() {
               <p className="mt-3 flex items-center gap-2 text-mute">
                 <MapPin className="h-4 w-4 text-blue" />
                 {property.address}
+              </p>
+              <p className="mt-5 font-display text-3xl font-semibold text-blue lg:hidden">
+                {property.price}
               </p>
 
               <div className="mt-6 flex flex-wrap gap-6 border-y border-line py-5 text-sm text-ink">
@@ -138,47 +141,35 @@ export function PropertyDetailPage() {
                 <Spec icon={<span className="text-xs font-bold">T</span>} label={property.profile} />
               </div>
 
+              <div className="mt-6 lg:hidden">
+                <InterestBox
+                  propertyPrice={property.price}
+                  isRent={!!isRent}
+                  city={property.city}
+                  situation={property.situation}
+                  waHref={whatsappUrl(waMessage, phoneNumber)}
+                  telHref={`tel:+${phoneNumber}`}
+                />
+              </div>
+
               <div className="mt-8">
                 <h2 className="font-display text-2xl font-semibold text-ink">Sobre o imóvel</h2>
-                <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-mute">
+                <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-mute normal-case">
                   {property.description}
                 </p>
               </div>
             </div>
           </div>
 
-          <aside className="lg:sticky lg:top-28 lg:self-start">
-            <div className="border border-line bg-snow p-6 shadow-soft sm:p-7">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-mute">
-                {isRent ? 'Valor do aluguel' : 'Valor'}
-              </p>
-              <p className="mt-2 font-display text-4xl font-semibold text-ink">{property.price}</p>
-              <p className="mt-2 text-sm text-mute">
-                {property.city} · {property.situation}
-              </p>
-
-              <a
-                href={whatsappUrl(waMessage, phoneNumber)}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-blue mt-6 w-full"
-              >
-                Tenho interesse
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-              <a
-                href={`tel:+${phoneNumber}`}
-                className="mt-3 inline-flex w-full items-center justify-center border border-line px-5 py-3 text-sm font-semibold text-ink transition hover:border-blue hover:text-blue"
-              >
-                Ligar agora
-              </a>
-
-              <ul className="mt-6 space-y-2 border-t border-line pt-5 text-sm text-mute">
-                <li>Atendimento humanizado desde {site.since}</li>
-                <li>Orientação completa na documentação</li>
-                <li>Resposta rápida no WhatsApp</li>
-              </ul>
-            </div>
+          <aside className="hidden min-w-0 lg:sticky lg:top-28 lg:block lg:self-start">
+            <InterestBox
+              propertyPrice={property.price}
+              isRent={!!isRent}
+              city={property.city}
+              situation={property.situation}
+              waHref={whatsappUrl(waMessage, phoneNumber)}
+              telHref={`tel:+${phoneNumber}`}
+            />
           </aside>
         </section>
 
@@ -215,6 +206,51 @@ export function PropertyDetailPage() {
         ) : null}
       </AnimatePresence>
     </SiteShell>
+  )
+}
+
+function InterestBox({
+  propertyPrice,
+  isRent,
+  city,
+  situation,
+  waHref,
+  telHref,
+}: {
+  propertyPrice: string
+  isRent: boolean
+  city: string
+  situation: string
+  waHref: string
+  telHref: string
+}) {
+  return (
+    <div className="border border-line bg-snow p-6 shadow-soft sm:p-7">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-mute">
+        {isRent ? 'Valor do aluguel' : 'Valor'}
+      </p>
+      <p className="mt-2 font-display text-4xl font-semibold text-ink">{propertyPrice}</p>
+      <p className="mt-2 text-sm text-mute">
+        {city} · {situation}
+      </p>
+
+      <a href={waHref} target="_blank" rel="noreferrer" className="btn-blue mt-6 w-full">
+        Tenho interesse
+        <ArrowUpRight className="h-4 w-4" />
+      </a>
+      <a
+        href={telHref}
+        className="mt-3 inline-flex w-full items-center justify-center border border-line px-5 py-3 text-sm font-semibold text-ink transition hover:border-blue hover:text-blue"
+      >
+        Ligar agora
+      </a>
+
+      <ul className="mt-6 space-y-2 border-t border-line pt-5 text-sm text-mute">
+        <li>Atendimento humanizado desde {site.since}</li>
+        <li>Orientação completa na documentação</li>
+        <li>Resposta rápida no WhatsApp</li>
+      </ul>
+    </div>
   )
 }
 

@@ -65,13 +65,13 @@ export function ContactPage() {
               <Phone className="h-5 w-5 text-blue" />
               <div className="w-full">
                 <p className="font-semibold text-ink">Telefones</p>
-                <ul className="mt-3 space-y-2">
+                <ul className="mt-3 space-y-3">
                   {site.phones.map((phone) => (
-                    <li key={phone.label} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <li key={phone.label} className="text-sm">
                       <a href={phone.href} className="font-medium text-ink hover:text-blue">
                         {phone.label}
                       </a>
-                      <span className="text-mute">{phone.role}</span>
+                      <span className="mt-0.5 block text-mute">{phone.role}</span>
                     </li>
                   ))}
                 </ul>
