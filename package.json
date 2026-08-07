@@ -34,7 +34,7 @@
     "build:matsubara": "npm --prefix apps/clinica-matsubara ci --include=dev && VITE_BASE=/clinica-matsubara/ VITE_OUT_DIR=dist npm --prefix apps/clinica-matsubara run build",
     "build:danielle": "npm --prefix apps/danielle-matsubara ci --include=dev && VITE_BASE=/danielle-matsubara/ VITE_OUT_DIR=dist npm --prefix apps/danielle-matsubara run build",
     "build:gl": "npm --prefix apps/gl-locacoes ci --include=dev && VITE_BASE=/gl-locacoes/ VITE_OUT_DIR=dist npm --prefix apps/gl-locacoes run build",
-    "build:cbx": "npm --prefix apps/cbx ci --include=dev && NEXT_BASE_PATH=/cbx npm --prefix apps/cbx run build",
+    "build:cbx": "npm --prefix apps/cbx ci --include=dev && npm --prefix apps/cbx run build:static",
     "build:portal": "npm --prefix portal ci --include=dev && npm --prefix portal run build",
     "build": "npm run build:portal && npm run build:maciel && npm run build:maciel-x && npm run build:porthal && npm run build:marcio && npm run build:sogov && npm run build:dna && npm run build:prado && npm run build:harmonie && npm run build:pucci && npm run build:na && npm run build:matsubara && npm run build:danielle && npm run build:gl && npm run build:cbx && node scripts/assemble-dist.mjs",
     "bundle:pix": "node scripts/bundle-pix-api.mjs",

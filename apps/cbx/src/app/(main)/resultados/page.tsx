@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ROUTES } from '@/constants/brand'
-import { productService } from '@/services'
+import { useLiveProducts } from '@/hooks/use-live-catalog'
 import { useAppStore } from '@/stores/app-store'
 import { staggerContainer, staggerItem } from '@/animations/variants'
 import type { Product } from '@/types'
@@ -46,11 +46,9 @@ function ResultadosContent() {
   const q = searchParams.get('q') ?? ''
   const [sort, setSort] = useState<SortOption>('relevancia')
   const { toggleFavorite, isFavorite } = useAppStore()
+  const { products: found } = useLiveProducts({ q: q || undefined })
 
-  const results = useMemo(() => {
-    const found = productService.search(q)
-    return sortProducts(found, sort)
-  }, [q, sort])
+  const results = useMemo(() => sortProducts(found, sort), [found, sort])
 
   return (
     <PageShell>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Crown, ChevronRight } from 'lucide-react'
@@ -19,13 +20,8 @@ import {
 } from '@/components/home/scroll-section'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/constants/brand'
-import {
-  categoryService,
-  companyService,
-  contentService,
-  productService,
-  storeService,
-} from '@/services'
+import { companyService, contentService, storeService } from '@/services'
+import { useLiveCategories, useLiveProducts } from '@/hooks/use-live-catalog'
 import { useAppStore } from '@/stores/app-store'
 import { scaleIn } from '@/animations/variants'
 
@@ -44,19 +40,32 @@ function VerTodosLink({ href, label = 'Ver todos' }: { href: string; label?: str
 export default function HomePage() {
   const { isFavorite, toggleFavorite, recentViews } = useAppStore()
 
-  const categories = categoryService.list()
+  const categories = useLiveCategories()
+  const { products: allProducts } = useLiveProducts()
   const promotions = contentService.promotions()
-  const allProducts = productService.list()
-  const sponsored = productService.sponsored()
-  const recent = productService.recent(8)
-  const mostViewed = productService.mostViewed(8)
-  const nearby = allProducts.slice(0, 8)
-  const offers = allProducts.filter((p) => p.oldPrice).slice(0, 8)
   const stores = storeService.list()
   const companies = companyService.list()
 
+  const sponsored = useMemo(
+    () => allProducts.filter((p) => p.sponsored).slice(0, 8),
+    [allProducts],
+  )
+  const recent = useMemo(
+    () =>
+      [...allProducts]
+        .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+        .slice(0, 8),
+    [allProducts],
+  )
+  const mostViewed = useMemo(
+    () => [...allProducts].sort((a, b) => b.views - a.views).slice(0, 8),
+    [allProducts],
+  )
+  const nearby = allProducts.slice(0, 8)
+  const offers = allProducts.filter((p) => p.oldPrice).slice(0, 8)
+
   const recentlyViewed = recentViews
-    .map((id) => productService.get(id))
+    .map((id) => allProducts.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => p != null)
 
   const favoriteProps = (id: string) => ({

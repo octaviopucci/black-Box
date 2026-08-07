@@ -21,7 +21,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs } from '@/components/ui/tabs'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ROUTES } from '@/constants/brand'
-import { productService, userService } from '@/services'
+import { useMyListings } from '@/hooks/use-live-catalog'
 import { formatCurrency } from '@/lib/utils'
 import { staggerContainer, staggerItem } from '@/animations/variants'
 import type { AdStatus } from '@/types'
@@ -42,8 +42,7 @@ const STATUS_VARIANT: Record<AdStatus, 'success' | 'warning' | 'neutral' | 'dang
 
 export default function MeusAnunciosPage() {
   const [tab, setTab] = useState('todos')
-  const user = userService.current()
-  const allProducts = productService.bySeller(user.id)
+  const { products: allProducts } = useMyListings()
 
   const filtered = useMemo(() => {
     if (tab === 'ativos') return allProducts.filter((p) => p.status === 'ativo')

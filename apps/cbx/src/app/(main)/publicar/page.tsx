@@ -29,6 +29,7 @@ import { ROUTES } from '@/constants/brand'
 import { categoryService, contentService } from '@/services'
 import { usePublishStore } from '@/stores/app-store'
 import { useAdGate } from '@/hooks/use-ad-gate'
+import { liveCatalog } from '@/lib/live-catalog'
 import { cn, formatCurrency } from '@/lib/utils'
 
 const STEP_LABELS = [
@@ -136,14 +137,34 @@ export default function PublicarPage() {
     }
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!canProceed()) {
       toast.error('Preencha os campos obrigatórios antes de continuar')
       return
     }
     if (draft.step === 8) {
+      const useApi = process.env.NEXT_PUBLIC_USE_API === '1'
+      if (useApi) {
+        try {
+          const priceValue = Number(draft.price.replace(/\D/g, '')) / 100
+          await liveCatalog.publish({
+            title: draft.title.trim(),
+            description: draft.description.trim(),
+            price: priceValue,
+            condition: draft.condition || 'usado',
+            categoryId: draft.categoryId,
+            images: draft.images,
+            neighborhood: draft.neighborhood,
+          })
+          draft.nextStep()
+          toast.success('Anúncio publicado e visível para todos!')
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : 'Erro ao publicar. Faça login e tente de novo.')
+        }
+        return
+      }
       draft.nextStep()
-      toast.success('Anúncio publicado com sucesso!')
+      toast.success('Anúncio publicado com sucesso! (demo local)')
       return
     }
     draft.nextStep()
