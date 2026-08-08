@@ -109,12 +109,14 @@ export function RunnerGame({ onFinish }: Props) {
         for (const o of s.obstacles) o.x -= s.speed * dt
         s.obstacles = s.obstacles.filter((o) => o.x > -80)
 
-        const px = s.x + 20
-        const py = s.groundY + s.y - 70
+        const px = Math.max(70, width * 0.14)
+        const hitW = 34
+        const hitH = 72
+        const py = s.groundY + s.y - hitH
         for (const o of s.obstacles) {
           const ox = o.x
           const oy = s.groundY - o.h
-          if (px + 22 > ox && px - 18 < ox + o.w && py + 70 > oy && py + 20 < s.groundY) {
+          if (px + hitW * 0.35 > ox && px - hitW * 0.35 < ox + o.w && py + hitH > oy && py + 16 < s.groundY) {
             s.hitFlash = 0.35
             finish(false)
             break
@@ -214,10 +216,10 @@ export function RunnerGame({ onFinish }: Props) {
       }
 
       const pose = !s.alive ? 'hit' : s.jumping ? 'jump' : 'run'
-      const charScale = Math.max(1.35, Math.min(width, height) / 420)
+      const charScale = Math.max(2.1, Math.min(width, height) / 280)
       drawWillCharacter(ctx, {
-        x: s.x + 20,
-        y: s.groundY + s.y - 8,
+        x: Math.max(70, width * 0.14),
+        y: s.groundY + s.y - 56 * charScale,
         facing: 1,
         pose,
         t: s.t,
