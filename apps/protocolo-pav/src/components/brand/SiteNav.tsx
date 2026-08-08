@@ -6,6 +6,11 @@ const links = [
   { to: '/protocolo', label: 'Protocolo' },
 ]
 
+const anchors = [
+  { href: '#sistema', label: 'Sistema' },
+  { href: '#investimento', label: 'Planos' },
+]
+
 export function SiteNav() {
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-white/5 bg-ink/80 backdrop-blur-md">
@@ -32,20 +37,23 @@ export function SiteNav() {
               {l.label}
             </NavLink>
           ))}
-          <a
-            href="#sistema"
-            className="font-mono text-[11px] uppercase tracking-[0.18em] text-ash transition hover:text-paper"
-          >
-            Sistema
-          </a>
+          {anchors.map((a) => (
+            <a
+              key={a.href}
+              href={a.href}
+              className="font-mono text-[11px] uppercase tracking-[0.18em] text-ash transition hover:text-paper"
+            >
+              {a.label}
+            </a>
+          ))}
         </nav>
         <div className="flex items-center gap-2">
-          <Link
-            to="/arena/luta"
+          <a
+            href={brand.cadastroExternal}
             className="rounded-lg bg-signal px-3 py-2 font-display text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-signalHot sm:px-4"
           >
-            A Luta
-          </Link>
+            Quero BASE
+          </a>
         </div>
       </div>
     </header>
