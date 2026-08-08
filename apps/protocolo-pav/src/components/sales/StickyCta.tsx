@@ -18,7 +18,7 @@ export function StickyCta() {
       }`}
     >
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0 hidden sm:block">
           <p className="truncate font-display text-sm font-semibold tracking-tight">
             {brand.tagline}
           </p>
@@ -28,7 +28,7 @@ export function StickyCta() {
         </div>
         <a
           href={brand.cadastroExternal}
-          className="shrink-0 rounded-lg bg-signal px-4 py-3 font-display text-xs font-semibold uppercase tracking-[0.14em] text-white hover:bg-signalHot"
+          className="w-full rounded-lg bg-signal px-4 py-3.5 text-center font-display text-xs font-semibold uppercase tracking-[0.14em] text-white hover:bg-signalHot sm:w-auto sm:shrink-0"
         >
           {sales.hero.primaryCta}
         </a>
