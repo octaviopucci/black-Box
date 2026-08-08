@@ -109,12 +109,12 @@ export function RunnerGame({ onFinish }: Props) {
         for (const o of s.obstacles) o.x -= s.speed * dt
         s.obstacles = s.obstacles.filter((o) => o.x > -80)
 
-        const px = s.x
-        const py = s.groundY + s.y - 48
+        const px = s.x + 20
+        const py = s.groundY + s.y - 70
         for (const o of s.obstacles) {
           const ox = o.x
           const oy = s.groundY - o.h
-          if (px + 18 > ox && px - 14 < ox + o.w && py + 48 > oy && py < s.groundY) {
+          if (px + 22 > ox && px - 18 < ox + o.w && py + 70 > oy && py + 20 < s.groundY) {
             s.hitFlash = 0.35
             finish(false)
             break
@@ -133,46 +133,80 @@ export function RunnerGame({ onFinish }: Props) {
 
       ctx.clearRect(0, 0, width, height)
       const sky = ctx.createLinearGradient(0, 0, 0, height)
-      sky.addColorStop(0, '#120808')
-      sky.addColorStop(0.55, '#080808')
+      sky.addColorStop(0, '#1a0606')
+      sky.addColorStop(0.4, '#0c0808')
       sky.addColorStop(1, '#050505')
       ctx.fillStyle = sky
       ctx.fillRect(0, 0, width, height)
 
-      ctx.strokeStyle = 'rgba(225,6,0,0.12)'
-      for (let i = 0; i < 12; i++) {
-        const x = ((s.t * 90 + i * 90) % (width + 90)) - 45
+      // far city silhouettes
+      const scroll = (s.t * s.speed * 0.15) % 220
+      ctx.fillStyle = '#120909'
+      for (let i = -1; i < width / 80 + 2; i++) {
+        const bx = i * 80 - scroll
+        const bh = 40 + ((i * 37) % 90)
+        ctx.fillRect(bx, s.groundY - bh - 40, 54, bh)
+      }
+
+      // neon perspective rails
+      ctx.strokeStyle = 'rgba(225,6,0,0.18)'
+      ctx.lineWidth = 1.5
+      for (let i = 0; i < 10; i++) {
+        const x = ((s.t * 140 + i * 110) % (width + 110)) - 55
         ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x + 40, height * 0.55)
+        ctx.moveTo(x, height * 0.15)
+        ctx.lineTo(x + 70, s.groundY)
         ctx.stroke()
       }
 
-      ctx.fillStyle = '#101010'
+      // ground slab
+      const groundGrad = ctx.createLinearGradient(0, s.groundY, 0, height)
+      groundGrad.addColorStop(0, '#171111')
+      groundGrad.addColorStop(1, '#050505')
+      ctx.fillStyle = groundGrad
       ctx.fillRect(0, s.groundY, width, height - s.groundY)
       ctx.fillStyle = '#E10600'
-      ctx.fillRect(0, s.groundY, width, 3)
-      ctx.fillStyle = 'rgba(46,229,157,0.35)'
-      ctx.fillRect(0, s.groundY + 3, width, 1)
+      ctx.fillRect(0, s.groundY, width, 4)
+      ctx.fillStyle = 'rgba(46,229,157,0.45)'
+      ctx.fillRect(0, s.groundY + 4, width, 2)
+      // lane markers
+      ctx.fillStyle = 'rgba(255,255,255,0.08)'
+      for (let i = 0; i < 12; i++) {
+        const lx = ((s.t * s.speed + i * 90) % (width + 90)) - 40
+        ctx.fillRect(lx, s.groundY + 18, 36, 3)
+      }
 
       for (const o of s.obstacles) {
         if (o.kind === 'spike') {
-          ctx.fillStyle = '#E10600'
+          const g = ctx.createLinearGradient(o.x, s.groundY - o.h, o.x, s.groundY)
+          g.addColorStop(0, '#FF2A1F')
+          g.addColorStop(1, '#7a0400')
+          ctx.fillStyle = g
           ctx.beginPath()
           ctx.moveTo(o.x, s.groundY)
           ctx.lineTo(o.x + o.w / 2, s.groundY - o.h)
           ctx.lineTo(o.x + o.w, s.groundY)
           ctx.closePath()
           ctx.fill()
+          ctx.strokeStyle = 'rgba(255,255,255,0.25)'
+          ctx.stroke()
         } else if (o.kind === 'block') {
           ctx.fillStyle = '#2a1010'
           ctx.fillRect(o.x, s.groundY - o.h, o.w, o.h)
           ctx.strokeStyle = '#E10600'
+          ctx.lineWidth = 2
           ctx.strokeRect(o.x, s.groundY - o.h, o.w, o.h)
+          ctx.fillStyle = 'rgba(225,6,0,0.25)'
+          ctx.fillRect(o.x + 6, s.groundY - o.h + 8, o.w - 12, 6)
         } else {
-          ctx.fillStyle = 'rgba(225,6,0,0.35)'
+          const cx = o.x + o.w / 2
+          const cy = s.groundY - o.h / 2
+          const rg = ctx.createRadialGradient(cx, cy, 4, cx, cy, o.w * 0.7)
+          rg.addColorStop(0, 'rgba(255,80,60,0.7)')
+          rg.addColorStop(1, 'rgba(225,6,0,0.05)')
+          ctx.fillStyle = rg
           ctx.beginPath()
-          ctx.ellipse(o.x + o.w / 2, s.groundY - o.h / 2, o.w / 2, o.h / 2, 0, 0, Math.PI * 2)
+          ctx.ellipse(cx, cy, o.w * 0.7, o.h * 0.55, 0, 0, Math.PI * 2)
           ctx.fill()
           ctx.strokeStyle = '#FF2A1F'
           ctx.stroke()
@@ -180,13 +214,14 @@ export function RunnerGame({ onFinish }: Props) {
       }
 
       const pose = !s.alive ? 'hit' : s.jumping ? 'jump' : 'run'
+      const charScale = Math.max(1.35, Math.min(width, height) / 420)
       drawWillCharacter(ctx, {
-        x: s.x,
-        y: s.groundY + s.y - 10,
+        x: s.x + 20,
+        y: s.groundY + s.y - 8,
         facing: 1,
         pose,
         t: s.t,
-        scale: 1.05,
+        scale: charScale,
       })
 
       if (s.hitFlash > 0) {

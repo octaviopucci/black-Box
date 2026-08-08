@@ -11,15 +11,18 @@ export function HomePage() {
       <SiteNav />
 
       <section className="relative min-h-dvh overflow-hidden bg-ink pt-16">
-        <div className="absolute inset-0">
+        <div className="pointer-events-none absolute inset-0">
           <CharacterStage
             pose="resist"
-            className="h-full w-full scale-110"
+            alignX={0.72}
+            showFloor={false}
+            scaleBoost={1.35}
+            className="h-full w-full"
             label="Avatar da vontade BASE"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/25" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/50" />
-          <div className="pointer-events-none absolute inset-0 bg-grain opacity-[0.08] mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink from-25% via-ink/70 via-55% to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/40" />
+          <div className="absolute inset-0 bg-grain opacity-[0.08] mix-blend-overlay" />
         </div>
 
         <div className="relative z-10 mx-auto flex min-h-[calc(100dvh-4rem)] max-w-6xl flex-col justify-end px-4 pb-14 pt-10 sm:px-6 lg:justify-center lg:pb-20">

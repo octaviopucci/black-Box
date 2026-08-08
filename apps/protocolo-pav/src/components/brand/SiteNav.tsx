@@ -4,7 +4,6 @@ import { brand } from '@/data/site'
 const links = [
   { to: '/arena', label: 'Arena' },
   { to: '/protocolo', label: 'Protocolo' },
-  { to: '/#sistema', label: 'Sistema' },
 ]
 
 export function SiteNav() {
@@ -33,6 +32,12 @@ export function SiteNav() {
               {l.label}
             </NavLink>
           ))}
+          <a
+            href="#sistema"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] text-ash transition hover:text-paper"
+          >
+            Sistema
+          </a>
         </nav>
         <div className="flex items-center gap-2">
           <Link

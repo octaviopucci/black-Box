@@ -15,6 +15,7 @@ export function GamePage() {
   const { gameId } = useParams()
   const { record, level, state } = useProgress()
   const [result, setResult] = useState<{ score: number; xp: number } | null>(null)
+  const [round, setRound] = useState(0)
   const finished = useRef(false)
 
   const id = gameId as GameId | undefined
@@ -49,6 +50,7 @@ export function GamePage() {
             onClick={() => {
               finished.current = false
               setResult(null)
+              setRound((n) => n + 1)
             }}
             className="rounded-xl bg-signal px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.14em] text-white"
           >
@@ -71,9 +73,9 @@ export function GamePage() {
     )
   }
 
-  if (id === 'runner') return <RunnerGame onFinish={onFinish} />
-  if (id === 'reflex') return <ReflexGame onFinish={onFinish} />
-  if (id === 'snake') return <SnakeGame onFinish={onFinish} />
-  if (id === 'blocks') return <BlocksGame onFinish={onFinish} />
-  return <VelhaGame onFinish={onFinish} />
+  if (id === 'runner') return <RunnerGame key={`${id}-${round}`} onFinish={onFinish} />
+  if (id === 'reflex') return <ReflexGame key={`${id}-${round}`} onFinish={onFinish} />
+  if (id === 'snake') return <SnakeGame key={`${id}-${round}`} onFinish={onFinish} />
+  if (id === 'blocks') return <BlocksGame key={`${id}-${round}`} onFinish={onFinish} />
+  return <VelhaGame key={`${id}-${round}`} onFinish={onFinish} />
 }
