@@ -2,12 +2,12 @@ import { Link, NavLink } from 'react-router-dom'
 import { brand } from '@/data/site'
 
 const links = [
+  { to: '/quiz', label: 'Diagnóstico' },
   { to: '/arena', label: 'Arena' },
   { to: '/protocolo', label: 'Protocolo' },
 ]
 
 const anchors = [
-  { href: '#sistema', label: 'Sistema' },
   { href: '#investimento', label: 'Planos' },
 ]
 
@@ -48,12 +48,12 @@ export function SiteNav() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <a
-            href={brand.cadastroExternal}
+          <Link
+            to="/quiz"
             className="rounded-lg bg-signal px-3 py-2 font-display text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-signalHot sm:px-4"
           >
-            Quero BASE
-          </a>
+            Diagnóstico
+          </Link>
         </div>
       </div>
     </header>

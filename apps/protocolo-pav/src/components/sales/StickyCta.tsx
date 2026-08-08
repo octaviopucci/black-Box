@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { brand, sales } from '@/data/site'
+import { Link } from 'react-router-dom'
+import { brand } from '@/data/site'
 
 export function StickyCta() {
   const [visible, setVisible] = useState(false)
@@ -23,15 +24,15 @@ export function StickyCta() {
             {brand.tagline}
           </p>
           <p className="truncate font-mono text-[10px] uppercase tracking-[0.16em] text-ash">
-            Garantia 30 dias · sem perguntas
+            Diagnóstico grátis · 3 minutos
           </p>
         </div>
-        <a
-          href={brand.cadastroExternal}
+        <Link
+          to="/quiz"
           className="w-full rounded-lg bg-signal px-4 py-3.5 text-center font-display text-xs font-semibold uppercase tracking-[0.14em] text-white hover:bg-signalHot sm:w-auto sm:shrink-0"
         >
-          {sales.hero.primaryCta}
-        </a>
+          Fazer diagnóstico
+        </Link>
       </div>
     </div>
   )
