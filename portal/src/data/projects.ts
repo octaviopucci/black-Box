@@ -156,7 +156,7 @@ export const projects: ClientProject[] = [
     name: 'Protocolo PAV — BASE',
     client: 'BASE · Sistema PAV',
     description:
-      'Arena da vontade com jogos reais, personagem animado em alta resolução e Protocolo PAV: sistema gamificado leve para atravessar a fissura.',
+      'Página de vendas premium + Arena da vontade: Protocolo PAV, Botão de Fissura, jogos reais e copy de conversão para o app BASE.',
     href: '/protocolo-pav/',
     status: 'demo',
     tags: ['React', 'Game', 'BASE'],
