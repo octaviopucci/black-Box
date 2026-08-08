@@ -95,8 +95,8 @@ export function QuizPage() {
               >
                 {quizIntro.cta}
               </button>
-              <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-ash">
-                Grátis · sem login · resultado na hora
+              <p className="mt-4 text-center text-xs text-ash">
+                Grátis. Sem login. Só conversa sincera.
               </p>
             </motion.section>
           )}
@@ -108,7 +108,7 @@ export function QuizPage() {
               className="flex flex-1 flex-col justify-center"
             >
               <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-signal">
-                Diagnóstico
+                Me conta
               </p>
               <h2 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl">
                 {step.question.title}
@@ -116,7 +116,7 @@ export function QuizPage() {
               {step.question.subtitle ? (
                 <p className="mt-2 text-sm text-ash">{step.question.subtitle}</p>
               ) : (
-                <p className="mt-2 text-sm text-will/90">Toque numa opção para avançar</p>
+                <p className="mt-2 text-sm text-will/90">Escolhe uma e a gente segue</p>
               )}
               <div className="mt-8 space-y-3">
                 {step.question.options.map((opt) => {
@@ -190,9 +190,10 @@ export function QuizPage() {
               className="flex flex-1 flex-col items-center justify-center text-center"
             >
               <div className="h-14 w-14 animate-pulse rounded-full border-2 border-signal/40 border-t-signal" />
-              <h2 className="mt-8 font-display text-2xl font-bold">Lendo sua fundação…</h2>
-              <p className="mt-3 max-w-xs text-sm text-ash">
-                Cruzando padrão, ciclo, fissura e objetivo para montar seu protocolo de entrada.
+              <h2 className="mt-8 font-display text-2xl font-bold">Deixa eu juntar o que você falou…</h2>
+              <p className="mt-3 max-w-sm text-sm text-ash">
+                Tô olhando o padrão, o tempo de luta e o que você quer reconstruir — pra te falar
+                com honestidade.
               </p>
             </motion.section>
           )}
@@ -209,13 +210,16 @@ export function QuizPage() {
 
               <div className="mt-8 border border-signal/50 bg-signal/10 p-5">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-signal">
-                  Protocolo recomendado
+                  O que eu faria no seu lugar
                 </p>
                 <p className="mt-2 font-display text-2xl font-bold">{diagnosis.protocol}</p>
                 <p className="mt-2 text-sm leading-relaxed text-ash">{diagnosis.protocolBlurb}</p>
               </div>
 
-              <ul className="mt-6 space-y-2">
+              <p className="mt-6 font-display text-sm font-semibold text-paper">
+                Por onde a gente começa:
+              </p>
+              <ul className="mt-3 space-y-2">
                 {diagnosis.next.map((n) => (
                   <li key={n} className="flex gap-2 text-sm text-mist">
                     <span className="text-will">▸</span>
@@ -224,14 +228,14 @@ export function QuizPage() {
                 ))}
               </ul>
 
-              <p className="mt-6 text-sm font-medium text-signal">{diagnosis.urgency}</p>
+              <p className="mt-6 text-sm leading-relaxed text-signal">{diagnosis.urgency}</p>
 
               <button
                 type="button"
                 onClick={next}
                 className="mt-8 w-full bg-signal py-4 font-display text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-signalHot"
               >
-                Ver como ativar minha BASE
+                Quero ver como entrar
               </button>
             </motion.section>
           )}
@@ -247,10 +251,12 @@ export function QuizPage() {
               <p className="mt-4 text-base leading-relaxed text-mist">{offerCopy.subtitle}</p>
 
               {diagnosis ? (
-                <p className="mt-4 border-l-2 border-will/50 pl-3 font-mono text-[11px] uppercase tracking-[0.14em] text-will">
-                  Seu perfil · {diagnosis.profile}
+                <p className="mt-4 border-l-2 border-will/50 pl-3 text-sm leading-relaxed text-will">
+                  {diagnosis.profile}
                 </p>
               ) : null}
+
+              <p className="mt-6 text-sm leading-relaxed text-mist">{offerCopy.mentorNote}</p>
 
               <div className="mt-8 border border-line bg-panel/80 p-5">
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">
@@ -266,7 +272,12 @@ export function QuizPage() {
                 </ul>
               </div>
 
-              <div className="mt-6 space-y-3">
+              <p className="mt-8 text-sm leading-relaxed text-ash">
+                Escolhe o ritmo que cabe na sua vida. Não o que impressiona. O que você consegue
+                sustentar.
+              </p>
+
+              <div className="mt-4 space-y-3">
                 {offerCopy.plans.map((p) => (
                   <a
                     key={p.id}
@@ -293,7 +304,7 @@ export function QuizPage() {
                       ))}
                     </ul>
                     <p className="mt-4 font-display text-xs font-semibold uppercase tracking-[0.14em] text-paper">
-                      Escolher {p.name} →
+                      Entrar no {p.name} →
                     </p>
                   </a>
                 ))}
@@ -319,29 +330,28 @@ export function QuizPage() {
 
               <section className="mt-14 border-t border-line pt-10">
                 <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-signal">
-                  Por que BASE
+                  Só pra deixar claro
                 </p>
                 <h3 className="mt-3 font-display text-2xl font-bold">
-                  Sistema de protocolos. Não um desafio de 40 dias e adeus.
+                  Eu não te prometo virar outra pessoa em 40 dias.
                 </h3>
                 <div className="mt-6 space-y-4 text-sm leading-relaxed text-ash">
                   <p>
-                    O BASE é a fundação. O <strong className="text-paper">PAV</strong> é o primeiro
-                    protocolo — antivício com Arena, Botão de Fissura e mapa de evolução.
+                    Eu te ofereço o que me segurou: o <strong className="text-paper">BASE</strong>,
+                    começando pelo <strong className="text-paper">PAV</strong> — o protocolo
+                    antivício. Os outros vêm depois.
                   </p>
                   <p>
-                    Os próximos protocolos do ecossistema entram depois. Você não compra hype. Você
-                    ativa estrutura — e evolui dentro do sistema.
+                    Se você sentir que isso é o próximo passo seu… não é coincidência. É a parte
+                    sua que já cansou de cair sozinha pedindo estrutura.
                   </p>
-                  <p className="text-mist">
-                    Sem base, você não sustenta. Com BASE, a onda fica atravessável.
-                  </p>
+                  <p className="text-mist">Sem base, a gente não sustenta. Com BASE, dá pra atravessar.</p>
                 </div>
                 <a
                   href={offerCopy.cadastro}
                   className="mt-8 flex w-full items-center justify-center bg-signal py-4 font-display text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-signalHot"
                 >
-                  Quero entrar no BASE
+                  Decidi começar
                 </a>
               </section>
 
