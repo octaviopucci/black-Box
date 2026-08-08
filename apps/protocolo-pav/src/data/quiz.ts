@@ -33,162 +33,162 @@ export type QuizStep =
   | { type: 'offer' }
 
 export const quizIntro = {
-  kicker: 'Diagnóstico BASE · 3 minutos',
-  title: 'Você acha que está no controle.',
-  highlight: 'Mas negocia com o impulso todo dia.',
+  kicker: 'Conversa rápida · 3 minutos',
+  title: 'Eu já estive onde você está.',
+  highlight: 'Negociando. Caindo. Prometendo “amanhã”.',
   body: [
-    'Não precisa de algema pra te prender. Basta uma fissura, um gatilho e zero fundação.',
-    'Este diagnóstico mostra onde sua base está rachada — e qual protocolo do BASE você precisa ativar primeiro.',
+    'Não vim te dar um discurso. Vim te olhar de igual pra igual.',
+    'Eu sei o buraco. Sei a vergonha depois. Sei a mentira de “dessa vez é diferente” — porque eu também falei isso. E sei o caminho que sustenta de verdade, porque eu e muita gente do BASE já atravessamos essa luta.',
   ],
   points: [
-    'Sem enrolação motivacional',
-    'Resultado personalizado em minutos',
-    'PAV é o primeiro protocolo. Os próximos vêm depois.',
+    'Sem julgamento. Sem pose de guru.',
+    'Você responde. Eu te mostro o que eu faria no seu lugar.',
+    'No fim, a decisão é só sua — como tem que ser.',
   ],
-  cta: 'Começar meu diagnóstico',
+  cta: 'Beleza. Vamos nessa',
 } as const
 
 export const questions: QuizQuestion[] = [
   {
     id: 'padrao',
-    title: 'Qual padrão te derruba com mais força hoje?',
-    subtitle: 'Escolha o principal. Depois o BASE se adapta.',
+    title: 'O que mais te puxa pra baixo hoje?',
+    subtitle: 'Pode ser sincero. Aqui não tem plateia.',
     options: [
       { id: 'cigarro', label: 'Cigarro / nicotina', tags: ['pav', 'fissura'] },
       { id: 'alcool', label: 'Álcool', tags: ['pav', 'fissura'] },
-      { id: 'apostas', label: 'Apostas / jogos de azar', tags: ['pav', 'dopamina'] },
-      { id: 'porno', label: 'Pornografia / compulsão sexual', tags: ['pav', 'dopamina'] },
-      { id: 'telas', label: 'Redes / scroll infinito', tags: ['pav', 'atencao'] },
-      { id: 'comida', label: 'Açúcar / compulsão alimentar', tags: ['pav', 'fissura'] },
-      { id: 'procrastinar', label: 'Procrastinação crônica', tags: ['pav', 'atencao'] },
-      { id: 'compras', label: 'Compras compulsivas', tags: ['pav', 'dopamina'] },
+      { id: 'apostas', label: 'Apostas / jogos', tags: ['pav', 'dopamina'] },
+      { id: 'porno', label: 'Pornografia', tags: ['pav', 'dopamina'] },
+      { id: 'telas', label: 'Redes / scroll sem fim', tags: ['pav', 'atencao'] },
+      { id: 'comida', label: 'Açúcar / compulsão com comida', tags: ['pav', 'fissura'] },
+      { id: 'procrastinar', label: 'Procrastinação que destrói o dia', tags: ['pav', 'atencao'] },
+      { id: 'compras', label: 'Compras pra aliviar', tags: ['pav', 'dopamina'] },
     ],
   },
   {
     id: 'tempo',
-    title: 'Há quanto tempo esse ciclo se repete?',
+    title: 'Faz quanto tempo que esse ciclo te acompanha?',
     options: [
       { id: 'meses', label: 'Alguns meses', tags: ['inicio'] },
       { id: '1-3', label: '1 a 3 anos', tags: ['ciclo'] },
       { id: '3-10', label: '3 a 10 anos', tags: ['ciclo', 'identidade'] },
-      { id: '10+', label: 'Mais de 10 anos', tags: ['identidade', 'ciclo'] },
+      { id: '10+', label: 'Mais de 10 anos… e cansa admitir', tags: ['identidade', 'ciclo'] },
     ],
   },
   {
     id: 'tentativas',
-    title: 'Quantas vezes você já tentou parar nos últimos 12 meses?',
+    title: 'Nesses últimos 12 meses… quantas vezes você tentou parar?',
     options: [
-      { id: '1', label: 'Uma vez — e não segurou', tags: ['vontade'] },
-      { id: '2-5', label: 'De 2 a 5 vezes', tags: ['vontade', 'ciclo'] },
-      { id: '6+', label: 'Perdi a conta', tags: ['ciclo', 'identidade'] },
-      { id: 'nunca', label: 'Nunca tentei de verdade', tags: ['inicio'] },
+      { id: '1', label: 'Uma vez. Não segurou.', tags: ['vontade'] },
+      { id: '2-5', label: 'Umas 2 a 5. Sempre o mesmo filme.', tags: ['vontade', 'ciclo'] },
+      { id: '6+', label: 'Perdi a conta. Já cansei de recomeçar.', tags: ['ciclo', 'identidade'] },
+      { id: 'nunca', label: 'Nunca tentei de verdade. Ainda.', tags: ['inicio'] },
     ],
   },
   {
     id: 'fissura',
-    title: 'Nos minutos da fissura, o que acontece com você?',
+    title: 'Quando a vontade aperta, o que rola na sua cabeça?',
     options: [
       {
         id: 'negocia',
         label: 'Eu negocio: “só dessa vez”',
-        hint: 'Barganha mental',
+        hint: 'Eu conheço essa frase',
         tags: ['fissura', 'vontade'],
       },
       {
         id: 'explode',
         label: 'A onda sobe e eu caio rápido',
-        hint: 'Sem protocolo no pico',
+        hint: 'Minutos que decidem o dia',
         tags: ['fissura'],
       },
       {
         id: 'esconde',
-        label: 'Eu escondo e prometo recomeçar amanhã',
-        hint: 'Vergonha no volante',
+        label: 'Eu escondo e juro que amanhã muda',
+        hint: 'Vergonha no comando',
         tags: ['identidade'],
       },
       {
         id: 'resiste',
-        label: 'Às vezes resisto — mas sem sistema',
-        hint: 'Roleta da vontade',
+        label: 'Às vezes aguento… até não aguentar',
+        hint: 'Força sem estrutura',
         tags: ['vontade'],
       },
     ],
   },
   {
     id: 'bloqueio',
-    title: 'O que mais te impede de sustentar a mudança?',
+    title: 'O que mais te faz voltar pro buraco?',
     options: [
       {
         id: 'perdido',
-        label: 'Estou perdido. Não sei por onde começar.',
+        label: 'Não sei por onde começar de verdade',
         tags: ['estrutura'],
       },
       {
         id: 'distracao',
-        label: 'Sei o que fazer, mas me distraio fácil.',
+        label: 'Eu sei o caminho… e me distraio igual',
         tags: ['atencao', 'estrutura'],
       },
       {
         id: 'sozinho',
-        label: 'Luto sozinho. Ninguém cobra. Ninguém vê.',
+        label: 'Luto sozinho. Ninguém vê. Ninguém cobra.',
         tags: ['comunidade'],
       },
       {
         id: 'recaida',
-        label: 'Quando caio, desabo emocionalmente.',
+        label: 'Quando caio, eu desabo por dentro',
         tags: ['identidade', 'ciclo'],
       },
     ],
   },
   {
     id: 'objetivo',
-    title: 'O que você mais quer reconstruir agora?',
+    title: 'Se amanhã você acordasse diferente… o que mais importaria?',
     options: [
       {
         id: 'foco',
-        label: 'Foco, rotina e disciplina real',
+        label: 'Conseguir focar e cumprir o que eu falo',
         tags: ['estrutura'],
       },
       {
         id: 'respeito',
-        label: 'Respeito próprio e identidade limpa',
+        label: 'Olhar no espelho sem vergonha',
         tags: ['identidade'],
       },
       {
         id: 'familia',
-        label: 'Presença com família / relacionamento',
+        label: 'Estar presente com quem eu amo',
         tags: ['proposito'],
       },
       {
         id: 'dinheiro',
-        label: 'Clareza pra construir (trabalho, dinheiro, futuro)',
+        label: 'Ter clareza pra construir minha vida',
         tags: ['proposito', 'atencao'],
       },
     ],
   },
   {
     id: 'pronto',
-    title: 'O que você está disposto a fazer desta vez?',
-    subtitle: 'Sem resposta certa. Só honestidade.',
+    title: 'Sendo honesto: o que você tá disposto a fazer agora?',
+    subtitle: 'Não tem resposta certa. Tem a sua.',
     options: [
       {
         id: 'protocolo',
-        label: 'Seguir um protocolo — não mais “força de vontade”',
+        label: 'Parar de confiar só na força de vontade',
         tags: ['pronto'],
       },
       {
         id: 'diario',
-        label: 'Registrar gatilhos e agir nos minutos críticos',
+        label: 'Enfrentar a fissura no momento em que ela vem',
         tags: ['pronto', 'fissura'],
       },
       {
         id: 'investir',
-        label: 'Investir tempo e estrutura pra ter base de verdade',
+        label: 'Investir numa estrutura de verdade',
         tags: ['pronto'],
       },
       {
         id: 'duvida',
-        label: 'Ainda tenho dúvida — mas quero ver o diagnóstico',
+        label: 'Ainda tô em dúvida — mas quero ouvir o que você vê',
         tags: ['inicio'],
       },
     ],
@@ -199,38 +199,37 @@ export const interstitials: QuizInterstitial[] = [
   {
     id: 'verdade',
     kind: 'pitch',
-    kicker: 'A verdade inconveniente',
-    title: 'Vontade sozinha perde. Sempre.',
+    kicker: 'Posso te falar uma coisa?',
+    title: 'Não é falta de caráter.',
     body: [
-      'O impulso conhece o seu horário, o seu gatilho e a sua frase de barganha.',
-      'O que falta não é coragem. É fundação: rotina, propósito e protocolo no pico da onda.',
+      'Eu também pensei que era. Que bastava “querer mais”.',
+      'Até perceber que, no pico, a vontade some — e quem não tem um caminho pronto cai. Não porque é fraco. Porque tá desarmado.',
     ],
     bullets: [
-      'Contador de dias sem ação = placar sem time',
-      'Vergonha não reconstrói — estrutura reconstrói',
-      'BASE existe pra você parar de negociar',
+      'Promessa de manhã não segura a noite',
+      'Vergonha não te reconstrói — te esconde',
+      'O que segura é ter o que fazer quando a onda vem',
     ],
-    cta: 'Continuar diagnóstico',
+    cta: 'Continuar. Quero chegar no fim',
   },
   {
     id: 'sistema',
     kind: 'pitch',
-    kicker: 'O que é o BASE',
-    title: 'BASE não é um app de motivação.',
+    kicker: 'Como a gente passou por isso',
+    title: 'Eu não inventei motivação. A gente construiu BASE.',
     body: [
-      'É o sistema de reconstrução pessoal. Protocolos empilháveis. O primeiro é o PAV — Protocolo Antivício.',
-      'Os próximos protocolos chegam depois. Você começa pela fundação que segura o padrão que te derruba hoje.',
+      'BASE é o sistema que eu e muita gente usamos pra parar de negociar com o impulso. O primeiro protocolo é o PAV — antivício. Os outros vêm depois.',
+      'Não é mágica. É ter o que fazer no minuto difícil… e uma rotina que te segura no dia seguinte. Milhares já passaram por essa porta. Você não estaria aqui se alguma parte sua não soubesse que precisa disso.',
     ],
     bullets: [
-      'Arena — vence o minuto da fissura',
-      'Protocolo — vence o dia com rotina e metas',
-      'Identidade — sobe de nível com dias que somam',
+      'No pico: você age, em vez de barganhar',
+      'No dia: rotina e propósito no lugar do caos',
+      'No tempo: você vira alguém que sustenta — não alguém que recomeça',
     ],
-    cta: 'Quero meu resultado',
+    cta: 'Me mostra o que você viu em mim',
   },
 ]
 
-/** Ordem do funil: intro → Q1-3 → pitch → Q4-6 → pitch → Q7 → analyzing → result → offer */
 export function buildSteps(): QuizStep[] {
   const [q0, q1, q2, q3, q4, q5, q6] = questions
   return [
@@ -273,77 +272,80 @@ export function diagnose(answers: Record<string, string>): Diagnosis {
 
   if (heavyCycle && fissura) {
     return {
-      profile: 'Perfil Fundação Rachada',
-      headline: 'Você não precisa de mais uma promessa. Precisa de BASE.',
+      profile: 'Eu já vivi esse ciclo',
+      headline: 'Você não precisa de mais uma promessa. Precisa de chão.',
       summary:
-        'Seu padrão já virou ciclo. A fissura chega, você negocia, cai e reinicia com vergonha. Isso não se resolve com motivação — se resolve com protocolo no minuto crítico e estrutura no dia.',
-      protocol: 'Protocolo PAV',
+        'Pelo que você me contou, o filme é esse: a vontade aperta, você negocia, cai, se odeia e jura recomeçar. Eu conheço. Não porque li num livro — porque eu também rodei nesse loop. O que mudou pra mim e pra muita gente do BASE foi parar de “tentar na raça” e ter um caminho no minuto em que a onda vem.',
+      protocol: 'Começar pelo PAV',
       protocolBlurb:
-        'Primeiro protocolo do BASE: Botão de Fissura, Arena, mapa de evolução e reconstrução de identidade. Os próximos protocolos do ecossistema BASE vêm depois — você começa pelo que te derruba agora.',
+        'PAV é o primeiro protocolo do BASE — o antivício. Botão pra fissura, Arena pra atravessar o pico, mapa pra você ver que tá construindo. Os outros protocolos vêm depois. Hoje o foco é o que te derruba agora.',
       next: [
-        'Ativar o Botão de Fissura nos picos',
-        'Mapear gatilhos e horários críticos',
-        'Subir de nível com dias limpos e ondas vencidas',
+        'Ter o que fazer quando a fissura subir — não só “aguentar”',
+        'Entender seus gatilhos sem se esconder deles',
+        'Juntar dia limpo com dia limpo, sem drama de recomeçar do zero emocional',
       ],
-      urgency: 'Cada dia negociando é mais um dia sem fundação.',
+      urgency:
+        'Se uma parte sua já cansou desse filme… essa parte sabe o que precisa fazer.',
     }
   }
 
   if (estrutura || tags.has('vontade')) {
     return {
-      profile: 'Perfil Roleta da Vontade',
-      headline: 'Você já sabe o que fazer. Falta o sistema que segura.',
+      profile: 'Você já sabe demais pra continuar improvisando',
+      headline: 'O problema não é saber. É não ter estrutura na hora H.',
       summary:
-        'Disciplina sem protocolo é sorte. Nos bons dias você resiste. Nos piores, o impulso manda. O BASE troca a roleta por fundação.',
-      protocol: 'Protocolo PAV',
+        'Você não é burro. Você não é fraco. Nos bons dias você até segura. Nos ruins, o impulso manda. Eu era assim. A diferença entre continuar nessa roleta e sair dela não foi “querer mais” — foi ter um sistema que segura quando a vontade some. Foi isso que o BASE fez por mim e por tanta gente que entrou depois.',
+      protocol: 'Começar pelo PAV',
       protocolBlurb:
-        'PAV é a porta de entrada do BASE. Depois vêm outros protocolos. Hoje, o foco é atravessar a fissura e sustentar a rotina.',
+        'PAV é a porta de entrada do BASE. Depois vêm outros protocolos. Agora o jogo é atravessar a fissura e sustentar o dia — sem depender de humor.',
       next: [
-        'Trocar “eu aguento” por ação no pico',
-        'Rotina + propósito diário',
-        'Progresso visível (níveis, mapa, benefícios)',
+        'Trocar “eu aguento” por um passo concreto no pico',
+        'Ter um porquê claro todo dia — não só depois da queda',
+        'Ver progresso de verdade, pra mente parar de mentir que “não adianta”',
       ],
-      urgency: 'Saber o caminho e não ter estrutura é o jeito mais caro de ficar parado.',
+      urgency: 'Você já sabe o caminho. Falta decidir se vai continuar andando descalço.',
     }
   }
 
   return {
-    profile: 'Perfil Primeira Fundação',
-    headline: 'Você chegou cedo o bastante pra construir certo.',
+    profile: 'Dá pra construir agora — antes de piorar',
+    headline: 'Você chegou num ponto bom: ainda dá pra fazer certo.',
     summary:
-      'O ciclo ainda não te engoliu por completo — ou você finalmente parou de fingir que está no controle. Melhor momento pra erguer BASE: antes da próxima queda virar identidade.',
-    protocol: 'Protocolo PAV',
+      'Ou o ciclo ainda não te engoliu, ou você finalmente cansou de fingir que tá no controle. Dos dois jeitos, esse é o momento em que a gente costuma conseguir mudar de verdade — antes da próxima queda virar “quem você é”. Eu preferia ter começado aqui. Muita gente do BASE também.',
+    protocol: 'Começar pelo PAV',
     protocolBlurb:
-      'Comece pelo PAV dentro do BASE. Um protocolo antivício de verdade. Os demais protocolos do sistema entram na sequência.',
+      'Entra pelo PAV dentro do BASE. Um protocolo antivício de verdade. O resto do sistema vem na sequência — sem pressa de guru, com passo firme.',
     next: [
-      'Definir o padrão principal e o porquê',
-      'Usar a Arena nos minutos críticos',
-      'Construir streak com método, não com sorte',
+      'Escolher o padrão principal e o porquê de sair dele',
+      'Usar a Arena nos minutos difíceis',
+      'Construir sequência com método, não com sorte',
     ],
-    urgency: 'Fundação cedo custa menos do que reconstrução tarde.',
+    urgency: 'Se você sentiu um “é agora”… não ignore. Essa voz raramente mente.',
   }
 }
 
 export const offerCopy = {
-  kicker: 'Sua vaga na fundação',
-  title: 'Ative o BASE. Comece pelo PAV.',
+  kicker: 'Agora é com você',
+  title: 'Se faz sentido… entra.',
   subtitle:
-    'O BASE é o sistema. O PAV é o primeiro protocolo. Você entra agora na estrutura que segura a onda — sem negociar com o vício.',
-  stackTitle: 'O que libera no acesso',
+    'Eu não vou te empurrar. Só te dizer o que eu faria no seu lugar: ativar o BASE, começar pelo PAV, e parar de enfrentar isso sozinho e desarmado. Eu fiz. Dezenas, centenas, milhares de pessoas no BASE também. A decisão — do jeito certo — tem que parecer sua. Porque é.',
+  stackTitle: 'O que você leva com você',
   stack: [
-    'Diagnóstico + acesso ao app BASE',
-    'Protocolo PAV completo (Botão de Fissura · Arena · Mapa)',
-    'Níveis, XP e benefícios em tempo real',
-    'Diário de humor, crises e gatilhos',
-    'Comunidade silenciosa (planos elegíveis)',
-    'Próximos protocolos do BASE na evolução do sistema',
-    'Garantia incondicional de 30 dias',
+    'Acesso ao app BASE',
+    'Protocolo PAV (fissura, Arena, mapa, rotina)',
+    'Um caminho pra hora em que a vontade aperta',
+    'Registro do que te derruba — sem julgamento',
+    'Gente que entende a luta (sem teatro)',
+    'Próximos protocolos do BASE quando forem liberados',
+    '30 dias pra testar. Se não servir, devolve.',
   ],
-  guaranteeTitle: '30 dias. Risco zero.',
+  mentorNote:
+    'Não é sobre eu te convencer. É sobre você olhar pra trás daqui a 30 dias e perceber que escolheu não negociar mais.',
+  guaranteeTitle: '30 dias. Sem pressão.',
   guaranteeBody:
-    'Se em 30 dias o BASE não fizer diferença na sua estrutura diária, devolução total. Sem perguntas.',
-  cta: 'Ativar minha BASE agora',
-  secondaryCta: 'Criar conta no app',
+    'Entra, usa, vê se segura sua luta. Se em 30 dias não fizer diferença pra você, devolve o valor. Sem humilhação. Sem letra miúda na nossa conversa.',
+  cta: 'Quero começar pelo BASE',
+  secondaryCta: 'Criar minha conta',
   plans,
   cadastro: brand.cadastroExternal,
   disclaimer: brand.disclaimer,
