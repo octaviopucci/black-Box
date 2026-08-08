@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import type { GameId } from '@/data/site'
 import { games } from '@/data/site'
 import { useProgress } from '@/hooks/useProgress'
+import { LutaGame } from '@/components/game/games/LutaGame'
 import { RunnerGame } from '@/components/game/games/RunnerGame'
 import { ReflexGame } from '@/components/game/games/ReflexGame'
 import { SnakeGame } from '@/components/game/games/SnakeGame'
@@ -34,15 +35,24 @@ export function GamePage() {
   if (!id || !ids.has(id) || !meta) return <Navigate to="/arena" replace />
 
   if (result) {
+    const isLuta = id === 'luta'
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center bg-ink px-4 text-center text-paper">
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-signal">{meta.name}</p>
-        <h1 className="mt-3 font-display text-4xl font-bold">Onda registrada</h1>
-        <p className="mt-3 text-mist">
-          Score {result.score} · +{result.xp} XP · Total {state.xp} XP
+        <h1 className="mt-3 max-w-lg font-display text-4xl font-bold">
+          {isLuta ? 'A lição da BASE' : 'Onda registrada'}
+        </h1>
+        <p className="mt-3 max-w-md text-mist">
+          {isLuta
+            ? 'Vontade sozinha perde. Com estrutura, a luta fica possível. Score ' +
+              result.score +
+              ' · +' +
+              result.xp +
+              ' XP'
+            : `Score ${result.score} · +${result.xp} XP · Total ${state.xp} XP`}
         </p>
         <p className="mt-1 font-mono text-xs text-ash">
-          Nível {level.current.id} · {level.current.name}
+          Nível {level.current.id} · {level.current.name} · Total {state.xp} XP
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <button
@@ -73,6 +83,7 @@ export function GamePage() {
     )
   }
 
+  if (id === 'luta') return <LutaGame key={`${id}-${round}`} onFinish={onFinish} />
   if (id === 'runner') return <RunnerGame key={`${id}-${round}`} onFinish={onFinish} />
   if (id === 'reflex') return <ReflexGame key={`${id}-${round}`} onFinish={onFinish} />
   if (id === 'snake') return <SnakeGame key={`${id}-${round}`} onFinish={onFinish} />

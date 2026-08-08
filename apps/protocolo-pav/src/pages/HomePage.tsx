@@ -50,7 +50,7 @@ export function HomePage() {
               transition={{ delay: 0.12, duration: 0.65 }}
               className="mt-5 max-w-md text-base leading-relaxed text-mist sm:text-lg"
             >
-              Arena da vontade com jogos reais e personagem animado nos minutos da fissura.
+              No jogo, a vontade sozinha perde para o vício. Com BASE, a luta fica possível.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -59,10 +59,10 @@ export function HomePage() {
               className="mt-8 flex flex-wrap gap-3"
             >
               <Link
-                to="/arena"
+                to="/arena/luta"
                 className="rounded-xl bg-signal px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-signalHot"
               >
-                Entrar na Arena
+                Enfrentar a Luta
               </Link>
               <a
                 href={brand.cadastroExternal}
@@ -115,28 +115,46 @@ export function HomePage() {
       <section className="border-t border-line bg-panel/40 px-4 py-20 sm:px-6" id="sistema">
         <div className="mx-auto max-w-6xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-signal">
-            // sistema_gamificado · v3
+            // sistema_gamificado · a luta
           </p>
           <h2 className="mt-3 max-w-3xl font-display text-3xl font-bold tracking-tight sm:text-5xl">
-            Dois atos. <span className="text-signal">Vontade no jogo.</span> BASE no protocolo.
+            Três atos. <span className="text-signal">Vontade perde.</span> BASE sustenta.
           </h2>
           <p className="mt-4 max-w-2xl text-mist">
-            Primeiro você atravessa a onda da fissura com mini-jogos reais, XP e personagem animado.
-            Depois o PAV entra: protocolo de 9 etapas, rotina e substituição do vício por estrutura.
+            O desafio central simboliza a verdade do método: sozinho, o impulso esmaga a vontade.
+            Depois você ergue a BASE (rotina, propósito, protocolo) e a mesma onda vira atravessável.
           </p>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-8 grid gap-3 md:grid-cols-3">
+            {[
+              { n: '01', t: 'Só vontade', b: 'Você resiste. O vício é mais forte. A queda é a lição.' },
+              { n: '02', t: 'Construir BASE', b: 'Três pilares: rotina, propósito, protocolo.' },
+              { n: '03', t: 'Com BASE', b: 'A estrutura segura o que a vontade sozinha não segura.' },
+            ].map((step) => (
+              <div key={step.n} className="border border-line bg-ink/60 p-5">
+                <p className="font-mono text-[11px] text-signal">ATO {step.n}</p>
+                <h3 className="mt-2 font-display text-xl font-semibold">{step.t}</h3>
+                <p className="mt-2 text-sm text-ash">{step.b}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {games.map((g, i) => (
               <Link
                 key={g.id}
                 to={`/arena/${g.id}`}
-                className="group relative overflow-hidden rounded-2xl border border-line bg-ink p-4 transition hover:border-signal/50"
+                className={`group relative overflow-hidden rounded-2xl border bg-ink p-4 transition hover:border-signal/50 ${
+                  g.featured ? 'border-signal/50 sm:col-span-2 lg:col-span-1' : 'border-line'
+                }`}
               >
                 <div
                   className="mb-4 h-1.5 w-10 rounded-full transition group-hover:w-16"
                   style={{ background: g.accent }}
                 />
-                <p className="font-mono text-[10px] text-ash">0{i + 1}</p>
+                <p className="font-mono text-[10px] text-ash">
+                  {g.featured ? 'DESAFIO CENTRAL' : `0${i}`}
+                </p>
                 <h3 className="mt-1 font-display text-lg font-semibold">{g.name}</h3>
                 <p className="mt-2 text-xs leading-relaxed text-ash">{g.blurb}</p>
                 <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-will">
@@ -148,10 +166,10 @@ export function HomePage() {
 
           <div className="mt-8">
             <Link
-              to="/arena"
+              to="/arena/luta"
               className="inline-flex rounded-xl bg-signal px-5 py-3 font-display text-sm font-semibold uppercase tracking-[0.14em] text-white hover:bg-signalHot"
             >
-              Abrir Arena completa
+              Jogar A Luta agora
             </Link>
           </div>
         </div>

@@ -11,6 +11,8 @@ export function ArenaPage() {
   const { state, level } = useProgress()
   const impulse = Math.max(18, 78 - state.wavesCleared * 4)
   const will = Math.min(92, 22 + state.xp / 18 + state.wavesCleared * 3)
+  const featured = games.find((g) => g.featured) ?? games[0]
+  const sideGames = games.filter((g) => !g.featured)
 
   return (
     <div className="bg-ink text-paper">
@@ -22,11 +24,11 @@ export function ArenaPage() {
               Ato I · Arena da vontade
             </p>
             <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-5xl">
-              Jogo real. Personagem vivo.
+              A luta contra o vício.
             </h1>
             <p className="mt-3 max-w-xl text-mist">
-              Escolha um mini-jogo, atravesse a onda e acumule XP. Sistema fluido em canvas de alta
-              resolução, sem peso de engine 3D.
+              Força de vontade sozinha não sustenta. O vício ganha. Com BASE (estrutura, rotina,
+              propósito, protocolo), a mesma onda fica possível de atravessar.
             </p>
           </div>
           <div className="rounded-xl border border-line bg-panel px-4 py-3 text-right">
@@ -54,26 +56,41 @@ export function ArenaPage() {
               wave={state.wavesCleared}
               xp={state.xp}
             />
+            <div className="rounded-2xl border border-signal/40 bg-signal/10 p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">
+                Desafio central
+              </p>
+              <h2 className="mt-1 font-display text-xl font-bold">{featured.name}</h2>
+              <p className="mt-2 text-sm text-mist">{featured.blurb}</p>
+              <ol className="mt-3 space-y-1 font-mono text-[11px] text-ash">
+                <li>1. Só vontade → o vício vence</li>
+                <li>2. Construa a BASE (3 pilares)</li>
+                <li>3. Com BASE → a onda fica atravessável</li>
+              </ol>
+            </div>
             <Link
-              to="/arena/runner"
+              to={`/arena/${featured.id}`}
               className="flex w-full items-center justify-center rounded-xl bg-signal px-4 py-4 font-display text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-signalHot"
             >
-              Resistir à onda (+XP)
+              Entrar na Luta
             </Link>
             <Link
               to="/protocolo"
               className="flex w-full items-center justify-center rounded-xl border border-line px-4 py-3 font-display text-xs font-semibold uppercase tracking-[0.16em] text-mist hover:border-will/40 hover:text-will"
             >
-              Venceu a onda? Entrar no Protocolo PAV
+              Depois da luta: Protocolo PAV
             </Link>
           </div>
         </div>
 
         <div className="mt-12">
-          <h2 className="font-display text-2xl font-bold">Mini-jogos anti-impulso</h2>
-          <p className="mt-2 text-sm text-ash">Cinco jogos jogáveis agora. Leves. Imediatos. Imersivos.</p>
+          <h2 className="font-display text-2xl font-bold">Ferramentas na fissura</h2>
+          <p className="mt-2 text-sm text-ash">
+            Mini-jogos para ocupar a mente nos minutos críticos. O desafio que explica o método é A
+            Luta.
+          </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {games.map((g, i) => (
+            {sideGames.map((g, i) => (
               <motion.div
                 key={g.id}
                 initial={{ opacity: 0, y: 12 }}

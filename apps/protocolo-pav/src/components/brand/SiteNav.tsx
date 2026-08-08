@@ -41,10 +41,10 @@ export function SiteNav() {
         </nav>
         <div className="flex items-center gap-2">
           <Link
-            to="/arena"
+            to="/arena/luta"
             className="rounded-lg bg-signal px-3 py-2 font-display text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-signalHot sm:px-4"
           >
-            Jogar agora
+            A Luta
           </Link>
         </div>
       </div>

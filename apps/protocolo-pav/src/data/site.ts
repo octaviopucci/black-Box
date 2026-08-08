@@ -20,7 +20,7 @@ export const levels = [
   { id: 5, name: 'Inabalável', xp: 1100 },
 ] as const
 
-export type GameId = 'runner' | 'reflex' | 'snake' | 'blocks' | 'velha'
+export type GameId = 'luta' | 'runner' | 'reflex' | 'snake' | 'blocks' | 'velha'
 
 export const games: {
   id: GameId
@@ -28,7 +28,17 @@ export const games: {
   blurb: string
   duration: string
   accent: string
+  featured?: boolean
 }[] = [
+  {
+    id: 'luta',
+    name: 'A Luta',
+    blurb:
+      'O desafio central. Só vontade perde para o vício. Com BASE (rotina, propósito, protocolo), a onda fica atravessável.',
+    duration: '3 atos',
+    accent: '#E10600',
+    featured: true,
+  },
   {
     id: 'runner',
     name: 'Runner',

@@ -19,8 +19,8 @@ export function WaveMeter({ impulse, will, wave, xp }: Props) {
         </p>
       </div>
       <p className="mb-5 max-w-xl text-sm text-ash">
-        A fissura dura em média 3 a 5 minutos. Aqui você não negocia com o vício. Você joga a favor
-        do seu cérebro.
+        A fissura dura em média 3 a 5 minutos. Vontade sozinha perde essa disputa. Com BASE, a
+        estrutura segura você até a onda passar.
       </p>
       <div className="space-y-4">
         <Bar label="Impulso do vício" value={impulse} color="bg-signal" />
