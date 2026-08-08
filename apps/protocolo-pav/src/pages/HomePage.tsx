@@ -60,9 +60,9 @@ export function HomePage() {
             >
               <Link
                 to="/arena/luta"
-                className="rounded-xl bg-signal px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-signalHot"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-signal px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-signalHot active:bg-signalHot"
               >
-                Enfrentar a Luta
+                Jogar no celular
               </Link>
               <a
                 href={brand.cadastroExternal}

@@ -70,10 +70,13 @@ export function ArenaPage() {
             </div>
             <Link
               to={`/arena/${featured.id}`}
-              className="flex w-full items-center justify-center rounded-xl bg-signal px-4 py-4 font-display text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-signalHot"
+              className="flex min-h-14 w-full items-center justify-center rounded-xl bg-signal px-4 py-4 font-display text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-signalHot active:bg-signalHot"
             >
-              Entrar na Luta
+              Jogar no celular
             </Link>
+            <p className="text-center font-mono text-[10px] uppercase tracking-[0.14em] text-ash">
+              Feito para o dedo · também roda no PC
+            </p>
             <Link
               to="/protocolo"
               className="flex w-full items-center justify-center rounded-xl border border-line px-4 py-3 font-display text-xs font-semibold uppercase tracking-[0.16em] text-mist hover:border-will/40 hover:text-will"

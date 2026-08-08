@@ -54,7 +54,7 @@ export function GamePage() {
         <p className="mt-1 font-mono text-xs text-ash">
           Nível {level.current.id} · {level.current.name} · Total {state.xp} XP
         </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
           <button
             type="button"
             onClick={() => {
@@ -62,19 +62,19 @@ export function GamePage() {
               setResult(null)
               setRound((n) => n + 1)
             }}
-            className="rounded-xl bg-signal px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.14em] text-white"
+            className="min-h-12 rounded-xl bg-signal px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.14em] text-white active:bg-signalHot"
           >
             Jogar de novo
           </button>
           <Link
             to="/arena"
-            className="rounded-xl border border-line px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.14em] text-paper"
+            className="flex min-h-12 items-center justify-center rounded-xl border border-line px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.14em] text-paper"
           >
             Voltar à Arena
           </Link>
           <Link
             to="/protocolo"
-            className="rounded-xl border border-will/40 px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.14em] text-will"
+            className="flex min-h-12 items-center justify-center rounded-xl border border-will/40 px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.14em] text-will"
           >
             Abrir Protocolo
           </Link>

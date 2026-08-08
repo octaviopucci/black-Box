@@ -11,6 +11,7 @@ export function RunnerGame({ onFinish }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const onFinishRef = useRef(onFinish)
   onFinishRef.current = onFinish
+  const jumpRef = useRef<(() => void) | null>(null)
   const [score, setScore] = useState(0)
   const [alive, setAlive] = useState(true)
   const [ended, setEnded] = useState(false)
@@ -60,6 +61,7 @@ export function RunnerGame({ onFinish }: Props) {
         s.jumping = true
       }
     }
+    jumpRef.current = jump
 
     const onKey = (e: KeyboardEvent) => {
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.key === 'w') {
@@ -243,6 +245,7 @@ export function RunnerGame({ onFinish }: Props) {
     raf = requestAnimationFrame(loop)
     return () => {
       running = false
+      jumpRef.current = null
       cancelAnimationFrame(raf)
       window.removeEventListener('keydown', onKey)
       canvas.removeEventListener('pointerdown', onPointer)
@@ -252,21 +255,40 @@ export function RunnerGame({ onFinish }: Props) {
   return (
     <GameShell
       title="Runner"
-      subtitle="Toque ou Espaço para pular"
+      subtitle="Toque o botão ou a tela para pular"
       hud={`+${score}`}
       footer={
-        ended ? (
-          <p className="text-center font-mono text-xs text-mist">
-            {alive ? 'Onda atravessada.' : 'Impulso te alcançou.'} XP registrado.
-          </p>
-        ) : (
-          <p className="text-center text-xs text-ash">
-            Desvie do obstáculo = desvie da recaída. Mantenha o personagem em movimento por 60s.
-          </p>
-        )
+        <div className="mx-auto w-full max-w-lg space-y-2">
+          {ended ? (
+            <p className="text-center font-mono text-xs text-mist">
+              {alive ? 'Onda atravessada.' : 'Impulso te alcançou.'} XP registrado.
+            </p>
+          ) : (
+            <p className="text-center text-xs text-ash">
+              Desvie do impulso. Celular: toque PULAR · PC: espaço
+            </p>
+          )}
+          {!ended ? (
+            <button
+              type="button"
+              onPointerDown={(e) => {
+                e.preventDefault()
+                jumpRef.current?.()
+              }}
+              className="flex min-h-14 w-full select-none items-center justify-center rounded-2xl bg-signal font-display text-base font-bold uppercase tracking-[0.16em] text-white active:scale-[0.99] active:bg-signalHot"
+              style={{ touchAction: 'none' }}
+            >
+              Pular
+            </button>
+          ) : null}
+        </div>
       }
     >
-      <canvas ref={canvasRef} className="h-full min-h-[55vh] w-full touch-none" />
+      <canvas
+        ref={canvasRef}
+        className="h-full w-full touch-none"
+        style={{ touchAction: 'none' }}
+      />
     </GameShell>
   )
 }
