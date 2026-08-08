@@ -152,6 +152,16 @@ export const projects: ClientProject[] = [
     tags: ['Next.js', 'Marketplace', 'Premium'],
   },
   {
+    id: 'protocolo-pav',
+    name: 'Protocolo PAV — BASE',
+    client: 'BASE · Sistema PAV',
+    description:
+      'Arena da vontade com jogos reais, personagem animado em alta resolução e Protocolo PAV: sistema gamificado leve para atravessar a fissura.',
+    href: '/protocolo-pav/',
+    status: 'demo',
+    tags: ['React', 'Game', 'BASE'],
+  },
+  {
     id: 'pix-gateway',
     name: 'PIX Gateway',
     client: 'Black Box · uso próprio',

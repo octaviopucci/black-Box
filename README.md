@@ -22,6 +22,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Dra. Danielle Matsubara** | [/danielle-matsubara/](/danielle-matsubara/) | Demo premium |
 | **G&L Locações** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
 | **CBX** | [/cbx/](/cbx/) | Marketplace demo |
+| **Protocolo PAV — BASE** | [/protocolo-pav/](/protocolo-pav/) | Arena gamificada |
 
 Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
 
@@ -82,6 +83,9 @@ npm run dev:gl
 
 # CBX — Marketplace Capão Bonito
 npm run dev:cbx
+
+# Protocolo PAV — BASE (Arena + jogos)
+npm run dev:pav
 
 # Build completo (igual Vercel)
 npm run build
