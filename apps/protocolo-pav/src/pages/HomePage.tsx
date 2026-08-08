@@ -29,18 +29,18 @@ export function HomePage() {
             <img src={brand.logo} alt="BASE" className="h-7 w-auto" draggable={false} />
           </a>
           <div className="flex items-center gap-4">
-            <a
-              href="#oferta"
+            <Link
+              to="/quiz"
               className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-ash hover:text-paper sm:inline"
             >
-              Oferta
-            </a>
-            <a
-              href={brand.cadastroExternal}
+              Diagnóstico
+            </Link>
+            <Link
+              to="/quiz"
               className="rounded-md bg-signal px-3 py-2 font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-white hover:bg-signalHot"
             >
-              Entrar no protocolo
-            </a>
+              Fazer diagnóstico
+            </Link>
           </div>
         </div>
       </header>
@@ -108,12 +108,12 @@ export function HomePage() {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
-            <a
-              href={brand.cadastroExternal}
+            <Link
+              to="/quiz"
               className="inline-flex min-h-14 items-center justify-center bg-signal px-7 py-4 font-display text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-signalHot"
             >
-              {s.hero.primaryCta}
-            </a>
+              Fazer diagnóstico grátis
+            </Link>
             <a
               href="#mecanismo"
               className="inline-flex min-h-14 items-center justify-center border border-white/25 px-7 py-4 font-display text-sm font-semibold uppercase tracking-[0.16em] text-paper transition hover:border-signal/60"
