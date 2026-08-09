@@ -1,6 +1,5 @@
-/// <reference types="vite/client" />
-// redeploy 2026-08-08T18:11:42Z
+// https://vitejs.dev/guide/features.html#client-types
 
-// redeploy 2026-08-09T04:34:05Z
-// redeploy ghost 2026-08-09T05:27:59Z
-// redeploy kiwify 2026-08-09T06:08:40Z
+/// <reference types="vite/client" />
+
+// redeploy kiwify checkout urls 2026-08-09T06:17:52Z
