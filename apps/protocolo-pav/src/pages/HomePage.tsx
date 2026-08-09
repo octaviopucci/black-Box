@@ -514,7 +514,9 @@ export function HomePage() {
                   ))}
                 </ul>
                 <a
-                  href={brand.cadastroExternal}
+                  href={p.checkout}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`mt-5 inline-flex w-full items-center justify-center px-4 py-3.5 font-display text-xs font-semibold uppercase tracking-[0.16em] ${
                     p.highlight
                       ? 'bg-signal text-white hover:bg-signalHot'

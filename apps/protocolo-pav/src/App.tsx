@@ -4,6 +4,7 @@ import { ArenaPage } from '@/pages/ArenaPage'
 import { GamePage } from '@/pages/GamePage'
 import { ProtocoloPage } from '@/pages/ProtocoloPage'
 import { QuizPage } from '@/pages/QuizPage'
+import { PlanosPage } from '@/pages/PlanosPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/quiz" replace />} />
       <Route path="/quiz" element={<QuizPage />} />
+      <Route path="/planos" element={<PlanosPage />} />
       <Route path="/diagnostico" element={<Navigate to="/quiz" replace />} />
       <Route path="/vendas" element={<HomePage />} />
       <Route path="/arena" element={<ArenaPage />} />
