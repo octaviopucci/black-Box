@@ -9,9 +9,10 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<Navigate to="/quiz" replace />} />
       <Route path="/quiz" element={<QuizPage />} />
       <Route path="/diagnostico" element={<Navigate to="/quiz" replace />} />
+      <Route path="/vendas" element={<HomePage />} />
       <Route path="/arena" element={<ArenaPage />} />
       <Route path="/arena/:gameId" element={<GamePage />} />
       <Route path="/protocolo" element={<ProtocoloPage />} />
