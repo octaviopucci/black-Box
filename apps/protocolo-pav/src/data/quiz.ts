@@ -1,21 +1,6 @@
 /**
- * Funil BASE — espelha a arquitetura validada do Mode Caverna Quiz:
- *
- * 1) Hook / promessa
- * 2) Dor / promessa quebrada (agitar)
- * 3) Prisão invisível (reframe do problema)
- * 4) Preço da saída / renúncias + prova do mentor
- * 5) Filtro (quem fica / quem sai)
- * 6) Reframe do produto (ritual/protocolo, não motivação)
- * 7) Intensidade do tempo (por que agora funciona)
- * 8) Urgência (custo de adiar)
- * 9) Prova social
- * 10–11) Perguntas de qualificação (tarde no funil)
- * 12) Promessa de transformação + micro-sim
- * 13) Como funciona (passos)
- * 14) Oferta + garantia + história + CTA
- *
- * Cada etapa força um micro-compromisso (botão “sim”) antes da venda.
+ * Funil BASE (estrutura Mode Caverna).
+ * Copy: voz humana de quem já viveu a luta. Sem travessões.
  */
 
 import { brand, plans } from './site'
@@ -28,7 +13,6 @@ export type QuizOption = {
 export type PitchStep = {
   type: 'pitch'
   id: string
-  /** Motivo da etapa no funil (documentação interna) */
   why: string
   progress: number
   kicker?: string
@@ -60,253 +44,259 @@ export type OfferStep = {
 
 export type QuizStep = PitchStep | QuestionStep | OfferStep
 
+export type Proof = {
+  name: string
+  meta: string
+  quote: string
+}
+
 export const funnelSteps: QuizStep[] = [
   {
     type: 'pitch',
     id: 'hook',
-    why: 'Hook — promessa clara + CTA de entrada (igual “ATIVAR O MODO CAVERNA”).',
+    why: 'Hook: promessa + CTA de entrada.',
     progress: 6,
-    kicker: 'BASE · Sistema de reconstrução',
-    title: 'Sem base, você não sustenta.',
-    highlight: 'E a gente já sabe disso na pele.',
+    kicker: 'BASE',
+    title: 'Se você tá cansado de cair de novo,',
+    highlight: 'fica comigo um minuto.',
     body: [
-      'Eu e muita gente do BASE já rodamos no mesmo filme: prometer, cair, esconder, recomeçar.',
-      'Aqui não tem guru de palco. Tem um caminho que segura a fissura — começando pelo PAV, o primeiro protocolo. Os outros vêm depois.',
+      'Eu já acordei jurando que ia ficar limpo. Já caí de noite. Já escondi. Já apaguei o histórico. Já falei "amanhã eu paro" sabendo que era mentira.',
+      'O BASE é o sistema que a gente usa pra parar de enfrentar a fissura no escuro. O primeiro protocolo é o PAV. Os outros entram depois. Hoje o jogo é o que te derruba agora.',
     ],
     bullets: [
-      'Menos procrastinação com a própria vida',
-      'Mais estrutura nos minutos difíceis',
-      'Decisão sua. Sem pressão de show.',
+      'Pra quem já tentou na raça e não segurou',
+      'Pra quem quer o que fazer quando a vontade aperta',
+      'Sem palestra. Sem pose.',
     ],
-    cta: 'ATIVAR O BASE',
+    cta: 'QUERO CONTINUAR',
   },
   {
     type: 'pitch',
     id: 'broken-promise',
-    why: 'Agitar a dor — espelha “você prometeu que esse ano seria diferente”.',
+    why: 'Agitar a dor da promessa quebrada.',
     progress: 12,
-    title: 'Você prometeu que dessa vez seria diferente.',
-    highlight: 'Lembra?',
+    title: 'Você falou que dessa vez ia ser diferente.',
+    highlight: 'E aí?',
     body: [
-      'Mas olha pra rotina: mesmos gatilhos, mesma barganha, mesma vergonha depois.',
-      'E o pior é quando a gente começa a achar isso “normal” — sobreviver no piloto automático como se não houvesse outra opção.',
+      'Mesmo gatilho. Mesma hora. Mesma conversa na cabeça. Mesma vergonha depois.',
+      'Chega uma hora que a gente para de brigar e começa a se acostumar. Fica no automático. Conta mentira pra si. Finge que tá tudo bem.',
     ],
     emphasis:
-      'Daqui a 5 anos, o que vai doer mais: ter tentado com estrutura… ou nunca ter parado de negociar consigo mesmo?',
-    cta: 'EU NÃO QUERO VIVER ASSIM',
+      'Daqui a cinco anos, o que vai doer mais: ter pedido ajuda com método... ou continuar fingindo que "só vontade" ia resolver?',
+    cta: 'EU TÔ CANSADO DISSO',
   },
   {
     type: 'pitch',
     id: 'invisible-prison',
-    why: 'Reframe do problema — prisão invisível / labirinto (MC).',
+    why: 'Reframe: ciclo/prisão invisível.',
     progress: 20,
-    title: 'Você acha que está no controle…',
-    highlight: 'Mas negocia com o impulso todo dia.',
+    title: 'Você acha que manda no impulso.',
+    highlight: 'Até a fissura chegar.',
     body: [
-      'Não precisa de algema. Basta um gatilho, uma fissura e zero fundação — e a mente fica ocupada demais pra admitir que está presa.',
-      'Será que ainda dá pra acreditar que “só força de vontade” vai segurar na próxima onda?',
+      'Não precisa corrente. Basta um gatilho, uma vontade forte e zero plano. A cabeça fica tão ocupada barganhando que você nem vê que tá preso.',
+      '"Só dessa vez." "Hoje eu mereço." "Amanhã eu seguro." Você conhece essas frases. Eu também.',
     ],
     bullets: [
-      'É ciclo, não coincidência',
-      'É alívio de minutos contra anos da sua vida',
-      'É modo sobrevivência — e ele funciona contra você',
+      'Isso é ciclo, não azar',
+      'Alívio de minutos cobrando anos da sua vida',
+      'Modo sobrevivência. E ele te come por dentro',
     ],
-    emphasis: 'Funciona tão bem que você acha que é livre. Mas não é.',
+    emphasis: 'Funciona tão bem que parece liberdade. Não é.',
     cta: 'QUERO SAIR DESSE CICLO',
   },
   {
     type: 'pitch',
     id: 'exit-price',
-    why: 'Preço da saída / renúncias + autoridade de quem já atravessou (MC).',
+    why: 'Preço da saída + autoridade de quem já atravessou.',
     progress: 28,
-    title: 'A saída existe.',
-    highlight: 'Mas ela cobra um preço.',
+    title: 'Dá pra sair.',
+    highlight: 'Mas tem preço.',
     body: [
-      'Não é sorte. Não é talento. Nem motivação de domingo.',
-      'É renúncia — do alívio fácil, da mentira de “só hoje”, dos lugares e hábitos que te puxam de volta sempre que você tenta subir.',
+      'Não é sorte. Não é "nasceu forte". Não é vídeo motivacional.',
+      'É largar o alívio fácil. É largar o "só hoje". É largar o orgulho de enfrentar sozinho sem estrutura nenhuma.',
     ],
     bullets: [
-      'Dos vícios que aliviam minutos e cobram anos',
-      'Das desculpas que te mantêm no mesmo buraco',
-      'Do orgulho de “eu aguento sozinho” sem estrutura',
+      'O vício que te acalma agora e te destrói depois',
+      'A desculpa que te devolve pro buraco',
+      'A ideia de que pedir método é fraqueza',
     ],
     emphasis:
-      'Eu cobrei esse preço. Dezenas, centenas, milhares no BASE também. A pergunta é: você está disposto a deixar o ciclo pra trás?',
-    cta: 'SIM, ESTOU PRONTO',
+      'Eu paguei esse preço. Tem gente demais no BASE que também pagou. A pergunta é se você topa parar de negociar.',
+    cta: 'SIM, EU TOPO',
   },
   {
     type: 'pitch',
     id: 'filter',
-    why: 'Filtro — repeliar curioso e criar identidade “um de nós” (MC amarelo).',
+    why: 'Filtro: quem fica e quem sai.',
     progress: 36,
-    title: 'Antes de seguir, lê com atenção.',
+    title: 'Antes de seguir, lê isso com atenção.',
     note: {
-      title: 'BASE não é conforto.',
+      title: 'Aqui não é spa.',
       body: [
-        'É campo de batalha pra quem aceitou uma verdade simples: ninguém vai te salvar na hora da fissura.',
-        'Não é pra quem quer paz agora sem pagar o preço. É pra quem quer se respeitar daqui pra frente.',
-        'Se essa conversa faz sentido… talvez você seja um dos nossos.',
-        'Se prefere anestesia, desculpa e vitimismo — fecha essa página e não volta.',
+        'BASE é pra quem já cansou de mentir pra si na hora da fissura.',
+        'Não é pra quem quer uma frase bonita e continuar igual.',
+        'É pra quem quer se olhar no espelho sem nojo.',
+        'Se isso te incomoda e você prefere desculpa e anestesia, fecha a página. Sério. Não volta.',
       ],
     },
     body: [],
-    cta: 'EU QUERO PROSSEGUIR',
+    cta: 'EU QUERO SEGUIR',
   },
   {
     type: 'pitch',
     id: 'reframe-protocol',
-    why: 'Reframe do produto — de “app” para ritual/protocolo (MC “É UM RITUAL”).',
+    why: 'Reframe: sistema/protocolo, não motivação.',
     progress: 44,
-    title: 'BASE não é motivação barata.',
-    highlight: 'É um sistema de protocolos.',
+    title: 'BASE não é "se motiva e vai".',
+    highlight: 'É protocolo.',
     body: [
-      'Vai além de contador de dias e frase bonita no espelho.',
-      'O primeiro protocolo é o PAV — Protocolo Antivício: o que fazer no pico da onda, no dia seguinte e na construção da identidade.',
-      'Os próximos protocolos do BASE entram depois. Você começa pelo que te derruba agora.',
+      'Contador de dias limpos sem plano na crise é enfeite. Você fecha o app e cai igual.',
+      'O PAV é o primeiro protocolo do BASE. Ele te dá o que fazer no pico da fissura, no dia seguinte e no caminho de se reconstruir. Os próximos protocolos entram depois.',
+      'Você começa pelo que te quebra hoje. Simples assim.',
     ],
-    emphasis: 'É fundação. Não é challenge de fim de semana.',
-    cta: 'SIM, TÁ FAZENDO SENTIDO',
+    emphasis: 'Fundação. Não challenge de final de semana.',
+    cta: 'ISSO FAZ SENTIDO PRA MIM',
   },
   {
     type: 'pitch',
     id: 'intensity',
-    why: 'Intensidade do tempo — por que estrutura comprimida vence anos improvisando (MC 40 dias / DBZ).',
+    why: 'Por que método intenso vence anos improvisando.',
     progress: 52,
-    title: 'Será que estrutura de verdade muda uma vida?',
-    highlight: 'Depende do quão intenso você está disposto a ser.',
+    title: 'Método de verdade muda alguma coisa?',
+    highlight: 'Se você para de improvisar na hora H, muda.',
     body: [
-      'Anos “tentando na raça” custam caro e quase não andam.',
-      'Dias com protocolo no minuto da fissura — respiração, propósito, ação, registro — valem mais do que meses negociando sozinho.',
-      'Eu vi isso em mim. Vi em gente do BASE. Intensidade com método distorce o calendário: você para de girar e começa a subir.',
+      'Anos tentando "na raça" cansam e quase não andam.',
+      'Ter o que fazer no minuto da fissura (respirar, lembrar o porquê, ocupar a cabeça, registrar o gatilho) vale mais do que meses prometendo sozinho.',
+      'Eu vi isso em mim. Vi em gente do BASE. Quando tem caminho, a vontade deixa de ser a única arma.',
     ],
-    emphasis: 'Você está pronto pra parar de improvisar na hora H?',
-    cta: 'SIM, EU PRECISO',
+    emphasis: 'Você topa parar de ir pra guerra desarmado?',
+    cta: 'SIM, EU PRECISO DISSO',
   },
   {
     type: 'pitch',
     id: 'urgency',
-    why: 'Urgência — custo de adiar (MC “tempo de vida é curto”).',
+    why: 'Urgência: custo de adiar.',
     progress: 58,
-    title: 'Seu tempo é curto.',
-    highlight: 'E ainda assim a gente joga fora a chance de ter chão.',
+    title: 'O tempo passa igual.',
+    highlight: 'Com você limpo ou com você caindo.',
     body: [
-      'Enquanto isso, pessoas comuns — iguais a você e a mim — estão construindo o que você só imagina entre uma queda e outra.',
-      'Eu sei que a sensação de ficar pra trás come por dentro.',
+      'Enquanto a gente adia, tem gente comum (igual você, igual eu) construindo o que a gente só imagina entre uma recaída e outra.',
+      'Essa sensação de ficar pra trás? Eu conheço. Come quieto.',
     ],
     emphasis:
-      'A diferença não é sorte. É a coragem de dizer chega — e entrar num caminho. Cada dia negociando é mais um dia sem base.',
-    cta: 'SIM. ESTOU DECIDIDO',
+      'Não é sorte. É decidir que chega. Cada dia barganhando é mais um dia sem chão.',
+    cta: 'CHEGA. EU DECIDI',
   },
   {
     type: 'pitch',
     id: 'social-proof',
-    why: 'Prova social — pertencimento e “você vai ser o próximo?” (MC).',
+    why: 'Prova social e pertencimento.',
     progress: 66,
-    title: 'Dezenas. Centenas. Milhares.',
-    highlight: 'Gente que cansou de cair sozinha.',
+    title: 'Não é só eu.',
+    highlight: 'São dezenas, centenas, milhares no BASE.',
     body: [
-      'Não são heróis. São pessoas que decidiram parar de negociar com o impulso — e usaram o BASE pra ter o que fazer quando a onda vem.',
-      'Eu já estive do outro lado. Eles também. A pergunta que importa agora é a sua.',
+      'Gente que fumava escondido. Gente que perdia noite em aposta. Gente que abria pornô "só um pouco" e sumia duas horas. Gente que jurava dieta e caía no açúcar. Gente que abria o celular e só fechava morta de sono.',
+      'Ninguém aqui nasceu santo. A diferença foi ter o que fazer quando a onda subiu.',
     ],
-    emphasis: 'E aí… você vai ser o próximo a erguer fundação?',
-    cta: 'SIM, EU ESTOU DECIDIDO',
+    emphasis: 'E aí. Você vai continuar sozinho nessa, ou vai entrar?',
+    cta: 'EU VOU ENTRAR',
   },
   {
     type: 'question',
     id: 'objetivo',
-    why: 'Qualificação tardia — objetivo (MC pergunta 1 perto do fim).',
+    why: 'Qualificação: objetivo.',
     progress: 74,
-    title: 'O que você mais quer conquistar com o BASE?',
-    helper: 'Escolha uma opção para avançar',
+    title: 'O que você mais quer tirar disso?',
+    helper: 'Escolhe uma pra avançar',
     options: [
       {
         id: 'habitos',
-        label: 'Melhorar hábitos e rotina. Ter foco e disciplina de verdade.',
+        label: 'Parar de me sabotar. Ter rotina e foco de verdade.',
       },
       {
         id: 'identidade',
-        label: 'Me respeitar de novo. Parar de me sabotar e reconstruir quem eu sou.',
+        label: 'Me respeitar de novo. Olhar no espelho sem vergonha.',
       },
       {
         id: 'vida',
-        label: 'Estar presente com a família / construir uma vida que eu não precise esconder.',
+        label: 'Estar presente com quem eu amo. Viver sem esconder queda.',
       },
     ],
   },
   {
     type: 'question',
     id: 'bloqueio',
-    why: 'Qualificação — obstáculo (MC pergunta 2).',
+    why: 'Qualificação: obstáculo.',
     progress: 80,
-    title: 'O que mais te impede de conquistar isso?',
-    helper: 'Escolha uma opção para avançar',
+    title: 'O que mais te derruba quando você tenta mudar?',
+    helper: 'Escolhe uma pra avançar',
     options: [
       {
         id: 'perdido',
-        label: 'Estou perdido. Não sei o que fazer pra mudar de verdade.',
+        label: 'Fico perdido. Não sei por onde começar de verdade.',
       },
       {
         id: 'distracao',
-        label: 'Eu sei o caminho, mas me distraio e caio na fissura.',
+        label: 'Eu sei o que fazer, mas a fissura me pega e eu caio.',
       },
       {
         id: 'comparacao',
-        label: 'Me comparo, me paraliso e acabo voltando pro alívio fácil.',
+        label: 'Me comparo, travo, e volto pro alívio fácil.',
       },
     ],
   },
   {
     type: 'question',
     id: 'padrao',
-    why: 'Qualificação BASE — padrão principal (adaptação de produto; MC não tem, nós precisamos).',
+    why: 'Qualificação: padrão/vício principal.',
     progress: 85,
-    title: 'Qual padrão te derruba com mais força hoje?',
-    helper: 'Escolha uma opção para avançar',
+    title: 'Qual vício ou padrão te puxa mais forte hoje?',
+    helper: 'Escolhe uma pra avançar',
     options: [
       { id: 'cigarro', label: 'Cigarro / nicotina' },
       { id: 'alcool', label: 'Álcool' },
-      { id: 'apostas', label: 'Apostas / jogos' },
+      { id: 'apostas', label: 'Aposta / jogo' },
       { id: 'porno', label: 'Pornografia' },
-      { id: 'telas', label: 'Redes / scroll sem fim' },
+      { id: 'telas', label: 'Rede social / scroll sem fim' },
       { id: 'comida', label: 'Açúcar / compulsão com comida' },
-      { id: 'procrastinar', label: 'Procrastinação que destrói o dia' },
-      { id: 'outro', label: 'Outro padrão que eu sei qual é' },
+      { id: 'procrastinar', label: 'Procrastinação que come meu dia' },
+      { id: 'outro', label: 'Outro. Eu sei qual é.' },
     ],
   },
   {
     type: 'pitch',
     id: 'transformation',
-    why: 'Promessa de transformação + micro-sim (MC “não será mais o mesmo”).',
+    why: 'Transformação + micro-sim.',
     progress: 90,
-    title: 'Quando a base segura…',
-    highlight: 'Você não é mais o mesmo. E o mundo percebe.',
+    title: 'Quando a fissura para de te mandar,',
+    highlight: 'as pessoas em volta sentem.',
     body: [
-      'Não porque virou outro personagem da noite pro dia.',
-      'Porque parou de negociar. Porque tem o que fazer no pico. Porque os dias começam a somar.',
+      'Não é virar outro de um dia pro outro.',
+      'É acordar sem aquela nóia. É cumprir o que falou. É os dias limpos começarem a somar em vez de zerar na primeira queda.',
     ],
-    cta: 'EU QUERO ESSA TRANSFORMAÇÃO',
+    cta: 'EU QUERO ISSO PRA MIM',
   },
   {
     type: 'pitch',
     id: 'how-it-works',
-    why: 'Como funciona — reduzir medo do desconhecido (MC 6 passos + “quero o app”).',
+    why: 'Como funciona: reduzir medo.',
     progress: 95,
-    title: 'É assim que você ativa o BASE',
+    title: 'Como o BASE te segura na prática',
     body: [
-      '1. Entra no sistema — app BASE no celular.',
-      '2. Começa pelo PAV — o protocolo antivício (os próximos vêm depois).',
-      '3. No pico da fissura: Botão + Arena — ação em vez de barganha.',
-      '4. No dia: rotina, propósito e registro do que te derruba.',
-      '5. No tempo: mapa, níveis e dias que somam — identidade que sustenta.',
+      '1. Você entra no app.',
+      '2. Começa pelo PAV (protocolo antivício). Os outros protocolos vêm depois.',
+      '3. Quando a fissura sobe: você aperta o botão, usa a Arena, atravessa a onda em vez de barganhar.',
+      '4. No dia: rotina, propósito e registro do gatilho.',
+      '5. No tempo: você vê o progresso. Dia limpo deixa de ser sorte e vira caminho.',
     ],
     emphasis:
-      'Relaxa: você não precisa entender tudo agora. É dar o primeiro passo. O sistema segura o resto.',
-    cta: 'EU QUERO O BASE',
+      'Não precisa entender tudo agora. O primeiro passo é entrar. O sistema segura o resto.',
+    cta: 'QUERO MEU ACESSO',
   },
   {
     type: 'offer',
     id: 'offer',
-    why: 'Oferta — stack, planos, garantia, história do mentor, CTA (MC offer page).',
+    why: 'Oferta completa.',
     progress: 100,
   },
 ]
@@ -315,46 +305,90 @@ export function buildSteps(): QuizStep[] {
   return funnelSteps
 }
 
+export const proofs: Proof[] = [
+  {
+    name: 'Marcos',
+    meta: '34 anos · parou com cigarro · 287 dias limpo',
+    quote:
+      'Eu falava que controlava. Mentira. O botão de fissura me segurou nos primeiros 30 dias. Hoje eu nem ligo pra cigarro na roda.',
+  },
+  {
+    name: 'Júlia',
+    meta: '28 anos · açúcar e compulsão · 142 dias',
+    quote:
+      'Eu caía toda noite. Doce, culpa, juramento. Ver o dia somando me puxou mais do que qualquer dieta. Parei de me odiar toda manhã.',
+  },
+  {
+    name: 'Rafael',
+    meta: '41 anos · aposta · 423 dias sem apostar',
+    quote:
+      'Queimei dinheiro que não tinha. Terapia me ajudou a entender. O BASE me deu o que fazer quando a mão ia no app da bet. Hoje eu construo. Não destruo.',
+  },
+  {
+    name: 'Camila',
+    meta: '31 anos · pornografia · 96 dias',
+    quote:
+      'Eu achava que era "só um hábito". Era fuga. Ter protocolo no pico mudou. Ainda tem vontade às vezes. A diferença é que agora eu sei o que fazer com ela.',
+  },
+]
+
 export const offerCopy = {
-  kicker: 'Hoje é o dia',
-  title: 'Ativa o BASE. Começa pelo PAV.',
+  kicker: 'Sua vez',
+  title: 'Entra no BASE. Começa pelo PAV.',
   subtitle:
-    'Ideal pra quem cansou de se sabotar e quer resultado com estrutura — menos negociação com o impulso, mais disciplina no minuto difícil.',
-  luckTitle: 'Olha… vou ser direto com você.',
+    'Pra quem já tentou parar sozinho, caiu, e não quer mais viver de promessa. Menos barganha com o impulso. Mais o que fazer quando a vontade aperta.',
+  luckTitle: 'Olha. Vou falar reto.',
   luckBody:
-    'Você chegou até aqui respondendo e dizendo sim várias vezes. Isso não é coincidência. É a parte sua que já sabe o que precisa fazer.',
-  stackTitle: 'O que você leva',
+    'Você veio até aqui clicando sim. Isso não foi acaso. É a parte sua que já sabe que sozinho, do jeito antigo, não segura. Agora é só decidir se vai continuar no mesmo ciclo ou se vai ter base de verdade.',
+  stackTitle: 'O que você recebe',
   stack: [
     'Acesso ao app BASE',
-    'Protocolo PAV completo (fissura, Arena, mapa, rotina)',
-    'Caminho claro nos minutos da onda',
-    'Registro de gatilhos sem julgamento',
-    'Comunidade de quem entende a luta',
-    'Próximos protocolos do BASE na evolução do sistema',
-    '30 dias de garantia — sem teatro',
+    'Protocolo PAV (fissura, Arena, mapa, rotina)',
+    'O que fazer no minuto em que a vontade sobe',
+    'Registro de gatilho sem julgamento',
+    'Gente que entende a luta (sem teatro)',
+    'Próximos protocolos do BASE quando forem liberados',
+    '30 dias pra testar. Se não servir, devolve.',
   ],
-  mentorTitle: 'Quem fala com você',
+  valueBridge:
+    'Menos que uma noite caindo. Menos que uma aposta "só dessa vez". Menos que o dano de mais um mês no mesmo buraco.',
+  mentorTitle: 'De quem já esteve no fundo',
   mentorBody: [
-    'Eu não nasci “disciplinado”. Eu caí. Negociei. Escondi. Recomecei.',
-    'O que mudou não foi um discurso. Foi ter fundação — e depois ajudar outras pessoas a terem a mesma coisa.',
-    'O BASE nasceu dessa luta. O PAV é o primeiro protocolo. Eu usei. Dezenas, centenas, milhares no BASE também. Agora a decisão é sua — e tem que parecer sua, porque é.',
+    'Eu não nasci disciplinado. Eu caí. Negociei. Escondi. Recomecei. Odeiei o espelho.',
+    'O que me tirou daquilo não foi discurso. Foi ter um caminho na hora da fissura e gente que já tinha passado por isso.',
+    'O BASE nasceu dessa porrada. O PAV é o primeiro protocolo. Eu uso. Tem gente demais usando também. A decisão agora é sua. E tem que ser sua.',
   ],
-  guaranteeTitle: 'Garantia incondicional de 30 dias',
+  guaranteeTitle: '30 dias. Sem pegadinha.',
   guaranteeBody:
-    'Entra, usa, vê se segura a sua luta. Se em 30 dias não fizer diferença, devolve 100%. Sem perguntas. Sem humilhação. O risco fica com a gente — a escolha, com você.',
-  cta: 'COMEÇAR AGORA',
+    'Entra. Usa. Vê se segura a sua luta. Se em 30 dias não fizer diferença pra você, devolve 100%. Sem humilhação. Sem letra miúda na nossa conversa. O risco fica com a gente. A escolha fica com você.',
+  faqTitle: 'Se ainda tá travando na cabeça',
+  faqs: [
+    {
+      q: 'E se eu recair?',
+      a: 'Recaída acontece. O BASE não te joga fora. Você registra, vê o gatilho e volta. Quem perde é quem desiste, não quem cai e levanta.',
+    },
+    {
+      q: 'Isso substitui terapia ou médico?',
+      a: 'Não. É apoio de rotina e autocontrole. Se você precisa de profissional, usa junto. Nunca no lugar.',
+    },
+    {
+      q: 'Por que pagar se força de vontade é de graça?',
+      a: 'Porque vontade sem estrutura já te custou caro. O pagamento é compromisso com você. Menos espaço pra "deixa pra depois".',
+    },
+  ],
+  cta: 'QUERO MEU ACESSO AGORA',
   secondaryCta: 'Criar minha conta',
   plans,
+  proofs,
   cadastro: brand.cadastroExternal,
   disclaimer: brand.disclaimer,
 } as const
 
-/** Compat: QuizPage antigo importava quizIntro — mantém alias mínimo se necessário */
 export const quizIntro = {
   kicker: funnelSteps[0].type === 'pitch' ? funnelSteps[0].kicker : '',
   title: funnelSteps[0].type === 'pitch' ? funnelSteps[0].title : '',
   highlight: funnelSteps[0].type === 'pitch' ? funnelSteps[0].highlight : '',
   body: funnelSteps[0].type === 'pitch' ? funnelSteps[0].body : [],
-  points: funnelSteps[0].type === 'pitch' ? funnelSteps[0].bullets ?? [] : [],
+  points: funnelSteps[0].type === 'pitch' ? (funnelSteps[0].bullets ?? []) : [],
   cta: funnelSteps[0].type === 'pitch' ? funnelSteps[0].cta : '',
 } as const

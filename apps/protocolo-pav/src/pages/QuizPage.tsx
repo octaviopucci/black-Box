@@ -178,17 +178,15 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
   const block = answers.bloqueio
   const pattern = answers.padrao
 
-  const mirror = [
-    goal === 'habitos' && 'Você pediu foco e rotina.',
+  const mirrorBits = [
+    goal === 'habitos' && 'Você pediu rotina e foco.',
     goal === 'identidade' && 'Você pediu se respeitar de novo.',
-    goal === 'vida' && 'Você pediu presença e uma vida sem esconderijo.',
-    block === 'perdido' && 'Disse que está perdido — estrutura resolve o “por onde”.',
-    block === 'distracao' && 'Disse que cai na fissura — o PAV existe exatamente pra essa hora.',
-    block === 'comparacao' && 'Disse que se paralisa — progresso visível corta essa mentira.',
-    pattern && `E o padrão que mais te puxa agora é o que a gente ataca primeiro no PAV.`,
-  ]
-    .filter(Boolean)
-    .join(' ')
+    goal === 'vida' && 'Você pediu presença, sem esconder queda.',
+    block === 'perdido' && 'Disse que tá perdido. Estrutura resolve o "por onde".',
+    block === 'distracao' && 'Disse que a fissura te pega. O PAV existe pra essa hora.',
+    block === 'comparacao' && 'Disse que trava e volta pro alívio. Progresso visível corta isso.',
+    pattern && 'O padrão que você marcou é o que a gente ataca primeiro no PAV.',
+  ].filter(Boolean) as string[]
 
   return (
     <motion.section {...fade} className="pb-6 pt-2">
@@ -200,10 +198,12 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
       </h2>
       <p className="mt-4 text-base leading-relaxed text-mist">{offerCopy.subtitle}</p>
 
-      {mirror ? (
-        <p className="mt-5 border-l-2 border-will/50 pl-3 text-sm leading-relaxed text-will">
-          {mirror}
-        </p>
+      {mirrorBits.length ? (
+        <div className="mt-5 space-y-2 border-l-2 border-will/50 pl-3 text-sm leading-relaxed text-will">
+          {mirrorBits.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
       ) : null}
 
       <div className="mt-8 text-center">
@@ -223,6 +223,7 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
             </li>
           ))}
         </ul>
+        <p className="mt-5 text-sm leading-relaxed text-ash">{offerCopy.valueBridge}</p>
       </div>
 
       <div className="mt-6 space-y-3">
@@ -252,7 +253,7 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
               ))}
             </ul>
             <p className="mt-4 font-display text-xs font-bold uppercase tracking-[0.14em] text-paper">
-              {offerCopy.cta} →
+              {offerCopy.cta}
             </p>
           </a>
         ))}
@@ -274,6 +275,23 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
 
       <section className="mt-12 border-t border-line pt-10">
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-signal">
+          Quem já passou por isso
+        </p>
+        <div className="mt-6 space-y-8">
+          {offerCopy.proofs.map((t) => (
+            <blockquote key={t.name} className="border-l-2 border-signal/50 pl-4">
+              <p className="text-sm leading-relaxed text-mist">"{t.quote}"</p>
+              <footer className="mt-3">
+                <p className="font-display text-sm font-semibold">{t.name}</p>
+                <p className="font-mono text-[10px] text-ash">{t.meta}</p>
+              </footer>
+            </blockquote>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-12 border-t border-line pt-10">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-signal">
           {offerCopy.mentorTitle}
         </p>
         <div className="mt-4 space-y-4 text-sm leading-relaxed text-ash">
@@ -281,19 +299,34 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
             <p key={p}>{p}</p>
           ))}
         </div>
-        <a
-          href={offerCopy.cadastro}
-          className="mt-8 flex w-full items-center justify-center bg-signal py-4 font-display text-sm font-bold uppercase tracking-[0.12em] text-white hover:bg-signalHot"
-        >
-          {offerCopy.cta}
-        </a>
-        <a
-          href={brand.cadastroExternal}
-          className="mt-3 flex w-full items-center justify-center border border-line py-3.5 font-display text-xs font-semibold uppercase tracking-[0.14em] text-paper hover:border-signal/50"
-        >
-          {offerCopy.secondaryCta}
-        </a>
       </section>
+
+      <section className="mt-12 border-t border-line pt-10">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-signal">
+          {offerCopy.faqTitle}
+        </p>
+        <div className="mt-6 space-y-6">
+          {offerCopy.faqs.map((f) => (
+            <div key={f.q}>
+              <h3 className="font-display text-base font-semibold">{f.q}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ash">{f.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <a
+        href={offerCopy.cadastro}
+        className="mt-10 flex w-full items-center justify-center bg-signal py-4 font-display text-sm font-bold uppercase tracking-[0.12em] text-white hover:bg-signalHot"
+      >
+        {offerCopy.cta}
+      </a>
+      <a
+        href={brand.cadastroExternal}
+        className="mt-3 flex w-full items-center justify-center border border-line py-3.5 font-display text-xs font-semibold uppercase tracking-[0.14em] text-paper hover:border-signal/50"
+      >
+        {offerCopy.secondaryCta}
+      </a>
 
       <p className="mt-10 text-center text-[11px] leading-relaxed text-ash">
         {offerCopy.disclaimer}
