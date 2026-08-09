@@ -226,11 +226,13 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
         <p className="mt-5 text-sm leading-relaxed text-ash">{offerCopy.valueBridge}</p>
       </div>
 
-      <div className="mt-6 space-y-3">
+              <div className="mt-6 space-y-3">
         {offerCopy.plans.map((p) => (
           <a
             key={p.id}
-            href={offerCopy.cadastro}
+            href={p.checkout}
+            target="_blank"
+            rel="noopener noreferrer"
             className={`block border p-5 transition hover:border-signal/60 ${
               p.highlight ? 'border-signal bg-signal/10' : 'border-line bg-ink'
             }`}
@@ -267,10 +269,18 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
       </div>
 
       <a
-        href={offerCopy.cadastro}
+        href={offerCopy.plans.find((p) => p.highlight)?.checkout ?? offerCopy.plans[0].checkout}
+        target="_blank"
+        rel="noopener noreferrer"
         className="mt-8 flex w-full items-center justify-center bg-signal py-4 font-display text-sm font-bold uppercase tracking-[0.12em] text-white hover:bg-signalHot"
       >
         {offerCopy.cta}
+      </a>
+      <a
+        href={`${brand.cadastroExternal}?next=/planos`}
+        className="mt-3 flex w-full items-center justify-center border border-line py-3.5 font-display text-xs font-semibold uppercase tracking-[0.14em] text-paper hover:border-signal/50"
+      >
+        Prefiro criar conta antes
       </a>
 
       <section className="mt-12 border-t border-line pt-10">
@@ -316,17 +326,19 @@ function OfferView({ answers }: { answers: Record<string, string> }) {
       </section>
 
       <a
-        href={offerCopy.cadastro}
+        href={offerCopy.plans.find((p) => p.highlight)?.checkout ?? offerCopy.plans[0].checkout}
+        target="_blank"
+        rel="noopener noreferrer"
         className="mt-10 flex w-full items-center justify-center bg-signal py-4 font-display text-sm font-bold uppercase tracking-[0.12em] text-white hover:bg-signalHot"
       >
         {offerCopy.cta}
       </a>
-      <a
-        href={brand.cadastroExternal}
+      <Link
+        to="/planos"
         className="mt-3 flex w-full items-center justify-center border border-line py-3.5 font-display text-xs font-semibold uppercase tracking-[0.14em] text-paper hover:border-signal/50"
       >
-        {offerCopy.secondaryCta}
-      </a>
+        Ver planos com calma
+      </Link>
 
       <p className="mt-10 text-center text-[11px] leading-relaxed text-ash">
         {offerCopy.disclaimer}
