@@ -8,15 +8,24 @@
       "memory": 1024,
       "maxDuration": 30,
       "includeFiles": "api/_pix_gateway.cjs"
+    },
+    "api/lp-motors.ts": {
+      "memory": 512,
+      "maxDuration": 30,
+      "includeFiles": "api/_lp-motors/**"
     }
   },
   "rewrites": [
     { "source": "/api/pix", "destination": "/api/pix?path=health" },
     { "source": "/api/pix/(.*)", "destination": "/api/pix?path=$1" },
+    { "source": "/api/lp-motors", "destination": "/api/lp-motors?path=health" },
+    { "source": "/api/lp-motors/(.*)", "destination": "/api/lp-motors?path=$1" },
     { "source": "/pix", "destination": "/pix/index.html" },
     { "source": "/pix/", "destination": "/pix/index.html" },
-    { "source": "/maciel-motors-x/(.*)", "destination": "/maciel-motors-x/index.html" },
-    { "source": "/maciel-motors/(.*)", "destination": "/maciel-motors/index.html" },
+    { "source": "/lp-motors-x/(.*)", "destination": "/lp-motors-x/index.html" },
+    { "source": "/lp-motors/(.*)", "destination": "/lp-motors/index.html" },
+    { "source": "/maciel-motors-x/(.*)", "destination": "/lp-motors-x/index.html" },
+    { "source": "/maciel-motors/(.*)", "destination": "/lp-motors/index.html" },
     { "source": "/porthal-imoveis/(.*)", "destination": "/porthal-imoveis/index.html" },
     { "source": "/marcio-mariano/(.*)", "destination": "/marcio-mariano/index.html" },
     { "source": "/sogov/(.*)", "destination": "/sogov/index.html" },
@@ -30,7 +39,7 @@
     { "source": "/gl-locacoes/(.*)", "destination": "/gl-locacoes/index.html" },
     { "source": "/protocolo-pav/(.*)", "destination": "/protocolo-pav/index.html" },
     { "source": "/rian/(.*)", "destination": "/rian/index.html" },
-    { "source": "/((?!api(?:/|$)|pix(?:/|$)|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|protocolo-pav|rian|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|protocolo-pav|rian|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

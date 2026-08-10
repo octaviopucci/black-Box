@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --lp-ink: #0c1222;
+  --lp-slate: #1a2332;
+  --lp-steel: #3d4f66;
+  --lp-mist: #e8edf3;
+  --lp-paper: #f5f7fa;
+  --lp-line: #d5dce6;
+  --lp-accent: #0f766e;
+  --lp-copper: #b45309;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at top left, rgba(15, 118, 110, 0.07), transparent 42%),
+    radial-gradient(ellipse at bottom right, rgba(180, 83, 9, 0.05), transparent 48%),
+    #f5f7fa;
+  color: var(--lp-ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5ced9;
+  border-radius: 999px;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-xl border border-lp-line bg-white shadow-panel;
+  }
+
+  .panel-ink {
+    @apply rounded-xl border border-white/10 bg-lp-slate text-white shadow-panel;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border border-lp-line bg-white px-3.5 py-2.5 text-base text-lp-ink outline-none transition placeholder:text-lp-steel/45 focus:border-lp-accent focus:ring-2 focus:ring-lp-accent/20;
+  }
+
+  .label-field {
+    @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-lp-steel;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-lp-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-lp-accent-dim disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-lp-line bg-white px-4 py-2.5 text-sm font-semibold text-lp-ink transition hover:border-lp-steel/30 hover:bg-lp-mist disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-lp-steel transition hover:bg-lp-mist hover:text-lp-ink;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-lp-danger px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .section-title {
+    @apply font-display text-2xl font-bold tracking-tight text-lp-ink sm:text-3xl;
+  }
+
+  .section-sub {
+    @apply mt-1 text-sm text-lp-steel;
+  }
+
+  .kpi {
+    @apply panel p-4 sm:p-5;
+  }
+
+  .kpi-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-lp-steel;
+  }
+
+  .kpi-value {
+    @apply mt-2 font-display text-2xl font-bold tracking-tight text-lp-ink sm:text-3xl;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold;
+  }
+
+  .table-wrap {
+    @apply overflow-x-auto rounded-xl border border-lp-line bg-white;
+  }
+
+  .data-table {
+    @apply w-full min-w-[640px] text-left text-sm;
+  }
+
+  .data-table th {
+    @apply border-b border-lp-line bg-lp-mist/70 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-lp-steel;
+  }
+
+  .data-table td {
+    @apply border-b border-lp-line/70 px-3 py-3 align-middle;
+  }
+
+  .empty-state {
+    @apply panel flex flex-col items-center justify-center gap-3 px-6 py-16 text-center;
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-lg bg-lp-mist;
+  }
+}
