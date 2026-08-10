@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Download, FileJson, FileText } from 'lucide-react'
+import { FileJson, FileSpreadsheet, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency, formatDate, daysBetween } from '@/utils'
 import { EXPENSE_LABELS } from '@/utils/constants'
 import { CategoryBars, SalesChart } from '@/components/dashboard/Charts'
+import { isActiveStock } from '@/utils/finance'
 
 type ReportKey =
   | 'vendidos'
@@ -21,7 +22,7 @@ type ReportKey =
 
 const REPORTS: { key: ReportKey; label: string }[] = [
   { key: 'vendidos', label: 'Veículos vendidos' },
-  { key: 'disponiveis', label: 'Veículos disponíveis' },
+  { key: 'disponiveis', label: 'Em estoque / prontos' },
   { key: 'consignados', label: 'Consignados' },
   { key: 'lucro_mensal', label: 'Lucro mensal' },
   { key: 'lucro_anual', label: 'Lucro anual' },
@@ -34,7 +35,7 @@ const REPORTS: { key: ReportKey; label: string }[] = [
 ]
 
 export function ReportsPage() {
-  const { reports, salesChart, stats } = useApp()
+  const { reports, salesChart, stats, vehicles } = useApp()
   const [active, setActive] = useState<ReportKey>('vendidos')
 
   const payload = useMemo(() => {
@@ -47,12 +48,14 @@ export function ReportsPage() {
           status: v.status,
         }))
       case 'disponiveis':
-        return reports.availableVehicles().map((v) => ({
-          veiculo: `${v.marca} ${v.modelo}`,
-          placa: v.placa,
-          anuncio: formatCurrency(v.precoAnunciado),
-          dias: daysBetween(v.dataCompra),
-        }))
+        return vehicles
+          .filter((v) => isActiveStock(v) && ['pronto', 'anunciado', 'disponivel'].includes(v.status))
+          .map((v) => ({
+            veiculo: `${v.marca} ${v.modelo}`,
+            placa: v.placa,
+            anuncio: formatCurrency(v.precoAnunciado),
+            dias: daysBetween(v.dataCompra),
+          }))
       case 'consignados':
         return reports.consignados().map((v) => ({
           veiculo: `${v.marca} ${v.modelo}`,
@@ -81,7 +84,7 @@ export function ReportsPage() {
       case 'marcas':
         return reports.topBrands().map((b) => ({
           marca: b.marca,
-          vendidos: b.qtd,
+          quantidade: b.qtd,
         }))
       case 'parados30':
         return reports.stalled(30).map((v) => ({
@@ -107,22 +110,19 @@ export function ReportsPage() {
       default:
         return []
     }
-  }, [active, reports])
+  }, [active, reports, vehicles])
 
   const columns = payload.length ? Object.keys(payload[0]) : []
   const label = REPORTS.find((r) => r.key === active)?.label || 'Relatório'
 
-  const exportPdf = () => {
-    const rows = [
-      columns.map((c) => c.toUpperCase()),
-      ...payload.map((row) => columns.map((c) => String((row as Record<string, unknown>)[c] ?? ''))),
-    ]
-    reports.exportPDF(label, rows)
-  }
+  const toRows = () => [
+    columns.map((c) => c.toUpperCase()),
+    ...payload.map((row) => columns.map((c) => String((row as Record<string, unknown>)[c] ?? ''))),
+  ]
 
-  const exportJson = () => {
-    reports.exportJSON(`relatorio-${active}.json`, payload)
-  }
+  const exportPdf = () => reports.exportPDF(label, toRows())
+  const exportJson = () => reports.exportJSON(`lp-motors-${active}.json`, payload)
+  const exportCsv = () => reports.exportCSV(`lp-motors-${active}.csv`, toRows())
 
   const expenseChart = Object.entries(reports.expensesByCategory()).map(([name, value]) => ({
     name: EXPENSE_LABELS[name as keyof typeof EXPENSE_LABELS] || name,
@@ -132,8 +132,8 @@ export function ReportsPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-3xl font-bold tracking-wide">Relatórios</h1>
-        <p className="mt-1 text-sm text-white/50">
+        <h1 className="section-title">Relatórios</h1>
+        <p className="section-sub">
           Análise operacional e financeira · Investimento atual {formatCurrency(stats.investimentoTotal)}
         </p>
       </div>
@@ -144,10 +144,10 @@ export function ReportsPage() {
             key={r.key}
             type="button"
             onClick={() => setActive(r.key)}
-            className={`rounded-xl px-3 py-2 text-sm transition ${
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
               active === r.key
-                ? 'bg-brand-red/20 text-white ring-1 ring-brand-red/40'
-                : 'bg-brand-graphite text-white/60 hover:text-white'
+                ? 'bg-lp-accent text-white'
+                : 'border border-lp-line bg-white text-lp-steel hover:text-lp-ink'
             }`}
           >
             {r.label}
@@ -162,41 +162,40 @@ export function ReportsPage() {
 
       <section className="panel p-4">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-display text-lg font-semibold tracking-wide">{label}</h2>
+          <h2 className="font-display text-lg font-bold">{label}</h2>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={exportPdf}>
-              <FileText className="h-4 w-4" /> Exportar PDF
+              <FileText className="h-4 w-4" /> PDF
             </Button>
-            <Button variant="secondary" onClick={exportJson}>
-              <FileJson className="h-4 w-4" /> Exportar JSON
+            <Button variant="secondary" onClick={exportCsv}>
+              <FileSpreadsheet className="h-4 w-4" /> CSV / Excel
             </Button>
             <Button variant="ghost" onClick={exportJson}>
-              <Download className="h-4 w-4" /> Download
+              <FileJson className="h-4 w-4" /> JSON
             </Button>
           </div>
         </div>
 
         {!payload.length ? (
-          <p className="text-sm text-white/45">Sem dados para este relatório.</p>
+          <div className="empty-state py-10">
+            <p className="font-medium text-lp-ink">Sem dados para este relatório.</p>
+            <p className="text-sm text-lp-steel">Cadastre veículos ou vendas para gerar análises.</p>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+          <div className="table-wrap">
+            <table className="data-table">
               <thead>
-                <tr className="border-b border-brand-gray/50 text-left text-xs uppercase tracking-wide text-white/45">
+                <tr>
                   {columns.map((c) => (
-                    <th key={c} className="px-3 py-3">
-                      {c}
-                    </th>
+                    <th key={c}>{c}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {payload.map((row, i) => (
-                  <tr key={i} className="border-b border-brand-gray/30">
+                  <tr key={i}>
                     {columns.map((c) => (
-                      <td key={c} className="px-3 py-3">
-                        {String((row as Record<string, unknown>)[c] ?? '')}
-                      </td>
+                      <td key={c}>{String((row as Record<string, unknown>)[c] ?? '')}</td>
                     ))}
                   </tr>
                 ))}

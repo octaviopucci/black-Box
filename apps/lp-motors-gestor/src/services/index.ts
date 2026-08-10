@@ -12,7 +12,7 @@ import {
   resetDatabase,
   saveDatabase,
 } from '@/services/database'
-import { daysBetween, downloadJSON, nowISO } from '@/utils'
+import { daysBetween, downloadCSV, downloadJSON, nowISO } from '@/utils'
 import {
   aggregateSalesByMonth,
   calcPotentialProfit,
@@ -239,6 +239,9 @@ export const reportService = {
   exportJSON(name: string, data: unknown) {
     downloadJSON(name, data)
   },
+  exportCSV(name: string, rows: (string | number)[][]) {
+    downloadCSV(name, rows)
+  },
   exportPDF(title: string, rows: string[][]) {
     const table = rows
       .map(
@@ -254,7 +257,7 @@ export const reportService = {
         h1{font-size:18px}
         table{width:100%;border-collapse:collapse;margin-top:16px}
         th,td{border:1px solid #ccc;padding:8px;font-size:12px;text-align:left}
-        th{background:#111;color:#fff}
+        th{background:#0C1222;color:#fff}
       </style></head><body>
       <h1>${title}</h1>
       <p>${APP_NAME} — ${new Date().toLocaleString('pt-BR')}</p>
