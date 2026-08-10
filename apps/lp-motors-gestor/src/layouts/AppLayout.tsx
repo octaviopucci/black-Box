@@ -17,6 +17,7 @@ import {
   Search,
   Settings,
   Shield,
+  Table2,
   TrendingUp,
   Users,
   Wallet,
@@ -42,6 +43,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
       { to: '/estoque', label: 'Estoque', icon: Car },
       { to: '/alertas', label: 'Alertas', icon: AlertTriangle },
       { to: '/inteligencia', label: 'Inteligência', icon: Brain },
+      { to: '/fipe', label: 'FIPE / Placa', icon: Table2 },
     ],
   },
   {
@@ -77,7 +79,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
 
 const MOBILE_QUICK = [
   { to: '/veiculos/novo', label: 'Novo veículo', icon: Car },
-  { to: '/financeiro', label: 'Despesa', icon: Wallet },
+  { to: '/fipe', label: 'FIPE', icon: Table2 },
   { to: '/documentos', label: 'Documento', icon: FileText },
   { to: '/preparacao', label: 'Checklist', icon: ClipboardCheck },
 ]

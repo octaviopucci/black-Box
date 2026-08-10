@@ -22,6 +22,7 @@ import { UsersPage } from '@/pages/UsersPage'
 import { AuditPage } from '@/pages/AuditPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { BackupPage } from '@/pages/BackupPage'
+import { FipePage } from '@/pages/FipePage'
 
 const basename = (import.meta.env.BASE_URL || '/').replace(/\/$/, '') || '/'
 
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="estoque" element={<StockPage />} />
               <Route path="alertas" element={<AlertsPage />} />
               <Route path="inteligencia" element={<IntelligencePage />} />
+              <Route path="fipe" element={<FipePage />} />
               <Route path="preparacao" element={<PreparationPage />} />
               <Route path="documentos" element={<DocumentsPage />} />
               <Route path="fornecedores" element={<SuppliersPage />} />

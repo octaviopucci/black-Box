@@ -7,6 +7,14 @@ import {
   type CloudOrg,
   type CloudUser,
 } from './_lp-motors/store'
+import {
+  estimateIpva,
+  fipeFetch,
+  lookupPlateExternal,
+  normalizePlate,
+  plateFormats,
+  type FipeVehicleType,
+} from './_lp-motors/fipe'
 
 function resolvePath(req: VercelRequest): string {
   const q = req.query?.path
@@ -49,8 +57,102 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ok: true,
         service: 'lp-motors',
         blob: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+        plateApi: Boolean(process.env.LP_MOTORS_PLATE_API_URL),
+        fipe: true,
         orgs: Object.keys(store.data().organizations).length,
       })
+    }
+
+    // ---- FIPE / Placa (público autenticado ou anônimo — só leitura de mercado) ----
+    if (req.method === 'GET' && path === '/fipe/references') {
+      const r = await fipeFetch('/references')
+      return json(res, r.status, r.data)
+    }
+
+    if (req.method === 'GET' && path.startsWith('/fipe/')) {
+      const parts = path.split('/').filter(Boolean) // fipe, cars, brands...
+      // /fipe/:type/brands
+      // /fipe/:type/brands/:brandId/models
+      // /fipe/:type/brands/:brandId/models/:modelId/years
+      // /fipe/:type/brands/:brandId/models/:modelId/years/:yearId
+      // /fipe/:type/fipe-code/:code
+      // /fipe/:type/fipe-code/:code/years/:yearId
+      if (parts[0] !== 'fipe' || parts.length < 2) {
+        return json(res, 400, { error: 'Rota FIPE inválida' })
+      }
+      const rest = '/' + parts.slice(1).join('/')
+      const safe =
+        rest === '/references' ||
+        /^\/(cars|motorcycles|trucks)\/brands$/.test(rest) ||
+        /^\/(cars|motorcycles|trucks)\/brands\/\d+\/models$/.test(rest) ||
+        /^\/(cars|motorcycles|trucks)\/brands\/\d+\/models\/\d+\/years$/.test(rest) ||
+        /^\/(cars|motorcycles|trucks)\/brands\/\d+\/models\/\d+\/years\/[^/]+$/.test(rest) ||
+        /^\/(cars|motorcycles|trucks)\/fipe-code\/[^/]+$/.test(rest) ||
+        /^\/(cars|motorcycles|trucks)\/fipe-code\/[^/]+\/years\/[^/]+$/.test(rest)
+      if (!safe) return json(res, 400, { error: 'Caminho FIPE não permitido', path: rest })
+      const r = await fipeFetch(rest)
+      return json(res, r.status, r.data)
+    }
+
+    if (req.method === 'GET' && path.startsWith('/placa/')) {
+      const plate = normalizePlate(decodeURIComponent(path.replace(/^\/placa\//, '')))
+      if (plate.length < 7) {
+        return json(res, 400, { error: 'Informe a placa completa (7 caracteres).' })
+      }
+      const formats = plateFormats(plate)
+      const external = await lookupPlateExternal(plate)
+      let fipe: unknown = null
+      let ipva: unknown = null
+      const uf = String(req.query?.uf || 'SP')
+
+      if (external.ok && external.vehicle?.fipeCode && external.vehicle.modelYear) {
+        const type = (String(req.query?.type || 'cars') as FipeVehicleType) || 'cars'
+        const yearId = `${external.vehicle.modelYear}-1` // fallback; refined below
+        // list years for fipe code then pick matching
+        const yearsRes = await fipeFetch(`/${type}/fipe-code/${external.vehicle.fipeCode}`)
+        if (yearsRes.ok && Array.isArray(yearsRes.data)) {
+          const years = yearsRes.data as Array<{ code?: string; year?: string }>
+          const match =
+            years.find((y) => String(y.code || y.year || '').startsWith(String(external.vehicle!.modelYear))) ||
+            years[0]
+          if (match?.code || match?.year) {
+            const yid = String(match.code || match.year)
+            const detail = await fipeFetch(`/${type}/fipe-code/${external.vehicle.fipeCode}/years/${yid}`)
+            if (detail.ok) {
+              fipe = detail.data
+              const priceRaw = (detail.data as { price?: string })?.price || ''
+              const price = Number(String(priceRaw).replace(/[^\d,]/g, '').replace(',', '.')) || 0
+              if (price > 0) ipva = estimateIpva(price, uf)
+            }
+          }
+        } else if (external.vehicle.modelYear) {
+          // try detail with heuristic year id
+          const detail = await fipeFetch(
+            `/${type}/fipe-code/${external.vehicle.fipeCode}/years/${yearId}`,
+          )
+          if (detail.ok) {
+            fipe = detail.data
+            const priceRaw = (detail.data as { price?: string })?.price || ''
+            const price = Number(String(priceRaw).replace(/[^\d,]/g, '').replace(',', '.')) || 0
+            if (price > 0) ipva = estimateIpva(price, uf)
+          }
+        }
+      }
+
+      return json(res, 200, {
+        ...external,
+        formats: { mercosul: formats.mercosul, antiga: formats.antiga },
+        fipe,
+        ipva,
+        plateConfigured: Boolean(process.env.LP_MOTORS_PLATE_API_URL),
+      })
+    }
+
+    if (req.method === 'POST' && path === '/fipe/ipva') {
+      const body = (req.body || {}) as { value?: number; uf?: string }
+      const value = Number(body.value || 0)
+      if (!value) return json(res, 400, { error: 'Informe o valor FIPE.' })
+      return json(res, 200, estimateIpva(value, body.uf || 'SP'))
     }
 
     if (req.method === 'POST' && path === '/auth/login') {

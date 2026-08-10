@@ -7,6 +7,7 @@ import {
   Printer,
   RotateCcw,
   ShoppingCart,
+  Table2,
   Trash2,
 } from 'lucide-react'
 import { StatusBadge } from '@/components/common/StatusBadge'
@@ -175,6 +176,12 @@ export function VehicleDetailsPage() {
             <Button variant="secondary" size="sm">
               <Pencil className="h-4 w-4" />
               Editar
+            </Button>
+          </Link>
+          <Link to={`/fipe?vehicleId=${vehicle.id}`}>
+            <Button variant="secondary" size="sm">
+              <Table2 className="h-4 w-4" />
+              FIPE / Placa
             </Button>
           </Link>
           <Button variant="secondary" size="sm" onClick={printFicha}>

@@ -41,3 +41,18 @@ npm run build:lp-motors
 Publicado em `/lp-motors/` (e variante interativa em `/lp-motors-x/`).
 
 Produto **independente** do Maciel Motors Gestor (`/maciel-motors/`). Cada um tem app, branding, dados e URLs próprios.
+
+## Consulta FIPE / Placa
+
+Tela `/fipe` no estilo PlacaFIPE:
+
+- busca por placa (Mercosul ou antiga);
+- cascata FIPE gratuita (tipo → marca → modelo → ano) via `/api/lp-motors/fipe/*` (Parallelum);
+- estimativa de IPVA por UF;
+- aplicar valor no veículo do estoque.
+
+Para ativar identificação automática placa→marca/modelo, configure na Vercel:
+
+- `LP_MOTORS_PLATE_API_URL` — ex.: `https://seu-provedor/placa/{plate}`
+- `LP_MOTORS_PLATE_API_TOKEN` — opcional
+- `FIPE_API_TOKEN` — opcional (aumenta limite Parallelum)
