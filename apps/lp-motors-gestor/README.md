@@ -39,4 +39,5 @@ npm run build:lp-motors
 ```
 
 Publicado em `/lp-motors/` (e variante interativa em `/lp-motors-x/`).
-URLs legadas `/maciel-motors/` redirecionam automaticamente.
+
+Produto **independente** do Maciel Motors Gestor (`/maciel-motors/`). Cada um tem app, branding, dados e URLs próprios.
