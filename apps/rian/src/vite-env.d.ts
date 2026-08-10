@@ -2,4 +2,4 @@
 
 /// <reference types="vite/client" />
 
-// redeploy kiwify checkout urls 2026-08-09T06:17:52Z
+// redeploy rian funnel 2026-08-10T18:01:09Z
