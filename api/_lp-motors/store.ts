@@ -1,0 +1,169 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
+import { list, put } from '@vercel/blob'
+
+const BLOB_PATHNAME = 'lp-motors/store.json'
+const FILE_PATH =
+  process.env.VERCEL || process.env.VERCEL_ENV
+    ? '/tmp/lp-motors-store.json'
+    : './data/lp-motors-store.json'
+
+export interface CloudSession {
+  userId: string
+  username: string
+  nome: string
+  role: string
+  organizationId: string
+}
+
+export interface CloudUser {
+  id: string
+  organizationId: string
+  username: string
+  passwordHash: string
+  nome: string
+  role: string
+  active: boolean
+}
+
+export interface CloudOrg {
+  id: string
+  name: string
+  slug: string
+  createdAt: string
+}
+
+export interface OrgDatabaseRecord {
+  version: number
+  updatedAt: string
+  data: unknown
+}
+
+export interface LpMotorsStore {
+  organizations: Record<string, CloudOrg>
+  users: Record<string, CloudUser>
+  databases: Record<string, OrgDatabaseRecord>
+  tokens: Record<string, { organizationId: string; userId: string; createdAt: string }>
+}
+
+function emptyStore(): LpMotorsStore {
+  return {
+    organizations: {},
+    users: {},
+    databases: {},
+    tokens: {},
+  }
+}
+
+export function hashPassword(password: string): string {
+  return createHash('sha256').update(`lp-motors:${password}`).digest('hex')
+}
+
+export function safeEqual(a: string, b: string): boolean {
+  const ba = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ba.length !== bb.length) return false
+  return timingSafeEqual(ba, bb)
+}
+
+export function issueToken(): string {
+  return randomBytes(24).toString('hex')
+}
+
+let cached: JsonStore | null = null
+
+export class JsonStore {
+  private store: LpMotorsStore
+  private dirty = false
+
+  private constructor(store: LpMotorsStore) {
+    this.store = store
+  }
+
+  static async open(): Promise<JsonStore> {
+    if (cached) return cached
+    mkdirSync(dirname(FILE_PATH), { recursive: true })
+    let store = emptyStore()
+
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const listed = await list({ prefix: BLOB_PATHNAME, limit: 1 })
+        const blob = listed.blobs.find((b) => b.pathname === BLOB_PATHNAME)
+        if (blob) {
+          const res = await fetch(blob.url)
+          if (res.ok) {
+            store = { ...emptyStore(), ...((await res.json()) as Partial<LpMotorsStore>) }
+          }
+        }
+      } catch (err) {
+        console.warn('[lp-motors] blob hydrate failed', err)
+      }
+    }
+
+    if (existsSync(FILE_PATH)) {
+      try {
+        const parsed = JSON.parse(readFileSync(FILE_PATH, 'utf8')) as Partial<LpMotorsStore>
+        store = { ...emptyStore(), ...parsed }
+      } catch {
+        /* keep */
+      }
+    }
+
+    cached = new JsonStore(store)
+    return cached
+  }
+
+  data(): LpMotorsStore {
+    return this.store
+  }
+
+  markDirty(): void {
+    this.dirty = true
+  }
+
+  async persist(): Promise<void> {
+    if (!this.dirty) return
+    writeFileSync(FILE_PATH, JSON.stringify(this.store))
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        await put(BLOB_PATHNAME, JSON.stringify(this.store), {
+          access: 'public',
+          addRandomSuffix: false,
+          allowOverwrite: true,
+          contentType: 'application/json',
+          token: process.env.BLOB_READ_WRITE_TOKEN,
+        })
+      } catch (err) {
+        console.warn('[lp-motors] blob persist failed', err)
+      }
+    }
+    this.dirty = false
+  }
+
+  findUserByUsername(username: string): CloudUser | null {
+    const key = username.toLowerCase()
+    return (
+      Object.values(this.store.users).find((u) => u.username.toLowerCase() === key && u.active) ||
+      null
+    )
+  }
+
+  resolveToken(token: string): CloudSession | null {
+    const entry = this.store.tokens[token]
+    if (!entry) return null
+    const user = this.store.users[entry.userId]
+    if (!user || !user.active) return null
+    return {
+      userId: user.id,
+      username: user.username,
+      nome: user.nome,
+      role: user.role,
+      organizationId: user.organizationId,
+    }
+  }
+}
+
+export async function getStore(): Promise<JsonStore> {
+  return JsonStore.open()
+}
