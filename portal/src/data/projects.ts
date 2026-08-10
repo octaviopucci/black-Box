@@ -162,6 +162,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Game', 'BASE'],
   },
   {
+    id: 'rian',
+    name: 'BASE · Rian (afiliado)',
+    client: 'BASE · Afiliado Rian',
+    description:
+      'Clone do funil pré-compra (quiz + cadastro + planos) com checkout Kiwify do afiliado Rian (afid).',
+    href: '/rian/',
+    status: 'ativo',
+    tags: ['React', 'Afiliado', 'BASE'],
+  },
+  {
     id: 'pix-gateway',
     name: 'PIX Gateway',
     client: 'Black Box · uso próprio',

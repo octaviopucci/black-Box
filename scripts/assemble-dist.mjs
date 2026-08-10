@@ -20,6 +20,7 @@ const danielleDist = join(root, 'apps', 'danielle-matsubara', 'dist')
 const glDist = join(root, 'apps', 'gl-locacoes', 'dist')
 const cbxDist = join(root, 'apps', 'cbx', 'out')
 const pavDist = join(root, 'apps', 'protocolo-pav', 'dist')
+const rianDist = join(root, 'apps', 'rian', 'dist')
 
 if (!existsSync(portalDist)) throw new Error('portal/dist não encontrado — rode build:portal')
 if (!existsSync(macielDist)) throw new Error('apps/maciel-motors-gestor/dist não encontrado — rode build:maciel')
@@ -65,6 +66,9 @@ if (!existsSync(cbxDist)) {
 if (!existsSync(pavDist)) {
   throw new Error('apps/protocolo-pav/dist não encontrado — rode build:pav')
 }
+if (!existsSync(rianDist)) {
+  throw new Error('apps/rian/dist não encontrado — rode build:rian')
+}
 
 function publish(target) {
   rmSync(target, { recursive: true, force: true })
@@ -100,6 +104,8 @@ function publish(target) {
   cpSync(cbxDist, join(target, 'cbx'), { recursive: true })
   mkdirSync(join(target, 'protocolo-pav'), { recursive: true })
   cpSync(pavDist, join(target, 'protocolo-pav'), { recursive: true })
+  mkdirSync(join(target, 'rian'), { recursive: true })
+  cpSync(rianDist, join(target, 'rian'), { recursive: true })
   const pixWeb = join(root, 'apps', 'pix-gateway', 'web')
   mkdirSync(join(target, 'pix'), { recursive: true })
   cpSync(pixWeb, join(target, 'pix'), { recursive: true })
