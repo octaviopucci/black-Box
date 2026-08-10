@@ -30,7 +30,7 @@ const valorVendido = db.sales.reduce((a, s) => a + s.valorVendido, 0)
 const lucroBruto = db.sales.reduce((a, s) => a + s.lucroBruto, 0)
 const lucroLiquido = db.sales.reduce((a, s) => a + s.lucroLiquido, 0)
 
-console.log('=== Maciel Motors — integridade da dashboard ===')
+console.log('=== LP Motors — integridade da dashboard ===')
 console.log({
   totalEstoque: stock.length,
   disponiveis,

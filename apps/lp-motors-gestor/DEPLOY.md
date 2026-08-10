@@ -1,27 +1,31 @@
-# Deploy — Maciel Motors Gestor
+# Deploy — LP Motors Gestor
 
-## Preview público (agora)
+## Credenciais iniciais
 
-A Netlify atingiu o **limite diário de deploys anônimos**. Enquanto isso:
+- **Login:** `admin` / `LPMotors123`
+- **Gerente:** `gerente` / `gerente123`
 
-- **URL:** https://two-yaks-thank.loca.lt  
-- **Login:** `admin` / `MacielMotors123`
-
-> Se o localtunnel pedir confirmação, clique em Continue / bypass.
-
-Alternativa: https://530f946ed57833.lhr.life
-
-## Publicar permanente na sua Netlify (recomendado)
-
-1. Abra https://app.netlify.com e faça login  
-2. Em https://app.netlify.com/drop arraste a pasta `maciel-motors-gestor/dist`  
-   **ou** no terminal:
+## Netlify (app isolado)
 
 ```bash
-cd maciel-motors-gestor
+cd apps/lp-motors-gestor
+npm ci
 npm run build
-npx netlify-cli login
-npx netlify-cli deploy --dir=dist --prod
 ```
 
-Assim o site fica na **sua** conta e não expira em 60 minutos.
+Publique a pasta `dist`.
+
+## Monorepo Vercel
+
+```bash
+npm run build:lp-motors
+npm run build:lp-motors-x
+```
+
+Rotas:
+
+- `/lp-motors/`
+- `/lp-motors-x/`
+- `/api/lp-motors/*` — sync multi-dispositivo
+
+Para sync em produção, configure `BLOB_READ_WRITE_TOKEN` (mesmo padrão do PIX Gateway — faixa gratuita do Vercel Blob).

@@ -1,12 +1,19 @@
-import { cpSync, mkdirSync, rmSync, existsSync } from 'node:fs'
+import { cpSync, mkdirSync, rmSync, existsSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+
+function writeRedirect(filePath, to) {
+  writeFileSync(
+    filePath,
+    `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"/><meta http-equiv="refresh" content="0;url=${to}"/><link rel="canonical" href="${to}"/><title>Redirecionando…</title></head><body><p>Redirecionando para <a href="${to}">LP Motors Gestor</a>…</p><script>location.replace(${JSON.stringify(to)})</script></body></html>\n`,
+  )
+}
 
 const root = process.cwd()
 const out = join(root, 'dist')
 const publicOut = join(root, 'public')
 const portalDist = join(root, 'portal', 'dist')
-const macielDist = join(root, 'apps', 'maciel-motors-gestor', 'dist')
-const macielXDist = join(root, 'apps', 'maciel-motors-gestor', 'dist-x')
+const lpMotorsDist = join(root, 'apps', 'lp-motors-gestor', 'dist')
+const lpMotorsXDist = join(root, 'apps', 'lp-motors-gestor', 'dist-x')
 const porthalDist = join(root, 'apps', 'porthal-imoveis', 'dist')
 const marcioDist = join(root, 'apps', 'marcio-mariano', 'dist')
 const sogovDist = join(root, 'apps', 'sogov', 'dist')
@@ -23,9 +30,9 @@ const pavDist = join(root, 'apps', 'protocolo-pav', 'dist')
 const rianDist = join(root, 'apps', 'rian', 'dist')
 
 if (!existsSync(portalDist)) throw new Error('portal/dist não encontrado — rode build:portal')
-if (!existsSync(macielDist)) throw new Error('apps/maciel-motors-gestor/dist não encontrado — rode build:maciel')
-if (!existsSync(macielXDist)) {
-  throw new Error('apps/maciel-motors-gestor/dist-x não encontrado — rode build:maciel-x')
+if (!existsSync(lpMotorsDist)) throw new Error('apps/lp-motors-gestor/dist não encontrado — rode build:lp-motors')
+if (!existsSync(lpMotorsXDist)) {
+  throw new Error('apps/lp-motors-gestor/dist-x não encontrado — rode build:lp-motors-x')
 }
 if (!existsSync(porthalDist)) {
   throw new Error('apps/porthal-imoveis/dist não encontrado — rode build:porthal')
@@ -74,10 +81,15 @@ function publish(target) {
   rmSync(target, { recursive: true, force: true })
   mkdirSync(target, { recursive: true })
   cpSync(portalDist, target, { recursive: true })
+  mkdirSync(join(target, 'lp-motors'), { recursive: true })
+  cpSync(lpMotorsDist, join(target, 'lp-motors'), { recursive: true })
+  mkdirSync(join(target, 'lp-motors-x'), { recursive: true })
+  cpSync(lpMotorsXDist, join(target, 'lp-motors-x'), { recursive: true })
+  // Legacy Maciel URLs → redirect stubs pointing to LP Motors
   mkdirSync(join(target, 'maciel-motors'), { recursive: true })
-  cpSync(macielDist, join(target, 'maciel-motors'), { recursive: true })
+  writeRedirect(join(target, 'maciel-motors', 'index.html'), '/lp-motors/')
   mkdirSync(join(target, 'maciel-motors-x'), { recursive: true })
-  cpSync(macielXDist, join(target, 'maciel-motors-x'), { recursive: true })
+  writeRedirect(join(target, 'maciel-motors-x', 'index.html'), '/lp-motors-x/')
   mkdirSync(join(target, 'porthal-imoveis'), { recursive: true })
   cpSync(porthalDist, join(target, 'porthal-imoveis'), { recursive: true })
   mkdirSync(join(target, 'marcio-mariano'), { recursive: true })

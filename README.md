@@ -8,8 +8,8 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 
 | Projeto | Caminho | Status |
 |---------|---------|--------|
-| **Maciel Motors Gestor** | [/maciel-motors/](/maciel-motors/) | Ativo |
-| **Maciel Motors Gestor X** | [/maciel-motors-x/](/maciel-motors-x/) | Demo interativa |
+| **LP Motors Gestor** | [/lp-motors/](/lp-motors/) | Ativo |
+| **LP Motors Gestor X** | [/lp-motors-x/](/lp-motors-x/) | Demo interativa |
 | **Porthal Imóveis** | [/porthal-imoveis/](/porthal-imoveis/) | Demo premium |
 | **Márcio Mariano** | [/marcio-mariano/](/marcio-mariano/) | Demo premium |
 | **gov.br Premium** | [/sogov/](/sogov/) | Conceito premium |
@@ -24,9 +24,9 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **CBX** | [/cbx/](/cbx/) | Marketplace demo |
 | **Protocolo PAV — BASE** | [/protocolo-pav/](/protocolo-pav/) | Arena gamificada |
 
-Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
+Login inicial LP Motors: `admin` / `LPMotors123` (sistema inicia zerado; sync multi-dispositivo via `/api/lp-motors`)
 
-Comparação: [/maciel-motors/](/maciel-motors/) e [/maciel-motors-x/](/maciel-motors-x/) compartilham o login cinematográfico.
+Comparação: [/lp-motors/](/lp-motors/) e [/lp-motors-x/](/lp-motors-x/). URLs legadas `/maciel-motors/` redirecionam.
 
 ## Stack
 
@@ -45,8 +45,8 @@ npm run dev:portal
 npm run dev:pix
 # Painel estático: abra apps/pix-gateway/web/index.html ou use o deploy /pix/
 
-# Maciel Motors (isolado)
-npm run dev:maciel
+# LP Motors Gestor
+npm run dev:lp-motors
 
 # Porthal Imóveis (demo premium)
 npm run dev:porthal

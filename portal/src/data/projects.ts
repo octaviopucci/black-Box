@@ -12,22 +12,22 @@ export interface ClientProject {
 
 export const projects: ClientProject[] = [
   {
-    id: 'maciel-motors',
-    name: 'Maciel Motors Gestor',
-    client: 'Maciel Motors',
+    id: 'lp-motors',
+    name: 'LP Motors Gestor',
+    client: 'LP Motors',
     description:
-      'Sistema completo de gestão para revenda de veículos: estoque, financeiro, clientes, relatórios e backup. Login com entrada cinematográfica.',
-    href: '/maciel-motors/',
+      'Sistema profissional de gestão de estoque e operação para lojas de veículos: dossiê 360°, custos, alertas, inteligência sem IA e sincronização multi-dispositivo.',
+    href: '/lp-motors/',
     status: 'ativo',
     tags: ['React', 'Gestão', 'Automotivo'],
   },
   {
-    id: 'maciel-motors-x',
-    name: 'Maciel Motors Gestor X',
-    client: 'Maciel Motors',
+    id: 'lp-motors-x',
+    name: 'LP Motors Gestor X',
+    client: 'LP Motors',
     description:
-      'Mesmo sistema com login e entrada mais interativos (animações, presença de marca). Use para comparar lado a lado com a versão estável.',
-    href: '/maciel-motors-x/',
+      'Mesma plataforma com variante interativa para demos. Dados isolados da versão estável.',
+    href: '/lp-motors-x/',
     status: 'demo',
     tags: ['React', 'Interativo', 'Comparação'],
   },

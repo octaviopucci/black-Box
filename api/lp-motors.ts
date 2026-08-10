@@ -170,15 +170,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       } else {
         orgId = existing.organizationId
-        // Update password hash if login matches local
-        if (safeEqual(existing.passwordHash, hashPassword(password)) || true) {
-          // Accept bootstrap push of DB for same org when authenticated by username match
-          existing.passwordHash = hashPassword(password)
-          store.data().databases[orgId] = {
-            version: (store.data().databases[orgId]?.version || 0) + 1,
-            updatedAt: new Date().toISOString(),
-            data: body.database,
-          }
+        // Only allow bootstrap push when password matches the cloud user
+        if (!safeEqual(existing.passwordHash, hashPassword(password))) {
+          return json(res, 401, { error: 'Usuário ou senha inválidos.' })
+        }
+        store.data().databases[orgId] = {
+          version: (store.data().databases[orgId]?.version || 0) + 1,
+          updatedAt: new Date().toISOString(),
+          data: body.database,
         }
       }
 

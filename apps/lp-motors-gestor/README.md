@@ -1,40 +1,42 @@
-# Maciel Motors Gestor
+# LP Motors Gestor
 
-Sistema profissional de gestão para concessionárias e revendas de veículos.
+Sistema profissional de gestão de estoque e operação para lojas de veículos.
 
 ## Stack
 
 - React 18 + TypeScript + Vite
-- TailwindCSS
+- TailwindCSS (design system próprio LP)
 - React Router DOM
-- React Hook Form + Zod
-- Lucide React + Framer Motion + Recharts
-- Persistência LocalStorage (JSON)
+- Persistência local + sincronização multi-dispositivo via API (`/api/lp-motors`)
+- Vercel Blob (quando `BLOB_READ_WRITE_TOKEN` estiver configurado) — custo zero na faixa gratuita
+- Schema SQL preparado para Supabase/PostgreSQL em `supabase/schema.sql`
 
 ## Desenvolvimento
 
 ```bash
-cd maciel-motors-gestor
-npm install
-npm run dev
+npm run dev:lp-motors
+# ou
+cd apps/lp-motors-gestor && npm install && npm run dev
 ```
-
-## Build / Netlify
-
-```bash
-npm run build
-```
-
-Publicar a pasta `dist`. O arquivo `netlify.toml` já está configurado.
 
 ## Acesso inicial
 
-O sistema inicia **zerado** (sem veículos, vendas, despesas, clientes ou histórico).
-Os usuários padrão permanecem para o primeiro login:
-
 - Usuário: `admin`
-- Senha: `MacielMotors123`
+- Senha: `LPMotors123`
 
-Também: `maciel` / `maciel123`
+Também: `gerente` / `gerente123`
 
-Dados de demonstração podem ser carregados opcionalmente em **Backup → Restaurar backup demo**.
+Dados de demonstração: **Backup → Restaurar backup demo**.
+
+## Multi-dispositivo
+
+No login, o sistema tenta sincronizar com `/api/lp-motors`. Com Blob configurado no deploy Vercel, a mesma conta vê os mesmos dados em qualquer dispositivo.
+
+## Build
+
+```bash
+npm run build:lp-motors
+```
+
+Publicado em `/lp-motors/` (e variante interativa em `/lp-motors-x/`).
+URLs legadas `/maciel-motors/` redirecionam automaticamente.
