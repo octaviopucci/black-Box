@@ -21,17 +21,10 @@ const REMEMBER_KEY = `lp_motors_gestor_remember${storageSuffix}`
 const ORG_TOKEN_KEY = `lp_motors_gestor_token${storageSuffix}`
 const SYNC_META_KEY = `lp_motors_gestor_sync${storageSuffix}`
 
-const LEGACY_DB_KEYS = [
-  `maciel_motors_gestor_db_v4${storageSuffix}`,
-  ...(storageSuffix
-    ? []
-    : [
-        'maciel_motors_gestor_db_v3',
-        'maciel_motors_gestor_db_v2',
-        'maciel_motors_gestor_db',
-        'lp_motors_gestor_db_v4',
-      ]),
-]
+/** Only LP Motors legacy keys — never touch Maciel Motors storage (separate product). */
+const LEGACY_DB_KEYS = storageSuffix
+  ? [`lp_motors_gestor_db_v4${storageSuffix}`]
+  : ['lp_motors_gestor_db_v4']
 
 export type SessionUser = {
   userId: string
@@ -194,9 +187,7 @@ function normalizeDatabase(raw: Partial<Database>): Database {
   const settings: Settings = {
     ...empty.settings[0],
     ...settingsRaw,
-    nomeEmpresa: (settingsRaw.nomeEmpresa || '').includes('Maciel')
-      ? APP_NAME
-      : settingsRaw.nomeEmpresa || APP_NAME,
+    nomeEmpresa: settingsRaw.nomeEmpresa || APP_NAME,
     org: { ...defaultOrgSettings(), ...(settingsRaw.org || {}) },
     organizationId: org.id,
   }
@@ -205,12 +196,8 @@ function normalizeDatabase(raw: Partial<Database>): Database {
     ...u,
     organizationId: u.organizationId || org.id,
     role: (u.role === 'operador' ? 'operacional' : u.role === 'viewer' ? 'vendedor' : u.role) as User['role'],
-    password: u.password?.includes('Maciel') ? 'LPMotors123' : u.password,
-    username: u.username === 'maciel' ? 'admin' : u.username,
-    nome: u.nome?.includes('Maciel') ? 'Administrador' : u.nome,
   }))
 
-  // dedupe admin if maciel was renamed
   const seen = new Set<string>()
   const uniqueUsers = users.filter((u) => {
     const key = u.username.toLowerCase()
@@ -221,7 +208,7 @@ function normalizeDatabase(raw: Partial<Database>): Database {
 
   return {
     version: DB_VERSION,
-    organization: { ...org, name: org.name.includes('Maciel') ? APP_NAME : org.name },
+    organization: org,
     vehicles: (raw.vehicles || []).map(migrateVehicle),
     sales: raw.sales || [],
     expenses: (raw.expenses || []).map(migrateExpense),

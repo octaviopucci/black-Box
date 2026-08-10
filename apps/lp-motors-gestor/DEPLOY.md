@@ -28,4 +28,6 @@ Rotas:
 - `/lp-motors-x/`
 - `/api/lp-motors/*` — sync multi-dispositivo
 
+Não altera o Maciel Motors (`/maciel-motors/`), que continua sendo publicado em paralelo.
+
 Para sync em produção, configure `BLOB_READ_WRITE_TOKEN` (mesmo padrão do PIX Gateway — faixa gratuita do Vercel Blob).
