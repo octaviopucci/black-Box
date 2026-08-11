@@ -6,16 +6,16 @@ export default {
     extend: {
       colors: {
         lp: {
-          ink: '#0C1222',
-          slate: '#1A2332',
-          steel: '#3D4F66',
-          mist: '#E8EDF3',
-          paper: '#F5F7FA',
-          line: '#D5DCE6',
-          accent: '#0F766E',
-          'accent-dim': '#0D5F59',
-          'accent-soft': 'rgba(15, 118, 110, 0.12)',
-          copper: '#B45309',
+          ink: 'var(--lp-ink)',
+          slate: 'var(--lp-slate)',
+          steel: 'var(--lp-steel)',
+          mist: 'var(--lp-mist)',
+          paper: 'var(--lp-paper)',
+          line: 'var(--lp-line)',
+          accent: 'var(--lp-accent)',
+          'accent-dim': 'var(--lp-accent-dim)',
+          'accent-soft': 'var(--lp-accent-soft)',
+          copper: 'var(--lp-copper)',
           warn: '#D97706',
           danger: '#B91C1C',
           ok: '#15803D',
@@ -43,15 +43,19 @@ export default {
         body: ['"Manrope"', 'system-ui', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
       },
+      borderRadius: {
+        lp: 'var(--lp-radius)',
+        'lp-lg': 'var(--lp-radius-lg)',
+      },
       boxShadow: {
         panel: '0 1px 2px rgba(12, 18, 34, 0.04), 0 8px 24px rgba(12, 18, 34, 0.06)',
         lift: '0 12px 32px rgba(12, 18, 34, 0.1)',
       },
       backgroundImage: {
         'lp-grid':
-          'linear-gradient(rgba(61,79,102,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(61,79,102,0.07) 1px, transparent 1px)',
+          'linear-gradient(color-mix(in srgb, var(--lp-steel) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--lp-steel) 12%, transparent) 1px, transparent 1px)',
         'lp-hero':
-          'radial-gradient(ellipse at 0% 0%, rgba(15,118,110,0.14), transparent 50%), radial-gradient(ellipse at 100% 100%, rgba(180,83,9,0.08), transparent 45%)',
+          'radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--lp-accent) 18%, transparent), transparent 50%), radial-gradient(ellipse at 100% 100%, color-mix(in srgb, var(--lp-copper) 12%, transparent), transparent 45%)',
       },
       backgroundSize: {
         grid: '32px 32px',

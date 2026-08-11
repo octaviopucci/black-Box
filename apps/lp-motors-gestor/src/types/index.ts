@@ -347,10 +347,27 @@ export interface OrgSettings {
   docExpiryWarnDays: number
 }
 
+/** Aparência visual editável por loja (template da marca). */
+export type BrandAparencia = 'suave' | 'reta'
+export type BrandPresetId = 'lp' | 'azul' | 'vermelho' | 'verde' | 'noite' | 'custom'
+
+export interface BrandTheme {
+  presetId: BrandPresetId
+  corPrimaria: string
+  corSecundaria: string
+  corFundo: string
+  corTexto: string
+  corPainel: string
+  aparencia: BrandAparencia
+}
+
 export interface Settings {
   id: string
   organizationId?: string
   nomeEmpresa: string
+  /** Nome curto no header (ex.: marca sem “Gestor”). */
+  nomeCurto: string
+  slogan: string
   logo: string
   telefone: string
   whatsapp: string
@@ -360,6 +377,7 @@ export interface Settings {
   cidade: string
   tema: 'light' | 'dark'
   modoEscuro: boolean
+  brand: BrandTheme
   org: OrgSettings
   updatedAt: string
 }

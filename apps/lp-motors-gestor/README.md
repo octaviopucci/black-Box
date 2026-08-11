@@ -28,6 +28,16 @@ Também: `gerente` / `gerente123`
 
 Dados de demonstração: **Backup → Restaurar backup demo**.
 
+## Identidade da loja
+
+Em **Configurações**, cada loja edita o template do sistema:
+
+- nome, nome curto, slogan e logo (upload)
+- cores (primária, secundária, fundo, texto, painéis)
+- aparência (cantos suaves/retos) e tema claro/escuro
+- presets prontos (LP, azul, vermelho, verde, noite)
+
+A marca entra no login, header e CSS variables em tempo real.
 ## Multi-dispositivo
 
 No login, o sistema tenta sincronizar com `/api/lp-motors`.

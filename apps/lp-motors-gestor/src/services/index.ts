@@ -13,6 +13,7 @@ import {
   saveDatabase,
 } from '@/services/database'
 import { daysBetween, downloadCSV, downloadJSON, nowISO } from '@/utils'
+import { normalizeBrand } from '@/utils/brand'
 import {
   aggregateSalesByMonth,
   calcPotentialProfit,
@@ -36,11 +37,20 @@ export const settingsService = {
 
   update(patch: Partial<Settings>): Settings {
     const db = loadDatabase()
+    const current = db.settings[0]
+    const nextBrand = normalizeBrand(patch.brand ? { ...current.brand, ...patch.brand } : current.brand)
     db.settings[0] = {
-      ...db.settings[0],
+      ...current,
       ...patch,
-      id: db.settings[0].id,
+      brand: nextBrand,
+      id: current.id,
       updatedAt: nowISO(),
+    }
+    if (db.organization && (patch.nomeEmpresa || patch.nomeCurto)) {
+      db.organization = {
+        ...db.organization,
+        name: db.settings[0].nomeEmpresa || db.organization.name,
+      }
     }
     saveDatabase(db)
     return db.settings[0]

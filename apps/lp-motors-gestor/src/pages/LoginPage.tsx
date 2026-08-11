@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Input'
 import { Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
-import { APP_NAME } from '@/config/variant'
+import { brandFullName } from '@/utils/brand'
 
 export function LoginPage() {
-  const { login, toast } = useApp()
+  const { login, toast, settings } = useApp()
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -36,7 +36,8 @@ export function LoginPage() {
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
-          backgroundImage: 'linear-gradient(rgba(61,79,102,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(61,79,102,0.06) 1px, transparent 1px)',
+          backgroundImage:
+            'linear-gradient(color-mix(in srgb, var(--lp-steel) 10%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--lp-steel) 10%, transparent) 1px, transparent 1px)',
           backgroundSize: '32px 32px',
         }}
       />
@@ -44,8 +45,10 @@ export function LoginPage() {
       <div className="relative z-10 w-full max-w-md">
         <div className="mb-8 text-center">
           <LpLogo size="lg" className="mx-auto justify-center" />
-          <h1 className="section-title mt-6">{APP_NAME}</h1>
-          <p className="section-sub">Gestão profissional de estoque automotivo</p>
+          <h1 className="section-title mt-6">{brandFullName(settings)}</h1>
+          <p className="section-sub">
+            {settings.slogan || 'Gestão profissional de estoque automotivo'}
+          </p>
         </div>
 
         <form onSubmit={onSubmit} className="panel space-y-4 p-6 sm:p-8">
