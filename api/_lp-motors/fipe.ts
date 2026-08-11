@@ -23,6 +23,24 @@ export async function fipeFetch(path: string): Promise<{ ok: boolean; status: nu
   }
 }
 
+/** Busca textual gratuita (tabelafipe.info) — marca/modelo/ano → código FIPE + preço. */
+export async function fipeTextSearch(q: string): Promise<{ ok: boolean; status: number; data: unknown }> {
+  const url = `https://tabelafipe.info/api/busca?q=${encodeURIComponent(q)}`
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: 'application/json', 'User-Agent': 'LPMotorsGestor/1.0' },
+    })
+    const data = await res.json().catch(() => null)
+    return { ok: res.ok, status: res.status, data }
+  } catch (err) {
+    return {
+      ok: false,
+      status: 502,
+      data: { error: err instanceof Error ? err.message : 'Falha na busca FIPE' },
+    }
+  }
+}
+
 export function normalizePlate(raw: string): string {
   return String(raw || '')
     .toUpperCase()

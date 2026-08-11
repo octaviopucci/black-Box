@@ -49,6 +49,15 @@ export interface PlateConsultation {
   } | null
 }
 
+export interface FipeSearchHit {
+  brand_name: string
+  model_name: string
+  model_year: number
+  codigo_fipe: string
+  price?: number | string
+  reference_month?: string
+}
+
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API}${path}`)
   const data = (await res.json().catch(() => ({}))) as T & { error?: string }
@@ -101,6 +110,13 @@ export const fipeService = {
     return getJson<PlateConsultation>(
       `/placa/${encodeURIComponent(clean)}?uf=${encodeURIComponent(uf)}&type=${type}`,
     )
+  },
+
+  async search(q: string): Promise<FipeSearchHit[]> {
+    const data = await getJson<{ results?: FipeSearchHit[] }>(
+      `/fipe/search?q=${encodeURIComponent(q)}`,
+    )
+    return data.results || []
   },
 
   async estimateIpva(value: number, uf = 'SP') {

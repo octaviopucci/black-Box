@@ -10,6 +10,7 @@ import {
 import {
   estimateIpva,
   fipeFetch,
+  fipeTextSearch,
   lookupPlateExternal,
   normalizePlate,
   plateFormats,
@@ -66,6 +67,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ---- FIPE / Placa (público autenticado ou anônimo — só leitura de mercado) ----
     if (req.method === 'GET' && path === '/fipe/references') {
       const r = await fipeFetch('/references')
+      return json(res, r.status, r.data)
+    }
+
+    if (req.method === 'GET' && path === '/fipe/search') {
+      const q = String(req.query?.q || '').trim()
+      if (q.length < 2) return json(res, 400, { error: 'Informe pelo menos 2 caracteres.' })
+      const r = await fipeTextSearch(q)
       return json(res, r.status, r.data)
     }
 
