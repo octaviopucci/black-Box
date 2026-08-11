@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
   ArrowRight,
@@ -13,9 +13,11 @@ import {
   fipeService,
   type FipeDetail,
   type FipeOption,
+  type FipeSearchHit,
   type FipeType,
   type PlateConsultation,
 } from '@/services/fipe'
+import { getMarketProvider } from '@/services/providers'
 import { BRAZIL_STATES } from '@/utils/constants'
 import { formatCurrency, maskPlate } from '@/utils'
 import { cn } from '@/utils'
@@ -30,12 +32,18 @@ export function FipePage() {
   const { vehicles, updateVehicle, toast } = useApp()
   const [params] = useSearchParams()
   const vehicleId = params.get('vehicleId') || ''
+  const cascadeRef = useRef<HTMLElement>(null)
 
   const [plate, setPlate] = useState('')
   const [uf, setUf] = useState('SP')
   const [type, setType] = useState<FipeType>('cars')
   const [loadingPlate, setLoadingPlate] = useState(false)
   const [plateResult, setPlateResult] = useState<PlateConsultation | null>(null)
+  const [searched, setSearched] = useState(false)
+
+  const [query, setQuery] = useState('')
+  const [hits, setHits] = useState<FipeSearchHit[]>([])
+  const [loadingSearch, setLoadingSearch] = useState(false)
 
   const [brands, setBrands] = useState<FipeOption[]>([])
   const [models, setModels] = useState<FipeOption[]>([])
@@ -54,11 +62,50 @@ export function FipePage() {
   }, [plate, vehicles])
 
   const linkedVehicle = vehicleId ? vehicles.find((v) => v.id === vehicleId) : localMatch
+  const fipeValue = fipeService.parsePrice(detail?.price)
 
   useEffect(() => {
     if (linkedVehicle?.placa && !plate) setPlate(maskPlate(linkedVehicle.placa))
     if (linkedVehicle?.estado) setUf(linkedVehicle.estado)
+    if (linkedVehicle) {
+      setQuery(`${linkedVehicle.marca} ${linkedVehicle.modelo} ${linkedVehicle.anoModelo || linkedVehicle.ano}`)
+    }
   }, [linkedVehicle, plate])
+
+  // Auto FIPE for stock vehicle (marca/modelo/ano já conhecidos)
+  useEffect(() => {
+    if (!linkedVehicle?.marca || !linkedVehicle.modelo) return
+    let cancelled = false
+    ;(async () => {
+      setLoadingFipe(true)
+      try {
+        const quote = await getMarketProvider().quote({
+          brand: linkedVehicle.marca,
+          model: linkedVehicle.modelo,
+          year: linkedVehicle.anoModelo || linkedVehicle.ano,
+          version: linkedVehicle.versao,
+        })
+        if (cancelled || !quote) return
+        setDetail({
+          brand: quote.brand,
+          model: quote.model,
+          modelYear: quote.year,
+          price: quote.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+          referenceMonth: quote.reference,
+          codeFipe: '',
+        })
+        const est = await fipeService.estimateIpva(quote.value, uf)
+        if (!cancelled) setIpva(est)
+      } catch {
+        /* manual cascade still available */
+      } finally {
+        if (!cancelled) setLoadingFipe(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [linkedVehicle?.id, linkedVehicle?.marca, linkedVehicle?.modelo, linkedVehicle?.anoModelo, linkedVehicle?.ano, linkedVehicle?.versao, uf])
 
   useEffect(() => {
     let cancelled = false
@@ -67,8 +114,6 @@ export function FipePage() {
     setYearId('')
     setModels([])
     setYears([])
-    setDetail(null)
-    setIpva(null)
     ;(async () => {
       try {
         const list = await fipeService.brands(type)
@@ -88,8 +133,6 @@ export function FipePage() {
     setModelId('')
     setYearId('')
     setYears([])
-    setDetail(null)
-    setIpva(null)
     ;(async () => {
       try {
         const list = await fipeService.models(type, brandId)
@@ -107,8 +150,6 @@ export function FipePage() {
     if (!brandId || !modelId) return
     let cancelled = false
     setYearId('')
-    setDetail(null)
-    setIpva(null)
     ;(async () => {
       try {
         const list = await fipeService.years(type, brandId, modelId)
@@ -155,25 +196,47 @@ export function FipePage() {
     }
     setLoadingPlate(true)
     setPlateResult(null)
+    setSearched(true)
     try {
       const result = await fipeService.consultPlate(clean, uf, type)
       setPlateResult(result)
+
       if (result.fipe) {
         setDetail(result.fipe)
         if (result.ipva) setIpva(result.ipva)
+        toast('FIPE encontrada pela placa.', 'success')
+        return
       }
-      if (result.ok && result.vehicle?.brand) {
-        // tenta pré-selecionar marca na cascata
-        const brand = brands.find(
-          (b) => b.name.toLowerCase() === result.vehicle!.brand.toLowerCase(),
-        )
-        if (brand) setBrandId(brand.code)
+
+      // Estoque local: já temos marca/modelo
+      const local = vehicles.find(
+        (v) => v.placa.replace(/[^A-Z0-9]/gi, '').toUpperCase() === clean,
+      )
+      if (local) {
+        setQuery(`${local.marca} ${local.modelo} ${local.anoModelo || local.ano}`)
+        toast('Placa no estoque LP Motors. Buscando FIPE do cadastro…', 'info')
+        const quote = await getMarketProvider().quote({
+          brand: local.marca,
+          model: local.modelo,
+          year: local.anoModelo || local.ano,
+          version: local.versao,
+        })
+        if (quote) {
+          setDetail({
+            brand: quote.brand,
+            model: quote.model,
+            modelYear: quote.year,
+            price: quote.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            referenceMonth: quote.reference,
+          })
+          setIpva(await fipeService.estimateIpva(quote.value, uf))
+          toast('Valor FIPE carregado a partir do veículo do estoque.', 'success')
+          return
+        }
       }
-      if (!result.ok) {
-        toast(result.message || 'Placa não encontrada automaticamente. Selecione na FIPE abaixo.', 'info')
-      } else {
-        toast('Consulta da placa concluída.', 'success')
-      }
+
+      toast('Selecione o veículo na Tabela FIPE ou busque pelo modelo.', 'info')
+      cascadeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Falha na consulta da placa', 'error')
     } finally {
@@ -181,19 +244,67 @@ export function FipePage() {
     }
   }
 
-  const applyToVehicle = async () => {
-    const targetId = vehicleId || localMatch?.id
-    const value = fipeService.parsePrice(detail?.price)
-    if (!targetId) {
-      toast('Abra a consulta a partir de um veículo do estoque, ou cadastre com esses dados.', 'info')
+  const searchModel = async () => {
+    if (query.trim().length < 2) {
+      toast('Digite marca e modelo, ex.: Gol 2018', 'error')
       return
     }
-    if (!value) {
+    setLoadingSearch(true)
+    try {
+      const results = await fipeService.search(query.trim())
+      setHits(results)
+      if (!results.length) toast('Nenhum modelo encontrado. Tente outros termos.', 'info')
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Falha na busca FIPE', 'error')
+    } finally {
+      setLoadingSearch(false)
+    }
+  }
+
+  const pickHit = async (hit: FipeSearchHit) => {
+    setLoadingFipe(true)
+    try {
+      // Parallelum by fipe code needs year id — use detail via search price when present
+      if (hit.price) {
+        const value = typeof hit.price === 'number' ? hit.price : fipeService.parsePrice(String(hit.price))
+        setDetail({
+          brand: hit.brand_name,
+          model: hit.model_name,
+          modelYear: hit.model_year,
+          codeFipe: hit.codigo_fipe,
+          price: value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+          referenceMonth: hit.reference_month || '',
+        })
+        if (value > 0) setIpva(await fipeService.estimateIpva(value, uf))
+        toast('Modelo selecionado.', 'success')
+        return
+      }
+      if (hit.codigo_fipe && hit.model_year) {
+        const d = await fipeService.byFipeCode(type, hit.codigo_fipe, `${hit.model_year}-1`)
+        setDetail(d)
+        const value = fipeService.parsePrice(d.price)
+        if (value > 0) setIpva(await fipeService.estimateIpva(value, uf))
+        toast('FIPE carregada pelo código.', 'success')
+      }
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Não foi possível carregar este modelo', 'error')
+    } finally {
+      setLoadingFipe(false)
+    }
+  }
+
+  const applyToVehicle = async () => {
+    const targetId = vehicleId || localMatch?.id
+    if (!targetId) {
+      toast('Cadastre o veículo ou abra a consulta a partir do estoque.', 'info')
+      return
+    }
+    if (!fipeValue) {
       toast('Selecione um resultado FIPE antes de aplicar.', 'error')
       return
     }
     await updateVehicle(targetId, {
-      precoFipe: value,
+      precoFipe: fipeValue,
       marca: detail?.brand || undefined,
       modelo: detail?.model?.split(' ')[0] || undefined,
       versao: detail?.model || undefined,
@@ -202,25 +313,20 @@ export function FipePage() {
     toast('Valor FIPE aplicado ao veículo.', 'success')
   }
 
-  const activeDetail = detail
-  const activeIpva = ipva
-  const fipeValue = fipeService.parsePrice(activeDetail?.price)
-
   return (
     <div className="space-y-6">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-lp-accent">Mercado</p>
         <h1 className="section-title">Consulta FIPE pela placa</h1>
         <p className="section-sub">
-          Digite a placa e confira o valor da Tabela FIPE e a estimativa de IPVA — no estilo PlacaFIPE, dentro do LP Motors.
+          Informe a placa, busque o modelo ou selecione na tabela — veja FIPE e IPVA estimado.
         </p>
       </div>
 
-      {/* Hero plate search */}
       <section className="panel overflow-hidden">
         <div className="bg-lp-hero bg-lp-grid bg-grid px-4 py-8 sm:px-8">
           <div className="mx-auto max-w-2xl">
-            <label className="label-field">Indique a placa</label>
+            <label className="label-field">1. Indique a placa</label>
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 className="input-field font-mono text-2xl tracking-[0.2em] uppercase sm:text-3xl"
@@ -261,63 +367,89 @@ export function FipePage() {
                 </select>
               </label>
             </div>
-            <p className="mt-3 text-xs text-lp-steel">
-              Formatos: ABC1234 (antigo) ou ABC1D23 (Mercosul). Sem traço também funciona.
-            </p>
           </div>
         </div>
       </section>
 
-      {/* Plate / local results */}
-      {(plateResult || localMatch) && (
+      {searched || fipeValue || linkedVehicle ? (
         <section className="grid gap-4 lg:grid-cols-3">
           <div className="panel p-5 lg:col-span-2">
-            <h2 className="font-display text-lg font-bold">Resultado da placa</h2>
+            <h2 className="font-display text-lg font-bold">Dados da consulta</h2>
             {localMatch ? (
               <p className="mt-2 text-sm text-lp-accent">
-                Veículo encontrado no estoque LP Motors:{' '}
+                Placa no estoque:{' '}
                 <Link className="underline" to={`/veiculos/${localMatch.id}`}>
                   {localMatch.marca} {localMatch.modelo}
                 </Link>
               </p>
             ) : null}
-            {plateResult ? (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Info label="Placa" value={maskPlate(plateResult.plate)} />
-                <Info label="Mercosul / Antiga" value={`${plateResult.formats.mercosul} · ${plateResult.formats.antiga}`} />
-                <Info label="Marca" value={plateResult.vehicle?.brand || '—'} />
-                <Info label="Modelo" value={plateResult.vehicle?.model || plateResult.vehicle?.version || '—'} />
-                <Info label="Ano modelo" value={plateResult.vehicle?.modelYear ? String(plateResult.vehicle.modelYear) : '—'} />
-                <Info label="Código FIPE" value={plateResult.vehicle?.fipeCode || '—'} />
-                <Info label="Município" value={[plateResult.vehicle?.city, plateResult.vehicle?.state].filter(Boolean).join(' / ') || '—'} />
-                <Info label="Fonte" value={plateResult.source === 'none' ? 'Seleção manual FIPE' : plateResult.source} />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <Info label="Placa" value={plate ? maskPlate(plate) : '—'} />
+              <Info
+                label="Formatos"
+                value={
+                  plateResult
+                    ? `${plateResult.formats.mercosul} · ${plateResult.formats.antiga}`
+                    : '—'
+                }
+              />
+              <Info label="Marca" value={detail?.brand || plateResult?.vehicle?.brand || linkedVehicle?.marca || '—'} />
+              <Info
+                label="Modelo"
+                value={detail?.model || plateResult?.vehicle?.model || linkedVehicle?.modelo || '—'}
+              />
+              <Info
+                label="Ano"
+                value={
+                  String(
+                    detail?.modelYear ||
+                      plateResult?.vehicle?.modelYear ||
+                      linkedVehicle?.anoModelo ||
+                      '—',
+                  )
+                }
+              />
+              <Info label="Código FIPE" value={detail?.codeFipe || plateResult?.vehicle?.fipeCode || '—'} />
+            </div>
+
+            {searched && !fipeValue && !plateResult?.ok ? (
+              <div className="mt-4 rounded-lg border border-lp-line bg-lp-mist/60 px-3 py-3 text-sm text-lp-ink">
+                <p className="font-semibold">Próximo passo</p>
+                <p className="mt-1 text-lp-steel">
+                  A identificação automática pela placa depende de um provedor externo (como no PlacaFIPE).
+                  Enquanto isso, use a <strong>busca por modelo</strong> ou a <strong>Tabela FIPE</strong> abaixo
+                  — é gratuito e já retorna preço + IPVA.
+                </p>
               </div>
-            ) : null}
-            {plateResult && !plateResult.plateConfigured ? (
-              <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                Consulta automática por placa ainda não tem provedor gratuito estável configurado.
-                Use a Tabela FIPE abaixo (marca → modelo → ano) — é o caminho zero custo.
-                Para ativar placa→dados, configure <code className="font-mono">LP_MOTORS_PLATE_API_URL</code> na Vercel.
-              </p>
             ) : null}
           </div>
 
           <div className="panel-ink p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/50">Tabela FIPE</p>
-            <p className="mt-2 font-display text-3xl font-bold text-white">
-              {fipeValue ? formatCurrency(fipeValue) : '—'}
-            </p>
-            <p className="mt-1 text-sm text-white/60">{activeDetail?.referenceMonth || 'Selecione o veículo'}</p>
+            {loadingFipe ? (
+              <p className="mt-3 flex items-center gap-2 text-sm text-white/70">
+                <Loader2 className="h-4 w-4 animate-spin" /> Consultando…
+              </p>
+            ) : (
+              <>
+                <p className="mt-2 font-display text-3xl font-bold text-white">
+                  {fipeValue ? formatCurrency(fipeValue) : '—'}
+                </p>
+                <p className="mt-1 text-sm text-white/60">
+                  {detail?.referenceMonth || (fipeValue ? '' : 'Aguardando seleção do veículo')}
+                </p>
+              </>
+            )}
             <div className="mt-5 border-t border-white/10 pt-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/50">
-                IPVA estimado ({activeIpva?.uf || uf})
+                IPVA estimado ({ipva?.uf || uf})
               </p>
               <p className="mt-2 font-display text-2xl font-bold text-teal-300">
-                {activeIpva ? formatCurrency(activeIpva.value) : '—'}
+                {ipva ? formatCurrency(ipva.value) : '—'}
               </p>
-              {activeIpva ? (
+              {ipva ? (
                 <p className="mt-1 text-xs text-white/45">
-                  Alíquota {activeIpva.aliquotPercent.toFixed(2)}% sobre o valor FIPE (estimativa).
+                  Alíquota {ipva.aliquotPercent.toFixed(2)}% sobre o valor FIPE (estimativa).
                 </p>
               ) : null}
             </div>
@@ -325,7 +457,9 @@ export function FipePage() {
               <Button onClick={() => void applyToVehicle()} disabled={!fipeValue}>
                 Aplicar FIPE no veículo
               </Button>
-              <Link to={`/veiculos/novo?fipe=${encodeURIComponent(String(fipeValue || ''))}&placa=${encodeURIComponent(plate)}`}>
+              <Link
+                to={`/veiculos/novo?fipe=${encodeURIComponent(String(fipeValue || ''))}&placa=${encodeURIComponent(plate)}`}
+              >
                 <Button variant="secondary" className="w-full">
                   Cadastrar veículo com estes dados <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -333,15 +467,65 @@ export function FipePage() {
             </div>
           </div>
         </section>
-      )}
+      ) : null}
 
-      {/* Manual FIPE cascade — always available like placafipe */}
+      {/* Busca rápida por modelo — caminho gratuito tipo PlacaFIPE */}
+      <section ref={cascadeRef as never} className="panel p-5">
+        <div className="mb-4 flex items-center gap-2">
+          <Search className="h-5 w-5 text-lp-accent" />
+          <div>
+            <h2 className="font-display text-lg font-bold">2. Buscar modelo na FIPE</h2>
+            <p className="text-sm text-lp-steel">Ex.: “Civic 2020”, “Onix 1.0 2019”, “Hilux 2018”</p>
+          </div>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <input
+            className="input-field"
+            placeholder="Marca, modelo e ano"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && void searchModel()}
+          />
+          <Button onClick={() => void searchModel()} disabled={loadingSearch}>
+            {loadingSearch ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            Buscar
+          </Button>
+        </div>
+        {hits.length ? (
+          <ul className="mt-4 divide-y divide-lp-line rounded-xl border border-lp-line">
+            {hits.map((hit) => (
+              <li key={`${hit.codigo_fipe}-${hit.model_year}-${hit.model_name}`}>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-lp-mist"
+                  onClick={() => void pickHit(hit)}
+                >
+                  <div>
+                    <p className="font-semibold text-lp-ink">
+                      {hit.brand_name} · {hit.model_name}
+                    </p>
+                    <p className="text-xs text-lp-steel">
+                      {hit.model_year} · {hit.codigo_fipe}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-bold text-lp-accent">
+                    {hit.price
+                      ? formatCurrency(typeof hit.price === 'number' ? hit.price : fipeService.parsePrice(String(hit.price)))
+                      : 'Selecionar'}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
+
       <section className="panel p-5">
         <div className="mb-4 flex items-center gap-2">
           <Table2 className="h-5 w-5 text-lp-accent" />
           <div>
-            <h2 className="font-display text-lg font-bold">Consulta Tabela FIPE</h2>
-            <p className="text-sm text-lp-steel">Escolha tipo, marca, modelo e ano — gratuito via proxy Parallelum.</p>
+            <h2 className="font-display text-lg font-bold">3. Ou navegue na Tabela FIPE</h2>
+            <p className="text-sm text-lp-steel">Tipo → marca → modelo → ano</p>
           </div>
         </div>
 
@@ -397,36 +581,27 @@ export function FipePage() {
           </Field>
         </div>
 
-        {loadingFipe ? (
-          <div className="mt-6 flex items-center gap-2 text-sm text-lp-steel">
-            <Loader2 className="h-4 w-4 animate-spin" /> Consultando tabela FIPE…
-          </div>
-        ) : null}
-
-        {activeDetail && fipeValue ? (
-          <div className="mt-6 grid gap-3 rounded-xl border border-lp-line bg-lp-mist/50 p-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Info label="Marca" value={activeDetail.brand || '—'} />
-            <Info label="Modelo" value={activeDetail.model || '—'} />
-            <Info label="Ano / combustível" value={`${activeDetail.modelYear || '—'} · ${activeDetail.fuel || '—'}`} />
-            <Info label="Código FIPE" value={activeDetail.codeFipe || '—'} />
-            <Info label="Preço FIPE" value={formatCurrency(fipeValue)} />
-            <Info label="Referência" value={activeDetail.referenceMonth || '—'} />
-            <Info
-              label="IPVA estimado"
-              value={activeIpva ? `${formatCurrency(activeIpva.value)} (${activeIpva.uf})` : '—'}
-            />
-            <div className="flex items-end">
-              <Button className="w-full" onClick={() => void applyToVehicle()}>
-                <Car className="h-4 w-4" /> Usar este valor
-              </Button>
+        {detail && fipeValue ? (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-lp-line bg-lp-mist/50 p-4">
+            <div>
+              <p className="font-semibold text-lp-ink">
+                {detail.brand} {detail.model}
+              </p>
+              <p className="text-sm text-lp-steel">
+                {detail.modelYear} · {formatCurrency(fipeValue)}
+                {ipva ? ` · IPVA ~ ${formatCurrency(ipva.value)}` : ''}
+              </p>
             </div>
+            <Button onClick={() => void applyToVehicle()}>
+              <Car className="h-4 w-4" /> Usar este valor
+            </Button>
           </div>
         ) : null}
       </section>
 
       <p className="text-xs text-lp-steel">
-        O LP Motors agrega a Tabela FIPE por provedor substituível (hoje: Parallelum via `/api/lp-motors`).
-        Não somos a FIPE, Renavam ou Detran. Valores de IPVA são estimativas por alíquota estadual típica.
+        Valores FIPE via provedores públicos (Parallelum / tabelafipe.info). IPVA é estimativa por alíquota estadual.
+        Identificação automática placa→dados requer provedor externo configurado no servidor.
       </p>
     </div>
   )
