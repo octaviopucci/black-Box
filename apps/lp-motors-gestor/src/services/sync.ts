@@ -9,7 +9,14 @@ import {
   type SessionUser,
 } from '@/services/database'
 
-export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'offline' | 'error'
+export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'device-only' | 'offline' | 'error'
+
+export type CloudHealth = {
+  ok: boolean
+  blob: boolean
+  plateApi: boolean
+  fipe: boolean
+}
 
 const API_BASE = '/api/lp-motors'
 
@@ -34,9 +41,19 @@ async function api<T>(
 }
 
 export const cloudSync = {
-  async health(): Promise<boolean> {
-    const res = await api<{ ok?: boolean }>('/health')
-    return res.ok && Boolean((res.data as { ok?: boolean }).ok)
+  async health(): Promise<CloudHealth> {
+    const res = await api<{
+      ok?: boolean
+      blob?: boolean
+      plateApi?: boolean
+      fipe?: boolean
+    }>('/health')
+    return {
+      ok: res.ok && Boolean(res.data.ok),
+      blob: Boolean(res.data.blob),
+      plateApi: Boolean(res.data.plateApi),
+      fipe: Boolean(res.data.fipe),
+    }
   },
 
   async login(

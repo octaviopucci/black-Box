@@ -85,15 +85,29 @@ export class JsonStore {
     if (cached) return cached
     mkdirSync(dirname(FILE_PATH), { recursive: true })
     let store = emptyStore()
+    let hydratedFromBlob = false
 
+    // Blob is the source of truth for multi-device. Never let a stale /tmp
+    // file overwrite a successful Blob hydrate (Vercel instances share Blob,
+    // not /tmp).
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
-        const listed = await list({ prefix: BLOB_PATHNAME, limit: 1 })
+        const listed = await list({
+          prefix: BLOB_PATHNAME,
+          limit: 1,
+          token: process.env.BLOB_READ_WRITE_TOKEN,
+        })
         const blob = listed.blobs.find((b) => b.pathname === BLOB_PATHNAME)
         if (blob) {
           const res = await fetch(blob.url)
           if (res.ok) {
             store = { ...emptyStore(), ...((await res.json()) as Partial<LpMotorsStore>) }
+            hydratedFromBlob = true
+            try {
+              writeFileSync(FILE_PATH, JSON.stringify(store))
+            } catch {
+              /* cache best-effort */
+            }
           }
         }
       } catch (err) {
@@ -101,7 +115,7 @@ export class JsonStore {
       }
     }
 
-    if (existsSync(FILE_PATH)) {
+    if (!hydratedFromBlob && existsSync(FILE_PATH)) {
       try {
         const parsed = JSON.parse(readFileSync(FILE_PATH, 'utf8')) as Partial<LpMotorsStore>
         store = { ...emptyStore(), ...parsed }
