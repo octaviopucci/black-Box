@@ -30,7 +30,12 @@ Dados de demonstração: **Backup → Restaurar backup demo**.
 
 ## Multi-dispositivo
 
-No login, o sistema tenta sincronizar com `/api/lp-motors`. Com Blob configurado no deploy Vercel, a mesma conta vê os mesmos dados em qualquer dispositivo.
+No login, o sistema tenta sincronizar com `/api/lp-motors`.
+
+- **Sem Blob** (`"blob": false` no health): a UI mostra **“Só neste aparelho”** — PC e celular não compartilham dados.
+- **Com Blob** (`BLOB_READ_WRITE_TOKEN` + redeploy): status **“Sincronizado”** — mesma conta, mesma base.
+
+Checklist completo: [`DEPLOY.md`](./DEPLOY.md).
 
 ## Build
 

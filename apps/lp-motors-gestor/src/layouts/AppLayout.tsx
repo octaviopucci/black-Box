@@ -86,9 +86,10 @@ const MOBILE_QUICK = [
 
 function SyncIndicator({ status, onSync }: { status: SyncStatus; onSync: () => void }) {
   const labels: Record<SyncStatus, string> = {
-    idle: 'Local',
+    idle: 'Verificando…',
     syncing: 'Sincronizando…',
     synced: 'Sincronizado',
+    'device-only': 'Só neste aparelho',
     offline: 'Offline',
     error: 'Erro de sync',
   }
@@ -96,26 +97,37 @@ function SyncIndicator({ status, onSync }: { status: SyncStatus; onSync: () => v
     idle: 'text-lp-steel',
     syncing: 'text-lp-accent animate-pulse',
     synced: 'text-lp-ok',
+    'device-only': 'text-lp-copper',
     offline: 'text-lp-copper',
     error: 'text-lp-danger',
   }
-  const Icon = status === 'offline' ? CloudOff : Cloud
+  const titles: Record<SyncStatus, string> = {
+    idle: 'Verificando sync',
+    syncing: 'Sincronizando com a nuvem…',
+    synced: 'Dados na nuvem — PC e celular compartilham a mesma base',
+    'device-only':
+      'API online, mas sem Vercel Blob: os dados ficam só neste aparelho. Configure BLOB_READ_WRITE_TOKEN.',
+    offline: 'Sem conexão com a API de sync',
+    error: 'Falha ao sincronizar — toque para tentar de novo',
+  }
+  const Icon = status === 'offline' || status === 'device-only' ? CloudOff : Cloud
 
   return (
     <button
       type="button"
       onClick={onSync}
-      className={cn('btn-ghost hidden items-center gap-1.5 text-xs sm:inline-flex', colors[status])}
-      title="Sincronizar agora"
+      className={cn('btn-ghost inline-flex items-center gap-1.5 text-xs', colors[status])}
+      title={titles[status]}
     >
       <Icon className="h-4 w-4" />
-      <span className="hidden md:inline">{labels[status]}</span>
+      <span className="hidden sm:inline">{labels[status]}</span>
     </button>
   )
 }
 
 export function AppLayout() {
   const { user, logout, loading, settings, syncStatus, syncNow, alerts } = useApp()
+  const showDeviceBanner = syncStatus === 'device-only'
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
@@ -347,6 +359,26 @@ export function AppLayout() {
         ) : null}
 
         <main className="flex-1 overflow-x-hidden px-3 py-4 pb-24 sm:px-5 sm:py-6 lg:pb-6">
+          {showDeviceBanner ? (
+            <div
+              role="status"
+              className="mb-4 flex flex-wrap items-start gap-3 rounded-xl border border-lp-copper/40 bg-lp-copper/10 px-4 py-3 text-sm text-lp-ink"
+            >
+              <CloudOff className="mt-0.5 h-4 w-4 shrink-0 text-lp-copper" />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-lp-copper">Dados só neste aparelho</p>
+                <p className="mt-0.5 text-lp-steel">
+                  A API responde, mas o Vercel Blob ainda não está configurado. PC e celular não
+                  vão bater até existir a variável{' '}
+                  <code className="rounded bg-lp-mist px-1 text-xs">BLOB_READ_WRITE_TOKEN</code> no
+                  projeto Vercel. Veja o passo a passo em Configurações → Sincronização.
+                </p>
+              </div>
+              <NavLink to="/configuracoes" className="btn-ghost shrink-0 text-xs text-lp-copper">
+                Abrir checklist
+              </NavLink>
+            </div>
+          ) : null}
           <Outlet />
         </main>
       </div>

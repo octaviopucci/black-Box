@@ -41,7 +41,7 @@ import {
 } from '@/services'
 import { loadDatabase } from '@/services/database'
 import { intelligenceService } from '@/services/intelligence'
-import { cloudSync, type SyncStatus } from '@/services/sync'
+import { cloudSync, type CloudHealth, type SyncStatus } from '@/services/sync'
 import type { SessionUser } from '@/services/database'
 
 interface ToastItem {
@@ -55,6 +55,7 @@ interface AppContextValue {
   user: SessionUser | null
   loading: boolean
   syncStatus: SyncStatus
+  cloudHealth: CloudHealth | null
   toasts: ToastItem[]
   settings: Settings
   vehicles: Vehicle[]
@@ -118,6 +119,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null)
   const [loading, setLoading] = useState(false)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle')
+  const [cloudHealth, setCloudHealth] = useState<CloudHealth | null>(null)
   const [toasts, setToasts] = useState<ToastItem[]>([])
   const [settings, setSettings] = useState<Settings>(settingsService.get())
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -150,9 +152,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const syncNow = useCallback(async () => {
     setSyncStatus('syncing')
     try {
-      const online = await cloudSync.health()
-      if (!online) {
+      const health = await cloudSync.health()
+      setCloudHealth(health)
+      if (!health.ok) {
         setSyncStatus('offline')
+        return
+      }
+      // Sem Blob o API responde, mas os dados ficam só no /tmp da instância —
+      // PC e celular não compartilham a mesma base.
+      if (!health.blob) {
+        setSyncStatus('device-only')
         return
       }
       const pulled = await cloudSync.pull()
@@ -242,6 +251,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       syncStatus,
+      cloudHealth,
       toasts,
       settings,
       vehicles,
@@ -352,7 +362,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       reports: reportService,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [ready, user, loading, syncStatus, toasts, settings, vehicles, expenses, customers, sales, history, suppliers, payables, documents, alerts, filters, tick],
+    [ready, user, loading, syncStatus, cloudHealth, toasts, settings, vehicles, expenses, customers, sales, history, suppliers, payables, documents, alerts, filters, tick],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
