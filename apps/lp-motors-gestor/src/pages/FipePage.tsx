@@ -264,28 +264,30 @@ export function FipePage() {
   const pickHit = async (hit: FipeSearchHit) => {
     setLoadingFipe(true)
     try {
-      // Parallelum by fipe code needs year id — use detail via search price when present
-      if (hit.price) {
-        const value = typeof hit.price === 'number' ? hit.price : fipeService.parsePrice(String(hit.price))
+      const valueFromSearch = fipeService.hitPrice(hit)
+      if (valueFromSearch > 0) {
         setDetail({
           brand: hit.brand_name,
           model: hit.model_name,
           modelYear: hit.model_year,
           codeFipe: hit.codigo_fipe,
-          price: value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+          fuel: hit.fuel_name,
+          price: valueFromSearch.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
           referenceMonth: hit.reference_month || '',
         })
-        if (value > 0) setIpva(await fipeService.estimateIpva(value, uf))
+        setIpva(await fipeService.estimateIpva(valueFromSearch, uf))
         toast('Modelo selecionado.', 'success')
         return
       }
-      if (hit.codigo_fipe && hit.model_year) {
-        const d = await fipeService.byFipeCode(type, hit.codigo_fipe, `${hit.model_year}-1`)
+      if (hit.codigo_fipe) {
+        const d = await fipeService.byFipeCode(type, hit.codigo_fipe, hit.model_year)
         setDetail(d)
         const value = fipeService.parsePrice(d.price)
         if (value > 0) setIpva(await fipeService.estimateIpva(value, uf))
         toast('FIPE carregada pelo código.', 'success')
+        return
       }
+      toast('Este resultado não trouxe preço nem código FIPE.', 'error')
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Não foi possível carregar este modelo', 'error')
     } finally {
@@ -509,8 +511,8 @@ export function FipePage() {
                     </p>
                   </div>
                   <span className="shrink-0 text-sm font-bold text-lp-accent">
-                    {hit.price
-                      ? formatCurrency(typeof hit.price === 'number' ? hit.price : fipeService.parsePrice(String(hit.price)))
+                    {fipeService.hitPrice(hit) > 0
+                      ? formatCurrency(fipeService.hitPrice(hit))
                       : 'Selecionar'}
                   </span>
                 </button>
