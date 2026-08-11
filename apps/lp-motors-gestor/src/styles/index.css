@@ -11,7 +11,11 @@
   --lp-paper: #f5f7fa;
   --lp-line: #d5dce6;
   --lp-accent: #0f766e;
+  --lp-accent-dim: #0d5f59;
+  --lp-accent-soft: rgba(15, 118, 110, 0.12);
   --lp-copper: #b45309;
+  --lp-radius: 0.75rem;
+  --lp-radius-lg: 0.9rem;
 }
 
 * {
@@ -27,9 +31,9 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(ellipse at top left, rgba(15, 118, 110, 0.07), transparent 42%),
-    radial-gradient(ellipse at bottom right, rgba(180, 83, 9, 0.05), transparent 48%),
-    #f5f7fa;
+    radial-gradient(ellipse at top left, color-mix(in srgb, var(--lp-accent) 10%, transparent), transparent 42%),
+    radial-gradient(ellipse at bottom right, color-mix(in srgb, var(--lp-copper) 8%, transparent), transparent 48%),
+    var(--lp-paper);
   color: var(--lp-ink);
   font-family: 'Manrope', system-ui, sans-serif;
 }
@@ -44,21 +48,34 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c5ced9;
+  background: color-mix(in srgb, var(--lp-steel) 35%, transparent);
   border-radius: 999px;
 }
 
 @layer components {
   .panel {
-    @apply rounded-xl border border-lp-line bg-white shadow-panel;
+    @apply border border-lp-line bg-white shadow-panel;
+    border-radius: var(--lp-radius-lg);
   }
 
   .panel-ink {
-    @apply rounded-xl border border-white/10 bg-lp-slate text-white shadow-panel;
+    @apply bg-lp-slate text-white shadow-panel;
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    border-radius: var(--lp-radius-lg);
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-lp-line bg-white px-3.5 py-2.5 text-base text-lp-ink outline-none transition placeholder:text-lp-steel/45 focus:border-lp-accent focus:ring-2 focus:ring-lp-accent/20;
+    @apply w-full border border-lp-line bg-white px-3.5 py-2.5 text-base text-lp-ink outline-none transition focus:border-lp-accent;
+    border-radius: var(--lp-radius);
+  }
+
+  .input-field::placeholder {
+    color: var(--lp-steel);
+    opacity: 0.45;
+  }
+
+  .input-field:focus {
+    box-shadow: 0 0 0 2px var(--lp-accent-soft);
   }
 
   .label-field {
@@ -66,19 +83,23 @@ body {
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-lp-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-lp-accent-dim disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 bg-lp-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-lp-accent-dim disabled:cursor-not-allowed disabled:opacity-50;
+    border-radius: var(--lp-radius);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-lp-line bg-white px-4 py-2.5 text-sm font-semibold text-lp-ink transition hover:border-lp-steel/30 hover:bg-lp-mist disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 border border-lp-line bg-white px-4 py-2.5 text-sm font-semibold text-lp-ink transition hover:bg-lp-mist disabled:cursor-not-allowed disabled:opacity-50;
+    border-radius: var(--lp-radius);
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-lp-steel transition hover:bg-lp-mist hover:text-lp-ink;
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-lp-steel transition hover:bg-lp-mist hover:text-lp-ink;
+    border-radius: var(--lp-radius);
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-lp-danger px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 bg-lp-danger px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50;
+    border-radius: var(--lp-radius);
   }
 
   .section-title {
@@ -102,11 +123,13 @@ body {
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 border px-2 py-0.5 text-xs font-semibold;
+    border-radius: calc(var(--lp-radius) - 0.15rem);
   }
 
   .table-wrap {
-    @apply overflow-x-auto rounded-xl border border-lp-line bg-white;
+    @apply overflow-x-auto border border-lp-line bg-white;
+    border-radius: var(--lp-radius-lg);
   }
 
   .data-table {
@@ -114,11 +137,12 @@ body {
   }
 
   .data-table th {
-    @apply border-b border-lp-line bg-lp-mist/70 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-lp-steel;
+    @apply border-b border-lp-line px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-lp-steel;
+    background: var(--lp-mist);
   }
 
   .data-table td {
-    @apply border-b border-lp-line/70 px-3 py-3 align-middle;
+    @apply border-b border-lp-line px-3 py-3 align-middle;
   }
 
   .empty-state {
@@ -126,6 +150,7 @@ body {
   }
 
   .skeleton {
-    @apply animate-pulse rounded-lg bg-lp-mist;
+    @apply animate-pulse bg-lp-mist;
+    border-radius: var(--lp-radius);
   }
 }

@@ -10,11 +10,12 @@ import type {
 } from '@/types'
 import { generateId, nowISO } from '@/utils'
 import { seedDatabase } from '@/data/seed'
-import { storageSuffix, APP_NAME } from '@/config/variant'
+import { storageSuffix, APP_NAME, APP_SHORT } from '@/config/variant'
 import { defaultOrgSettings, normalizeStatus } from '@/utils/finance'
+import { defaultBrandTheme, normalizeBrand } from '@/utils/brand'
 import { DEFAULT_CHECKLIST } from '@/utils/constants'
 
-const DB_VERSION = 5
+const DB_VERSION = 6
 const DB_KEY = `lp_motors_gestor_db_v5${storageSuffix}`
 const SESSION_KEY = `lp_motors_gestor_session${storageSuffix}`
 const REMEMBER_KEY = `lp_motors_gestor_remember${storageSuffix}`
@@ -48,6 +49,8 @@ function createDefaultSettings(orgId: string): Settings {
     id: 'settings_default',
     organizationId: orgId,
     nomeEmpresa: APP_NAME,
+    nomeCurto: APP_SHORT,
+    slogan: 'Gestão profissional de estoque automotivo',
     logo: '',
     telefone: '(11) 4000-0000',
     whatsapp: '(11) 90000-0000',
@@ -57,6 +60,7 @@ function createDefaultSettings(orgId: string): Settings {
     cidade: 'São Paulo - SP',
     tema: 'light',
     modoEscuro: false,
+    brand: defaultBrandTheme(),
     org: defaultOrgSettings(),
     updatedAt: nowISO(),
   }
@@ -188,6 +192,9 @@ function normalizeDatabase(raw: Partial<Database>): Database {
     ...empty.settings[0],
     ...settingsRaw,
     nomeEmpresa: settingsRaw.nomeEmpresa || APP_NAME,
+    nomeCurto: settingsRaw.nomeCurto || settingsRaw.nomeEmpresa || APP_SHORT,
+    slogan: settingsRaw.slogan ?? empty.settings[0].slogan,
+    brand: normalizeBrand(settingsRaw.brand),
     org: { ...defaultOrgSettings(), ...(settingsRaw.org || {}) },
     organizationId: org.id,
   }
@@ -206,9 +213,14 @@ function normalizeDatabase(raw: Partial<Database>): Database {
     return true
   })
 
+  const organization = {
+    ...org,
+    name: settings.nomeEmpresa || org.name || APP_NAME,
+  }
+
   return {
     version: DB_VERSION,
-    organization: org,
+    organization,
     vehicles: (raw.vehicles || []).map(migrateVehicle),
     sales: raw.sales || [],
     expenses: (raw.expenses || []).map(migrateExpense),

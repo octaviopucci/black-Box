@@ -174,8 +174,11 @@ export function AppLayout() {
             <Menu className="h-5 w-5" />
           </button>
 
-          <NavLink to="/" className="shrink-0">
+          <NavLink to="/" className="flex shrink-0 items-center gap-2">
             <LpLogo compact size="sm" showText={false} />
+            <span className="hidden font-display text-sm font-bold tracking-tight text-lp-ink sm:inline">
+              {settings.nomeCurto || settings.nomeEmpresa}
+            </span>
           </NavLink>
 
           <div ref={searchRef} className="relative mx-auto hidden max-w-xl flex-1 md:block">

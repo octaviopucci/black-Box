@@ -42,6 +42,7 @@ import {
 import { loadDatabase } from '@/services/database'
 import { intelligenceService } from '@/services/intelligence'
 import { cloudSync, type CloudHealth, type SyncStatus } from '@/services/sync'
+import { applyBrandTheme } from '@/utils/brand'
 import type { SessionUser } from '@/services/database'
 
 interface ToastItem {
@@ -145,9 +146,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPayables(db.payables)
     setDocuments(db.documents)
     setAlerts(intelligenceService.getAlerts(db))
-    setSettings(settingsService.get())
+    const nextSettings = settingsService.get()
+    setSettings(nextSettings)
+    applyBrandTheme(nextSettings)
     setTick((t) => t + 1)
   }, [])
+
+  useEffect(() => {
+    applyBrandTheme(settings)
+  }, [settings])
 
   const syncNow = useCallback(async () => {
     setSyncStatus('syncing')
@@ -372,4 +379,8 @@ export function useApp() {
   const ctx = useContext(AppContext)
   if (!ctx) throw new Error('useApp must be used within AppProvider')
   return ctx
+}
+
+export function useAppOptional() {
+  return useContext(AppContext)
 }
