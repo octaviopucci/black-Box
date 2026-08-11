@@ -23,6 +23,97 @@ export async function fipeFetch(path: string): Promise<{ ok: boolean; status: nu
   }
 }
 
+function parseFipePrice(price?: string): number {
+  if (!price) return 0
+  return Number(String(price).replace(/[^\d,]/g, '').replace(',', '.')) || 0
+}
+
+/**
+ * Parallelum v2 path is `/{type}/{fipeCode}/years`, NOT `/fipe-code/...`.
+ * Year ids are `{ano}-{combustivel}` (ex.: 2009-5 = Flex) — never assume `-1`.
+ */
+export async function fipeDetailByCode(
+  type: FipeVehicleType,
+  fipeCode: string,
+  modelYear?: number,
+): Promise<{ ok: boolean; status: number; data: unknown }> {
+  const code = encodeURIComponent(String(fipeCode).trim())
+  const yearsRes = await fipeFetch(`/${type}/${code}/years`)
+  if (!yearsRes.ok || !Array.isArray(yearsRes.data)) {
+    return {
+      ok: false,
+      status: yearsRes.status || 404,
+      data: (yearsRes.data as { error?: string }) || {
+        error: 'Não foi possível listar anos para este código FIPE.',
+      },
+    }
+  }
+  const years = yearsRes.data as Array<{ code?: string; name?: string }>
+  if (!years.length) {
+    return { ok: false, status: 404, data: { error: 'Código FIPE sem anos disponíveis.' } }
+  }
+
+  let match = years[0]
+  if (modelYear) {
+    const y = String(modelYear)
+    match =
+      years.find((item) => String(item.code || '').startsWith(`${y}-`)) ||
+      years.find((item) => String(item.name || '').startsWith(y)) ||
+      years[0]
+  }
+
+  const yearId = String(match?.code || '')
+  if (!yearId) {
+    return { ok: false, status: 404, data: { error: 'Ano FIPE não encontrado para este código.' } }
+  }
+  return fipeFetch(`/${type}/${code}/years/${encodeURIComponent(yearId)}`)
+}
+
+export function normalizeTextSearchResults(raw: unknown): {
+  query?: string
+  count: number
+  results: Array<{
+    brand_name: string
+    model_name: string
+    model_year: number
+    codigo_fipe: string
+    fuel_name?: string
+    price?: number
+    value_label?: string
+    reference_month?: string
+    url_path?: string
+  }>
+} {
+  const payload = (raw && typeof raw === 'object' ? raw : {}) as {
+    query?: string
+    count?: number
+    results?: Array<Record<string, unknown>>
+  }
+  const results = (payload.results || []).map((hit) => {
+    const valueLabel = String(hit.value_label || hit.price_label || hit.price || '')
+    const price =
+      typeof hit.price === 'number'
+        ? hit.price
+        : parseFipePrice(valueLabel) || parseFipePrice(String(hit.price || ''))
+    return {
+      brand_name: String(hit.brand_name || hit.brand || ''),
+      model_name: String(hit.model_name || hit.model || ''),
+      model_year: Number(hit.model_year || hit.year || 0) || 0,
+      codigo_fipe: String(hit.codigo_fipe || hit.code_fipe || hit.codeFipe || ''),
+      fuel_name: hit.fuel_name ? String(hit.fuel_name) : undefined,
+      price: price || undefined,
+      value_label: valueLabel || undefined,
+      reference_month: hit.reference_month ? String(hit.reference_month) : undefined,
+      url_path: hit.url_path ? String(hit.url_path) : undefined,
+    }
+  })
+  return {
+    query: payload.query,
+    count: payload.count ?? results.length,
+    results,
+  }
+}
+
 /** Busca textual gratuita (tabelafipe.info) — marca/modelo/ano → código FIPE + preço. */
 export async function fipeTextSearch(q: string): Promise<{ ok: boolean; status: number; data: unknown }> {
   const url = `https://tabelafipe.info/api/busca?q=${encodeURIComponent(q)}`

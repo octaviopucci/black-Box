@@ -54,14 +54,22 @@ export interface FipeSearchHit {
   model_name: string
   model_year: number
   codigo_fipe: string
+  fuel_name?: string
   price?: number | string
+  value_label?: string
   reference_month?: string
 }
 
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API}${path}`)
-  const data = (await res.json().catch(() => ({}))) as T & { error?: string }
-  if (!res.ok) throw new Error((data as { error?: string }).error || `Erro ${res.status}`)
+  const data = (await res.json().catch(() => ({}))) as T & { error?: string; message?: string }
+  if (!res.ok) {
+    throw new Error(
+      (data as { error?: string }).error ||
+        (data as { message?: string }).message ||
+        `Erro ${res.status}`,
+    )
+  }
   return data
 }
 
@@ -70,8 +78,16 @@ function parsePrice(price?: string): number {
   return Number(String(price).replace(/[^\d,]/g, '').replace(',', '.')) || 0
 }
 
+function hitPrice(hit: FipeSearchHit): number {
+  if (typeof hit.price === 'number' && hit.price > 0) return hit.price
+  if (hit.price) return parsePrice(String(hit.price))
+  if (hit.value_label) return parsePrice(hit.value_label)
+  return 0
+}
+
 export const fipeService = {
   parsePrice,
+  hitPrice,
 
   async brands(type: FipeType): Promise<FipeOption[]> {
     const data = await getJson<Array<{ code: string; name: string }>>(`/fipe/${type}/brands`)
@@ -101,8 +117,12 @@ export const fipeService = {
     return getJson<FipeDetail>(`/fipe/${type}/brands/${brandId}/models/${modelId}/years/${yearId}`)
   },
 
-  async byFipeCode(type: FipeType, code: string, yearId: string): Promise<FipeDetail> {
-    return getJson<FipeDetail>(`/fipe/${type}/fipe-code/${encodeURIComponent(code)}/years/${yearId}`)
+  /** Resolve preço pelo código FIPE; o backend lista anos e escolhe o combustível certo. */
+  async byFipeCode(type: FipeType, code: string, modelYear?: number): Promise<FipeDetail> {
+    const qs = modelYear ? `?year=${encodeURIComponent(String(modelYear))}` : ''
+    return getJson<FipeDetail>(
+      `/fipe/${type}/code/${encodeURIComponent(code)}${qs}`,
+    )
   },
 
   async consultPlate(plate: string, uf = 'SP', type: FipeType = 'cars'): Promise<PlateConsultation> {
