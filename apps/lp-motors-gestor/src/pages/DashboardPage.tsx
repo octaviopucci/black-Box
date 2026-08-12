@@ -19,9 +19,10 @@ import { useApp } from '@/context/AppContext'
 import { intelligenceService } from '@/services/intelligence'
 import { formatCurrency, formatNumber, formatPercent } from '@/utils'
 import { dashboardService } from '@/services'
+import { brandDisplayName } from '@/utils/brand'
 
 export function DashboardPage() {
-  const { stats, alerts, vehicles } = useApp()
+  const { stats, alerts, vehicles, settings } = useApp()
 
   const grouped = useMemo(() => {
     const problemas = alerts.filter((a) => a.severity === 'critico')
@@ -51,24 +52,30 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="section-title">Centro de Comando</h1>
-          <p className="section-sub">Visão executiva do estoque e operação</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link to="/veiculos/novo">
-            <Button>
-              <Plus className="h-4 w-4" />
-              Novo veículo
-            </Button>
-          </Link>
-          <Link to="/alertas">
-            <Button variant="secondary">
-              <AlertTriangle className="h-4 w-4" />
-              Alertas ({alerts.length})
-            </Button>
-          </Link>
+      <div className="panel relative overflow-hidden p-5 sm:p-7">
+        <div className="pointer-events-none absolute inset-0 bg-lp-hero opacity-80" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-lp-accent">
+              {brandDisplayName(settings)}
+            </p>
+            <h1 className="mt-1 font-cinema text-4xl text-lp-ink sm:text-5xl">Centro de Comando</h1>
+            <p className="section-sub">Visão executiva do estoque e operação</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/veiculos/novo">
+              <Button>
+                <Plus className="h-4 w-4" />
+                Novo veículo
+              </Button>
+            </Link>
+            <Link to="/alertas">
+              <Button variant="secondary">
+                <AlertTriangle className="h-4 w-4" />
+                Alertas ({alerts.length})
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 

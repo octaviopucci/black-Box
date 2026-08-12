@@ -28,16 +28,17 @@ Também: `gerente` / `gerente123`
 
 Dados de demonstração: **Backup → Restaurar backup demo**.
 
-## Identidade da loja
+## Identidade da loja (premium)
 
-Em **Configurações**, cada loja edita o template do sistema:
+Em **Configurações → Identidade**, cada loja monta o visual do sistema:
 
-- nome, nome curto, slogan e logo (upload)
-- cores (primária, secundária, fundo, texto, painéis)
-- aparência (cantos suaves/retos) e tema claro/escuro
-- presets prontos (LP, azul, vermelho, verde, noite)
+- cores **livres** (fundo, superfície, primária, secundária, texto, painéis) — o fundo muda o app inteiro
+- atmosfera cinematográfica com fotos de carros de luxo + intensidade
+- presets de partida (LP Showroom, Sapphire, Champagne, Racing, Obsidian)
+- intro cinematográfica na abertura da sessão
+- logo, nome, slogan e cantos (premium/suave/reto)
 
-A marca entra no login, header e CSS variables em tempo real.
+Tudo aplica via CSS variables em tempo real (preview ao vivo).
 ## Multi-dispositivo
 
 No login, o sistema tenta sincronizar com `/api/lp-motors`.

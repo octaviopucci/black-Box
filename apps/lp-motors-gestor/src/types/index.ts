@@ -348,17 +348,25 @@ export interface OrgSettings {
 }
 
 /** Aparência visual editável por loja (template da marca). */
-export type BrandAparencia = 'suave' | 'reta'
-export type BrandPresetId = 'lp' | 'azul' | 'vermelho' | 'verde' | 'noite' | 'custom'
+export type BrandAparencia = 'suave' | 'reta' | 'premium'
+export type BrandPresetId = 'lp' | 'azul' | 'champagne' | 'racing' | 'obsidian' | 'custom'
+export type BrandAtmosfera = 'showroom' | 'night' | 'atelier' | 'carbon'
 
 export interface BrandTheme {
   presetId: BrandPresetId
   corPrimaria: string
   corSecundaria: string
+  /** Cor de fundo da aplicação (página). */
   corFundo: string
+  /** Superfície de cards/painéis/header. */
+  corSuperficie: string
   corTexto: string
   corPainel: string
   aparencia: BrandAparencia
+  /** Mood do background cinematográfico. */
+  atmosfera: BrandAtmosfera
+  /** 0–100: intensidade da foto de carros no fundo. */
+  intensidadeFoto: number
 }
 
 export interface Settings {
