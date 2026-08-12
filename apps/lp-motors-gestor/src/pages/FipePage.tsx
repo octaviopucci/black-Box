@@ -196,6 +196,7 @@ export function FipePage() {
     }
     setLoadingPlate(true)
     setPlateResult(null)
+    setHits([])
     setSearched(true)
     try {
       const result = await fipeService.consultPlate(clean, uf, type)
@@ -204,8 +205,42 @@ export function FipePage() {
       if (result.fipe) {
         setDetail(result.fipe)
         if (result.ipva) setIpva(result.ipva)
-        toast('FIPE encontrada pela placa.', 'success')
+        if (result.fipeCandidates?.length) {
+          setHits(
+            result.fipeCandidates.map((c) => ({
+              brand_name: c.brand,
+              model_name: c.model,
+              model_year: c.modelYear,
+              codigo_fipe: c.fipeCode,
+              fuel_name: c.fuel,
+              price: c.price,
+              value_label: c.priceLabel,
+              reference_month: c.referenceMonth,
+            })),
+          )
+        } else if (result.suggestions?.length) {
+          setHits(result.suggestions)
+        }
+        toast(
+          result.source === 'wdapi'
+            ? 'Placa via API Placas · FIPE resolvida.'
+            : result.source === 'placafipe'
+              ? 'FIPE puxada pelo PlacaFIPE.'
+              : 'FIPE encontrada pela placa.',
+          'success',
+        )
         return
+      }
+
+      // Só veículo (sem preço) — preenche busca e mostra sugestões
+      if (result.ok && result.vehicle) {
+        const q = `${result.vehicle.brand} ${result.vehicle.model} ${result.vehicle.modelYear || ''}`.trim()
+        setQuery(q)
+        if (result.suggestions?.length) {
+          setHits(result.suggestions)
+          toast('Veículo identificado. Escolha a versão FIPE abaixo.', 'info')
+          return
+        }
       }
 
       // Estoque local: já temos marca/modelo
@@ -233,9 +268,24 @@ export function FipePage() {
           toast('Valor FIPE carregado a partir do veículo do estoque.', 'success')
           return
         }
+        const results = await fipeService.search(
+          `${local.marca} ${local.modelo} ${local.anoModelo || local.ano}`,
+        )
+        setHits(results)
+        if (results.length) {
+          toast('Escolha a versão FIPE correspondente ao veículo do estoque.', 'info')
+          return
+        }
       }
 
-      toast('Selecione o veículo na Tabela FIPE ou busque pelo modelo.', 'info')
+      if (!result.plateConfigured) {
+        toast(
+          'Configure LP_MOTORS_PLATE_API_TOKEN (API Placas) no Vercel para puxar FIPE pela placa.',
+          'info',
+        )
+      } else {
+        toast(result.message || 'Placa sem FIPE. Busque pelo modelo abaixo.', 'info')
+      }
       cascadeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Falha na consulta da placa', 'error')
@@ -321,7 +371,7 @@ export function FipePage() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-lp-accent">Mercado</p>
         <h1 className="section-title">Consulta FIPE pela placa</h1>
         <p className="section-sub">
-          Informe a placa, busque o modelo ou selecione na tabela — veja FIPE e IPVA estimado.
+          Caminho barato: token da API Placas (WDAPI) + FIPE gratuita. Sem token, busque pelo modelo abaixo.
         </p>
       </div>
 
@@ -414,13 +464,47 @@ export function FipePage() {
               <Info label="Código FIPE" value={detail?.codeFipe || plateResult?.vehicle?.fipeCode || '—'} />
             </div>
 
-            {searched && !fipeValue && !plateResult?.ok ? (
-              <div className="mt-4 rounded-lg border border-lp-line bg-lp-mist/60 px-3 py-3 text-sm text-lp-ink">
-                <p className="font-semibold">Próximo passo</p>
+            {plateResult?.ok &&
+            (plateResult.source === 'wdapi' ||
+              plateResult.source === 'placafipe' ||
+              plateResult.source === 'external') ? (
+              <p className="mt-3 text-xs text-lp-accent">
+                Fonte:{' '}
+                {plateResult.source === 'wdapi'
+                  ? 'API Placas (WDAPI)'
+                  : plateResult.source === 'placafipe'
+                    ? 'PlacaFIPE'
+                    : 'Provedor de placa'}{' '}
+                · {plateResult.message}
+              </p>
+            ) : null}
+
+            {searched && !fipeValue && !plateResult?.plateConfigured ? (
+              <div
+                className="mt-4 border border-lp-line bg-lp-mist px-3 py-3 text-sm text-lp-ink"
+                style={{ borderRadius: 'var(--lp-radius)' }}
+              >
+                <p className="font-semibold">Ativar FIPE pela placa (caminho barato)</p>
                 <p className="mt-1 text-lp-steel">
-                  A identificação automática pela placa depende de um provedor externo (como no PlacaFIPE).
-                  Enquanto isso, use a <strong>busca por modelo</strong> ou a <strong>Tabela FIPE</strong> abaixo
-                  — é gratuito e já retorna preço + IPVA.
+                  1) Cadastre em{' '}
+                  <a
+                    className="text-lp-accent underline"
+                    href="https://apiplacas.com.br/contratar.php"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    apiplacas.com.br
+                  </a>{' '}
+                  (~R$ 0,03/consulta).
+                  <br />
+                  2) No Vercel, adicione{' '}
+                  <code className="bg-lp-paper px-1 text-xs">LP_MOTORS_PLATE_API_TOKEN</code> = seu
+                  token e faça redeploy.
+                  <br />
+                  3) O app puxa marca/modelo pela placa e resolve a FIPE de graça.
+                </p>
+                <p className="mt-2 text-lp-steel">
+                  Enquanto isso, use a <strong>busca por modelo</strong> abaixo (gratuita).
                 </p>
               </div>
             ) : null}

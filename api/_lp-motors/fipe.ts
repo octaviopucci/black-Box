@@ -171,6 +171,18 @@ export function plateFormats(plate: string): { mercosul: string; antiga: string;
   return { mercosul: p, antiga: p, input: p }
 }
 
+export interface PlateFipeCandidate {
+  brand: string
+  model: string
+  modelYear: number
+  fipeCode: string
+  fuel?: string
+  price: number
+  priceLabel: string
+  referenceMonth?: string
+  similarity?: number
+}
+
 export interface PlateLookupResult {
   ok: boolean
   plate: string
@@ -186,20 +198,227 @@ export interface PlateLookupResult {
     fipeCode?: string
     city?: string
     state?: string
+    color?: string
   }
+  /** Opções FIPE retornadas pelo PlacaFIPE (já com preço). */
+  fipeCandidates?: PlateFipeCandidate[]
+  /** Melhor match já escolhido. */
+  bestFipe?: PlateFipeCandidate | null
   message?: string
 }
 
+/** Template padrão WDAPI2 (API Placas) — caminho barato recomendado. */
+export const DEFAULT_WDAPI_URL = 'https://wdapi2.com.br/consulta/{plate}/{token}'
+
+export type PlateProviderKind = 'wdapi' | 'placafipe' | 'custom' | 'none'
+
+export function resolvePlateProvider(): PlateProviderKind {
+  if (process.env.LP_MOTORS_PLACAFIP_TOKEN || process.env.PLACAFIP_TOKEN) return 'placafipe'
+  const url = process.env.LP_MOTORS_PLATE_API_URL || ''
+  const token = process.env.LP_MOTORS_PLATE_API_TOKEN || ''
+  if (url.includes('wdapi') || (!url && token)) return 'wdapi'
+  if (url) return 'custom'
+  return 'none'
+}
+
+export function plateProviderConfigured(): boolean {
+  return resolvePlateProvider() !== 'none'
+}
+
+function plateApiUrlTemplate(): string {
+  const url = process.env.LP_MOTORS_PLATE_API_URL || ''
+  if (url) return url
+  // Só o token → assume WDAPI2 (mais barato)
+  if (process.env.LP_MOTORS_PLATE_API_TOKEN) return DEFAULT_WDAPI_URL
+  return ''
+}
+
+function parseMoney(raw: unknown): number {
+  if (typeof raw === 'number') return raw
+  return Number(String(raw || '').replace(/[^\d,.-]/g, '').replace(',', '.')) || 0
+}
+
+function pickBestCandidate(list: PlateFipeCandidate[]): PlateFipeCandidate | null {
+  if (!list.length) return null
+  return [...list].sort((a, b) => (b.similarity || 0) - (a.similarity || 0) || b.price - a.price)[0]
+}
+
+function splitBrandModel(raw: string): { brand: string; model: string } {
+  const cleaned = raw.trim()
+  if (!cleaned) return { brand: '', model: '' }
+  const parts = cleaned.split('/')
+  if (parts.length >= 2) {
+    return { brand: parts[0].trim(), model: parts.slice(1).join('/').trim() }
+  }
+  const sp = cleaned.split(/\s+/)
+  if (sp.length >= 2) return { brand: sp[0], model: sp.slice(1).join(' ') }
+  return { brand: cleaned, model: '' }
+}
+
+function parseYearPair(raw: unknown): { manufactureYear?: number; modelYear?: number } {
+  const s = String(raw || '').trim()
+  if (!s) return {}
+  const m = s.match(/(\d{4})\s*[\/\-]\s*(\d{4})/)
+  if (m) return { manufactureYear: Number(m[1]), modelYear: Number(m[2]) }
+  const y = Number(s.replace(/\D/g, '').slice(0, 4))
+  return y ? { modelYear: y } : {}
+}
+
+function extractFipeRows(data: Record<string, unknown>): Record<string, unknown>[] {
+  const candidates: unknown[] = []
+  const push = (v: unknown) => {
+    if (Array.isArray(v)) candidates.push(...v)
+    else if (v && typeof v === 'object') {
+      const o = v as Record<string, unknown>
+      if (Array.isArray(o.dados)) candidates.push(...o.dados)
+      else if (Array.isArray(o.data)) candidates.push(...o.data)
+      else if (Array.isArray(o.fipe)) candidates.push(...o.fipe)
+      else if (Array.isArray(o.fipes)) candidates.push(...o.fipes)
+    }
+  }
+  push(data.fipe)
+  push(data.fipes)
+  push(data.FIPE)
+  push((data.extra as Record<string, unknown> | undefined)?.fipe)
+  push((data.data as Record<string, unknown> | undefined)?.fipes)
+  push((data.data as Record<string, unknown> | undefined)?.fipe)
+  return candidates.filter((x): x is Record<string, unknown> => Boolean(x) && typeof x === 'object')
+}
+
 /**
- * Optional external plate API.
- * Configure LP_MOTORS_PLATE_API_URL as a template, e.g.:
- *   https://seu-provedor.example/placa/{plate}
- * Expected JSON fields (flexible): marca/brand, modelo/model, ano/anoModelo, codigoFipe/fipeCode
+ * Provedor nativo PlacaFIPE — https://api.placafipe.com.br/getplacafipe
+ * Env: LP_MOTORS_PLACAFIP_TOKEN (ou PLACAFIP_TOKEN)
  */
-export async function lookupPlateExternal(plate: string): Promise<PlateLookupResult> {
+export async function lookupPlatePlacaFipe(plate: string): Promise<PlateLookupResult> {
   const formats = plateFormats(plate)
   const normalized = formats.input
-  const template = process.env.LP_MOTORS_PLATE_API_URL || ''
+  const token =
+    process.env.LP_MOTORS_PLACAFIP_TOKEN ||
+    process.env.PLACAFIP_TOKEN ||
+    process.env.LP_MOTORS_PLATE_API_TOKEN ||
+    ''
+
+  if (!token) {
+    return {
+      ok: false,
+      plate: normalized,
+      formats: { mercosul: formats.mercosul, antiga: formats.antiga },
+      source: 'none',
+      message: 'Token PlacaFIPE não configurado.',
+    }
+  }
+
+  try {
+    const res = await fetch('https://api.placafipe.com.br/getplacafipe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ placa: normalized, token }),
+    })
+    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>
+    const code = Number(data.codigo ?? 0)
+    if (!res.ok || (code !== 0 && code !== 1 && code !== 22)) {
+      return {
+        ok: false,
+        plate: normalized,
+        formats: { mercosul: formats.mercosul, antiga: formats.antiga },
+        source: 'placafipe',
+        message: String(
+          data.msg || data.message || data.error || `PlacaFIPE retornou ${res.status}`,
+        ),
+      }
+    }
+
+    const info = (data.informacoes_veiculo || {}) as Record<string, unknown>
+    const brand = String(info.marca || '')
+    const model = String(info.modelo || '')
+    const modelYear = Number(info.ano_modelo || info.ano || 0) || undefined
+    const manufactureYear = Number(info.ano || info.ano_fabricacao || 0) || undefined
+
+    const rawFipe = Array.isArray(data.fipe) ? data.fipe : []
+    const fipeCandidates: PlateFipeCandidate[] = rawFipe
+      .map((row) => {
+        const item = row as Record<string, unknown>
+        const price = parseMoney(item.valor)
+        const unit = String(item.unidade_valor || 'R$')
+        return {
+          brand: String(item.marca || brand),
+          model: String(item.modelo || model),
+          modelYear: Number(item.ano_modelo || modelYear || 0) || 0,
+          fipeCode: String(item.codigo_fipe || ''),
+          fuel: item.combustivel ? String(item.combustivel) : undefined,
+          price,
+          priceLabel:
+            price > 0
+              ? `${unit} ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+              : '',
+          referenceMonth: item.mes_referencia ? String(item.mes_referencia) : undefined,
+          similarity: Number(item.similaridade || item.correspondencia || 0) || 0,
+        }
+      })
+      .filter((c) => c.fipeCode || c.price > 0)
+
+    const bestFipe = pickBestCandidate(fipeCandidates)
+
+    if (!brand && !model && !fipeCandidates.length) {
+      return {
+        ok: false,
+        plate: normalized,
+        formats: { mercosul: formats.mercosul, antiga: formats.antiga },
+        source: 'placafipe',
+        message: String(data.msg || 'PlacaFIPE não encontrou veículo para esta placa.'),
+      }
+    }
+
+    return {
+      ok: true,
+      plate: normalized,
+      formats: { mercosul: formats.mercosul, antiga: formats.antiga },
+      source: 'placafipe',
+      vehicle: {
+        brand,
+        model,
+        version: model,
+        modelYear,
+        manufactureYear,
+        fipeCode: bestFipe?.fipeCode,
+        fuel: String(info.combustivel || bestFipe?.fuel || '') || undefined,
+        city: info.municipio ? String(info.municipio) : undefined,
+        state: info.uf ? String(info.uf) : undefined,
+        color: info.cor ? String(info.cor) : undefined,
+      },
+      fipeCandidates,
+      bestFipe,
+      message: String(data.msg || 'Veículo encontrado no PlacaFIPE'),
+    }
+  } catch (err) {
+    return {
+      ok: false,
+      plate: normalized,
+      formats: { mercosul: formats.mercosul, antiga: formats.antiga },
+      source: 'placafipe',
+      message: err instanceof Error ? err.message : 'Falha ao consultar PlacaFIPE',
+    }
+  }
+}
+
+/**
+ * Caminho barato: WDAPI2 / API Placas (ou outro template).
+ *
+ * Env recomendada (só o token):
+ *   LP_MOTORS_PLATE_API_TOKEN=<token>
+ *   → usa https://wdapi2.com.br/consulta/{plate}/{token}
+ *
+ * Ou template custom:
+ *   LP_MOTORS_PLATE_API_URL=https://wdapi2.com.br/consulta/{plate}/{token}
+ *   LP_MOTORS_PLATE_API_TOKEN=...
+ *
+ * Depois o backend resolve FIPE de graça (Parallelum) por código ou marca/modelo.
+ */
+export async function lookupPlateGeneric(plate: string): Promise<PlateLookupResult> {
+  const formats = plateFormats(plate)
+  const normalized = formats.input
+  const template = plateApiUrlTemplate()
+  const provider = resolvePlateProvider() === 'wdapi' ? 'wdapi' : 'external'
 
   if (!template) {
     return {
@@ -207,21 +426,22 @@ export async function lookupPlateExternal(plate: string): Promise<PlateLookupRes
       plate: normalized,
       formats: { mercosul: formats.mercosul, antiga: formats.antiga },
       source: 'none',
-      message:
-        'Consulta automática por placa não configurada. Use a seleção FIPE abaixo (marca → modelo → ano) — gratuita.',
+      message: 'Provedor de placa não configurado.',
     }
   }
 
+  const token = process.env.LP_MOTORS_PLATE_API_TOKEN || ''
   const url = template
     .replace('{plate}', encodeURIComponent(normalized))
     .replace('{placa}', encodeURIComponent(normalized))
     .replace('{mercosul}', encodeURIComponent(formats.mercosul))
     .replace('{antiga}', encodeURIComponent(formats.antiga))
+    .replace('{token}', encodeURIComponent(token))
 
   try {
     const headers: Record<string, string> = { Accept: 'application/json' }
-    if (process.env.LP_MOTORS_PLATE_API_TOKEN) {
-      headers.Authorization = `Bearer ${process.env.LP_MOTORS_PLATE_API_TOKEN}`
+    if (token && !template.includes('{token}')) {
+      headers.Authorization = `Bearer ${token}`
     }
     const res = await fetch(url, { headers })
     const data = (await res.json().catch(() => ({}))) as Record<string, unknown>
@@ -230,25 +450,94 @@ export async function lookupPlateExternal(plate: string): Promise<PlateLookupRes
         ok: false,
         plate: normalized,
         formats: { mercosul: formats.mercosul, antiga: formats.antiga },
-        source: 'external',
-        message: String(data.error || data.message || `Provedor de placa retornou ${res.status}`),
+        source: provider,
+        message: String(data.error || data.message || data.mensagem || `Provedor de placa retornou ${res.status}`),
       }
     }
 
-    const brand = String(data.brand || data.marca || data.Brand || '')
-    const model = String(data.model || data.modelo || data.Model || '')
-    const version = String(data.version || data.versao || data.Version || '')
-    const fipeCode = String(data.fipeCode || data.codigoFipe || data.codigo_fipe || '')
-    const modelYear = Number(data.modelYear || data.anoModelo || data.ano_modelo || data.ano || 0) || undefined
-    const manufactureYear =
-      Number(data.manufactureYear || data.anoFabricacao || data.ano_fabricacao || 0) || undefined
+    const nested = (data.informacoes_veiculo ||
+      data.vehicle ||
+      data.veiculo ||
+      (data.data as Record<string, unknown> | undefined)?.veiculo ||
+      data.dados ||
+      data.extra ||
+      data) as Record<string, unknown>
 
-    if (!brand && !model && !fipeCode) {
+    let brand = String(
+      nested.brand || nested.marca || nested.MARCA || data.brand || data.marca || data.MARCA || '',
+    )
+    let model = String(
+      nested.model || nested.modelo || nested.MODELO || data.model || data.modelo || data.MODELO || '',
+    )
+    const marcaModelo = String(
+      nested.marcaModelo ||
+        nested.marca_modelo ||
+        nested.MARCA_MODELO ||
+        data.marcaModelo ||
+        data.marca_modelo ||
+        '',
+    )
+    if ((!brand || !model) && marcaModelo) {
+      const split = splitBrandModel(marcaModelo)
+      brand = brand || split.brand
+      model = model || split.model
+    }
+
+    const version = String(nested.version || nested.versao || model || '')
+    const yearFromAno = parseYearPair(nested.ano || nested.ANO || data.ano)
+    const modelYear =
+      Number(nested.modelYear || nested.anoModelo || nested.ano_modelo || nested.AnoModelo || 0) ||
+      yearFromAno.modelYear ||
+      undefined
+    const manufactureYear =
+      Number(
+        nested.manufactureYear || nested.anoFabricacao || nested.ano_fabricacao || nested.AnoFabricacao || 0,
+      ) ||
+      yearFromAno.manufactureYear ||
+      undefined
+
+    const fipeRows = extractFipeRows(data)
+    const fipeCandidates: PlateFipeCandidate[] = fipeRows
+      .map((item) => {
+        const price = parseMoney(item.valor || item.preco || item.price || item.valor_fipe)
+        const code = String(item.codigo_fipe || item.codigoFipe || item.codigo || item.fipe_codigo || '')
+        const rowBrand = String(item.marca || item.texto_marca || brand)
+        const rowModel = String(
+          item.modelo || item.texto_modelo || item.marca_modelo || item.modelo_versao || model,
+        )
+        return {
+          brand: rowBrand,
+          model: rowModel,
+          modelYear: Number(item.ano_modelo || item.anoModelo || modelYear || 0) || 0,
+          fipeCode: code,
+          fuel: item.combustivel ? String(item.combustivel) : undefined,
+          price,
+          priceLabel:
+            price > 0
+              ? `R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+              : '',
+          referenceMonth: item.mes_referencia
+            ? String(item.mes_referencia)
+            : item.mesReferencia
+              ? String(item.mesReferencia)
+              : undefined,
+          similarity: Number(item.score || item.similaridade || item.correspondencia || 0) || 0,
+        }
+      })
+      .filter((c) => c.fipeCode || c.price > 0)
+
+    const bestFipe = pickBestCandidate(fipeCandidates)
+    const fipeCode =
+      bestFipe?.fipeCode ||
+      String(nested.fipeCode || nested.codigoFipe || nested.codigo_fipe || data.codigo_fipe || '') ||
+      undefined
+
+    if (!brand && !model && !fipeCode && !fipeCandidates.length) {
       return {
         ok: false,
         plate: normalized,
         formats: { mercosul: formats.mercosul, antiga: formats.antiga },
-        source: 'external',
+        source: provider,
         message: 'Provedor não retornou marca/modelo/código FIPE para esta placa.',
       }
     }
@@ -257,27 +546,62 @@ export async function lookupPlateExternal(plate: string): Promise<PlateLookupRes
       ok: true,
       plate: normalized,
       formats: { mercosul: formats.mercosul, antiga: formats.antiga },
-      source: 'external',
+      source: provider,
       vehicle: {
         brand,
         model,
         version,
-        fipeCode: fipeCode || undefined,
+        fipeCode,
         modelYear,
         manufactureYear,
-        fuel: String(data.fuel || data.combustivel || '') || undefined,
-        city: String(data.city || data.municipio || '') || undefined,
-        state: String(data.state || data.uf || '') || undefined,
+        fuel: String(nested.fuel || nested.combustivel || nested.COMBUSTIVEL || '') || undefined,
+        city: String(nested.city || nested.municipio || nested.MUNICIPIO || '') || undefined,
+        state: String(nested.state || nested.uf || nested.UF || '') || undefined,
+        color: nested.cor || nested.COR ? String(nested.cor || nested.COR) : undefined,
       },
+      fipeCandidates: fipeCandidates.length ? fipeCandidates : undefined,
+      bestFipe,
+      message:
+        provider === 'wdapi'
+          ? 'Veículo identificado via API Placas (WDAPI). FIPE resolvida no LP Motors.'
+          : 'Veículo identificado no provedor de placa.',
     }
   } catch (err) {
     return {
       ok: false,
       plate: normalized,
       formats: { mercosul: formats.mercosul, antiga: formats.antiga },
-      source: 'external',
+      source: provider,
       message: err instanceof Error ? err.message : 'Falha na consulta de placa',
     }
+  }
+}
+
+/**
+ * Orquestra provedores:
+ * 1) PlacaFIPE (se token — mais caro, FIPE pronta)
+ * 2) WDAPI / custom (barato) → FIPE grátis via Parallelum
+ */
+export async function lookupPlateExternal(plate: string): Promise<PlateLookupResult> {
+  const formats = plateFormats(plate)
+  const normalized = formats.input
+
+  if (process.env.LP_MOTORS_PLACAFIP_TOKEN || process.env.PLACAFIP_TOKEN) {
+    const r = await lookupPlatePlacaFipe(plate)
+    if (r.ok || r.source === 'placafipe') return r
+  }
+
+  if (plateApiUrlTemplate()) {
+    return lookupPlateGeneric(plate)
+  }
+
+  return {
+    ok: false,
+    plate: normalized,
+    formats: { mercosul: formats.mercosul, antiga: formats.antiga },
+    source: 'none',
+    message:
+      'Para FIPE pela placa no caminho barato: cadastre em apiplacas.com.br, coloque LP_MOTORS_PLATE_API_TOKEN no Vercel e redeploy. Sem token, use a busca por modelo (gratuita).',
   }
 }
 

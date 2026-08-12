@@ -16,6 +16,8 @@ import {
   normalizePlate,
   normalizeTextSearchResults,
   plateFormats,
+  plateProviderConfigured,
+  resolvePlateProvider,
   type FipeVehicleType,
 } from './_lp-motors/fipe'
 
@@ -60,7 +62,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ok: true,
         service: 'lp-motors',
         blob: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-        plateApi: Boolean(process.env.LP_MOTORS_PLATE_API_URL),
+        plateApi: plateProviderConfigured(),
+        plateProvider: resolvePlateProvider(),
         fipe: true,
         orgs: Object.keys(store.data().organizations).length,
       })
@@ -137,9 +140,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       let fipe: unknown = null
       let ipva: unknown = null
       const uf = String(req.query?.uf || 'SP')
+      const type = (String(req.query?.type || 'cars') as FipeVehicleType) || 'cars'
+      let suggestions: unknown[] = []
 
-      if (external.ok && external.vehicle?.fipeCode) {
-        const type = (String(req.query?.type || 'cars') as FipeVehicleType) || 'cars'
+      // 1) PlacaFIPE já trouxe preço — usa o melhor match
+      if (external.ok && external.bestFipe?.price) {
+        const best = external.bestFipe
+        fipe = {
+          brand: best.brand,
+          model: best.model,
+          modelYear: best.modelYear,
+          fuel: best.fuel,
+          codeFipe: best.fipeCode,
+          price: best.priceLabel || `R$ ${best.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          referenceMonth: best.referenceMonth,
+        }
+        ipva = estimateIpva(best.price, uf)
+      } else if (external.ok && external.vehicle?.fipeCode) {
+        // 2) Só veio código → resolve na Parallelum
         const detail = await fipeDetailByCode(
           type,
           external.vehicle.fipeCode,
@@ -151,6 +169,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const price = Number(String(priceRaw).replace(/[^\d,]/g, '').replace(',', '.')) || 0
           if (price > 0) ipva = estimateIpva(price, uf)
         }
+      } else if (external.ok && external.vehicle?.brand && external.vehicle?.model) {
+        // 3) Marca/modelo sem FIPE → busca textual gratuita
+        const q = `${external.vehicle.brand} ${external.vehicle.model} ${external.vehicle.modelYear || ''}`.trim()
+        const search = await fipeTextSearch(q)
+        if (search.ok) {
+          const normalized = normalizeTextSearchResults(search.data)
+          suggestions = normalized.results.slice(0, 8)
+          const top = normalized.results[0]
+          if (top?.price && top.codigo_fipe) {
+            fipe = {
+              brand: top.brand_name,
+              model: top.model_name,
+              modelYear: top.model_year,
+              fuel: top.fuel_name,
+              codeFipe: top.codigo_fipe,
+              price: top.value_label || `R$ ${Number(top.price).toLocaleString('pt-BR')}`,
+              referenceMonth: top.reference_month,
+            }
+            ipva = estimateIpva(Number(top.price), uf)
+          }
+        }
       }
 
       return json(res, 200, {
@@ -158,7 +197,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         formats: { mercosul: formats.mercosul, antiga: formats.antiga },
         fipe,
         ipva,
-        plateConfigured: Boolean(process.env.LP_MOTORS_PLATE_API_URL),
+        suggestions,
+        plateConfigured: plateProviderConfigured(),
       })
     }
 
