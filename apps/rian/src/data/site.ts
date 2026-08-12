@@ -1,4 +1,4 @@
-const AFID = 'hZc5RhT'
+const AFID = 'hZc5iRhT'
 
 export const affiliate = {
   slug: 'rian',
