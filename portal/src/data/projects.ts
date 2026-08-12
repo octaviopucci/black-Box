@@ -176,10 +176,10 @@ export const projects: ClientProject[] = [
     name: 'Protocolo PAV — BASE',
     client: 'BASE · Sistema PAV',
     description:
-      'Funil quiz + landing BASE: diagnóstico personalizado, Protocolo PAV como porta de entrada, Arena e página de vendas premium.',
-    href: '/protocolo-pav/',
+      'Funil quiz v2 visual BASE (copy intacta) + planos Kiwify originais. Arena e protocolo no mesmo app.',
+    href: '/protocolo-pav/quiz-v2',
     status: 'demo',
-    tags: ['React', 'Game', 'BASE'],
+    tags: ['React', 'Quiz', 'BASE'],
   },
   {
     id: 'rian',
