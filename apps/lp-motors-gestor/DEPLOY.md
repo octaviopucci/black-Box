@@ -34,25 +34,29 @@ Não altera o Maciel Motors (`/maciel-motors/`), que continua sendo publicado em
 
 ## Sync multi-dispositivo (obrigatório em produção)
 
-Sem `BLOB_READ_WRITE_TOKEN`, a API grava só em `/tmp` da instância serverless.
+Sem Blob, a API grava só em `/tmp` da instância serverless.
 Isso **não** funciona entre PC e celular: o health fica `"blob": false` e o app mostra **“Só neste aparelho”**.
 
 ### Checklist Vercel Blob
 
 1. Abra o projeto no [Vercel Dashboard](https://vercel.com) (ex.: `blckbox`).
 2. **Storage → Create Database → Blob** (plano Hobby tem faixa gratuita).
-3. Conecte o Blob Store ao projeto de **Production**.
-4. Em **Settings → Environment Variables**, confirme:
-   - Nome: `BLOB_READ_WRITE_TOKEN`
-   - Escopos: Production (e Preview se quiser testar em preview).
-5. **Redeploy** a Production (Deployments → ⋯ → Redeploy). Variável nova não entra no deployment antigo.
+3. Conecte o Blob Store ao projeto (**Show Connections** → Production + Preview).
+4. Em **Settings → Environment Variables**, o suficiente hoje é:
+   - `BLOB_STORE_ID` (modo OIDC moderno da Vercel) **ou**
+   - `BLOB_READ_WRITE_TOKEN` (token clássico, opcional)
+5. **Redeploy** a Production (Deployments → ⋯ → Redeploy).
 6. Valide:
    ```bash
    curl -s https://blckbox.vercel.app/api/lp-motors/health
    ```
-   Esperado: `"blob": true`.
-7. No app (**Configurações → Sincronização**), toque **Sincronizar agora**.
+   Esperado: `"blob": true` (e `"blobAuth": "oidc"` ou `"token"`).
+7. No app (**Configurações → Sincronização**), toque **Sincronizar**.
    O indicador deve mudar de **Só neste aparelho** para **Sincronizado**.
+
+#### Se quiser o token clássico mesmo assim
+
+No Blob → aba **Settings** / **Tokens** (ou `.env.local`), copie `BLOB_READ_WRITE_TOKEN` e cole em Environment Variables. Com o app atual, **não é obrigatório** se `BLOB_STORE_ID` já existir.
 
 ### Opcional — placa automática
 

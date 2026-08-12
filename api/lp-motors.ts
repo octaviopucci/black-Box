@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
+  blobConfigured,
   getStore,
   hashPassword,
   issueToken,
@@ -59,7 +60,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 200, {
         ok: true,
         service: 'lp-motors',
-        blob: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+        blob: blobConfigured(),
+        blobAuth: process.env.BLOB_READ_WRITE_TOKEN
+          ? 'token'
+          : process.env.BLOB_STORE_ID
+            ? 'oidc'
+            : 'none',
         plateApi: Boolean(process.env.LP_MOTORS_PLATE_API_URL),
         fipe: true,
         orgs: Object.keys(store.data().organizations).length,

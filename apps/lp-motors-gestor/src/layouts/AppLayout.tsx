@@ -108,7 +108,7 @@ function SyncIndicator({ status, onSync }: { status: SyncStatus; onSync: () => v
     syncing: 'Sincronizando com a nuvem…',
     synced: 'Dados na nuvem — PC e celular compartilham a mesma base',
     'device-only':
-      'API online, mas sem Vercel Blob: os dados ficam só neste aparelho. Configure BLOB_READ_WRITE_TOKEN.',
+      'API online, mas sem Vercel Blob: os dados ficam só neste aparelho. Conecte o Blob ao projeto e faça redeploy.',
     offline: 'Sem conexão com a API de sync',
     error: 'Falha ao sincronizar — toque para tentar de novo',
   }
@@ -378,12 +378,12 @@ export function AppLayout() {
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-lp-copper">Dados só neste aparelho</p>
                 <p className="mt-0.5 text-lp-steel">
-                  A API responde, mas o Vercel Blob ainda não está configurado. PC e celular não
-                  vão bater até existir a variável{' '}
+                  A API responde, mas o Vercel Blob ainda não está ativo neste deploy. Confirme que
+                  o store está conectado (variável{' '}
                   <code className="bg-lp-mist px-1 text-xs" style={{ borderRadius: '4px' }}>
-                    BLOB_READ_WRITE_TOKEN
-                  </code>{' '}
-                  no projeto Vercel. Veja Configurações → Sincronização.
+                    BLOB_STORE_ID
+                  </code>
+                  ) e faça <strong>Redeploy</strong>. Veja Configurações → Sincronização.
                 </p>
               </div>
               <NavLink to="/configuracoes" className="btn-ghost shrink-0 text-xs text-lp-copper">
