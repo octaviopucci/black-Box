@@ -2,4 +2,4 @@
 
 /// <reference types="vite/client" />
 
-// redeploy rian funnel 2026-08-10T18:01:09Z
+// redeploy rian afid hZc5iRhT 2026-08-12T18:43:36Z
