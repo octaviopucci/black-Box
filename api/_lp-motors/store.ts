@@ -9,6 +9,17 @@ const FILE_PATH =
     ? '/tmp/lp-motors-store.json'
     : './data/lp-motors-store.json'
 
+/** Blob ativo via token clássico OU OIDC moderno (BLOB_STORE_ID na Vercel). */
+export function blobConfigured(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)
+}
+
+/** Só passa `token` quando existe — senão o SDK usa OIDC + BLOB_STORE_ID. */
+function blobAuthOptions(): { token?: string } {
+  const token = process.env.BLOB_READ_WRITE_TOKEN
+  return token ? { token } : {}
+}
+
 export interface CloudSession {
   userId: string
   username: string
@@ -90,12 +101,12 @@ export class JsonStore {
     // Blob is the source of truth for multi-device. Never let a stale /tmp
     // file overwrite a successful Blob hydrate (Vercel instances share Blob,
     // not /tmp).
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    if (blobConfigured()) {
       try {
         const listed = await list({
           prefix: BLOB_PATHNAME,
           limit: 1,
-          token: process.env.BLOB_READ_WRITE_TOKEN,
+          ...blobAuthOptions(),
         })
         const blob = listed.blobs.find((b) => b.pathname === BLOB_PATHNAME)
         if (blob) {
@@ -139,14 +150,14 @@ export class JsonStore {
   async persist(): Promise<void> {
     if (!this.dirty) return
     writeFileSync(FILE_PATH, JSON.stringify(this.store))
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    if (blobConfigured()) {
       try {
         await put(BLOB_PATHNAME, JSON.stringify(this.store), {
           access: 'public',
           addRandomSuffix: false,
           allowOverwrite: true,
           contentType: 'application/json',
-          token: process.env.BLOB_READ_WRITE_TOKEN,
+          ...blobAuthOptions(),
         })
       } catch (err) {
         console.warn('[lp-motors] blob persist failed', err)
