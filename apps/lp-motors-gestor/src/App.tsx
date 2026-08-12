@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppProvider } from '@/context/AppContext'
+import { CinematicIntro } from '@/components/common/CinematicIntro'
 import { AppLayout } from '@/layouts/AppLayout'
 import { ProtectedRoute, PublicOnlyRoute } from '@/layouts/ProtectedRoute'
 import { LoginPage } from '@/pages/LoginPage'
@@ -29,6 +30,7 @@ const basename = (import.meta.env.BASE_URL || '/').replace(/\/$/, '') || '/'
 export default function App() {
   return (
     <AppProvider>
+      <CinematicIntro />
       <BrowserRouter basename={basename === '/' ? undefined : basename}>
         <Routes>
           <Route element={<PublicOnlyRoute />}>

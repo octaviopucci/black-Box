@@ -11,11 +11,13 @@ export default {
           steel: 'var(--lp-steel)',
           mist: 'var(--lp-mist)',
           paper: 'var(--lp-paper)',
+          surface: 'var(--lp-surface)',
           line: 'var(--lp-line)',
           accent: 'var(--lp-accent)',
           'accent-dim': 'var(--lp-accent-dim)',
           'accent-soft': 'var(--lp-accent-soft)',
           copper: 'var(--lp-copper)',
+          glow: 'var(--lp-glow)',
           warn: '#D97706',
           danger: '#B91C1C',
           ok: '#15803D',
@@ -31,7 +33,6 @@ export default {
           vendido: '#B91C1C',
           entregue: '#64748B',
           cancelado: '#94A3B8',
-          // legacy aliases
           disponivel: '#0F766E',
           consignado: '#3B82F6',
           oficina: '#EAB308',
@@ -42,23 +43,33 @@ export default {
         display: ['"Syne"', 'system-ui', 'sans-serif'],
         body: ['"Manrope"', 'system-ui', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
+        cinema: ['"Cormorant Garamond"', 'Georgia', 'serif'],
       },
       borderRadius: {
         lp: 'var(--lp-radius)',
         'lp-lg': 'var(--lp-radius-lg)',
       },
       boxShadow: {
-        panel: '0 1px 2px rgba(12, 18, 34, 0.04), 0 8px 24px rgba(12, 18, 34, 0.06)',
-        lift: '0 12px 32px rgba(12, 18, 34, 0.1)',
+        panel: '0 1px 2px rgba(0,0,0,0.08), 0 18px 40px rgba(0,0,0,0.18)',
+        lift: '0 20px 48px rgba(0,0,0,0.28)',
+        glow: '0 0 40px var(--lp-glow)',
       },
       backgroundImage: {
         'lp-grid':
-          'linear-gradient(color-mix(in srgb, var(--lp-steel) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--lp-steel) 12%, transparent) 1px, transparent 1px)',
-        'lp-hero':
-          'radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--lp-accent) 18%, transparent), transparent 50%), radial-gradient(ellipse at 100% 100%, color-mix(in srgb, var(--lp-copper) 12%, transparent), transparent 45%)',
+          'linear-gradient(color-mix(in srgb, var(--lp-steel) 14%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--lp-steel) 14%, transparent) 1px, transparent 1px)',
+        'lp-hero': 'var(--lp-wash)',
       },
       backgroundSize: {
         grid: '32px 32px',
+      },
+      keyframes: {
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(14px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
       },
     },
   },

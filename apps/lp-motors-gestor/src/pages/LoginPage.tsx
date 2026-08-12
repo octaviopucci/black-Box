@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { Eye, EyeOff, Lock, User } from 'lucide-react'
 import { LpLogo } from '@/components/common/LpLogo'
 import { Button } from '@/components/ui/Button'
@@ -34,18 +35,26 @@ export function LoginPage() {
       <Toast />
       <div className="pointer-events-none absolute inset-0 bg-lp-hero" />
       <div
-        className="pointer-events-none absolute inset-0 opacity-40"
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
         style={{
           backgroundImage:
-            'linear-gradient(color-mix(in srgb, var(--lp-steel) 10%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--lp-steel) 10%, transparent) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
+            'linear-gradient(color-mix(in srgb, var(--lp-steel) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--lp-steel) 12%, transparent) 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+          maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
         }}
       />
 
-      <div className="relative z-10 w-full max-w-md">
+      <motion.div
+        className="relative z-10 w-full max-w-md"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="mb-8 text-center">
           <LpLogo size="lg" className="mx-auto justify-center" />
-          <h1 className="section-title mt-6">{brandFullName(settings)}</h1>
+          <h1 className="mt-6 font-cinema text-4xl text-lp-ink sm:text-5xl">
+            {brandFullName(settings)}
+          </h1>
           <p className="section-sub">
             {settings.slogan || 'Gestão profissional de estoque automotivo'}
           </p>
@@ -82,24 +91,26 @@ export function LoginPage() {
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-lp-steel hover:text-lp-ink"
                 onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </label>
 
-          <Checkbox label="Lembrar acesso" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+          <div className="flex items-center justify-between">
+            <Checkbox
+              label="Lembrar acesso"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+            />
+          </div>
 
-          <Button type="submit" className="w-full" size="lg" loading={loading}>
-            Entrar
+          <Button type="submit" className="w-full" loading={loading}>
+            Entrar no showroom
           </Button>
-
-          <p className="rounded-lg bg-lp-mist/80 px-3 py-2 text-center text-xs text-lp-steel">
-            Acesso demo: <strong className="text-lp-ink">admin</strong> /{' '}
-            <strong className="text-lp-ink">LPMotors123</strong>
-          </p>
         </form>
-      </div>
+      </motion.div>
     </div>
   )
 }

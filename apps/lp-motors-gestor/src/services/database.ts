@@ -15,7 +15,7 @@ import { defaultOrgSettings, normalizeStatus } from '@/utils/finance'
 import { defaultBrandTheme, normalizeBrand } from '@/utils/brand'
 import { DEFAULT_CHECKLIST } from '@/utils/constants'
 
-const DB_VERSION = 6
+const DB_VERSION = 7
 const DB_KEY = `lp_motors_gestor_db_v5${storageSuffix}`
 const SESSION_KEY = `lp_motors_gestor_session${storageSuffix}`
 const REMEMBER_KEY = `lp_motors_gestor_remember${storageSuffix}`
@@ -50,7 +50,7 @@ function createDefaultSettings(orgId: string): Settings {
     organizationId: orgId,
     nomeEmpresa: APP_NAME,
     nomeCurto: APP_SHORT,
-    slogan: 'Gestão profissional de estoque automotivo',
+    slogan: 'Showroom intelligence para lojas de elite',
     logo: '',
     telefone: '(11) 4000-0000',
     whatsapp: '(11) 90000-0000',
@@ -58,8 +58,8 @@ function createDefaultSettings(orgId: string): Settings {
     email: 'contato@lpmotors.com.br',
     endereco: 'Av. das Concessionárias, 100',
     cidade: 'São Paulo - SP',
-    tema: 'light',
-    modoEscuro: false,
+    tema: 'dark',
+    modoEscuro: true,
     brand: defaultBrandTheme(),
     org: defaultOrgSettings(),
     updatedAt: nowISO(),

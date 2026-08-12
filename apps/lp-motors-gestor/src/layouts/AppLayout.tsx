@@ -25,7 +25,9 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { LpLogo } from '@/components/common/LpLogo'
+import { MotionPage } from '@/components/common/MotionPage'
 import { LoadingOverlay, Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
 import { vehicleService } from '@/services/vehicles'
@@ -133,6 +135,7 @@ export function AppLayout() {
   const [searchOpen, setSearchOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const results = useMemo(() => {
     if (!search.trim()) return []
@@ -158,12 +161,12 @@ export function AppLayout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-lp-paper text-lp-ink">
+    <div className="relative flex min-h-screen flex-col text-lp-ink">
       <Toast />
       <LoadingOverlay show={loading} />
 
       {/* Top command bar */}
-      <header className="sticky top-0 z-40 border-b border-lp-line bg-white/90 backdrop-blur-md">
+      <header className="glass-bar sticky top-0 z-40 border-b">
         <div className="flex h-14 items-center gap-3 px-3 sm:px-4 lg:px-5">
           <button
             type="button"
@@ -182,9 +185,9 @@ export function AppLayout() {
           </NavLink>
 
           <div ref={searchRef} className="relative mx-auto hidden max-w-xl flex-1 md:block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-lp-steel/50" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-lp-steel" />
             <input
-              className="input-field pl-9 pr-4 py-2 text-sm"
+              className="input-field py-2 pl-9 pr-4 text-sm"
               placeholder="Buscar placa, modelo, marca, chassi, renavam, código…"
               value={search}
               onChange={(e) => {
@@ -194,13 +197,13 @@ export function AppLayout() {
               onFocus={() => setSearchOpen(true)}
             />
             {searchOpen && search.trim() ? (
-              <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-lp-line bg-white shadow-lift">
+              <div className="panel absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden shadow-lift">
                 {results.length ? (
                   results.map((v) => (
                     <button
                       key={v.id}
                       type="button"
-                      className="flex w-full items-center justify-between gap-3 border-b border-lp-line/60 px-4 py-2.5 text-left text-sm hover:bg-lp-mist/60 last:border-0"
+                      className="flex w-full items-center justify-between gap-3 border-b border-lp-line px-4 py-2.5 text-left text-sm hover:bg-lp-mist last:border-0"
                       onClick={() => pickResult(v.id)}
                     >
                       <span>
@@ -229,8 +232,8 @@ export function AppLayout() {
               <Plus className="h-4 w-4" />
               <span className="hidden lg:inline">Novo veículo</span>
             </NavLink>
-            <div className="hidden items-center gap-2 rounded-lg border border-lp-line bg-lp-mist/40 px-2.5 py-1.5 sm:flex">
-              <div className="h-7 w-7 rounded-full bg-lp-accent/15 text-center text-xs font-bold leading-7 text-lp-accent">
+            <div className="hidden items-center gap-2 border border-lp-line bg-lp-mist px-2.5 py-1.5 sm:flex" style={{ borderRadius: 'var(--lp-radius)' }}>
+              <div className="h-7 w-7 rounded-full bg-lp-accent-soft text-center text-xs font-bold leading-7 text-lp-accent">
                 {(user?.nome || 'U').charAt(0).toUpperCase()}
               </div>
               <div className="hidden text-left lg:block">
@@ -245,7 +248,7 @@ export function AppLayout() {
         </div>
 
         {/* Secondary horizontal nav — desktop */}
-        <nav className="hidden border-t border-lp-line/80 bg-lp-mist/30 lg:block">
+        <nav className="hidden border-t border-lp-line lg:block">
           <div className="flex items-center gap-1 overflow-x-auto px-4 py-1.5">
             {NAV_GROUPS.flatMap((g) => g.items).map((item) => (
               <NavLink
@@ -254,12 +257,13 @@ export function AppLayout() {
                 end={item.to === '/'}
                 className={({ isActive }) =>
                   cn(
-                    'relative whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-semibold transition',
+                    'relative whitespace-nowrap px-3 py-1.5 text-xs font-semibold transition',
                     isActive
-                      ? 'bg-white text-lp-accent shadow-sm'
-                      : 'text-lp-steel hover:bg-white/60 hover:text-lp-ink',
+                      ? 'bg-lp-surface text-lp-accent shadow-sm'
+                      : 'text-lp-steel hover:bg-lp-mist hover:text-lp-ink',
                   )
                 }
+                style={{ borderRadius: 'var(--lp-radius)' }}
               >
                 {item.label}
                 {item.to === '/alertas' && criticalCount > 0 ? (
@@ -275,7 +279,7 @@ export function AppLayout() {
 
       <div className="flex flex-1">
         {/* Icon rail — desktop */}
-        <aside className="hidden w-[72px] shrink-0 flex-col border-r border-lp-line bg-white lg:flex">
+        <aside className="glass-bar hidden w-[72px] shrink-0 flex-col border-r lg:flex">
           <nav className="flex flex-1 flex-col gap-4 overflow-y-auto py-4">
             {NAV_GROUPS.map((group) => (
               <div key={group.title} className="space-y-1 px-2">
@@ -287,12 +291,13 @@ export function AppLayout() {
                     title={item.label}
                     className={({ isActive }) =>
                       cn(
-                        'relative flex flex-col items-center gap-0.5 rounded-xl px-2 py-2.5 text-[10px] font-semibold transition',
+                        'relative flex flex-col items-center gap-0.5 px-2 py-2.5 text-[10px] font-semibold transition',
                         isActive
-                          ? 'bg-lp-accent/10 text-lp-accent'
+                          ? 'bg-lp-accent-soft text-lp-accent'
                           : 'text-lp-steel hover:bg-lp-mist hover:text-lp-ink',
                       )
                     }
+                    style={{ borderRadius: 'var(--lp-radius)' }}
                   >
                     <item.icon className="h-5 w-5" />
                     <span className="max-w-full truncate text-center leading-tight">
@@ -313,11 +318,11 @@ export function AppLayout() {
           <div className="fixed inset-0 z-50 lg:hidden">
             <button
               type="button"
-              className="absolute inset-0 bg-lp-ink/40"
+              className="absolute inset-0 bg-black/50"
               onClick={() => setDrawerOpen(false)}
               aria-label="Fechar menu"
             />
-            <div className="absolute bottom-0 left-0 top-0 flex w-[min(100%,300px)] flex-col bg-white shadow-lift">
+            <div className="glass-bar absolute bottom-0 left-0 top-0 flex w-[min(100%,300px)] flex-col shadow-lift">
               <div className="flex items-center justify-between border-b border-lp-line px-4 py-4">
                 <LpLogo size="sm" />
                 <button type="button" className="btn-ghost p-2" onClick={() => setDrawerOpen(false)}>
@@ -338,10 +343,11 @@ export function AppLayout() {
                         onClick={() => setDrawerOpen(false)}
                         className={({ isActive }) =>
                           cn(
-                            'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium',
-                            isActive ? 'bg-lp-accent/10 text-lp-accent' : 'text-lp-ink hover:bg-lp-mist',
+                            'flex items-center gap-3 px-3 py-2.5 text-sm font-medium',
+                            isActive ? 'bg-lp-accent-soft text-lp-accent' : 'text-lp-ink hover:bg-lp-mist',
                           )
                         }
+                        style={{ borderRadius: 'var(--lp-radius)' }}
                       >
                         <item.icon className="h-4 w-4" />
                         {item.label}
@@ -365,7 +371,8 @@ export function AppLayout() {
           {showDeviceBanner ? (
             <div
               role="status"
-              className="mb-4 flex flex-wrap items-start gap-3 rounded-xl border border-lp-copper/40 bg-lp-copper/10 px-4 py-3 text-sm text-lp-ink"
+              className="mb-4 flex flex-wrap items-start gap-3 border border-lp-copper/40 bg-lp-copper/10 px-4 py-3 text-sm text-lp-ink"
+              style={{ borderRadius: 'var(--lp-radius-lg)' }}
             >
               <CloudOff className="mt-0.5 h-4 w-4 shrink-0 text-lp-copper" />
               <div className="min-w-0 flex-1">
@@ -373,8 +380,10 @@ export function AppLayout() {
                 <p className="mt-0.5 text-lp-steel">
                   A API responde, mas o Vercel Blob ainda não está configurado. PC e celular não
                   vão bater até existir a variável{' '}
-                  <code className="rounded bg-lp-mist px-1 text-xs">BLOB_READ_WRITE_TOKEN</code> no
-                  projeto Vercel. Veja o passo a passo em Configurações → Sincronização.
+                  <code className="bg-lp-mist px-1 text-xs" style={{ borderRadius: '4px' }}>
+                    BLOB_READ_WRITE_TOKEN
+                  </code>{' '}
+                  no projeto Vercel. Veja Configurações → Sincronização.
                 </p>
               </div>
               <NavLink to="/configuracoes" className="btn-ghost shrink-0 text-xs text-lp-copper">
@@ -382,12 +391,14 @@ export function AppLayout() {
               </NavLink>
             </div>
           ) : null}
-          <Outlet />
+          <MotionPage key={location.pathname}>
+            <Outlet />
+          </MotionPage>
         </main>
       </div>
 
       {/* Mobile bottom quick actions */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-lp-line bg-white/95 px-2 py-2 backdrop-blur-md lg:hidden">
+      <nav className="glass-bar fixed bottom-0 left-0 right-0 z-40 border-t px-2 py-2 lg:hidden">
         <div className="mx-auto flex max-w-lg items-stretch justify-around gap-1">
           {MOBILE_QUICK.map((item) => (
             <NavLink
@@ -395,10 +406,11 @@ export function AppLayout() {
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  'flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-semibold',
+                  'flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px] font-semibold',
                   isActive ? 'text-lp-accent' : 'text-lp-steel',
                 )
               }
+              style={{ borderRadius: 'var(--lp-radius)' }}
             >
               <item.icon className="h-5 w-5" />
               {item.label.split(' ')[0]}
@@ -407,7 +419,7 @@ export function AppLayout() {
         </div>
       </nav>
 
-      <footer className="hidden border-t border-lp-line bg-white px-5 py-3 text-center text-xs text-lp-steel lg:block">
+      <footer className="glass-bar hidden border-t px-5 py-3 text-center text-xs text-lp-steel lg:block">
         © {new Date().getFullYear()} {settings.nomeEmpresa || APP_NAME}
       </footer>
     </div>
