@@ -21,6 +21,18 @@ export interface FipeDetail {
   fuelAcronym?: string
 }
 
+export interface PlateFipeCandidate {
+  brand: string
+  model: string
+  modelYear: number
+  fipeCode: string
+  fuel?: string
+  price: number
+  priceLabel: string
+  referenceMonth?: string
+  similarity?: number
+}
+
 export interface PlateConsultation {
   ok: boolean
   plate: string
@@ -38,8 +50,12 @@ export interface PlateConsultation {
     fipeCode?: string
     city?: string
     state?: string
+    color?: string
   }
   fipe?: FipeDetail | null
+  fipeCandidates?: PlateFipeCandidate[]
+  bestFipe?: PlateFipeCandidate | null
+  suggestions?: FipeSearchHit[]
   ipva?: {
     uf: string
     rate: number

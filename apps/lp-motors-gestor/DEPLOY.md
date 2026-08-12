@@ -54,9 +54,26 @@ Isso **não** funciona entre PC e celular: o health fica `"blob": false` e o app
 7. No app (**Configurações → Sincronização**), toque **Sincronizar agora**.
    O indicador deve mudar de **Só neste aparelho** para **Sincronizado**.
 
-### Opcional — placa automática
+### Placa → FIPE (PlacaFIPE)
 
-- `LP_MOTORS_PLATE_API_URL` — endpoint externo de consulta por placa (não há API pública estável gratuita).
+Não há API pública estável e gratuita de placa→FIPE. O caminho nativo é a [PlacaFIPE](https://placafipe.com.br):
+
+1. Obtenha o token em [placafipe.com.br](https://placafipe.com.br).
+2. No Vercel → **Settings → Environment Variables** (Production):
+   - `LP_MOTORS_PLACAFIP_TOKEN` = seu token  
+   - Alias aceito: `PLACAFIP_TOKEN`
+3. **Redeploy** a Production.
+4. Valide:
+   ```bash
+   curl -s https://blckbox.vercel.app/api/lp-motors/health
+   ```
+   Esperado: `"plateProvider": "placafipe"` (e `"plateApi": true`).
+5. No app → **FIPE** → digite a placa → marca/modelo/valor FIPE devem vir sozinhos.
+
+Alternativa (só se não usar PlacaFIPE):
+
+- `LP_MOTORS_PLATE_API_URL` — template com `{plate}` / `{token}` (ex.: WDAPI2)
+- `LP_MOTORS_PLATE_API_TOKEN` — token do provedor alternativo
 
 ### Status no app
 
