@@ -54,26 +54,30 @@ Isso **não** funciona entre PC e celular: o health fica `"blob": false` e o app
 7. No app (**Configurações → Sincronização**), toque **Sincronizar agora**.
    O indicador deve mudar de **Só neste aparelho** para **Sincronizado**.
 
-### Placa → FIPE (PlacaFIPE)
+### Placa → FIPE (caminho barato recomendado)
 
-Não há API pública estável e gratuita de placa→FIPE. O caminho nativo é a [PlacaFIPE](https://placafipe.com.br):
+Não há API pública gratuita de **placa → carro**. A **FIPE** (preço) já é gratuita no app.
 
-1. Obtenha o token em [placafipe.com.br](https://placafipe.com.br).
-2. No Vercel → **Settings → Environment Variables** (Production):
-   - `LP_MOTORS_PLACAFIP_TOKEN` = seu token  
-   - Alias aceito: `PLACAFIP_TOKEN`
-3. **Redeploy** a Production.
-4. Valide:
+**Receita barata:** API Placas (WDAPI2, ~R$ 0,03/consulta) + FIPE Parallelum (grátis).
+
+1. Cadastre / compre créditos em [apiplacas.com.br/contratar.php](https://apiplacas.com.br/contratar.php).
+2. Copie o **token** no painel do usuário.
+3. No Vercel → **Settings → Environment Variables** (Production):
+   - `LP_MOTORS_PLATE_API_TOKEN` = seu token  
+   - (opcional) `LP_MOTORS_PLATE_API_URL` = `https://wdapi2.com.br/consulta/{plate}/{token}`  
+     Se omitir a URL e só colocar o token, o app já usa esse endpoint WDAPI.
+4. **Redeploy** a Production.
+5. Valide:
    ```bash
    curl -s https://blckbox.vercel.app/api/lp-motors/health
    ```
-   Esperado: `"plateProvider": "placafipe"` (e `"plateApi": true`).
-5. No app → **FIPE** → digite a placa → marca/modelo/valor FIPE devem vir sozinhos.
+   Esperado: `"plateProvider": "wdapi"` e `"plateApi": true`.
+6. No app → **FIPE** → digite a placa → marca/modelo vêm da WDAPI e o valor FIPE é resolvido de graça.
 
-Alternativa (só se não usar PlacaFIPE):
+#### Alternativa premium (mais cara)
 
-- `LP_MOTORS_PLATE_API_URL` — template com `{plate}` / `{token}` (ex.: WDAPI2)
-- `LP_MOTORS_PLATE_API_TOKEN` — token do provedor alternativo
+- `LP_MOTORS_PLACAFIP_TOKEN` — [PlacaFIPE](https://placafipe.com.br) (~R$ 0,60+/consulta), FIPE já vem no pacote.
+- Se os dois tokens existirem, PlacaFIPE tem prioridade.
 
 ### Status no app
 

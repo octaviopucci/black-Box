@@ -17,6 +17,7 @@ import {
   normalizeTextSearchResults,
   plateFormats,
   plateProviderConfigured,
+  resolvePlateProvider,
   type FipeVehicleType,
 } from './_lp-motors/fipe'
 
@@ -62,11 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         service: 'lp-motors',
         blob: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
         plateApi: plateProviderConfigured(),
-        plateProvider: process.env.LP_MOTORS_PLACAFIP_TOKEN || process.env.PLACAFIP_TOKEN
-          ? 'placafipe'
-          : process.env.LP_MOTORS_PLATE_API_URL
-            ? 'custom'
-            : 'none',
+        plateProvider: resolvePlateProvider(),
         fipe: true,
         orgs: Object.keys(store.data().organizations).length,
       })

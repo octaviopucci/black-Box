@@ -222,9 +222,11 @@ export function FipePage() {
           setHits(result.suggestions)
         }
         toast(
-          result.source === 'placafipe'
-            ? 'FIPE puxada pelo PlacaFIPE.'
-            : 'FIPE encontrada pela placa.',
+          result.source === 'wdapi'
+            ? 'Placa via API Placas · FIPE resolvida.'
+            : result.source === 'placafipe'
+              ? 'FIPE puxada pelo PlacaFIPE.'
+              : 'FIPE encontrada pela placa.',
           'success',
         )
         return
@@ -278,7 +280,7 @@ export function FipePage() {
 
       if (!result.plateConfigured) {
         toast(
-          'Configure LP_MOTORS_PLACAFIP_TOKEN no Vercel para puxar FIPE pela placa automaticamente.',
+          'Configure LP_MOTORS_PLATE_API_TOKEN (API Placas) no Vercel para puxar FIPE pela placa.',
           'info',
         )
       } else {
@@ -369,7 +371,7 @@ export function FipePage() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-lp-accent">Mercado</p>
         <h1 className="section-title">Consulta FIPE pela placa</h1>
         <p className="section-sub">
-          Com token PlacaFIPE na Vercel, a placa já traz modelo e valor FIPE. Sem token, busque pelo modelo abaixo.
+          Caminho barato: token da API Placas (WDAPI) + FIPE gratuita. Sem token, busque pelo modelo abaixo.
         </p>
       </div>
 
@@ -462,26 +464,44 @@ export function FipePage() {
               <Info label="Código FIPE" value={detail?.codeFipe || plateResult?.vehicle?.fipeCode || '—'} />
             </div>
 
-            {plateResult?.source === 'placafipe' && plateResult.ok ? (
-              <p className="mt-3 text-xs text-lp-accent">Fonte: PlacaFIPE · {plateResult.message}</p>
+            {plateResult?.ok &&
+            (plateResult.source === 'wdapi' ||
+              plateResult.source === 'placafipe' ||
+              plateResult.source === 'external') ? (
+              <p className="mt-3 text-xs text-lp-accent">
+                Fonte:{' '}
+                {plateResult.source === 'wdapi'
+                  ? 'API Placas (WDAPI)'
+                  : plateResult.source === 'placafipe'
+                    ? 'PlacaFIPE'
+                    : 'Provedor de placa'}{' '}
+                · {plateResult.message}
+              </p>
             ) : null}
 
             {searched && !fipeValue && !plateResult?.plateConfigured ? (
-              <div className="mt-4 border border-lp-line bg-lp-mist px-3 py-3 text-sm text-lp-ink" style={{ borderRadius: 'var(--lp-radius)' }}>
-                <p className="font-semibold">Ativar FIPE pela placa</p>
+              <div
+                className="mt-4 border border-lp-line bg-lp-mist px-3 py-3 text-sm text-lp-ink"
+                style={{ borderRadius: 'var(--lp-radius)' }}
+              >
+                <p className="font-semibold">Ativar FIPE pela placa (caminho barato)</p>
                 <p className="mt-1 text-lp-steel">
-                  Crie um token em{' '}
+                  1) Cadastre em{' '}
                   <a
                     className="text-lp-accent underline"
-                    href="https://www.placafipe.com.br"
+                    href="https://apiplacas.com.br/contratar.php"
                     target="_blank"
                     rel="noreferrer"
                   >
-                    placafipe.com.br
-                  </a>
-                  , adicione no Vercel a env{' '}
-                  <code className="bg-lp-paper px-1 text-xs">LP_MOTORS_PLACAFIP_TOKEN</code> e faça
-                  redeploy. Aí a consulta funciona igual ao site: placa → modelo → FIPE.
+                    apiplacas.com.br
+                  </a>{' '}
+                  (~R$ 0,03/consulta).
+                  <br />
+                  2) No Vercel, adicione{' '}
+                  <code className="bg-lp-paper px-1 text-xs">LP_MOTORS_PLATE_API_TOKEN</code> = seu
+                  token e faça redeploy.
+                  <br />
+                  3) O app puxa marca/modelo pela placa e resolve a FIPE de graça.
                 </p>
                 <p className="mt-2 text-lp-steel">
                   Enquanto isso, use a <strong>busca por modelo</strong> abaixo (gratuita).
