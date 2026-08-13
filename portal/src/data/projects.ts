@@ -186,8 +186,8 @@ export const projects: ClientProject[] = [
     name: 'BASE · Rian (afiliado)',
     client: 'BASE · Afiliado Rian',
     description:
-      'Pré-venda afiliado Rian: quiz + cadastro + planos com checkout Kiwify (afid). Sem o app — só o funil.',
-    href: '/rian/',
+      'Pré-venda afiliado Rian v2: quiz visual + cadastro + planos com checkout Kiwify próprio (afid wSk0NAct).',
+    href: '/rian/quiz-v2',
     status: 'ativo',
     tags: ['React', 'Afiliado', 'BASE'],
   },
