@@ -440,6 +440,7 @@ export const seedAutomations: Automation[] = [
     channel: 'instagram',
     active: true,
     matches: 624,
+    replyText: 'Oi! Vi seu comentário 🔥 Aqui está o link da mentoria: https://chama.app/mentoria',
   },
   {
     id: 'au2',
@@ -450,6 +451,7 @@ export const seedAutomations: Automation[] = [
     channel: 'whatsapp',
     active: true,
     matches: 920,
+    replyText: 'Olá! Bem-vindo à Studio Chama. Como posso te ajudar?',
   },
   {
     id: 'au3',
@@ -460,6 +462,7 @@ export const seedAutomations: Automation[] = [
     channel: 'instagram',
     active: false,
     matches: 48,
+    replyText: 'Obrigado pela menção! Te mandei o material no Direct ✨',
   },
   {
     id: 'au4',
@@ -470,6 +473,7 @@ export const seedAutomations: Automation[] = [
     channel: 'messenger',
     active: true,
     matches: 211,
+    replyText: 'Nossos planos começam em R$97. Quer que eu te envie a tabela completa?',
   },
 ]
 
