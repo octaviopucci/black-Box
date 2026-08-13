@@ -25,8 +25,9 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **G&L Locações** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
 | **CBX** | [/cbx/](/cbx/) | Marketplace demo |
 | **Protocolo PAV — BASE** | [/protocolo-pav/](/protocolo-pav/) | Arena gamificada |
+| **chama** | [/chama/](/chama/) | Clone Manychat (flows + inbox) |
 
-Login Maciel: `admin` / `MacielMotors123` · Login LP Motors: `admin` / `LPMotors123`
+Login Maciel: `admin` / `MacielMotors123` · Login LP Motors: `admin` / `LPMotors123` · chama: qualquer e-mail (demo)
 
 Maciel Motors e LP Motors são produtos **independentes** (paths e dados separados).
 
@@ -91,6 +92,9 @@ npm run dev:cbx
 
 # Protocolo PAV — BASE (Arena + jogos)
 npm run dev:pav
+
+# chama — clone Manychat
+npm run dev:chama
 
 # Build completo (igual Vercel)
 npm run build

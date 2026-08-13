@@ -39,7 +39,8 @@
     { "source": "/gl-locacoes/(.*)", "destination": "/gl-locacoes/index.html" },
     { "source": "/protocolo-pav/(.*)", "destination": "/protocolo-pav/index.html" },
     { "source": "/rian/(.*)", "destination": "/rian/index.html" },
-    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|protocolo-pav|rian|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/chama/(.*)", "destination": "/chama/index.html" },
+    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|protocolo-pav|rian|chama|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

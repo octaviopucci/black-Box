@@ -192,6 +192,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Afiliado', 'BASE'],
   },
   {
+    id: 'chama',
+    name: 'chama',
+    client: 'chama · de chamar',
+    description:
+      'Clone funcional do Manychat: flow builder, inbox, automações comentário→DM, broadcasts, analytics e simulador — tudo persistido no navegador.',
+    href: '/chama/',
+    status: 'demo',
+    tags: ['React', 'Chat', 'Automação'],
+  },
+  {
     id: 'pix-gateway',
     name: 'PIX Gateway',
     client: 'Black Box · uso próprio',
