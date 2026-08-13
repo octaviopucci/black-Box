@@ -62,7 +62,7 @@ export function QuizV2Page() {
           <img src={brand.logo} alt="BASE" className="h-6 w-auto" draggable={false} />
         </Link>
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/55">
-          {Math.round(progress)}% · Rian
+          {Math.round(progress)}%
         </p>
       </header>
 

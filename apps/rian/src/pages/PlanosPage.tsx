@@ -17,7 +17,7 @@ export function PlanosPage() {
     <div className="min-h-dvh bg-ink px-4 py-8 text-paper sm:px-6">
       <div className="mx-auto w-full max-w-md">
         <div className="mb-6 flex items-center justify-between">
-          <Link to="/quiz" className="opacity-90">
+          <Link to="/quiz-v2" className="opacity-90">
             <img src={brand.logo} alt="BASE" className="h-7 w-auto" draggable={false} />
           </Link>
           <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-ash">
@@ -98,12 +98,12 @@ export function PlanosPage() {
             Já paguei → entrar no app
           </a>
           {!email ? (
-            <Link
-              to="/cadastro"
+            <a
+              href={`${brand.cadastroExternal}?next=/planos`}
               className="text-ash underline-offset-2 hover:text-paper hover:underline"
             >
               Ainda não tenho conta → cadastro
-            </Link>
+            </a>
           ) : null}
         </div>
 
