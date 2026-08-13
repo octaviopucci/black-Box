@@ -202,6 +202,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Chat', 'Automação'],
   },
   {
+    id: 'traco',
+    name: 'traço',
+    client: 'traço · desenhe com inteligência',
+    description:
+      'Clone melhorado do Procreate: pincéis, camadas, laço/seleção e IA integrada para alterar regiões, camadas ou o canvas por prompt.',
+    href: '/traco/',
+    status: 'demo',
+    tags: ['React', 'Canvas', 'IA'],
+  },
+  {
     id: 'pix-gateway',
     name: 'PIX Gateway',
     client: 'Black Box · uso próprio',

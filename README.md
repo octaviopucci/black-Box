@@ -26,6 +26,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **CBX** | [/cbx/](/cbx/) | Marketplace demo |
 | **Protocolo PAV — BASE** | [/protocolo-pav/](/protocolo-pav/) | Arena gamificada |
 | **chama** | [/chama/](/chama/) | Clone Manychat (flows + inbox) |
+| **traço** | [/traco/](/traco/) | Clone Procreate + IA por seleção |
 
 Login Maciel: `admin` / `MacielMotors123` · Login LP Motors: `admin` / `LPMotors123` · chama: qualquer e-mail (demo)
 
@@ -95,6 +96,9 @@ npm run dev:pav
 
 # chama — clone Manychat
 npm run dev:chama
+
+# traço — clone Procreate + IA
+npm run dev:traco
 
 # Build completo (igual Vercel)
 npm run build
