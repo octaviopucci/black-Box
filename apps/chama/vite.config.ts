@@ -22,5 +22,12 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: true,
+    proxy: {
+      '/api/chama': {
+        target: process.env.VITE_CHAMA_API_PROXY || 'https://blckbox.vercel.app',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 })

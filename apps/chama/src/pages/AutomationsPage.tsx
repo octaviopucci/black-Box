@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react'
-import { Plus } from 'lucide-react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { CloudUpload, Plus } from 'lucide-react'
 import { ChannelBadge, StatusPill } from '@/components/Ui'
+import { syncAutomations } from '@/lib/api'
 import { uid } from '@/lib/utils'
 import { useChama } from '@/store/ChamaContext'
 import type { Automation, Channel } from '@/types'
@@ -8,13 +9,42 @@ import type { Automation, Channel } from '@/types'
 export function AutomationsPage() {
   const { state, toggleAutomation, upsertAutomation } = useChama()
   const [show, setShow] = useState(false)
+  const [syncMsg, setSyncMsg] = useState<string | null>(null)
   const [form, setForm] = useState({
     name: '',
     trigger: '',
-    type: 'keyword' as Automation['type'],
+    type: 'comment' as Automation['type'],
     channel: 'instagram' as Channel,
     flowId: state.flows[0]?.id || '',
+    replyText: 'Oi! Vi seu comentário 🔥 Te chamei no Direct com o link.',
   })
+
+  async function pushToServer() {
+    try {
+      const res = await syncAutomations(
+        state.automations.map((a) => ({
+          id: a.id,
+          name: a.name,
+          trigger: a.trigger,
+          active: a.active,
+          matches: a.matches,
+          replyText:
+            a.replyText ||
+            state.flows.find((f) => f.id === a.flowId)?.nodes.find((n) => n.type === 'message')
+              ?.content ||
+            form.replyText,
+        })),
+      )
+      setSyncMsg(`${res.count} automação(ões) ativas no servidor Instagram`)
+    } catch (e) {
+      setSyncMsg(e instanceof Error ? e.message : 'Falha ao sincronizar')
+    }
+  }
+
+  useEffect(() => {
+    void pushToServer()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.automations])
 
   function onCreate(e: FormEvent) {
     e.preventDefault()
@@ -28,14 +58,16 @@ export function AutomationsPage() {
       flowId: form.flowId,
       active: true,
       matches: 0,
+      replyText: form.replyText.trim(),
     })
     setShow(false)
     setForm({
       name: '',
       trigger: '',
-      type: 'keyword',
+      type: 'comment',
       channel: 'instagram',
       flowId: state.flows[0]?.id || '',
+      replyText: 'Oi! Vi seu comentário 🔥 Te chamei no Direct com o link.',
     })
   }
 
@@ -48,18 +80,34 @@ export function AutomationsPage() {
           </p>
           <h1 className="font-display text-3xl font-bold">Gatilhos inteligentes</h1>
           <p className="text-sm text-mist">
-            Comentários, keywords, stories e boas-vindas
+            Comentário com keyword no Instagram → DM automática (Meta Private Reply)
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShow((v) => !v)}
-          className="inline-flex items-center gap-2 rounded-xl bg-flame px-4 py-2.5 text-sm font-bold text-night"
-        >
-          <Plus className="h-4 w-4" />
-          Nova automação
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => void pushToServer()}
+            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-mist hover:text-paper"
+          >
+            <CloudUpload className="h-4 w-4" />
+            Sync Instagram
+          </button>
+          <button
+            type="button"
+            onClick={() => setShow((v) => !v)}
+            className="inline-flex items-center gap-2 rounded-xl bg-flame px-4 py-2.5 text-sm font-bold text-night"
+          >
+            <Plus className="h-4 w-4" />
+            Nova automação
+          </button>
+        </div>
       </div>
+
+      {syncMsg ? (
+        <div className="rounded-xl border border-signal/30 bg-signal/10 px-4 py-2 text-sm text-signal">
+          {syncMsg}
+        </div>
+      ) : null}
 
       {show ? (
         <form
@@ -75,10 +123,18 @@ export function AutomationsPage() {
           />
           <input
             required
-            placeholder="Palavras-chave (vírgula)"
+            placeholder="Palavras-chave (vírgula) ex: EU QUERO, LINK, PREÇO"
             value={form.trigger}
             onChange={(e) => setForm({ ...form, trigger: e.target.value })}
             className="rounded-xl border border-line bg-night px-3 py-2.5 text-sm outline-none"
+          />
+          <textarea
+            required
+            rows={3}
+            placeholder="Texto da DM automática"
+            value={form.replyText}
+            onChange={(e) => setForm({ ...form, replyText: e.target.value })}
+            className="rounded-xl border border-line bg-night px-3 py-2.5 text-sm outline-none md:col-span-2"
           />
           <select
             value={form.type}
@@ -152,7 +208,12 @@ export function AutomationsPage() {
                     {a.matches.toLocaleString('pt-BR')}
                   </td>
                   <td className="px-4 py-3">
-                    <button type="button" onClick={() => toggleAutomation(a.id)}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        toggleAutomation(a.id)
+                      }}
+                    >
                       <StatusPill status={a.active ? 'active' : 'paused'} />
                     </button>
                   </td>

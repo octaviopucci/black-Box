@@ -13,6 +13,11 @@
       "memory": 512,
       "maxDuration": 30,
       "includeFiles": "api/_lp-motors/**"
+    },
+    "api/chama.ts": {
+      "memory": 512,
+      "maxDuration": 30,
+      "includeFiles": "api/_chama/**"
     }
   },
   "rewrites": [
@@ -20,6 +25,8 @@
     { "source": "/api/pix/(.*)", "destination": "/api/pix?path=$1" },
     { "source": "/api/lp-motors", "destination": "/api/lp-motors?path=health" },
     { "source": "/api/lp-motors/(.*)", "destination": "/api/lp-motors?path=$1" },
+    { "source": "/api/chama", "destination": "/api/chama?path=health" },
+    { "source": "/api/chama/(.*)", "destination": "/api/chama?path=$1" },
     { "source": "/pix", "destination": "/pix/index.html" },
     { "source": "/pix/", "destination": "/pix/index.html" },
     { "source": "/maciel-motors-x/(.*)", "destination": "/maciel-motors-x/index.html" },

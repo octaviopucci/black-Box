@@ -74,6 +74,8 @@ export interface Automation {
   channel: Channel
   active: boolean
   matches: number
+  /** DM text used by Instagram live Private Reply */
+  replyText?: string
 }
 
 export interface Broadcast {
