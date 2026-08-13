@@ -41,6 +41,7 @@ export default function App() {
           <Route path="growth" element={<GrowthPage />} />
           <Route path="simulator" element={<SimulatorPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/app" replace />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
