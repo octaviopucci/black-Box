@@ -1,4 +1,4 @@
-const AFID = 'hZc5iRhT'
+const AFID = 'wSk0NAct'
 
 export const affiliate = {
   slug: 'rian',
@@ -28,7 +28,7 @@ export const plans = [
     cadence: '/mês',
     highlight: false,
     badge: 'Flexível',
-    checkout: `https://pay.kiwify.com.br/ss3fR01?afid=${AFID}`,
+    checkout: `https://pay.kiwify.com.br/5dDatgC?afid=${AFID}`,
     perks: [
       'Protocolo de crise personalizado',
       'Rotina diária adaptativa',
@@ -46,7 +46,7 @@ export const plans = [
     cadence: '/3 meses',
     highlight: true,
     badge: 'Mais escolhido',
-    checkout: `https://pay.kiwify.com.br/F6PxeHX?afid=${AFID}`,
+    checkout: `https://pay.kiwify.com.br/GCbUGh5?afid=${AFID}`,
     perks: [
       'Protocolo de crise personalizado',
       'Rotina diária adaptativa',
@@ -64,7 +64,7 @@ export const plans = [
     cadence: '/ano',
     highlight: false,
     badge: 'Melhor valor',
-    checkout: `https://pay.kiwify.com.br/8IUShvx?afid=${AFID}`,
+    checkout: `https://pay.kiwify.com.br/KljXpUY?afid=${AFID}`,
     perks: [
       'Protocolo de crise personalizado',
       'Rotina diária adaptativa',
