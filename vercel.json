@@ -18,6 +18,11 @@
       "memory": 512,
       "maxDuration": 30,
       "includeFiles": "api/_chama/**"
+    },
+    "api/traco.ts": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "includeFiles": "api/_traco/**"
     }
   },
   "rewrites": [
@@ -27,6 +32,8 @@
     { "source": "/api/lp-motors/(.*)", "destination": "/api/lp-motors?path=$1" },
     { "source": "/api/chama", "destination": "/api/chama?path=health" },
     { "source": "/api/chama/(.*)", "destination": "/api/chama?path=$1" },
+    { "source": "/api/traco", "destination": "/api/traco?path=health" },
+    { "source": "/api/traco/(.*)", "destination": "/api/traco?path=$1" },
     { "source": "/pix", "destination": "/pix/index.html" },
     { "source": "/pix/", "destination": "/pix/index.html" },
     { "source": "/maciel-motors-x/(.*)", "destination": "/maciel-motors-x/index.html" },
@@ -47,7 +54,8 @@
     { "source": "/protocolo-pav/(.*)", "destination": "/protocolo-pav/index.html" },
     { "source": "/rian/(.*)", "destination": "/rian/index.html" },
     { "source": "/chama/(.*)", "destination": "/chama/index.html" },
-    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|protocolo-pav|rian|chama|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/traco/(.*)", "destination": "/traco/index.html" },
+    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|protocolo-pav|rian|chama|traco|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
