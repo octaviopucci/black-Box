@@ -44,22 +44,19 @@ export function Story() {
     >
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 sm:px-8 md:grid-cols-12 md:gap-10 md:pl-28">
         <div className="md:col-span-5">
-          <motion.div style={{ y }} className="relative overflow-hidden rounded-[2rem]">
+          <motion.div style={{ y }} className="relative overflow-hidden">
             <img
-              src={asset('moment-calm.jpg')}
-              alt="Ambiente da Clínica DNA"
+              src={asset('hero-1.jpg')}
+              alt="Equipe da Clínica DNA em consulta"
               loading="lazy"
               className="aspect-[4/5] w-full object-cover"
             />
-            <div className="absolute bottom-4 left-4 rounded-full bg-void/80 px-4 py-2 text-[11px] uppercase tracking-[0.28em] text-signal backdrop-blur">
-              Desde {site.since}
-            </div>
           </motion.div>
         </div>
 
         <div className="md:col-span-7">
           <p data-story className="text-[11px] font-semibold uppercase tracking-[0.38em] text-mute">
-            A origem do fio
+            Desde {site.since} · Capão Bonito
           </p>
           <h2
             data-story

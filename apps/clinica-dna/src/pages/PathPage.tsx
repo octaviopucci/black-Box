@@ -22,7 +22,7 @@ export function PathPage() {
         </Link>
 
         <div className="mt-10 grid items-center gap-12 lg:grid-cols-12">
-          <div className="overflow-hidden rounded-[2rem] lg:col-span-6">
+          <div className="overflow-hidden lg:col-span-6">
             <img src={path.image} alt={path.title} className="aspect-[4/3] w-full object-cover" />
           </div>
           <div className="lg:col-span-6">
