@@ -110,7 +110,7 @@ export function Immersion() {
         </div>
       </div>
 
-      <p className="pointer-events-none absolute bottom-6 left-0 right-0 text-center text-[10px] uppercase tracking-[0.28em] text-paper/35">
+      <p className="pointer-events-none absolute bottom-5 left-4 right-4 text-center text-[9px] uppercase tracking-[0.22em] text-paper/35 sm:bottom-6 sm:text-[10px] sm:tracking-[0.28em]">
         Role para seguir o fio
       </p>
     </section>
