@@ -40,8 +40,17 @@ export function OrbitNav() {
           }`}
         >
           <Link to="/" className="flex items-center gap-3" aria-label={site.name}>
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="h-9 w-9 rounded-full" />
-            <span className="font-display text-2xl tracking-tight text-paper">{site.shortName}</span>
+            <img
+              src={`${import.meta.env.BASE_URL}logo.png`}
+              alt=""
+              className="h-11 w-11 rounded-full ring-1 ring-signal/25"
+            />
+            <span className="flex flex-col leading-none">
+              <span className="text-[9px] font-medium uppercase tracking-[0.28em] text-paper/45">
+                Clínica
+              </span>
+              <span className="font-display text-2xl tracking-tight text-paper">{site.shortName}</span>
+            </span>
           </Link>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Principal">
