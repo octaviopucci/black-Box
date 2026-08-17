@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Lock, User } from 'lucide-react'
 import { LpLogo } from '@/components/common/LpLogo'
@@ -14,6 +14,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [store, setStore] = useState('')
   const [remember, setRemember] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -22,7 +23,7 @@ export function LoginPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await login(username, password, remember)
+      await login(username, password, remember, store || undefined)
       navigate('/')
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Falha no login', 'error')
@@ -56,7 +57,7 @@ export function LoginPage() {
             {brandFullName(settings)}
           </h1>
           <p className="section-sub">
-            {settings.slogan || 'Gestão profissional de estoque automotivo'}
+            {settings.slogan || 'Cada loja com o próprio sistema'}
           </p>
         </div>
 
@@ -98,6 +99,17 @@ export function LoginPage() {
             </div>
           </label>
 
+          <label className="block">
+            <span className="label-field">Código da loja (se precisar)</span>
+            <input
+              className="input-field"
+              value={store}
+              onChange={(e) => setStore(e.target.value.toLowerCase())}
+              placeholder="ex.: silva-motors"
+              autoComplete="organization"
+            />
+          </label>
+
           <div className="flex items-center justify-between">
             <Checkbox
               label="Lembrar acesso"
@@ -109,6 +121,13 @@ export function LoginPage() {
           <Button type="submit" className="w-full" loading={loading}>
             Entrar no showroom
           </Button>
+
+          <p className="text-center text-sm text-lp-steel">
+            Primeira vez?{' '}
+            <Link className="font-semibold text-lp-accent" to="/cadastro">
+              Cadastrar minha loja
+            </Link>
+          </p>
         </form>
       </motion.div>
     </div>

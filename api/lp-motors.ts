@@ -8,6 +8,7 @@ import {
   type CloudOrg,
   type CloudUser,
 } from './_lp-motors/store'
+import { buildEmptyStoreDatabase } from './_lp-motors/tenant'
 import {
   estimateIpva,
   fipeDetailByCode,
@@ -175,17 +176,112 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 200, estimateIpva(value, body.uf || 'SP'))
     }
 
+    if (req.method === 'POST' && path === '/auth/register') {
+      if (!blobConfigured()) {
+        return json(res, 503, {
+          error: 'Nuvem ainda não está ativa. Tente em alguns minutos.',
+        })
+      }
+      const body = (req.body || {}) as {
+        storeName?: string
+        ownerName?: string
+        username?: string
+        password?: string
+        city?: string
+        phone?: string
+      }
+      const storeName = String(body.storeName || '').trim()
+      const ownerName = String(body.ownerName || '').trim()
+      const username = String(body.username || '')
+        .trim()
+        .toLowerCase()
+      const password = String(body.password || '')
+      const city = String(body.city || '').trim()
+      const phone = String(body.phone || '').trim()
+
+      if (storeName.length < 2) return json(res, 400, { error: 'Informe o nome da loja.' })
+      if (ownerName.length < 2) return json(res, 400, { error: 'Informe o seu nome.' })
+      if (!/^[a-z0-9._-]{3,32}$/.test(username)) {
+        return json(res, 400, {
+          error: 'Usuário: 3–32 caracteres (letras, números, ponto, _ ou -).',
+        })
+      }
+      if (password.length < 6) return json(res, 400, { error: 'Senha com pelo menos 6 caracteres.' })
+
+      const slug = store.uniqueSlug(storeName)
+      const orgId = `org_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+      const userId = `user_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+
+      const org: CloudOrg = {
+        id: orgId,
+        name: storeName,
+        slug,
+        createdAt: new Date().toISOString(),
+      }
+      store.data().organizations[orgId] = org
+      store.data().users[userId] = {
+        id: userId,
+        organizationId: orgId,
+        username,
+        passwordHash: hashPassword(password),
+        nome: ownerName,
+        role: 'admin',
+        active: true,
+      }
+
+      const database = buildEmptyStoreDatabase({
+        orgId,
+        orgName: storeName,
+        slug,
+        userId,
+        username,
+        password,
+        ownerName,
+        city,
+        phone,
+      })
+      store.data().databases[orgId] = {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        data: database,
+      }
+
+      const token = issueToken()
+      store.data().tokens[token] = {
+        organizationId: orgId,
+        userId,
+        createdAt: new Date().toISOString(),
+      }
+      store.markDirty()
+      await store.persist()
+
+      const session = store.toSession(store.data().users[userId])
+      return json(res, 201, { token, session, database, version: 1, slug })
+    }
+
     if (req.method === 'POST' && path === '/auth/login') {
-      const body = (req.body || {}) as { username?: string; password?: string }
+      const body = (req.body || {}) as { username?: string; password?: string; store?: string }
       const username = String(body.username || '').trim()
       const password = String(body.password || '')
+      const storeSlug = String(body.store || '').trim()
       if (!username || !password) {
         return json(res, 400, { error: 'Informe usuário e senha.' })
       }
 
-      const user = store.findUserByUsername(username)
+      const found = store.findUserForLogin(username, storeSlug)
+      if (Array.isArray(found)) {
+        const options = found.map((u) => {
+          const org = store.data().organizations[u.organizationId]
+          return { slug: org?.slug || '', name: org?.name || 'Loja' }
+        })
+        return json(res, 409, {
+          error: 'Várias lojas usam este login. Informe o código da loja.',
+          stores: options,
+        })
+      }
+      const user = found
       if (!user || !safeEqual(user.passwordHash, hashPassword(password))) {
-        return json(res, 401, { error: 'Usuário ou senha inválidos.' })
+        return json(res, 401, { error: 'Usuário, senha ou loja inválidos.' })
       }
 
       const token = issueToken()
@@ -200,13 +296,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const dbRec = store.data().databases[user.organizationId]
       return json(res, 200, {
         token,
-        session: {
-          userId: user.id,
-          username: user.username,
-          nome: user.nome,
-          role: user.role,
-          organizationId: user.organizationId,
-        },
+        session: store.toSession(user),
         database: dbRec?.data || null,
         version: dbRec?.version || 0,
       })
@@ -317,13 +407,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       return json(res, 200, {
         token,
-        session: {
-          userId: user.id,
-          username: user.username,
-          nome: user.nome,
-          role: user.role,
-          organizationId: user.organizationId,
-        },
+        session: store.toSession(user),
         version: store.data().databases[user.organizationId]?.version || 1,
       })
     }
