@@ -24,6 +24,7 @@ import { AuditPage } from '@/pages/AuditPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { BackupPage } from '@/pages/BackupPage'
 import { FipePage } from '@/pages/FipePage'
+import { RegisterPage } from '@/pages/RegisterPage'
 
 const basename = (import.meta.env.BASE_URL || '/').replace(/\/$/, '') || '/'
 
@@ -35,6 +36,7 @@ export default function App() {
         <Routes>
           <Route element={<PublicOnlyRoute />}>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/cadastro" element={<RegisterPage />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>

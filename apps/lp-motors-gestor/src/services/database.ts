@@ -33,6 +33,8 @@ export type SessionUser = {
   nome: string
   role: User['role']
   organizationId: string
+  organizationName?: string
+  organizationSlug?: string
 }
 
 function createDefaultOrg(): Organization {

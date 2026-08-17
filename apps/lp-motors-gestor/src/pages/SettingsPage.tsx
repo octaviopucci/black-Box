@@ -133,7 +133,7 @@ function previewSettings(values: FormValues): Settings {
 }
 
 export function SettingsPage() {
-  const { settings, updateSettings, toast, syncStatus, cloudHealth, syncNow } = useApp()
+  const { settings, updateSettings, toast, syncStatus, cloudHealth, syncNow, user } = useApp()
   const fileRef = useRef<HTMLInputElement>(null)
   const {
     register,
@@ -531,6 +531,15 @@ export function SettingsPage() {
 
           <div className="border-t border-lp-line pt-4">
             <h2 className="font-semibold text-lp-ink">Dados da loja</h2>
+            {user?.organizationSlug ? (
+              <p className="mt-2 rounded-lg border border-lp-line bg-lp-mist px-3 py-2 text-sm text-lp-steel">
+                Código da loja:{' '}
+                <code className="font-semibold text-lp-ink">{user.organizationSlug}</code>
+                <span className="mt-1 block text-xs">
+                  Funcionários usam este código no login se o usuário for igual em outra loja.
+                </span>
+              </p>
+            ) : null}
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <Input label="Nome da empresa *" {...register('nomeEmpresa')} />
               <Input label="Nome curto" {...register('nomeCurto')} />

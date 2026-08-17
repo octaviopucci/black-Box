@@ -72,7 +72,15 @@ interface AppContextValue {
   setFilters: (f: VehicleFilters) => void
   refresh: () => void
   syncNow: () => Promise<void>
-  login: (username: string, password: string, remember: boolean) => Promise<void>
+  login: (username: string, password: string, remember: boolean, store?: string) => Promise<void>
+  registerStore: (input: {
+    storeName: string
+    ownerName: string
+    username: string
+    password: string
+    city?: string
+    phone?: string
+  }) => Promise<string>
   logout: () => void
   toast: (message: string, type?: ToastItem['type']) => void
   dismissToast: (id: string) => void
@@ -212,16 +220,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(
-    async (username: string, password: string, remember: boolean) => {
+    async (username: string, password: string, remember: boolean, store?: string) => {
       await withLoading(async () => {
-        const result = await authService.login(username, password, remember)
+        const result = await authService.login(username, password, remember, store)
         if (!result.success || !result.user) {
           throw new Error(result.message)
         }
         setUser(result.user)
         refresh()
-        toast('Bem-vindo ao LP Motors Gestor')
+        const storeName = result.user.organizationName || 'LP Motors Gestor'
+        toast(`Bem-vindo à ${storeName}`)
         void syncNow()
+      })
+    },
+    [toast, withLoading, refresh, syncNow],
+  )
+
+  const registerStore = useCallback(
+    async (input: {
+      storeName: string
+      ownerName: string
+      username: string
+      password: string
+      city?: string
+      phone?: string
+    }) => {
+      return withLoading(async () => {
+        const result = await authService.register({ ...input, remember: true })
+        if (!result.success || !result.user) {
+          throw new Error(result.message)
+        }
+        setUser(result.user)
+        refresh()
+        toast(`Loja criada. Código: ${result.slug}`)
+        void syncNow()
+        return result.slug || result.user.organizationSlug || ''
       })
     },
     [toast, withLoading, refresh, syncNow],
@@ -275,6 +308,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       refresh,
       syncNow,
       login,
+      registerStore,
       logout,
       toast,
       dismissToast,

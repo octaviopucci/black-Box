@@ -59,21 +59,63 @@ export const cloudSync = {
   async login(
     username: string,
     password: string,
+    store?: string,
   ): Promise<{ session: SessionUser; database: Database } | null> {
     const res = await api<{
       token?: string
       session?: SessionUser
       database?: Database
       error?: string
+      stores?: { slug: string; name: string }[]
     }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, store: store || undefined }),
     })
+    if (res.status === 409) {
+      const names = (res.data.stores || []).map((s) => s.slug).join(', ')
+      throw new Error(
+        res.data.error || `Várias lojas usam este login. Informe o código (${names}).`,
+      )
+    }
+    if (res.status === 401) {
+      throw new Error(res.data.error || 'Usuário, senha ou loja inválidos.')
+    }
     if (!res.ok || !res.data.token || !res.data.session || !res.data.database) return null
     setCloudToken(res.data.token)
     saveDatabase(res.data.database)
     markSynced(getSyncVersion())
     return { session: res.data.session, database: res.data.database }
+  },
+
+  async register(input: {
+    storeName: string
+    ownerName: string
+    username: string
+    password: string
+    city?: string
+    phone?: string
+  }): Promise<{ session: SessionUser; database: Database; slug: string }> {
+    const res = await api<{
+      token?: string
+      session?: SessionUser
+      database?: Database
+      slug?: string
+      error?: string
+    }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    })
+    if (!res.ok || !res.data.token || !res.data.session || !res.data.database) {
+      throw new Error(res.data.error || 'Não foi possível cadastrar a loja.')
+    }
+    setCloudToken(res.data.token)
+    saveDatabase(res.data.database)
+    markSynced(res.data.session ? 1 : getSyncVersion())
+    return {
+      session: res.data.session,
+      database: res.data.database,
+      slug: res.data.slug || res.data.session.organizationSlug || '',
+    }
   },
 
   async pull(): Promise<Database | null> {

@@ -25,12 +25,23 @@ export interface AuthResult {
 }
 
 export const authService = {
-  async login(username: string, password: string, remember: boolean): Promise<AuthResult> {
-    // Try cloud first for multi-device
-    const cloud = await cloudSync.login(username, password)
-    if (cloud) {
-      setSession(cloud.session, remember)
-      return { success: true, message: 'Login sincronizado na nuvem', user: cloud.session }
+  async login(
+    username: string,
+    password: string,
+    remember: boolean,
+    store?: string,
+  ): Promise<AuthResult> {
+    try {
+      const cloud = await cloudSync.login(username, password, store)
+      if (cloud) {
+        setSession(cloud.session, remember)
+        return { success: true, message: 'Login sincronizado na nuvem', user: cloud.session }
+      }
+    } catch (e) {
+      return {
+        success: false,
+        message: e instanceof Error ? e.message : 'Falha no login',
+      }
     }
 
     const db = loadDatabase()
@@ -49,11 +60,38 @@ export const authService = {
       nome: user.nome,
       role: user.role,
       organizationId: user.organizationId || db.organization?.id || 'org_lp_default',
+      organizationName: db.organization?.name,
+      organizationSlug: db.organization?.slug,
     }
     setSession(session, remember)
-    // Best-effort cloud bootstrap for multi-device
     void cloudSync.bootstrapLocal(username, password, session)
     return { success: true, message: 'Login realizado com sucesso', user: session }
+  },
+
+  async register(input: {
+    storeName: string
+    ownerName: string
+    username: string
+    password: string
+    city?: string
+    phone?: string
+    remember?: boolean
+  }): Promise<AuthResult & { slug?: string }> {
+    try {
+      const cloud = await cloudSync.register(input)
+      setSession(cloud.session, input.remember !== false)
+      return {
+        success: true,
+        message: `Loja criada. Código: ${cloud.slug}`,
+        user: cloud.session,
+        slug: cloud.slug,
+      }
+    } catch (e) {
+      return {
+        success: false,
+        message: e instanceof Error ? e.message : 'Falha no cadastro',
+      }
+    }
   },
 
   logout(): void {
