@@ -19,12 +19,10 @@ npm run dev:lp-motors
 cd apps/lp-motors-gestor && npm install && npm run dev
 ```
 
-## Acesso inicial
+## Acesso
 
-- Usuário: `admin`
-- Senha: `LPMotors123`
-
-Também: `gerente` / `gerente123`
+- **Cadastrar loja:** `/cadastro` — cada loja nasce com estoque vazio e dados isolados.
+- **Login demo (interno):** `admin` / `LPMotors123` · `gerente` / `gerente123`
 
 Dados de demonstração: **Backup → Restaurar backup demo**.
 
