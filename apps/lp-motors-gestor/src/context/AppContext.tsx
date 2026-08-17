@@ -164,38 +164,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     applyBrandTheme(settings)
   }, [settings])
 
-  const syncNow = useCallback(async () => {
+  const runAutoSync = useCallback(async () => {
     setSyncStatus('syncing')
-    try {
-      const health = await cloudSync.health()
-      setCloudHealth(health)
-      if (!health.ok) {
-        setSyncStatus('offline')
-        return
-      }
-      // Sem Blob o API responde, mas os dados ficam só no /tmp da instância —
-      // PC e celular não compartilham a mesma base.
-      if (!health.blob) {
-        setSyncStatus('device-only')
-        return
-      }
-      const pulled = await cloudSync.pull()
-      if (pulled) refresh()
-      const pushed = await cloudSync.push()
-      setSyncStatus(pushed.ok ? 'synced' : 'error')
-    } catch {
-      setSyncStatus('error')
-    }
+    const { status, health } = await cloudSync.autoSync()
+    if (health) setCloudHealth(health)
+    setSyncStatus(status)
+    if (status === 'synced') refresh()
   }, [refresh])
 
   useEffect(() => {
     refresh()
     setUser(authService.getCurrentUser())
     setReady(true)
-    void syncNow()
-    const interval = setInterval(() => void syncNow(), 120_000)
-    return () => clearInterval(interval)
-  }, [refresh, syncNow])
+    void runAutoSync()
+
+    const interval = setInterval(() => void runAutoSync(), cloudSync.autoSyncIntervalMs)
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void runAutoSync()
+    }
+    const onOnline = () => void runAutoSync()
+    const onFocus = () => void runAutoSync()
+
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('online', onOnline)
+    window.addEventListener('focus', onFocus)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('online', onOnline)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [refresh, runAutoSync])
 
   const toast = useCallback((message: string, type: ToastItem['type'] = 'success') => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
@@ -230,10 +231,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         refresh()
         const storeName = result.user.organizationName || 'LP Motors Gestor'
         toast(`Bem-vindo à ${storeName}`)
-        void syncNow()
       })
     },
-    [toast, withLoading, refresh, syncNow],
+    [toast, withLoading, refresh],
   )
 
   const registerStore = useCallback(
@@ -253,11 +253,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setUser(result.user)
         refresh()
         toast(`Loja criada. Código: ${result.slug}`)
-        void syncNow()
         return result.slug || result.user.organizationSlug || ''
       })
     },
-    [toast, withLoading, refresh, syncNow],
+    [toast, withLoading, refresh],
   )
 
   const logout = useCallback(() => {
@@ -274,7 +273,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const result = await fn(...args)
         refresh()
         if (successMsg) toast(successMsg)
-        void syncNow()
         return result
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Erro inesperado'
@@ -306,7 +304,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       filters,
       setFilters,
       refresh,
-      syncNow,
+      syncNow: runAutoSync,
       login,
       registerStore,
       logout,

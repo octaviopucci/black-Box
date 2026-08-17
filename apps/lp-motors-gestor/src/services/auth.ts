@@ -231,7 +231,6 @@ export const auditService = {
 
 export function persist(db: Database): Database {
   saveDatabase(db)
-  // Fire-and-forget cloud sync for multi-device
-  void cloudSync.push(db)
+  cloudSync.schedulePush(db)
   return db
 }

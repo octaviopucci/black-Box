@@ -2,6 +2,7 @@ import type { Database } from '@/types'
 import {
   getCloudToken,
   getSyncVersion,
+  isDirty,
   loadDatabase,
   markSynced,
   saveDatabase,
@@ -19,6 +20,8 @@ export type CloudHealth = {
 }
 
 const API_BASE = '/api/lp-motors'
+const AUTO_SYNC_MS = 30_000
+const PUSH_DEBOUNCE_MS = 600
 
 async function api<T>(
   path: string,
@@ -40,7 +43,14 @@ async function api<T>(
   }
 }
 
+let syncInFlight = false
+let syncQueued = false
+let pushTimer: ReturnType<typeof setTimeout> | null = null
+let pendingPushDb: Database | undefined
+
 export const cloudSync = {
+  autoSyncIntervalMs: AUTO_SYNC_MS,
+
   async health(): Promise<CloudHealth> {
     const res = await api<{
       ok?: boolean
@@ -139,8 +149,66 @@ export const cloudSync = {
     return { ok: true }
   },
 
+  /** Envia alterações locais para a nuvem (debounced após cada save). */
+  schedulePush(db?: Database): void {
+    if (!getCloudToken()) return
+    pendingPushDb = db
+    if (pushTimer) clearTimeout(pushTimer)
+    pushTimer = setTimeout(() => {
+      pushTimer = null
+      void cloudSync.flushPush()
+    }, PUSH_DEBOUNCE_MS)
+  },
+
+  async flushPush(): Promise<void> {
+    if (!getCloudToken() || !isDirty()) return
+    await cloudSync.push(pendingPushDb)
+    pendingPushDb = undefined
+  },
+
+  /**
+   * Sincronização automática silenciosa:
+   * - com alterações locais pendentes: envia primeiro, depois baixa
+   * - sem alterações: só baixa da nuvem (outros dispositivos)
+   */
+  async autoSync(): Promise<{ status: SyncStatus; health: CloudHealth | null }> {
+    if (syncInFlight) {
+      syncQueued = true
+      return { status: 'syncing', health: null }
+    }
+    if (!getCloudToken()) {
+      return { status: 'idle', health: null }
+    }
+
+    syncInFlight = true
+    try {
+      const health = await cloudSync.health()
+      if (!health.ok) return { status: 'offline', health }
+      if (!health.blob) return { status: 'device-only', health }
+
+      if (pushTimer) {
+        clearTimeout(pushTimer)
+        pushTimer = null
+        await cloudSync.flushPush()
+      } else if (isDirty()) {
+        const pushed = await cloudSync.push()
+        if (!pushed.ok) return { status: 'error', health }
+      }
+
+      await cloudSync.pull()
+      return { status: 'synced', health }
+    } catch {
+      return { status: 'error', health: null }
+    } finally {
+      syncInFlight = false
+      if (syncQueued) {
+        syncQueued = false
+        void cloudSync.autoSync()
+      }
+    }
+  },
+
   async bootstrapLocal(username: string, password: string, session: SessionUser): Promise<void> {
-    // Register/sync local org to cloud when API is available
     const db = loadDatabase()
     const res = await api<{ token?: string; error?: string }>('/auth/bootstrap', {
       method: 'POST',

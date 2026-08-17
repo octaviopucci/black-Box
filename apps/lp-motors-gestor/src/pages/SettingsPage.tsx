@@ -6,10 +6,8 @@ import { motion } from 'framer-motion'
 import {
   Cloud,
   CloudOff,
-  ExternalLink,
   ImagePlus,
   Palette,
-  RefreshCw,
   RotateCcw,
   Sparkles,
 } from 'lucide-react'
@@ -133,7 +131,7 @@ function previewSettings(values: FormValues): Settings {
 }
 
 export function SettingsPage() {
-  const { settings, updateSettings, toast, syncStatus, cloudHealth, syncNow, user } = useApp()
+  const { settings, updateSettings, toast, syncStatus, cloudHealth, user } = useApp()
   const fileRef = useRef<HTMLInputElement>(null)
   const {
     register,
@@ -229,25 +227,13 @@ export function SettingsPage() {
         </p>
       </div>
 
-      {/* Sync */}
-      <section className="panel space-y-4 p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="text-base font-semibold text-lp-ink">Sincronização</h2>
-            <p className="mt-1 text-sm text-lp-steel">
-              PC e celular compartilham dados quando o Vercel Blob estiver ativo.
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="secondary"
-            className="gap-2"
-            onClick={() => void syncNow()}
-            disabled={syncStatus === 'syncing'}
-          >
-            <RefreshCw className={cn('h-4 w-4', syncStatus === 'syncing' && 'animate-spin')} />
-            Sincronizar
-          </Button>
+      {/* Sync — automático, sem botão manual */}
+      <section className="panel space-y-3 p-5">
+        <div>
+          <h2 className="text-base font-semibold text-lp-ink">Nuvem</h2>
+          <p className="mt-1 text-sm text-lp-steel">
+            PC e celular sincronizam automaticamente — basta fazer login com o mesmo código da loja.
+          </p>
         </div>
         <div
           className={cn(
@@ -266,26 +252,18 @@ export function SettingsPage() {
           <div className="text-sm">
             <p className="font-semibold text-lp-ink">
               {syncStatus === 'synced'
-                ? 'Sincronizado na nuvem'
+                ? 'Sincronização automática ativa'
                 : syncStatus === 'device-only'
                   ? 'Só neste aparelho (falta Blob)'
                   : syncStatus === 'offline'
-                    ? 'API offline'
+                    ? 'Sem conexão — tentando de novo em breve'
                     : syncStatus === 'syncing'
                       ? 'Sincronizando…'
-                      : 'Verificando…'}
+                      : 'Verificando nuvem…'}
             </p>
             <p className="mt-1 text-lp-steel">
               API {cloudHealth?.ok ? 'online' : '…'} · Blob{' '}
-              {cloudHealth == null ? '…' : cloudHealth.blob ? 'ativo' : 'inativo'} ·{' '}
-              <a
-                className="inline-flex items-center gap-1 text-lp-accent"
-                href="/api/lp-motors/health"
-                target="_blank"
-                rel="noreferrer"
-              >
-                health <ExternalLink className="h-3 w-3" />
-              </a>
+              {cloudHealth == null ? '…' : cloudHealth.blob ? 'ativo' : 'inativo'}
             </p>
           </div>
         </div>

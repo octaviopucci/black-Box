@@ -5,7 +5,6 @@ import {
   Brain,
   Car,
   ClipboardCheck,
-  Cloud,
   CloudOff,
   Database,
   FileText,
@@ -33,7 +32,6 @@ import { useApp } from '@/context/AppContext'
 import { vehicleService } from '@/services/vehicles'
 import { cn, formatCurrency } from '@/utils'
 import { APP_NAME } from '@/config/variant'
-import type { SyncStatus } from '@/services/sync'
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard }
 
@@ -86,49 +84,8 @@ const MOBILE_QUICK = [
   { to: '/preparacao', label: 'Checklist', icon: ClipboardCheck },
 ]
 
-function SyncIndicator({ status, onSync }: { status: SyncStatus; onSync: () => void }) {
-  const labels: Record<SyncStatus, string> = {
-    idle: 'Verificando…',
-    syncing: 'Sincronizando…',
-    synced: 'Sincronizado',
-    'device-only': 'Só neste aparelho',
-    offline: 'Offline',
-    error: 'Erro de sync',
-  }
-  const colors: Record<SyncStatus, string> = {
-    idle: 'text-lp-steel',
-    syncing: 'text-lp-accent animate-pulse',
-    synced: 'text-lp-ok',
-    'device-only': 'text-lp-copper',
-    offline: 'text-lp-copper',
-    error: 'text-lp-danger',
-  }
-  const titles: Record<SyncStatus, string> = {
-    idle: 'Verificando sync',
-    syncing: 'Sincronizando com a nuvem…',
-    synced: 'Dados na nuvem — PC e celular compartilham a mesma base',
-    'device-only':
-      'API online, mas sem Vercel Blob: os dados ficam só neste aparelho. Conecte o Blob ao projeto e faça redeploy.',
-    offline: 'Sem conexão com a API de sync',
-    error: 'Falha ao sincronizar — toque para tentar de novo',
-  }
-  const Icon = status === 'offline' || status === 'device-only' ? CloudOff : Cloud
-
-  return (
-    <button
-      type="button"
-      onClick={onSync}
-      className={cn('btn-ghost inline-flex items-center gap-1.5 text-xs', colors[status])}
-      title={titles[status]}
-    >
-      <Icon className="h-4 w-4" />
-      <span className="hidden sm:inline">{labels[status]}</span>
-    </button>
-  )
-}
-
 export function AppLayout() {
-  const { user, logout, loading, settings, syncStatus, syncNow, alerts } = useApp()
+  const { user, logout, loading, settings, syncStatus, alerts } = useApp()
   const showDeviceBanner = syncStatus === 'device-only'
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -227,7 +184,6 @@ export function AppLayout() {
           </div>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <SyncIndicator status={syncStatus} onSync={() => void syncNow()} />
             <NavLink to="/veiculos/novo" className="btn-primary hidden py-2 text-xs sm:inline-flex">
               <Plus className="h-4 w-4" />
               <span className="hidden lg:inline">Novo veículo</span>
