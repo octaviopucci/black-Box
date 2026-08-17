@@ -26,6 +26,8 @@ export interface CloudSession {
   nome: string
   role: string
   organizationId: string
+  organizationName?: string
+  organizationSlug?: string
 }
 
 export interface CloudUser {
@@ -76,6 +78,32 @@ export function safeEqual(a: string, b: string): boolean {
   const bb = Buffer.from(b)
   if (ba.length !== bb.length) return false
   return timingSafeEqual(ba, bb)
+}
+
+export function slugifyStoreName(name: string): string {
+  const base = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 32)
+  return base || 'loja'
+}
+
+const RESERVED_SLUGS = new Set([
+  'lp-motors',
+  'admin',
+  'api',
+  'login',
+  'cadastro',
+  'www',
+  'app',
+  'gestor',
+])
+
+export function isReservedSlug(slug: string): boolean {
+  return RESERVED_SLUGS.has(slug)
 }
 
 export function issueToken(): string {
@@ -174,18 +202,69 @@ export class JsonStore {
     )
   }
 
-  resolveToken(token: string): CloudSession | null {
-    const entry = this.store.tokens[token]
-    if (!entry) return null
-    const user = this.store.users[entry.userId]
-    if (!user || !user.active) return null
+  findUsersByUsername(username: string): CloudUser[] {
+    const key = username.toLowerCase()
+    return Object.values(this.store.users).filter(
+      (u) => u.username.toLowerCase() === key && u.active,
+    )
+  }
+
+  findOrgBySlug(slug: string): CloudOrg | null {
+    const key = slug.trim().toLowerCase()
+    if (!key) return null
+    return Object.values(this.store.organizations).find((o) => o.slug === key) || null
+  }
+
+  uniqueSlug(fromName: string): string {
+    let slug = slugifyStoreName(fromName)
+    if (isReservedSlug(slug) || this.findOrgBySlug(slug)) {
+      slug = `${slug}-${randomBytes(2).toString('hex')}`
+    }
+    let n = 2
+    while (this.findOrgBySlug(slug) || isReservedSlug(slug)) {
+      slug = `${slugifyStoreName(fromName)}-${n}`
+      n += 1
+    }
+    return slug
+  }
+
+  findUserForLogin(username: string, storeSlug?: string): CloudUser | CloudUser[] | null {
+    const key = username.toLowerCase()
+    if (storeSlug) {
+      const org = this.findOrgBySlug(storeSlug)
+      if (!org) return null
+      return (
+        Object.values(this.store.users).find(
+          (u) =>
+            u.organizationId === org.id && u.username.toLowerCase() === key && u.active,
+        ) || null
+      )
+    }
+    const matches = this.findUsersByUsername(username)
+    if (matches.length === 0) return null
+    if (matches.length === 1) return matches[0]
+    return matches
+  }
+
+  toSession(user: CloudUser): CloudSession {
+    const org = this.store.organizations[user.organizationId]
     return {
       userId: user.id,
       username: user.username,
       nome: user.nome,
       role: user.role,
       organizationId: user.organizationId,
+      organizationName: org?.name,
+      organizationSlug: org?.slug,
     }
+  }
+
+  resolveToken(token: string): CloudSession | null {
+    const entry = this.store.tokens[token]
+    if (!entry) return null
+    const user = this.store.users[entry.userId]
+    if (!user || !user.active) return null
+    return this.toSession(user)
   }
 }
 

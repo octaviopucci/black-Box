@@ -238,7 +238,9 @@ export function AppLayout() {
               </div>
               <div className="hidden text-left lg:block">
                 <p className="text-xs font-semibold leading-tight">{user?.nome}</p>
-                <p className="text-[10px] uppercase tracking-wider text-lp-steel">{user?.role}</p>
+                <p className="text-[10px] uppercase tracking-wider text-lp-steel">
+                  {user?.organizationName || user?.role}
+                </p>
               </div>
               <button type="button" className="btn-ghost p-1" onClick={logout} title="Sair">
                 <LogOut className="h-4 w-4" />

@@ -30,6 +30,8 @@ Rotas:
 
 Não altera o Maciel Motors (`/maciel-motors/`), que continua sendo publicado em paralelo.
 
+Cadastro público de loja: `/lp-motors/cadastro` — cada loja vira uma organização isolada na nuvem.
+
 ---
 
 ## Sync multi-dispositivo (obrigatório em produção)
