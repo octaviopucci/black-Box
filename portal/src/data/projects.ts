@@ -152,6 +152,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Saúde', 'Awwwards'],
   },
   {
+    id: 'lais-felicia',
+    name: 'Studio Laís Felicia',
+    client: 'Laís Felicia · Capão Bonito',
+    description:
+      'Landing de design de sobrancelhas, henna, brow lamination e cursos presenciais. Identidade rose, fotos reais e conversão WhatsApp.',
+    href: '/lais-felicia/',
+    status: 'demo',
+    tags: ['React', 'Beleza', 'Premium'],
+  },
+  {
     id: 'gl-locacoes',
     name: 'G&L Locações',
     client: 'G&L Locações de Brinquedos · Capão Bonito',
