@@ -1,3 +1,9 @@
+export const media = {
+  hero: 'media/profissional.jpg',
+  profissional: 'media/profissional.jpg',
+  espaco: 'media/espaco.jpg',
+} as const
+
 export const brand = {
   name: 'Dra. Nathalia Rigo',
   short: 'Nathalia Rigo',
@@ -8,8 +14,10 @@ export const brand = {
   neighborhood: 'Parque São Bento',
   experienceYears: 12,
   instagramHandle: 'dranathaliarigo',
+  instagramAltHandle: 'nathy.rigo',
   instagramUrl: 'https://www.instagram.com/dranathaliarigo',
   instagramDm: 'https://ig.me/m/dranathaliarigo',
+  facebookUrl: 'https://www.facebook.com/dra.nathyrigo',
   cta: 'Transforme-se hoje',
   bioLines: [
     'Realçar sua beleza com resultados naturais e sofisticados.',
@@ -42,6 +50,7 @@ export const procedures = [
     area: 'Corporal',
     lead: 'Contorno com tecnologia de resfriamento controlado.',
     body: 'Procedimento publicado no perfil da Dra. Nathalia para gordura localizada. A indicação e o plano saem na avaliação de enfermagem — não no direct, nem num catálogo genérico.',
+    note: 'Antes e depois no Instagram',
   },
   {
     slug: 'preenchimento-labial',
@@ -49,6 +58,7 @@ export const procedures = [
     area: 'Facial',
     lead: 'Volume e desenho que respeitam a sua boca.',
     body: 'Realce natural e sofisticado — a mesma linha da bio do Instagram. Sem exageros. Avaliação antes de qualquer aplicação.',
+    note: 'Resultados reais no feed',
   },
   {
     slug: 'epilacao-a-laser',
@@ -56,14 +66,15 @@ export const procedures = [
     area: 'Pele',
     lead: 'Redução progressiva do pelo, sessão a sessão.',
     body: 'Tratamento publicado no espaço, com protocolo definido na consulta. Pele, região e expectativa são lidas antes de começar.',
+    note: 'Protocolo na consulta',
   },
 ] as const
 
-export const highlights = [
-  { label: 'Estética avançada', detail: 'Atendimento com base em enfermagem e protocolo.' },
-  { label: '12 anos', detail: 'Experiência publicada no Instagram da profissional.' },
-  { label: 'Sorocaba', detail: 'Parque São Bento — consultório no piso superior.' },
-  { label: 'Natural', detail: 'Resultados naturais e sofisticados — frase oficial da bio.' },
+export const landingSections = [
+  { id: 'procedimentos', label: 'Procedimentos' },
+  { id: 'profissional', label: 'Profissional' },
+  { id: 'espaco', label: 'Espaço' },
+  { id: 'contato', label: 'Contato' },
 ] as const
 
 export const objections = [
