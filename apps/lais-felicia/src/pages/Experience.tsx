@@ -4,12 +4,11 @@ import { Desire } from '../components/Desire'
 import { Faq } from '../components/Faq'
 import { Footer } from '../components/Footer'
 import { Hero } from '../components/Hero'
-import { Insta } from '../components/Insta'
 import { Navbar } from '../components/Navbar'
 import { PageProgress } from '../components/PageProgress'
-import { Process } from '../components/Process'
+import { ProcedureCorridor } from '../components/ProcedureCorridor'
 import { PulseWhatsApp } from '../components/PulseWhatsApp'
-import { Results } from '../components/Results'
+import { ResultsCorridor } from '../components/ResultsCorridor'
 import { Services } from '../components/Services'
 import { Threshold } from '../components/Threshold'
 
@@ -28,11 +27,10 @@ export function Experience() {
         <Hero />
         <Desire />
         <Services />
-        <Process />
-        <Results />
+        <ProcedureCorridor />
+        <ResultsCorridor />
         <About />
         <Courses />
-        <Insta />
         <Faq />
         <Threshold />
       </main>

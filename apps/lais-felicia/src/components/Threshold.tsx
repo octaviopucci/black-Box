@@ -14,7 +14,7 @@ export function Threshold() {
       />
       <div className="absolute inset-0 bg-ink/72" />
 
-      <div className="relative mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
+      <div className="relative mx-auto max-w-7xl px-5 py-28 sm:px-8 sm:py-36">
         <Reveal>
           <img
             src={asset('logo.png')}

@@ -20,7 +20,7 @@ export function Navbar() {
         scrolled || open ? 'bg-paper/90 backdrop-blur-md' : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5 sm:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 sm:px-8">
         <a href="#topo" className="relative z-10" aria-label={site.studio}>
           <BrandMark
             className="h-10 w-10 sm:h-11 sm:w-11"

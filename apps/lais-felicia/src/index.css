@@ -70,6 +70,26 @@ body::before {
   .text-balance {
     text-wrap: balance;
   }
+
+  .corridor-track {
+    display: flex;
+    width: max-content;
+    align-items: stretch;
+  }
+
+  .chevron-soft {
+    background-image: linear-gradient(
+        135deg,
+        rgba(201, 137, 154, 0.09) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(201, 137, 154, 0.09) 50%,
+        rgba(201, 137, 154, 0.09) 75%,
+        transparent 75%,
+        transparent
+      );
+    background-size: 48px 48px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

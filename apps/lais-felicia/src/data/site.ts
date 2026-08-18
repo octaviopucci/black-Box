@@ -33,11 +33,123 @@ export const site = {
   nav: [
     { label: 'O olhar', href: '#olhar' },
     { label: 'Serviços', href: '#servicos' },
+    { label: 'Procedimentos', href: '#procedimentos' },
     { label: 'Resultados', href: '#resultados' },
     { label: 'Cursos', href: '#cursos' },
     { label: 'Laís', href: '#lais' },
   ],
 } as const
+
+export const serviceHighlights = [
+  {
+    id: 'design',
+    name: 'Design de sobrancelha',
+    price: 'R$ 45',
+    line: 'Leitura do rosto e método RT.',
+    image: 'result-face.jpg',
+    imageAlt: 'Close do olhar com design personalizado',
+  },
+  {
+    id: 'henna',
+    name: 'Design com henna',
+    price: 'R$ 50',
+    line: 'Cor e preenchimento ombré.',
+    image: 'apply.jpg',
+    imageAlt: 'Aplicação de henna em modelo real',
+  },
+  {
+    id: 'brow',
+    name: 'Brow lamination',
+    price: 'R$ 100',
+    line: 'Fios alinhados e direcionados.',
+    image: 'result-lam.jpg',
+    imageAlt: 'Brow lamination com fios alinhados',
+  },
+  {
+    id: 'coloracao',
+    name: 'Design com coloração',
+    price: 'R$ 60',
+    line: 'Definição alinhada ao olhar.',
+    image: 'result-smile.jpg',
+    imageAlt: 'Resultado de design com acabamento natural',
+  },
+] as const
+
+export const procedurePanels = [
+  {
+    file: 'map.jpg',
+    alt: 'Marcação da sobrancelha em modelo real',
+    step: '01',
+    title: 'Leitura e marcação',
+    text: 'O desenho começa antes da pinça. Método RT para o seu formato.',
+  },
+  {
+    file: 'apply.jpg',
+    alt: 'Aplicação de henna em cliente',
+    step: '02',
+    title: 'Henna com critério',
+    text: 'Cor, preparo e tempo pensados para a sua pele.',
+  },
+  {
+    file: 'products.jpg',
+    alt: 'Henna profissional aplicada na sobrancelha',
+    step: '03',
+    title: 'Acabamento',
+    text: 'Epilação, alinhamento e orientação de manutenção.',
+  },
+  {
+    file: 'brow-compare.jpg',
+    alt: 'Antes e depois de design em sobrancelha rala',
+    step: '04',
+    title: 'Resultado no espelho',
+    text: 'Um desenho que você reconhece. Não um molde genérico.',
+  },
+] as const
+
+export const resultCorridor = [
+  {
+    file: 'result-smile.jpg',
+    alt: 'Cliente sorrindo depois do design, com a placa oficial ao fundo',
+    caption: 'Depois do design',
+  },
+  {
+    file: 'result-face.jpg',
+    alt: 'Close do olhar com sobrancelha desenhada',
+    caption: 'Design',
+  },
+  {
+    file: 'result-lam.jpg',
+    alt: 'Brow lamination com fios alinhados',
+    caption: 'Brow lamination',
+  },
+  {
+    file: 'result-mirror.jpg',
+    alt: 'Cliente olhando o resultado no espelho',
+    caption: 'No espelho',
+  },
+  {
+    file: 'result.jpg',
+    alt: 'Acabamento de henna com spoolie rosa',
+    caption: 'Henna',
+  },
+  {
+    file: 'brow-compare.jpg',
+    alt: 'Antes e depois de sobrancelha rala',
+    caption: 'Antes e depois',
+  },
+] as const
+
+export const courseGallery = [
+  { file: 'classroom.jpg', alt: 'Sala do curso presencial com alunas e kits' },
+  { file: 'course-setup.jpg', alt: 'Estações preparadas com apostila e caixa com fita rosa' },
+  { file: 'practice.jpg', alt: 'Exercício de marcação à mão livre no caderno' },
+  { file: 'kiwi.jpg', alt: 'Treino de epilação com linha em fruta' },
+  { file: 'swatches.jpg', alt: 'Cartelas de degradação de henna La Benig e Glance' },
+  { file: 'kit.jpg', alt: 'Kit completo do curso com henna e materiais' },
+  { file: 'logo-box.jpg', alt: 'Caixa e apostila com logo oficial em rose gold' },
+  { file: 'teach.jpg', alt: 'Laís explicando o método durante a formação' },
+  { file: 'cert.jpg', alt: 'Entrega de certificado no studio' },
+] as const
 
 export const services = [
   {
@@ -208,33 +320,7 @@ export const courses = [
   },
 ] as const
 
-export const results = [
-  {
-    file: 'result-smile.jpg',
-    alt: 'Cliente sorrindo depois do design, com a placa oficial ao fundo',
-    caption: 'Depois do design',
-  },
-  {
-    file: 'result-face.jpg',
-    alt: 'Close do olhar com sobrancelha desenhada e preenchida',
-    caption: 'Design',
-  },
-  {
-    file: 'result-lam.jpg',
-    alt: 'Brow lamination com fios alinhados e brilho',
-    caption: 'Brow lamination',
-  },
-  {
-    file: 'result-mirror.jpg',
-    alt: 'Cliente no leito do studio olhando o resultado no espelho',
-    caption: 'No espelho',
-  },
-  {
-    file: 'result.jpg',
-    alt: 'Acabamento de henna com spoolie rosa',
-    caption: 'Henna',
-  },
-] as const
+export const results = resultCorridor
 
 export const instagramStrip = [
   { file: 'portrait.jpg', alt: 'Laís Felicia no studio, em frente à logo oficial' },
