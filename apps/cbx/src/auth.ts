@@ -54,10 +54,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.sub && hasDatabase()) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { plan: true, name: true, avatar: true },
+          select: {
+            plan: true,
+            subscriptionStatus: true,
+            adsLimit: true,
+            planExpiresAt: true,
+            name: true,
+            avatar: true,
+          },
         })
         if (dbUser) {
           token.plan = dbUser.plan
+          token.subscriptionStatus = dbUser.subscriptionStatus
+          token.adsLimit = dbUser.adsLimit
+          token.planExpiresAt = dbUser.planExpiresAt?.toISOString()
           token.name = dbUser.name
           token.picture = dbUser.avatar || undefined
         }
@@ -67,7 +77,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub
-        ;(session.user as { plan?: string }).plan = (token.plan as string) || 'gratuito'
+        session.user.plan = (token.plan as string) || 'gratuito'
+        session.user.subscriptionStatus = token.subscriptionStatus as string | undefined
+        session.user.adsLimit = token.adsLimit as number | undefined
+        session.user.planExpiresAt = token.planExpiresAt as string | undefined
       }
       return session
     },

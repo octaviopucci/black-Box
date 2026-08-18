@@ -1,71 +1,76 @@
-# Backend CBX (Neon + Prisma + Auth)
+# Backend CBX (Neon + Auth + Pix mensal)
 
 ## Status
 
 | Camada | Estado |
 |---|---|
-| Prisma schema | Pronto |
-| Auth (e-mail/senha) | Pronto |
-| API produtos/categorias | Pronto |
-| Seed a partir dos mocks | Pronto |
-| Upload de imagens | Pendente (usar URLs por enquanto) |
-| Chat realtime | Pendente |
-| Pagamentos Premium | Pendente |
-| AdMob | Pendente (nativo) |
+| Prisma + Neon | Pronto |
+| Auth (e-mail/senha) | Pronto — conta obrigatória no app real |
+| API produtos | Pronto + limite por plano |
+| Planos pagos | Starter / Premium / Empresarial / Ilimitado |
+| Pix mensal | Pronto (Mercado Pago ou sandbox) |
+| Upload de imagens | Pendente (URLs por enquanto) |
+| Chat persistido | Pendente |
+| App nativo / ads | Fora deste ciclo |
 
-## 1. Criar banco no Neon
+## Planos (mensalidade Pix, 30 dias)
 
-1. https://console.neon.tech → New Project
-2. Copie a connection string
-3. Em `apps/cbx/`:
+| Plano | Preço | Anúncios ativos |
+|---|---|---|
+| Starter | R$ 19,90 | 5 |
+| Premium | R$ 29,90 | 15 |
+| Empresarial | R$ 79,90 | 50 |
+| Empresarial Ilimitado | R$ 149,90 | Ilimitado |
 
-```bash
-cp .env.example .env
-# edite DATABASE_URL e AUTH_SECRET
-openssl rand -base64 32   # cole em AUTH_SECRET
-```
+Sem Pix confirmado no período → não publica.
 
-## 2. Migrar + seed
+## 1. Banco Neon
 
 ```bash
 cd apps/cbx
-npx prisma migrate dev --name init
+cp .env.example .env
+# DATABASE_URL + AUTH_SECRET
+openssl rand -base64 32
+npx prisma migrate deploy
 npm run db:seed
 ```
 
 Login demo após seed:
-- **e-mail:** `ana.oliveira@gmail.com`
-- **senha:** `cbx123456`
+- Comprador (sem plano de venda): `ana.oliveira@gmail.com` / `cbx123456`
+- Vendedor empresarial (assinatura seed): `carlos.mendes@outlook.com` / `cbx123456`
 
-## 3. Rodar em modo servidor (API ligada)
+## 2. Modo servidor (app real)
 
 ```bash
 cd apps/cbx
 npm run dev
-# NEXT_PUBLIC_USE_API=1 automático (sem CBX_STATIC / NEXT_BASE_PATH)
 ```
 
-Fluxos reais:
-- Cadastro → `POST /api/auth/register`
-- Login → Auth.js credentials
-- Publicar anúncio → `POST /api/products` (persistido; aparece em outros devices)
+Fluxos:
+- Cadastro / login → sessão
+- Planos → gera QR Pix → webhook MP (ou botão demo) → 30 dias
+- Publicar → exige assinatura ativa e vaga no limite
 
-## 4. Demo estática Black Box (mocks)
+## 3. Mercado Pago
+
+1. Crie aplicação em https://www.mercadopago.com.br/developers
+2. `MP_ACCESS_TOKEN` no `.env`
+3. Webhook: `https://SEU-DOMINIO/api/billing/webhook` (tópico Payments)
+
+Sem token: Pix sandbox + **Já paguei (demo)**.
+
+## 4. Demo Black Box (mocks)
 
 ```bash
 npm run build:static
-# gera out/ com NEXT_BASE_PATH=/cbx (sem API)
 ```
 
-Na raiz do monorepo: `npm run build:cbx` usa o build estático.
+Raiz: `npm run build:cbx` continua estático em `/cbx`.
 
-## 5. Deploy da API
+## 5. Deploy
 
-O Black Box atual publica só arquivos estáticos. Para backend real:
-
-**Opção A (recomendada):** projeto Vercel separado apontando para `apps/cbx` (sem `output: export`), com env `DATABASE_URL` + `AUTH_SECRET`.
-
-**Opção B:** manter `/cbx` estático no Black Box e API em subdomínio `api.cbx...`.
+Projeto Vercel separado (não `output: export`), env:
+`DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL`, `MP_ACCESS_TOKEN`.
 
 ## Endpoints
 
@@ -73,5 +78,9 @@ O Black Box atual publica só arquivos estáticos. Para backend real:
 - `GET|POST /api/auth/[...nextauth]`
 - `GET|POST /api/products`
 - `GET|PATCH|DELETE /api/products/[id]`
-- `GET /api/categories`
-- `GET /api/me`
+- `GET /api/categories` · `GET /api/me` · `GET /api/plans`
+- `POST /api/billing/pix`
+- `GET /api/billing/payments/[id]`
+- `GET /api/billing/me`
+- `POST /api/billing/webhook`
+- `POST /api/billing/sandbox-confirm`

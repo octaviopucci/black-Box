@@ -3,8 +3,25 @@ import bcrypt from 'bcryptjs'
 import { categories as mockCategories } from '../src/mocks/categories'
 import { products as mockProducts } from '../src/mocks/products'
 import { users as mockUsers } from '../src/mocks/users'
+import { adsLimitForPlan, periodEndFrom } from '../src/lib/plans'
+import type { PlanTier } from '../src/types'
 
 const prisma = new PrismaClient()
+
+function sellerFields(plan: PlanTier) {
+  if (plan === 'gratuito') {
+    return {
+      subscriptionStatus: 'none' as const,
+      adsLimit: 0,
+      planExpiresAt: null as Date | null,
+    }
+  }
+  return {
+    subscriptionStatus: 'active' as const,
+    adsLimit: adsLimitForPlan(plan),
+    planExpiresAt: periodEndFrom(),
+  }
+}
 
 async function main() {
   console.log('Seeding CBX…')
@@ -46,6 +63,7 @@ async function main() {
         verified: u.verified,
         phoneVerified: u.phoneVerified,
         plan: u.plan,
+        ...sellerFields(u.plan),
         rating: u.rating,
         reviewCount: u.reviewCount,
         salesCount: u.salesCount,
@@ -63,6 +81,7 @@ async function main() {
         verified: u.verified,
         phoneVerified: u.phoneVerified,
         plan: u.plan,
+        ...sellerFields(u.plan),
         rating: u.rating,
         reviewCount: u.reviewCount,
         salesCount: u.salesCount,

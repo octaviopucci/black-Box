@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma, hasDatabase } from '@/lib/prisma'
 import { toApiProduct, makeProductSlug } from '@/lib/mappers'
 import { auth } from '@/auth'
+import { getPublishGate } from '@/lib/subscription'
 import { z } from 'zod'
 
 export async function GET(req: Request) {
@@ -67,6 +68,28 @@ export async function POST(req: Request) {
     const parsed = createSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, { status: 400 })
+    }
+
+    const gate = await getPublishGate(session.user.id)
+    if (!gate.canPublish) {
+      if (gate.reason === 'limit') {
+        return NextResponse.json(
+          {
+            error: `Limite de ${gate.adsLimit} anúncios ativos do seu plano. Pause ou venda um anúncio, ou faça upgrade.`,
+            code: 'ADS_LIMIT',
+            gate,
+          },
+          { status: 403 },
+        )
+      }
+      return NextResponse.json(
+        {
+          error: 'Assine um plano e pague o Pix da mensalidade para publicar.',
+          code: 'SUBSCRIPTION_REQUIRED',
+          gate,
+        },
+        { status: 402 },
+      )
     }
 
     const category = await prisma.category.findUnique({ where: { id: parsed.data.categoryId } })

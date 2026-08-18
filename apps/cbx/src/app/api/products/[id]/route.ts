@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma, hasDatabase } from '@/lib/prisma'
 import { toApiProduct } from '@/lib/mappers'
 import { auth } from '@/auth'
+import { getPublishGate } from '@/lib/subscription'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -44,6 +45,21 @@ export async function PATCH(req: Request, { params }: Params) {
   }
 
   const body = await req.json()
+  if (body.status === 'ativo' && existing.status !== 'ativo') {
+    const gate = await getPublishGate(session.user.id)
+    if (!gate.canPublish) {
+      return NextResponse.json(
+        {
+          error:
+            gate.reason === 'limit'
+              ? 'Limite de anúncios ativos do plano atingido.'
+              : 'Assinatura inativa. Pague a mensalidade via Pix para reativar.',
+          code: gate.reason === 'limit' ? 'ADS_LIMIT' : 'SUBSCRIPTION_REQUIRED',
+        },
+        { status: gate.reason === 'limit' ? 403 : 402 },
+      )
+    }
+  }
   const product = await prisma.product.update({
     where: { id },
     data: {

@@ -94,4 +94,61 @@ export const liveCatalog = {
       return null
     }
   },
+
+  async billingMe() {
+    if (!isApiEnabled()) {
+      const user = userService.current()
+      return {
+        user,
+        gate: {
+          canPublish: user.plan !== 'gratuito',
+          reason: user.plan === 'gratuito' ? 'subscription' : 'ok',
+          activeAds: productService.bySeller(user.id).filter((p) => p.status === 'ativo').length,
+          adsLimit: user.adsLimit ?? 0,
+        },
+      }
+    }
+    return api<{
+      user: User
+      gate: {
+        canPublish: boolean
+        reason: 'ok' | 'subscription' | 'limit' | 'missing'
+        activeAds: number
+        adsLimit: number
+      }
+    }>('/api/billing/me')
+  },
+
+  async createPix(planId: string) {
+    return api<{ payment: PixPayment }>('/api/billing/pix', {
+      method: 'POST',
+      body: JSON.stringify({ planId }),
+    })
+  },
+
+  async getPayment(id: string) {
+    return api<{ payment: PixPayment }>(`/api/billing/payments/${id}`)
+  },
+
+  async sandboxConfirm(paymentId: string) {
+    return api<{ payment: PixPayment }>('/api/billing/sandbox-confirm', {
+      method: 'POST',
+      body: JSON.stringify({ paymentId }),
+    })
+  },
+}
+
+export type PixPayment = {
+  id: string
+  plan: string
+  amount: number
+  status: 'pending' | 'paid' | 'expired' | 'cancelled'
+  pixCopyPaste: string | null
+  pixQrImage: string | null
+  pixExpiresAt: string | null
+  provider: string
+  paidAt: string | null
+  periodEnd: string | null
+  createdAt: string
+  sandbox: boolean
 }

@@ -61,7 +61,12 @@ export const AD_PLACEMENTS: Record<AdPlacement, AdPlacementConfig> = {
 }
 
 /** Plans that skip rewarded ads entirely. */
-export const AD_FREE_PLANS: PlanTier[] = ['premium', 'empresarial']
+export const AD_FREE_PLANS: PlanTier[] = [
+  'starter',
+  'premium',
+  'empresarial',
+  'empresarial_ilimitado',
+]
 
 export function planRequiresAds(plan: PlanTier): boolean {
   return !AD_FREE_PLANS.includes(plan)

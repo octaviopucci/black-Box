@@ -97,6 +97,10 @@ export default function LoginPage() {
           <Button type="submit" className="w-full" size="lg" loading={isSubmitting}>
             Entrar
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            Demo: ana.oliveira@gmail.com / cbx123456 (comprador) · carlos.mendes@outlook.com /
+            cbx123456 (vendedor)
+          </p>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">

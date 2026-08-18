@@ -1,63 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Lock, MessageCircle, Play } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 
 import { Container, PageShell, SectionHeader } from '@/components/layout/page-shell'
 import { Avatar } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ROUTES } from '@/constants/brand'
 import { formatRelativeDate } from '@/lib/utils'
 import { chatService } from '@/services'
-import { useAdGate } from '@/hooks/use-ad-gate'
 import { staggerContainer, staggerItem } from '@/animations/variants'
 
 export default function ChatPage() {
   const conversations = chatService.conversations()
-  const { runWithAd, isUnlocked, isAdFree } = useAdGate()
-  const router = useRouter()
-  const [ready, setReady] = useState(isAdFree || isUnlocked('chat'))
-
-  useEffect(() => {
-    if (isAdFree || isUnlocked('chat')) setReady(true)
-  }, [isAdFree, isUnlocked])
-
-  const unlock = () => {
-    runWithAd('chat', () => setReady(true))
-  }
-
-  if (!ready) {
-    return (
-      <PageShell>
-        <Container className="py-10">
-          <div className="mx-auto max-w-md rounded-2xl border border-border/60 bg-card p-8 text-center shadow-sm">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <Lock className="size-6" aria-hidden />
-            </div>
-            <h1 className="mt-4 text-xl font-bold tracking-tight">Chat bloqueado</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              No plano gratuito, assista a um anúncio em vídeo para liberar suas conversas — ou
-              faça upgrade para Premium sem anúncios.
-            </p>
-            <div className="mt-6 flex flex-col gap-2">
-              <Button onClick={unlock}>
-                <Play className="size-4" />
-                Assistir e liberar chat
-              </Button>
-              <Button variant="outline" onClick={() => router.push(ROUTES.planos)}>
-                Conhecer planos
-              </Button>
-            </div>
-          </div>
-        </Container>
-      </PageShell>
-    )
-  }
 
   return (
     <PageShell>

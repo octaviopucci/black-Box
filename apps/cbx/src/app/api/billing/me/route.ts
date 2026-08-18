@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma, hasDatabase } from '@/lib/prisma'
-import { toApiProduct, toApiUser } from '@/lib/mappers'
+import { getPublishGate } from '@/lib/subscription'
+import { SELLER_PLANS } from '@/lib/plans'
+import { toApiUser } from '@/lib/mappers'
 
 export async function GET() {
   if (!hasDatabase()) {
@@ -18,14 +20,10 @@ export async function GET() {
     return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 })
   }
 
-  const products = await prisma.product.findMany({
-    where: { sellerId: user.id },
-    orderBy: { createdAt: 'desc' },
-  })
-  const activeAds = products.filter((p) => p.status === 'ativo').length
-
+  const gate = await getPublishGate(user.id)
   return NextResponse.json({
-    user: toApiUser(user, { activeAds }),
-    products: products.map(toApiProduct),
+    user: toApiUser(user, { activeAds: gate.activeAds }),
+    gate,
+    plans: SELLER_PLANS,
   })
 }

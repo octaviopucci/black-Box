@@ -9,8 +9,25 @@ datasource db {
 
 enum PlanTier {
   gratuito
+  starter
   premium
   empresarial
+  empresarial_ilimitado
+}
+
+enum SubscriptionStatus {
+  none
+  pending
+  active
+  expired
+  canceled
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  expired
+  cancelled
 }
 
 enum ProductCondition {
@@ -40,18 +57,22 @@ model User {
   bio           String?
   verified      Boolean   @default(false)
   phoneVerified Boolean   @default(false)
-  plan          PlanTier  @default(gratuito)
-  rating        Float     @default(0)
-  reviewCount   Int       @default(0)
-  salesCount    Int       @default(0)
-  adsCount      Int       @default(0)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  plan               PlanTier           @default(gratuito)
+  subscriptionStatus SubscriptionStatus @default(none)
+  planExpiresAt      DateTime?
+  adsLimit           Int                @default(0)
+  rating             Float              @default(0)
+  reviewCount        Int                @default(0)
+  salesCount         Int                @default(0)
+  adsCount           Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
   accounts      Account[]
   sessions      Session[]
   products      Product[]
   favorites     Favorite[]
+  payments      Payment[]
   sentMessages  Message[] @relation("MessageSender")
 
   @@map("users")
@@ -143,6 +164,29 @@ model Product {
   @@index([categoryId])
   @@index([sellerId])
   @@map("products")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  userId            String
+  plan              PlanTier
+  amount            Float
+  status            PaymentStatus @default(pending)
+  pixCopyPaste      String?       @db.Text
+  pixQrBase64       String?       @db.Text
+  pixExpiresAt      DateTime?
+  provider          String        @default("sandbox")
+  providerPaymentId String?       @unique
+  paidAt            DateTime?
+  periodStart       DateTime?
+  periodEnd         DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("payments")
 }
 
 model Favorite {
