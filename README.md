@@ -10,6 +10,8 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 |---------|---------|--------|
 | **Maciel Motors Gestor** | [/maciel-motors/](/maciel-motors/) | Ativo |
 | **Maciel Motors Gestor X** | [/maciel-motors-x/](/maciel-motors-x/) | Demo interativa |
+| **LP Motors Gestor** | [/lp-motors/](/lp-motors/) | Ativo (produto novo) |
+| **LP Motors Gestor X** | [/lp-motors-x/](/lp-motors-x/) | Demo interativa |
 | **Porthal Imóveis** | [/porthal-imoveis/](/porthal-imoveis/) | Demo premium |
 | **Márcio Mariano** | [/marcio-mariano/](/marcio-mariano/) | Demo premium |
 | **gov.br Premium** | [/sogov/](/sogov/) | Conceito premium |
@@ -21,11 +23,15 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Clínica Matsubara** | [/clinica-matsubara/](/clinica-matsubara/) | Demo premium |
 | **Dra. Danielle Matsubara** | [/danielle-matsubara/](/danielle-matsubara/) | Demo premium |
 | **G&L Locações** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
+| **Studio Laís Felicia** | [/lais-felicia/](/lais-felicia/) | Demo premium |
 | **CBX** | [/cbx/](/cbx/) | Marketplace demo |
+| **Protocolo PAV — BASE** | [/protocolo-pav/](/protocolo-pav/) | Arena gamificada |
+| **chama** | [/chama/](/chama/) | Clone Manychat (flows + inbox) |
+| **traço** | [/traco/](/traco/) | Clone Procreate + IA por seleção |
 
-Login inicial Maciel: `admin` / `MacielMotors123` (sistema inicia zerado)
+Login Maciel: `admin` / `MacielMotors123` · Login LP Motors: `admin` / `LPMotors123` · chama: qualquer e-mail (demo)
 
-Comparação: [/maciel-motors/](/maciel-motors/) e [/maciel-motors-x/](/maciel-motors-x/) compartilham o login cinematográfico.
+Maciel Motors e LP Motors são produtos **independentes** (paths e dados separados).
 
 ## Stack
 
@@ -44,8 +50,11 @@ npm run dev:portal
 npm run dev:pix
 # Painel estático: abra apps/pix-gateway/web/index.html ou use o deploy /pix/
 
-# Maciel Motors (isolado)
+# Maciel Motors
 npm run dev:maciel
+
+# LP Motors Gestor (produto novo, paralelo)
+npm run dev:lp-motors
 
 # Porthal Imóveis (demo premium)
 npm run dev:porthal
@@ -80,8 +89,20 @@ npm run dev:danielle
 # G&L Fest Locações (demo premium)
 npm run dev:gl
 
+# Studio Laís Felicia (design de sobrancelhas)
+npm run dev:lais
+
 # CBX — Marketplace Capão Bonito
 npm run dev:cbx
+
+# Protocolo PAV — BASE (Arena + jogos)
+npm run dev:pav
+
+# chama — clone Manychat
+npm run dev:chama
+
+# traço — clone Procreate + IA
+npm run dev:traco
 
 # Build completo (igual Vercel)
 npm run build

@@ -48,7 +48,7 @@ export interface Highlight {
 }
 
 export const properties = catalog.properties as Property[]
-export const highlights = catalog.highlights as Highlight[]
+export const highlights = (catalog.highlights ?? []) as Highlight[]
 export const saleProperties = properties.filter((p) => p.transaction === 'sale')
 export const rentProperties = properties.filter((p) => p.transaction === 'rent')
 export const featuredProperties = properties.filter((p) => p.featured)
@@ -68,6 +68,7 @@ export function filterProperties(opts: {
   city?: string
   query?: string
   minBeds?: number
+  profile?: string
 }) {
   return properties.filter((p) => {
     if (opts.transaction && opts.transaction !== 'all' && p.transaction !== opts.transaction) {
@@ -77,9 +78,12 @@ export function filterProperties(opts: {
       return false
     }
     if (opts.minBeds && (p.bedroomCount ?? 0) < opts.minBeds) return false
+    if (opts.profile && opts.profile !== 'all' && !p.profile.toLowerCase().includes(opts.profile.toLowerCase())) {
+      return false
+    }
     if (opts.query) {
       const q = opts.query.toLowerCase()
-      const hay = `${p.title} ${p.fullTitle} ${p.city} ${p.address} ${p.reference}`.toLowerCase()
+      const hay = `${p.title} ${p.fullTitle} ${p.city} ${p.address} ${p.reference} ${p.profile}`.toLowerCase()
       if (!hay.includes(q)) return false
     }
     return true

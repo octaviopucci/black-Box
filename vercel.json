@@ -8,15 +8,38 @@
       "memory": 1024,
       "maxDuration": 30,
       "includeFiles": "api/_pix_gateway.cjs"
+    },
+    "api/lp-motors.ts": {
+      "memory": 512,
+      "maxDuration": 30,
+      "includeFiles": "api/_lp-motors/**"
+    },
+    "api/chama.ts": {
+      "memory": 512,
+      "maxDuration": 30,
+      "includeFiles": "api/_chama/**"
+    },
+    "api/traco.ts": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "includeFiles": "api/_traco/**"
     }
   },
   "rewrites": [
     { "source": "/api/pix", "destination": "/api/pix?path=health" },
     { "source": "/api/pix/(.*)", "destination": "/api/pix?path=$1" },
+    { "source": "/api/lp-motors", "destination": "/api/lp-motors?path=health" },
+    { "source": "/api/lp-motors/(.*)", "destination": "/api/lp-motors?path=$1" },
+    { "source": "/api/chama", "destination": "/api/chama?path=health" },
+    { "source": "/api/chama/(.*)", "destination": "/api/chama?path=$1" },
+    { "source": "/api/traco", "destination": "/api/traco?path=health" },
+    { "source": "/api/traco/(.*)", "destination": "/api/traco?path=$1" },
     { "source": "/pix", "destination": "/pix/index.html" },
     { "source": "/pix/", "destination": "/pix/index.html" },
     { "source": "/maciel-motors-x/(.*)", "destination": "/maciel-motors-x/index.html" },
     { "source": "/maciel-motors/(.*)", "destination": "/maciel-motors/index.html" },
+    { "source": "/lp-motors-x/(.*)", "destination": "/lp-motors-x/index.html" },
+    { "source": "/lp-motors/(.*)", "destination": "/lp-motors/index.html" },
     { "source": "/porthal-imoveis/(.*)", "destination": "/porthal-imoveis/index.html" },
     { "source": "/marcio-mariano/(.*)", "destination": "/marcio-mariano/index.html" },
     { "source": "/sogov/(.*)", "destination": "/sogov/index.html" },
@@ -28,7 +51,12 @@
     { "source": "/clinica-matsubara/(.*)", "destination": "/clinica-matsubara/index.html" },
     { "source": "/danielle-matsubara/(.*)", "destination": "/danielle-matsubara/index.html" },
     { "source": "/gl-locacoes/(.*)", "destination": "/gl-locacoes/index.html" },
-    { "source": "/((?!api(?:/|$)|pix(?:/|$)|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/lais-felicia/(.*)", "destination": "/lais-felicia/index.html" },
+    { "source": "/protocolo-pav/(.*)", "destination": "/protocolo-pav/index.html" },
+    { "source": "/rian/(.*)", "destination": "/rian/index.html" },
+    { "source": "/chama/(.*)", "destination": "/chama/index.html" },
+    { "source": "/traco/(.*)", "destination": "/traco/index.html" },
+    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|lais-felicia|protocolo-pav|rian|chama|traco|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

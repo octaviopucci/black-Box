@@ -3,12 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --navy: #0b1f3a;
-  --brand: #0c4a8c;
-  --gold: #c4a35a;
-  --chalk: #f4f1ea;
-  --ink: #12151c;
-  --mute: #5c6470;
+  --blue: #004395;
+  --blue-deep: #002b5c;
+  --gold: #f9c322;
+  --mark: #e30613;
+  --ink: #0a1628;
+  --mute: #4a5a6e;
+  --paper: #f7f9fc;
+  --line: #cdd7e5;
 }
 
 html {
@@ -18,12 +20,12 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Outfit', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(12, 74, 140, 0.08), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 100% 10%, rgba(196, 163, 90, 0.1), transparent 50%),
-    linear-gradient(180deg, #faf8f3 0%, var(--chalk) 45%, #ebe6db 100%);
+    radial-gradient(ellipse 70% 45% at 0% 0%, rgba(0, 67, 149, 0.07), transparent 55%),
+    radial-gradient(ellipse 50% 35% at 100% 0%, rgba(249, 195, 34, 0.08), transparent 50%),
+    linear-gradient(180deg, #ffffff 0%, var(--paper) 55%, #eef3f9 100%);
 }
 
 body::before {
@@ -32,24 +34,42 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 80;
-  opacity: 0.035;
+  opacity: 0.028;
   background-image: theme('backgroundImage.grain');
   background-size: 180px 180px;
   mix-blend-mode: multiply;
 }
 
 ::selection {
-  background: rgba(12, 74, 140, 0.22);
+  background: rgba(0, 67, 149, 0.2);
   color: var(--ink);
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-gold px-6 py-3.5 text-sm font-semibold text-blue-deep transition duration-300 hover:bg-gold-soft;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 border border-white/30 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition duration-300 hover:bg-white/20;
+  }
+
+  .btn-blue {
+    @apply inline-flex items-center justify-center gap-2 bg-blue px-6 py-3.5 text-sm font-semibold text-white transition duration-300 hover:bg-blue-mid;
+  }
+
+  .section-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.28em] text-blue;
+  }
+
+  .input-field {
+    @apply w-full border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-blue focus:ring-2 focus:ring-blue/15;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-
-  .mask-fade-b {
-    mask-image: linear-gradient(180deg, #000 70%, transparent);
   }
 }
 
@@ -63,12 +83,7 @@ body::before {
 }
 
 .animate-marquee {
-  animation: marquee 42s linear infinite;
-}
-
-.has-custom-cursor,
-.has-custom-cursor * {
-  cursor: none !important;
+  animation: marquee 38s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

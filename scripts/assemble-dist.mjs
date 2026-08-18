@@ -7,6 +7,8 @@ const publicOut = join(root, 'public')
 const portalDist = join(root, 'portal', 'dist')
 const macielDist = join(root, 'apps', 'maciel-motors-gestor', 'dist')
 const macielXDist = join(root, 'apps', 'maciel-motors-gestor', 'dist-x')
+const lpMotorsDist = join(root, 'apps', 'lp-motors-gestor', 'dist')
+const lpMotorsXDist = join(root, 'apps', 'lp-motors-gestor', 'dist-x')
 const porthalDist = join(root, 'apps', 'porthal-imoveis', 'dist')
 const marcioDist = join(root, 'apps', 'marcio-mariano', 'dist')
 const sogovDist = join(root, 'apps', 'sogov', 'dist')
@@ -18,12 +20,21 @@ const naDist = join(root, 'apps', 'na-veiculos', 'dist')
 const matsubaraDist = join(root, 'apps', 'clinica-matsubara', 'dist')
 const danielleDist = join(root, 'apps', 'danielle-matsubara', 'dist')
 const glDist = join(root, 'apps', 'gl-locacoes', 'dist')
+const laisDist = join(root, 'apps', 'lais-felicia', 'dist')
 const cbxDist = join(root, 'apps', 'cbx', 'out')
+const pavDist = join(root, 'apps', 'protocolo-pav', 'dist')
+const rianDist = join(root, 'apps', 'rian', 'dist')
+const chamaDist = join(root, 'apps', 'chama', 'dist')
+const tracoDist = join(root, 'apps', 'traco', 'dist')
 
 if (!existsSync(portalDist)) throw new Error('portal/dist não encontrado — rode build:portal')
 if (!existsSync(macielDist)) throw new Error('apps/maciel-motors-gestor/dist não encontrado — rode build:maciel')
 if (!existsSync(macielXDist)) {
   throw new Error('apps/maciel-motors-gestor/dist-x não encontrado — rode build:maciel-x')
+}
+if (!existsSync(lpMotorsDist)) throw new Error('apps/lp-motors-gestor/dist não encontrado — rode build:lp-motors')
+if (!existsSync(lpMotorsXDist)) {
+  throw new Error('apps/lp-motors-gestor/dist-x não encontrado — rode build:lp-motors-x')
 }
 if (!existsSync(porthalDist)) {
   throw new Error('apps/porthal-imoveis/dist não encontrado — rode build:porthal')
@@ -58,18 +69,39 @@ if (!existsSync(danielleDist)) {
 if (!existsSync(glDist)) {
   throw new Error('apps/gl-locacoes/dist não encontrado — rode build:gl')
 }
+if (!existsSync(laisDist)) {
+  throw new Error('apps/lais-felicia/dist não encontrado — rode build:lais')
+}
 if (!existsSync(cbxDist)) {
   throw new Error('apps/cbx/out não encontrado — rode build:cbx')
+}
+if (!existsSync(pavDist)) {
+  throw new Error('apps/protocolo-pav/dist não encontrado — rode build:pav')
+}
+if (!existsSync(rianDist)) {
+  throw new Error('apps/rian/dist não encontrado — rode build:rian')
+}
+if (!existsSync(chamaDist)) {
+  throw new Error('apps/chama/dist não encontrado — rode build:chama')
+}
+if (!existsSync(tracoDist)) {
+  throw new Error('apps/traco/dist não encontrado — rode build:traco')
 }
 
 function publish(target) {
   rmSync(target, { recursive: true, force: true })
   mkdirSync(target, { recursive: true })
   cpSync(portalDist, target, { recursive: true })
+  // Maciel Motors (produto existente — permanece independente)
   mkdirSync(join(target, 'maciel-motors'), { recursive: true })
   cpSync(macielDist, join(target, 'maciel-motors'), { recursive: true })
   mkdirSync(join(target, 'maciel-motors-x'), { recursive: true })
   cpSync(macielXDist, join(target, 'maciel-motors-x'), { recursive: true })
+  // LP Motors (produto novo — paralelo, não substitui o Maciel)
+  mkdirSync(join(target, 'lp-motors'), { recursive: true })
+  cpSync(lpMotorsDist, join(target, 'lp-motors'), { recursive: true })
+  mkdirSync(join(target, 'lp-motors-x'), { recursive: true })
+  cpSync(lpMotorsXDist, join(target, 'lp-motors-x'), { recursive: true })
   mkdirSync(join(target, 'porthal-imoveis'), { recursive: true })
   cpSync(porthalDist, join(target, 'porthal-imoveis'), { recursive: true })
   mkdirSync(join(target, 'marcio-mariano'), { recursive: true })
@@ -92,8 +124,18 @@ function publish(target) {
   cpSync(danielleDist, join(target, 'danielle-matsubara'), { recursive: true })
   mkdirSync(join(target, 'gl-locacoes'), { recursive: true })
   cpSync(glDist, join(target, 'gl-locacoes'), { recursive: true })
+  mkdirSync(join(target, 'lais-felicia'), { recursive: true })
+  cpSync(laisDist, join(target, 'lais-felicia'), { recursive: true })
   mkdirSync(join(target, 'cbx'), { recursive: true })
   cpSync(cbxDist, join(target, 'cbx'), { recursive: true })
+  mkdirSync(join(target, 'protocolo-pav'), { recursive: true })
+  cpSync(pavDist, join(target, 'protocolo-pav'), { recursive: true })
+  mkdirSync(join(target, 'rian'), { recursive: true })
+  cpSync(rianDist, join(target, 'rian'), { recursive: true })
+  mkdirSync(join(target, 'chama'), { recursive: true })
+  cpSync(chamaDist, join(target, 'chama'), { recursive: true })
+  mkdirSync(join(target, 'traco'), { recursive: true })
+  cpSync(tracoDist, join(target, 'traco'), { recursive: true })
   const pixWeb = join(root, 'apps', 'pix-gateway', 'web')
   mkdirSync(join(target, 'pix'), { recursive: true })
   cpSync(pixWeb, join(target, 'pix'), { recursive: true })
@@ -103,4 +145,4 @@ publish(out)
 // Vercel no celular usa Output Directory padrão "public" — espelha o dist.
 publish(publicOut)
 
-console.log('publicado em dist/ e public/ (portal + apps + /pix/)')
+console.log('publicado em dist/ e public/ (portal + maciel + lp-motors + apps + /pix/)')

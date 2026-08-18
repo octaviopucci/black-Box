@@ -32,6 +32,26 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Interativo', 'Comparação'],
   },
   {
+    id: 'lp-motors',
+    name: 'LP Motors Gestor',
+    client: 'LP Motors',
+    description:
+      'Novo sistema profissional de gestão de estoque e operação para lojas de veículos: dossiê 360°, custos, alertas, inteligência sem IA e sync multi-dispositivo.',
+    href: '/lp-motors/',
+    status: 'ativo',
+    tags: ['React', 'Gestão', 'Automotivo'],
+  },
+  {
+    id: 'lp-motors-x',
+    name: 'LP Motors Gestor X',
+    client: 'LP Motors',
+    description:
+      'Variante interativa do LP Motors Gestor para demos. Produto independente do Maciel Motors.',
+    href: '/lp-motors-x/',
+    status: 'demo',
+    tags: ['React', 'Interativo', 'Comparação'],
+  },
+  {
     id: 'porthal-imoveis',
     name: 'Porthal Imóveis',
     client: 'Porthal Imóveis',
@@ -132,6 +152,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Saúde', 'Awwwards'],
   },
   {
+    id: 'lais-felicia',
+    name: 'Studio Laís Felicia',
+    client: 'Laís Felicia · Capão Bonito',
+    description:
+      'Landing de design de sobrancelhas, henna, brow lamination e cursos presenciais. Identidade rose, fotos reais e conversão WhatsApp.',
+    href: '/lais-felicia/',
+    status: 'demo',
+    tags: ['React', 'Beleza', 'Premium'],
+  },
+  {
     id: 'gl-locacoes',
     name: 'G&L Locações',
     client: 'G&L Locações de Brinquedos · Capão Bonito',
@@ -150,6 +180,46 @@ export const projects: ClientProject[] = [
     href: '/cbx/',
     status: 'demo',
     tags: ['Next.js', 'Marketplace', 'Premium'],
+  },
+  {
+    id: 'protocolo-pav',
+    name: 'Protocolo PAV — BASE',
+    client: 'BASE · Sistema PAV',
+    description:
+      'Funil quiz v2 visual BASE (copy intacta) + planos Kiwify originais. Arena e protocolo no mesmo app.',
+    href: '/protocolo-pav/quiz-v2',
+    status: 'demo',
+    tags: ['React', 'Quiz', 'BASE'],
+  },
+  {
+    id: 'rian',
+    name: 'BASE · Rian (afiliado)',
+    client: 'BASE · Afiliado Rian',
+    description:
+      'Pré-venda afiliado Rian v2: quiz visual + cadastro + planos com checkout Kiwify próprio (afid wSk0NAct).',
+    href: '/rian/quiz-v2',
+    status: 'ativo',
+    tags: ['React', 'Afiliado', 'BASE'],
+  },
+  {
+    id: 'chama',
+    name: 'chama',
+    client: 'chama · de chamar',
+    description:
+      'Clone funcional do Manychat: flow builder, inbox, automações comentário→DM, broadcasts, analytics e simulador — tudo persistido no navegador.',
+    href: '/chama/',
+    status: 'demo',
+    tags: ['React', 'Chat', 'Automação'],
+  },
+  {
+    id: 'traco',
+    name: 'traço',
+    client: 'traço · desenhe com inteligência',
+    description:
+      'Clone melhorado do Procreate: pincéis, camadas, laço/seleção e IA integrada para alterar regiões, camadas ou o canvas por prompt.',
+    href: '/traco/',
+    status: 'demo',
+    tags: ['React', 'Canvas', 'IA'],
   },
   {
     id: 'pix-gateway',

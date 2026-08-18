@@ -34,10 +34,10 @@ export function Threshold() {
               O limiar
             </p>
             <h2 className="mt-4 font-display text-[clamp(2.4rem,5.5vw,3.8rem)] font-semibold leading-[1.02] tracking-tight text-paper">
-              Onde o fio encontra você
+              Agende com quem conecta
             </h2>
             <p className="mt-5 text-base leading-relaxed text-paper/60">
-              Sem filas digitais. Sem formulários frios. Uma mensagem — e a DNA responde.
+              Uma mensagem no WhatsApp — e a DNA responde com presença.
             </p>
 
             <ul className="mt-10 space-y-5 text-sm text-paper/65">
@@ -77,7 +77,7 @@ export function Threshold() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="space-y-5 rounded-[2rem] bg-deep/80 p-7 ring-1 ring-signal/15 backdrop-blur-md sm:p-9 lg:col-span-7"
+            className="space-y-6 border-t border-signal/20 pt-8 lg:col-span-7 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
           >
             <div>
               <label htmlFor="nome" className="text-[11px] uppercase tracking-[0.22em] text-mute">
