@@ -12,17 +12,21 @@ export function Hero() {
   })
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '12%'])
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.06])
+  const fade = useTransform(scrollYProgress, [0, 0.85], [1, 0.25])
 
   return (
     <section id="topo" ref={ref} className="relative min-h-[100svh] overflow-hidden bg-ink">
-      <motion.div style={reduced ? undefined : { y, scale }} className="absolute inset-0">
+      <motion.div
+        style={reduced ? undefined : { y, scale, opacity: fade }}
+        className="absolute inset-0"
+      >
         <img
-          src={asset('studio.jpg')}
-          alt="Studio Laís Felicia em Capão Bonito, com a logo oficial na parede chevron"
-          className="h-full w-full object-cover object-[center_12%]"
+          src={asset('portrait.jpg')}
+          alt="Laís Felicia no Studio Laís Felicia, em frente à placa oficial na parede chevron"
+          className="h-full w-full object-cover object-[center_18%]"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-ink/10" />
       </motion.div>
 
       <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 sm:px-8 sm:pb-20">
@@ -42,7 +46,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.08 }}
           className="text-[11px] font-medium uppercase tracking-[0.32em] text-rose-soft"
         >
-          {site.role} · {site.city}
+          {site.name} · {site.city}
         </motion.p>
 
         <motion.h1

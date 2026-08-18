@@ -5,16 +5,26 @@ export function About() {
   return (
     <section id="lais" className="px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto grid max-w-6xl items-start gap-14 lg:grid-cols-12">
-        <Reveal className="lg:col-span-5">
-          <img
-            src={asset('lounge.jpg')}
-            alt="Recepção do Studio Laís Felicia, com a placa oficial na parede chevron"
-            className="aspect-[4/5] w-full object-cover object-[center_20%]"
-            loading="lazy"
-          />
-        </Reveal>
+        <div className="grid gap-4 lg:col-span-5">
+          <Reveal>
+            <img
+              src={asset('cert.jpg')}
+              alt="Laís Felicia entrega certificado a uma aluna no studio"
+              className="aspect-[4/5] w-full object-cover object-[center_20%]"
+              loading="lazy"
+            />
+          </Reveal>
+          <Reveal delay={0.08}>
+            <img
+              src={asset('teach.jpg')}
+              alt="Laís explicando o método durante o curso presencial"
+              className="aspect-[16/10] w-full object-cover object-[center_20%]"
+              loading="lazy"
+            />
+          </Reveal>
+        </div>
 
-        <div className="lg:col-span-7 lg:pt-4">
+        <div className="lg:col-span-7 lg:pt-2">
           <Reveal>
             <img
               src={asset('logo.png')}

@@ -1,4 +1,4 @@
-import { extras, plans, services, whatsappUrl } from '../data/site'
+import { asset, extras, plans, services, whatsappUrl } from '../data/site'
 import { Reveal } from './Reveal'
 
 export function Services() {
@@ -25,6 +25,18 @@ export function Services() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal className="mt-12">
+          <img
+            src={asset('swatches.jpg')}
+            alt="Cartelas de degradação de henna La Benig e Glance, usadas para escolher a cor"
+            className="aspect-[4/5] w-full object-cover sm:aspect-[16/11]"
+            loading="lazy"
+          />
+          <p className="mt-3 text-[11px] uppercase tracking-[0.22em] text-ash">
+            Colorimetria da henna
+          </p>
+        </Reveal>
 
         <div className="mt-12 grid gap-10 lg:grid-cols-2">
           <Reveal>

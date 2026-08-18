@@ -8,9 +8,9 @@ export function Process() {
         <div className="grid items-center gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-5">
             <img
-              src={asset('map.jpg')}
-              alt="Marcação da sobrancelha antes da epilação"
-              className="aspect-[3/4] w-full object-cover"
+              src={asset('practice.jpg')}
+              alt="Marcação à mão livre no caderno de exercícios, com régua da marca"
+              className="aspect-[4/5] w-full object-cover"
               loading="lazy"
             />
           </Reveal>

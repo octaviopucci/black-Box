@@ -6,7 +6,7 @@ export function Threshold() {
   return (
     <section id="agendar" className="relative overflow-hidden">
       <img
-        src={asset('lounge.jpg')}
+        src={asset('studio-wide.jpg')}
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
         loading="lazy"

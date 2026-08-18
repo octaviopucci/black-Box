@@ -1,21 +1,31 @@
-import { asset, courses, site, whatsappUrl } from '../data/site'
+import { asset, courses, site, studentNote, whatsappUrl } from '../data/site'
 import { Reveal } from './Reveal'
 
 export function Courses() {
   return (
     <section id="cursos" className="bg-ink px-5 py-24 text-paper sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
-        <Reveal>
-          <p className="eyebrow text-rose-soft">Formação</p>
-          <h2 className="display-title mt-4 max-w-2xl text-4xl sm:text-5xl">
-            Aprender o ofício com quem atende de verdade.
-          </h2>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/60">
-            Dois caminhos presenciais. Kit, certificado e o método que a Laís usa no studio.
-          </p>
-        </Reveal>
+        <div className="grid items-end gap-10 lg:grid-cols-12">
+          <Reveal className="lg:col-span-6">
+            <p className="eyebrow text-rose-soft">Formação</p>
+            <h2 className="display-title mt-4 max-w-2xl text-4xl sm:text-5xl">
+              Aprender o ofício com quem atende de verdade.
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/60">
+              Dois caminhos presenciais. Kit, certificado e o método que a Laís usa no studio.
+            </p>
+          </Reveal>
+          <Reveal delay={0.08} className="lg:col-span-6">
+            <img
+              src={asset('classroom.jpg')}
+              alt="Alunas no curso presencial, cada uma com kit e apostila na estação"
+              className="aspect-[16/11] w-full object-cover"
+              loading="lazy"
+            />
+          </Reveal>
+        </div>
 
-        <div className="mt-16 space-y-24">
+        <div className="mt-20 space-y-24">
           {courses.map((course, i) => (
             <article
               key={course.id}
@@ -69,6 +79,15 @@ export function Courses() {
             </article>
           ))}
         </div>
+
+        <Reveal className="mt-24 max-w-2xl border-t border-paper/10 pt-12">
+          <p className="font-display text-3xl leading-snug text-paper/90 sm:text-4xl">
+            “{studentNote.text}”
+          </p>
+          <p className="mt-5 text-[11px] uppercase tracking-[0.28em] text-rose-soft">
+            {studentNote.from}
+          </p>
+        </Reveal>
       </div>
     </section>
   )

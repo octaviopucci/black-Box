@@ -148,8 +148,8 @@ export const courses = [
     title: 'Curso iniciante',
     price: 'R$ 1.300',
     includes: 'Kit completo e certificado',
-    image: 'apply.jpg',
-    imageAlt: 'Aplicação de henna durante o atendimento, com pincel e pote de pigmento',
+    image: 'course-setup.jpg',
+    imageAlt: 'Estações do curso iniciante com kit, apostila e caixa branca com fita rosa',
     days: [
       {
         title: '1º dia · Teoria e demonstração',
@@ -186,8 +186,8 @@ export const courses = [
     title: 'Especialização henna',
     price: 'R$ 1.100',
     includes: 'Kit completo e certificado',
-    image: 'products.jpg',
-    imageAlt: 'Henna profissional La Benig nas cores preto e castanho médio, aplicada na sobrancelha',
+    image: 'kit.jpg',
+    imageAlt: 'Kit do curso com henna La Benig, régua da marca e materiais de design',
     days: [
       {
         title: 'O dia da especialização',
@@ -210,28 +210,44 @@ export const courses = [
 
 export const results = [
   {
+    file: 'result-smile.jpg',
+    alt: 'Cliente sorrindo depois do design, com a placa oficial ao fundo',
+    caption: 'Depois do design',
+  },
+  {
+    file: 'result-face.jpg',
+    alt: 'Close do olhar com sobrancelha desenhada e preenchida',
+    caption: 'Design',
+  },
+  {
+    file: 'result-lam.jpg',
+    alt: 'Brow lamination com fios alinhados e brilho',
+    caption: 'Brow lamination',
+  },
+  {
+    file: 'result-mirror.jpg',
+    alt: 'Cliente no leito do studio olhando o resultado no espelho',
+    caption: 'No espelho',
+  },
+  {
     file: 'result.jpg',
-    alt: 'Resultado de design com henna, fios alinhados e acabamento ombré',
-    caption: 'Design com henna',
-  },
-  {
-    file: 'apply.jpg',
-    alt: 'Aplicação de henna com pincel e pote de pigmento',
-    caption: 'Aplicação',
-  },
-  {
-    file: 'products.jpg',
-    alt: 'Henna profissional La Benig nas cores preto e castanho médio',
-    caption: 'Henna profissional',
+    alt: 'Acabamento de henna com spoolie rosa',
+    caption: 'Henna',
   },
 ] as const
 
 export const instagramStrip = [
-  { file: 'result.jpg', alt: 'Sobrancelha finalizada com spoolie rosa' },
-  { file: 'apply.jpg', alt: 'Atendimento de design com henna' },
-  { file: 'studio.jpg', alt: 'Recepção do Studio Laís Felicia' },
-  { file: 'lounge.jpg', alt: 'Poltronas e ambiente do studio' },
+  { file: 'portrait.jpg', alt: 'Laís Felicia no studio, em frente à logo oficial' },
+  { file: 'result-smile.jpg', alt: 'Resultado de design de sobrancelha' },
+  { file: 'course-setup.jpg', alt: 'Preparação do curso presencial' },
+  { file: 'cert.jpg', alt: 'Entrega de certificado no studio' },
+  { file: 'logo-box.jpg', alt: 'Caixa e apostila do curso com a logo oficial em rose gold' },
 ] as const
+
+export const studentNote = {
+  text: 'Aprendi tanto com seu curso, amei muito a experiência, foi muito mais do que eu esperava, super completo.',
+  from: 'Aluna do curso presencial',
+} as const
 
 export const faqs = [
   {
