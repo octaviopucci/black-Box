@@ -51,11 +51,12 @@
     { "source": "/clinica-matsubara/(.*)", "destination": "/clinica-matsubara/index.html" },
     { "source": "/danielle-matsubara/(.*)", "destination": "/danielle-matsubara/index.html" },
     { "source": "/gl-locacoes/(.*)", "destination": "/gl-locacoes/index.html" },
+    { "source": "/lais-felicia/(.*)", "destination": "/lais-felicia/index.html" },
     { "source": "/protocolo-pav/(.*)", "destination": "/protocolo-pav/index.html" },
     { "source": "/rian/(.*)", "destination": "/rian/index.html" },
     { "source": "/chama/(.*)", "destination": "/chama/index.html" },
     { "source": "/traco/(.*)", "destination": "/traco/index.html" },
-    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|protocolo-pav|rian|chama|traco|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|lais-felicia|protocolo-pav|rian|chama|traco|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #fbf6f7;
+  --rose: #c9899a;
+  --ink: #2a2426;
+  --mute: #8a7f82;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 55% 40% at 0% 0%, rgba(201, 137, 154, 0.14), transparent 55%),
+    radial-gradient(ellipse 45% 32% at 100% 8%, rgba(201, 137, 154, 0.08), transparent 50%),
+    linear-gradient(180deg, #fffafb 0%, var(--paper) 42%, #f3e8eb 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.03;
+  background-image: theme('backgroundImage.grain');
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+}
+
+::selection {
+  background: rgba(201, 137, 154, 0.35);
+  color: var(--ink);
+}
+
+@layer components {
+  .eyebrow {
+    @apply inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-rose-deep;
+  }
+
+  .display-title {
+    @apply font-display font-medium leading-[1.02] tracking-tight text-balance;
+  }
+
+  .cta-rose {
+    @apply inline-flex items-center justify-center gap-2 bg-rose px-6 py-3.5 text-sm font-medium tracking-wide text-white transition duration-500 ease-silk hover:bg-rose-deep;
+  }
+
+  .cta-ink {
+    @apply inline-flex items-center justify-center gap-2 bg-ink px-6 py-3.5 text-sm font-medium tracking-wide text-paper transition duration-500 ease-silk hover:bg-ink-soft;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center justify-center gap-2 border border-ink/15 px-5 py-3.5 text-sm font-medium text-ink/80 transition duration-500 ease-silk hover:border-rose hover:text-rose-deep;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-glow-pulse {
+    animation: none !important;
+  }
+}

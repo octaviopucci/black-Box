@@ -23,6 +23,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Clínica Matsubara** | [/clinica-matsubara/](/clinica-matsubara/) | Demo premium |
 | **Dra. Danielle Matsubara** | [/danielle-matsubara/](/danielle-matsubara/) | Demo premium |
 | **G&L Locações** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
+| **Studio Laís Felicia** | [/lais-felicia/](/lais-felicia/) | Demo premium |
 | **CBX** | [/cbx/](/cbx/) | Marketplace demo |
 | **Protocolo PAV — BASE** | [/protocolo-pav/](/protocolo-pav/) | Arena gamificada |
 | **chama** | [/chama/](/chama/) | Clone Manychat (flows + inbox) |
@@ -87,6 +88,9 @@ npm run dev:danielle
 
 # G&L Fest Locações (demo premium)
 npm run dev:gl
+
+# Studio Laís Felicia (design de sobrancelhas)
+npm run dev:lais
 
 # CBX — Marketplace Capão Bonito
 npm run dev:cbx

@@ -20,6 +20,7 @@ const naDist = join(root, 'apps', 'na-veiculos', 'dist')
 const matsubaraDist = join(root, 'apps', 'clinica-matsubara', 'dist')
 const danielleDist = join(root, 'apps', 'danielle-matsubara', 'dist')
 const glDist = join(root, 'apps', 'gl-locacoes', 'dist')
+const laisDist = join(root, 'apps', 'lais-felicia', 'dist')
 const cbxDist = join(root, 'apps', 'cbx', 'out')
 const pavDist = join(root, 'apps', 'protocolo-pav', 'dist')
 const rianDist = join(root, 'apps', 'rian', 'dist')
@@ -67,6 +68,9 @@ if (!existsSync(danielleDist)) {
 }
 if (!existsSync(glDist)) {
   throw new Error('apps/gl-locacoes/dist não encontrado — rode build:gl')
+}
+if (!existsSync(laisDist)) {
+  throw new Error('apps/lais-felicia/dist não encontrado — rode build:lais')
 }
 if (!existsSync(cbxDist)) {
   throw new Error('apps/cbx/out não encontrado — rode build:cbx')
@@ -120,6 +124,8 @@ function publish(target) {
   cpSync(danielleDist, join(target, 'danielle-matsubara'), { recursive: true })
   mkdirSync(join(target, 'gl-locacoes'), { recursive: true })
   cpSync(glDist, join(target, 'gl-locacoes'), { recursive: true })
+  mkdirSync(join(target, 'lais-felicia'), { recursive: true })
+  cpSync(laisDist, join(target, 'lais-felicia'), { recursive: true })
   mkdirSync(join(target, 'cbx'), { recursive: true })
   cpSync(cbxDist, join(target, 'cbx'), { recursive: true })
   mkdirSync(join(target, 'protocolo-pav'), { recursive: true })
