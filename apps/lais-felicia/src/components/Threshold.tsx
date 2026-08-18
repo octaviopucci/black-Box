@@ -16,6 +16,12 @@ export function Threshold() {
 
       <div className="relative mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
         <Reveal>
+          <img
+            src={asset('logo.png')}
+            alt=""
+            aria-hidden
+            className="mb-6 h-16 w-16 rounded-full object-cover"
+          />
           <p className="eyebrow text-rose-soft">Agenda</p>
           <h2 className="display-title mt-4 max-w-2xl text-4xl text-paper sm:text-6xl">
             Pronta para descobrir o desenho que valoriza o seu rosto?

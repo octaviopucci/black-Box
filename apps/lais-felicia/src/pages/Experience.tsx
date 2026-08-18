@@ -12,7 +12,6 @@ import { PulseWhatsApp } from '../components/PulseWhatsApp'
 import { Results } from '../components/Results'
 import { Services } from '../components/Services'
 import { Threshold } from '../components/Threshold'
-import { Why } from '../components/Why'
 
 export function Experience() {
   return (
@@ -31,7 +30,6 @@ export function Experience() {
         <Services />
         <Process />
         <Results />
-        <Why />
         <About />
         <Courses />
         <Insta />

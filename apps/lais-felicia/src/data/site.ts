@@ -148,6 +148,8 @@ export const courses = [
     title: 'Curso iniciante',
     price: 'R$ 1.300',
     includes: 'Kit completo e certificado',
+    image: 'apply.jpg',
+    imageAlt: 'Aplicação de henna durante o atendimento, com pincel e pote de pigmento',
     days: [
       {
         title: '1º dia · Teoria e demonstração',
@@ -184,6 +186,8 @@ export const courses = [
     title: 'Especialização henna',
     price: 'R$ 1.100',
     includes: 'Kit completo e certificado',
+    image: 'products.jpg',
+    imageAlt: 'Henna profissional La Benig nas cores preto e castanho médio, aplicada na sobrancelha',
     days: [
       {
         title: 'O dia da especialização',
@@ -208,12 +212,7 @@ export const results = [
   {
     file: 'result.jpg',
     alt: 'Resultado de design com henna, fios alinhados e acabamento ombré',
-    caption: 'Acabamento',
-  },
-  {
-    file: 'map.jpg',
-    alt: 'Mapeamento da sobrancelha com linhas de marcação',
-    caption: 'Marcação',
+    caption: 'Design com henna',
   },
   {
     file: 'apply.jpg',
@@ -223,16 +222,14 @@ export const results = [
   {
     file: 'products.jpg',
     alt: 'Henna profissional La Benig nas cores preto e castanho médio',
-    caption: 'Henna',
+    caption: 'Henna profissional',
   },
 ] as const
 
-export const instagramGrid = [
+export const instagramStrip = [
   { file: 'result.jpg', alt: 'Sobrancelha finalizada com spoolie rosa' },
   { file: 'apply.jpg', alt: 'Atendimento de design com henna' },
-  { file: 'map.jpg', alt: 'Detalhe da marcação no design' },
   { file: 'studio.jpg', alt: 'Recepção do Studio Laís Felicia' },
-  { file: 'products.jpg', alt: 'Henna em pasta e produtos La Benig' },
   { file: 'lounge.jpg', alt: 'Poltronas e ambiente do studio' },
 ] as const
 

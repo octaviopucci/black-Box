@@ -1,4 +1,4 @@
-import { courses, site, whatsappUrl } from '../data/site'
+import { asset, courses, site, whatsappUrl } from '../data/site'
 import { Reveal } from './Reveal'
 
 export function Courses() {
@@ -15,12 +15,26 @@ export function Courses() {
           </p>
         </Reveal>
 
-        <div className="mt-14 grid gap-16 lg:grid-cols-2">
+        <div className="mt-16 space-y-24">
           {courses.map((course, i) => (
-            <Reveal key={course.id} delay={i * 0.08}>
-              <article className={i === 1 ? 'lg:pt-16' : ''}>
-                <p className="text-[11px] uppercase tracking-[0.28em] text-rose-soft">{course.kicker}</p>
-                <h3 className="mt-3 font-display text-4xl">{course.title}</h3>
+            <article
+              key={course.id}
+              className="grid items-start gap-10 lg:grid-cols-12 lg:gap-14"
+            >
+              <Reveal className={`lg:col-span-5 ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
+                <img
+                  src={asset(course.image)}
+                  alt={course.imageAlt}
+                  className="aspect-[4/5] w-full object-cover"
+                  loading="lazy"
+                />
+              </Reveal>
+
+              <Reveal delay={0.08} className="lg:col-span-7">
+                <p className="text-[11px] uppercase tracking-[0.28em] text-rose-soft">
+                  {course.kicker}
+                </p>
+                <h3 className="mt-3 font-display text-4xl sm:text-5xl">{course.title}</h3>
                 <p className="mt-3 font-display text-3xl text-rose-soft">{course.price}</p>
                 <p className="mt-1 text-sm text-paper/50">{course.includes}</p>
 
@@ -51,8 +65,8 @@ export function Courses() {
                 <a href={whatsappUrl(site.whatsapp.courseMessage)} className="cta-rose mt-8">
                   Quero o {course.title.toLowerCase()}
                 </a>
-              </article>
-            </Reveal>
+              </Reveal>
+            </article>
           ))}
         </div>
       </div>

@@ -3,7 +3,7 @@ import { Reveal } from './Reveal'
 
 export function Process() {
   return (
-    <section className="px-5 py-24 sm:px-8 sm:py-32">
+    <section id="processo" className="px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <div className="grid items-center gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-5">

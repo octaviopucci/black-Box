@@ -24,7 +24,7 @@ export function Navbar() {
         <a href="#topo" className="relative z-10" aria-label={site.studio}>
           <BrandMark
             className="h-10 w-10 sm:h-11 sm:w-11"
-            tone={scrolled || open ? 'rose' : 'paper'}
+            invert={!(scrolled || open)}
             showWordmark
           />
         </a>

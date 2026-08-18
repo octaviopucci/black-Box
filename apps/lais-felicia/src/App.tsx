@@ -23,7 +23,6 @@ export default function App() {
         fallback={
           <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-paper">
             <BrandMark className="h-16 w-16" />
-            <p className="font-script text-3xl text-ink">Laís Felicia</p>
           </div>
         }
       >
