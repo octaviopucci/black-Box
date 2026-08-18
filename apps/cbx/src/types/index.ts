@@ -1,6 +1,15 @@
 export type ProductCondition = 'novo' | 'seminovo' | 'usado'
 
-export type PlanTier = 'gratuito' | 'premium' | 'empresarial'
+export type PlanTier =
+  | 'gratuito'
+  | 'starter'
+  | 'premium'
+  | 'empresarial'
+  | 'empresarial_ilimitado'
+
+export type SubscriptionStatus = 'none' | 'pending' | 'active' | 'expired' | 'canceled'
+
+export type SellerPlanId = Exclude<PlanTier, 'gratuito'>
 
 export type AdStatus = 'ativo' | 'pausado' | 'vendido' | 'rascunho' | 'expirado'
 
@@ -28,6 +37,11 @@ export interface User {
   reviewCount: number
   salesCount: number
   adsCount: number
+  subscriptionStatus?: SubscriptionStatus
+  planExpiresAt?: string | null
+  adsLimit?: number
+  canPublish?: boolean
+  activeAds?: number
 }
 
 export interface Address {
@@ -174,10 +188,11 @@ export interface Promotion {
 }
 
 export interface Plan {
-  id: PlanTier
+  id: SellerPlanId
   name: string
   price: number
   period: string
+  adsLimit: number | null
   description: string
   features: string[]
   highlighted?: boolean

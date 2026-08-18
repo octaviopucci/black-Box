@@ -73,7 +73,7 @@ interface PublishDraft {
   price: string
   condition: 'novo' | 'seminovo' | 'usado' | ''
   neighborhood: string
-  plan: 'gratuito' | 'premium' | 'empresarial'
+  plan: 'gratuito' | 'starter' | 'premium' | 'empresarial' | 'empresarial_ilimitado'
   step: number
   setField: <K extends keyof PublishDraft>(key: K, value: PublishDraft[K]) => void
   nextStep: () => void

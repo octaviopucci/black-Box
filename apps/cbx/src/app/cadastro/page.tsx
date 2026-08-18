@@ -3,10 +3,13 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { signIn } from 'next-auth/react'
 import { motion } from 'framer-motion'
 import { User, Mail, Phone, Lock } from 'lucide-react'
+import { toast } from 'sonner'
 import { BRAND, ROUTES } from '@/constants/brand'
 import { useAppStore } from '@/stores/app-store'
+import { liveCatalog } from '@/lib/live-catalog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { fadeIn } from '@/animations/variants'
@@ -29,7 +32,29 @@ export default function CadastroPage() {
     defaultValues: { name: '', email: '', phone: '', password: '' },
   })
 
-  const onSubmit = () => {
+  const onSubmit = async (data: CadastroForm) => {
+    const useApi = process.env.NEXT_PUBLIC_USE_API === '1'
+    if (useApi) {
+      try {
+        await liveCatalog.register(data)
+        const res = await signIn('credentials', {
+          email: data.email,
+          password: data.password,
+          redirect: false,
+        })
+        if (res?.error) {
+          toast.error('Conta criada, mas o login falhou. Tente entrar.')
+          router.push(ROUTES.login)
+          return
+        }
+        login()
+        toast.success('Conta criada!')
+        router.push(ROUTES.home)
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Erro ao cadastrar')
+      }
+      return
+    }
     login()
     router.push(ROUTES.home)
   }

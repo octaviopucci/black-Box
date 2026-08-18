@@ -21,7 +21,7 @@ export default function SobrePage() {
 
           <h2 className="mt-6 text-lg font-bold text-foreground">O que oferecemos</h2>
           <ul className="list-disc space-y-1 pl-5">
-            <li>Anúncios gratuitos para começar a vender</li>
+            <li>Anúncios para vendedores com mensalidade via Pix</li>
             <li>Chat integrado entre compradores e vendedores</li>
             <li>Lojas virtuais para empresas da região</li>
             <li>Busca por categorias e localização</li>

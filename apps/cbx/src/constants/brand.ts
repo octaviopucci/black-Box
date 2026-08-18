@@ -32,6 +32,7 @@ export const ROUTES = {
   estatisticas: (id: string) => `/meus-anuncios/${id}/estatisticas`,
   impulsionar: (id: string) => `/meus-anuncios/${id}/impulsionar`,
   planos: '/planos',
+  pagarPlano: (planId: string) => `/planos/pagar?plan=${planId}`,
   lojas: '/lojas',
   loja: (id: string) => `/lojas/${id}`,
   empresas: '/empresas',

@@ -44,7 +44,7 @@
     "build:danielle": "npm --prefix apps/danielle-matsubara ci --include=dev && VITE_BASE=/danielle-matsubara/ VITE_OUT_DIR=dist npm --prefix apps/danielle-matsubara run build",
     "build:gl": "npm --prefix apps/gl-locacoes ci --include=dev && VITE_BASE=/gl-locacoes/ VITE_OUT_DIR=dist npm --prefix apps/gl-locacoes run build",
     "build:lais": "npm --prefix apps/lais-felicia ci --include=dev && VITE_BASE=/lais-felicia/ VITE_OUT_DIR=dist npm --prefix apps/lais-felicia run build",
-    "build:cbx": "npm --prefix apps/cbx ci --include=dev && NEXT_BASE_PATH=/cbx npm --prefix apps/cbx run build",
+    "build:cbx": "npm --prefix apps/cbx ci --include=dev && npm --prefix apps/cbx run build:static",
     "build:pav": "npm --prefix apps/protocolo-pav ci --include=dev && VITE_BASE=/protocolo-pav/ VITE_OUT_DIR=dist npm --prefix apps/protocolo-pav run build",
     "build:rian": "npm --prefix apps/rian ci --include=dev && VITE_BASE=/rian/ VITE_OUT_DIR=dist npm --prefix apps/rian run build",
     "build:chama": "npm --prefix apps/chama ci --include=dev && VITE_BASE=/chama/ VITE_OUT_DIR=dist npm --prefix apps/chama run build",

@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 
@@ -8,13 +9,22 @@ import { Container, PageShell, SectionHeader } from '@/components/layout/page-sh
 import { StaggerGrid, StaggerItem, ScrollSection } from '@/components/home/scroll-section'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ROUTES } from '@/constants/brand'
-import { categoryService, productService } from '@/services'
+import { categoryService } from '@/services'
+import { useLiveCategories, useLiveProducts } from '@/hooks/use-live-catalog'
 import { useAppStore } from '@/stores/app-store'
 
 export function CategoryDetailClient({ slug }: { slug: string }) {
   const { isFavorite, toggleFavorite } = useAppStore()
-  const category = categoryService.getBySlug(slug)
-  const products = category ? productService.byCategory(category.id) : []
+  const categories = useLiveCategories()
+  const category =
+    categories.find((c) => c.slug === slug) ?? categoryService.getBySlug(slug)
+  const { products: liveProducts } = useLiveProducts(
+    category ? { categoryId: category.id } : undefined,
+  )
+  const products = useMemo(
+    () => (category ? liveProducts.filter((p) => p.categoryId === category.id) : []),
+    [category, liveProducts],
+  )
 
   if (!category) {
     return (

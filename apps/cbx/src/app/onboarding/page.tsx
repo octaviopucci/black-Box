@@ -23,7 +23,7 @@ const slides = [
     icon: Megaphone,
     title: 'Venda fácil',
     description:
-      'Anuncie em minutos, alcance compradores locais e gerencie seus anúncios de forma simples e gratuita.',
+      'Anuncie em minutos e alcance compradores locais. Para vender, assine um plano e pague a mensalidade via Pix.',
     gradient: 'from-secondary/20 to-amber-100/50',
   },
   {
@@ -37,13 +37,13 @@ const slides = [
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const { completeOnboarding, login } = useAppStore()
+  const { completeOnboarding } = useAppStore()
   const [step, setStep] = useState(0)
+  const apiMode = process.env.NEXT_PUBLIC_USE_API === '1'
 
   const finish = () => {
     completeOnboarding()
-    login()
-    router.replace(ROUTES.home)
+    router.replace(apiMode ? ROUTES.cadastro : ROUTES.home)
   }
 
   const next = () => {
@@ -59,11 +59,8 @@ export default function OnboardingPage() {
       <header className="flex items-center justify-between px-4 py-4">
         <BrandLogo size={36} href={null} className="rounded-md bg-black" />
         <Link
-          href={ROUTES.home}
-          onClick={() => {
-            completeOnboarding()
-            login()
-          }}
+          href={apiMode ? ROUTES.cadastro : ROUTES.home}
+          onClick={() => completeOnboarding()}
           className="text-sm font-medium text-primary hover:underline"
         >
           Pular

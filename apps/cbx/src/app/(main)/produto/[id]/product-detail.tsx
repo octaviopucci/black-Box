@@ -29,7 +29,6 @@ import { IconButton } from '@/components/ui/icon-button'
 import { BRAND, ROUTES } from '@/constants/brand'
 import { productService, userService } from '@/services'
 import { useAppStore } from '@/stores/app-store'
-import { useAdGate } from '@/hooks/use-ad-gate'
 import type { Product } from '@/types'
 import { staggerContainer, staggerItem } from '@/animations/variants'
 
@@ -48,7 +47,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [imageIndex, setImageIndex] = useState(0)
   const [direction, setDirection] = useState(0)
   const { addRecentView, toggleFavorite, isFavorite } = useAppStore()
-  const { runWithAd, isAdFree } = useAdGate()
 
   const seller = userService.get(product.sellerId)
   const related = productService.related(product.id).filter((p) => p.id !== product.id)
@@ -99,13 +97,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
   }
 
   const openChat = () => {
-    runWithAd('chat', () => router.push(ROUTES.chat))
+    router.push(ROUTES.chat)
   }
 
   const openWhatsApp = () => {
-    runWithAd('whatsapp', () => {
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
-    })
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -322,11 +318,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <div className="mt-4 flex gap-2">
                   <Button className="flex-1" onClick={openChat}>
                     <MessageCircle className="size-4" />
-                    Chat{!isAdFree ? ' · ad' : ''}
+                    Chat
                   </Button>
                   <Button variant="success" className="flex-1" onClick={openWhatsApp}>
                     <Phone className="size-4" />
-                    WhatsApp{!isAdFree ? ' · ad' : ''}
+                    WhatsApp
                   </Button>
                 </div>
               </div>

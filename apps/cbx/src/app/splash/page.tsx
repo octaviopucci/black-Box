@@ -11,13 +11,18 @@ import { fadeIn, scaleIn } from '@/animations/variants'
 export default function SplashPage() {
   const router = useRouter()
   const onboardingDone = useAppStore((s) => s.onboardingDone)
+  const apiMode = process.env.NEXT_PUBLIC_USE_API === '1'
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace(onboardingDone ? ROUTES.home : ROUTES.onboarding)
+      if (!onboardingDone) {
+        router.replace(ROUTES.onboarding)
+        return
+      }
+      router.replace(apiMode ? ROUTES.login : ROUTES.home)
     }, 2400)
     return () => clearTimeout(timer)
-  }, [router, onboardingDone])
+  }, [router, onboardingDone, apiMode])
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-black px-6">

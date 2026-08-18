@@ -13,7 +13,6 @@ import {
   Lock,
   MapPin,
   PartyPopper,
-  Play,
   Sparkles,
   X,
 } from 'lucide-react'
@@ -26,9 +25,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { PriceTag } from '@/components/ui/price-tag'
 import { ROUTES } from '@/constants/brand'
-import { categoryService, contentService } from '@/services'
+import { categoryService } from '@/services'
 import { usePublishStore } from '@/stores/app-store'
-import { useAdGate } from '@/hooks/use-ad-gate'
+import { liveCatalog } from '@/lib/live-catalog'
+import { getSellerPlan } from '@/lib/plans'
 import { cn, formatCurrency } from '@/lib/utils'
 
 const STEP_LABELS = [
@@ -40,7 +40,7 @@ const STEP_LABELS = [
   'Condição',
   'Localização',
   'Pré-visualização',
-  'Plano',
+  'Confirmar',
   'Concluído',
 ]
 
@@ -55,15 +55,42 @@ const CONDITIONS = [
 export default function PublicarPage() {
   const draft = usePublishStore()
   const categories = categoryService.list()
-  const plans = contentService.plans()
   const progress = Math.round((draft.step / (STEP_LABELS.length - 1)) * 100)
-  const { runWithAd, isUnlocked, isAdFree } = useAdGate()
   const router = useRouter()
-  const [gateOpen, setGateOpen] = useState(isAdFree || isUnlocked('publish'))
+  const useApi = process.env.NEXT_PUBLIC_USE_API === '1'
+  const [gate, setGate] = useState<{
+    canPublish: boolean
+    reason: string
+    activeAds: number
+    adsLimit: number
+    plan?: string
+  } | null>(useApi ? null : { canPublish: true, reason: 'ok', activeAds: 0, adsLimit: -1 })
 
   useEffect(() => {
-    if (isAdFree || isUnlocked('publish')) setGateOpen(true)
-  }, [isAdFree, isUnlocked])
+    if (!useApi) return
+    let cancelled = false
+    liveCatalog
+      .billingMe()
+      .then((data) => {
+        if (!cancelled) {
+          setGate({
+            canPublish: data.gate.canPublish,
+            reason: data.gate.reason,
+            activeAds: data.gate.activeAds,
+            adsLimit: data.gate.adsLimit,
+            plan: data.user.plan,
+          })
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setGate({ canPublish: false, reason: 'subscription', activeAds: 0, adsLimit: 0 })
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [useApi])
 
   const addPhoto = useCallback(() => {
     if (draft.images.length >= 8) {
@@ -77,7 +104,8 @@ export default function PublicarPage() {
     ])
   }, [draft])
 
-  if (!gateOpen) {
+  if (gate && !gate.canPublish) {
+    const limitHit = gate.reason === 'limit'
     return (
       <PageShell>
         <Container className="py-10">
@@ -85,18 +113,17 @@ export default function PublicarPage() {
             <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-secondary/15 text-secondary">
               <Lock className="size-6" aria-hidden />
             </div>
-            <h1 className="mt-4 text-xl font-bold tracking-tight">Publicar no plano gratuito</h1>
+            <h1 className="mt-4 text-xl font-bold tracking-tight">
+              {limitHit ? 'Limite de anúncios atingido' : 'Mensalidade necessária'}
+            </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Assista a um anúncio em vídeo para liberar a criação do anúncio — ou publique sem
-              anúncios no Premium.
+              {limitHit
+                ? `Seu plano permite ${gate.adsLimit} anúncios ativos. Pause ou venda um anúncio, ou faça upgrade.`
+                : 'Para publicar no CBX, escolha um plano e pague a mensalidade via Pix.'}
             </p>
             <div className="mt-6 flex flex-col gap-2">
-              <Button onClick={() => runWithAd('publish', () => setGateOpen(true))}>
-                <Play className="size-4" />
-                Assistir e publicar
-              </Button>
-              <Button variant="outline" onClick={() => router.push(ROUTES.planos)}>
-                Ver planos sem anúncios
+              <Button onClick={() => router.push(limitHit ? ROUTES.meusAnuncios : ROUTES.planos)}>
+                {limitHit ? 'Ver meus anúncios' : 'Ver planos e pagar Pix'}
               </Button>
             </div>
           </div>
@@ -136,21 +163,45 @@ export default function PublicarPage() {
     }
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!canProceed()) {
       toast.error('Preencha os campos obrigatórios antes de continuar')
       return
     }
     if (draft.step === 8) {
+      const useApi = process.env.NEXT_PUBLIC_USE_API === '1'
+      if (useApi) {
+        try {
+          const priceValue = Number(draft.price.replace(/\D/g, '')) / 100
+          await liveCatalog.publish({
+            title: draft.title.trim(),
+            description: draft.description.trim(),
+            price: priceValue,
+            condition: draft.condition || 'usado',
+            categoryId: draft.categoryId,
+            images: draft.images,
+            neighborhood: draft.neighborhood,
+          })
+          draft.nextStep()
+          toast.success('Anúncio publicado e visível para todos!')
+        } catch (e) {
+          const message = e instanceof Error ? e.message : 'Erro ao publicar. Faça login e tente de novo.'
+          toast.error(message)
+          if (message.includes('Assine') || message.includes('Limite')) {
+            router.push(message.includes('Limite') ? ROUTES.meusAnuncios : ROUTES.planos)
+          }
+        }
+        return
+      }
       draft.nextStep()
-      toast.success('Anúncio publicado com sucesso!')
+      toast.success('Anúncio publicado com sucesso! (demo local)')
       return
     }
     draft.nextStep()
   }
 
   const selectedCategory = categories.find((c) => c.id === draft.categoryId)
-  const selectedPlan = plans.find((p) => p.id === draft.plan)
+  const selectedPlan = getSellerPlan(gate?.plan || draft.plan)
   const priceValue = Number(draft.price.replace(/\D/g, '')) / 100
 
   return (
@@ -389,52 +440,21 @@ export default function PublicarPage() {
             )}
 
             {draft.step === 8 && (
-              <div className="space-y-4">
+              <div className="space-y-4 rounded-xl border border-border/60 bg-card p-5">
+                <h3 className="font-semibold">Confirmar publicação</h3>
                 <p className="text-sm text-muted-foreground">
-                  Escolha um plano para seu anúncio. Você pode alterar depois em Meus anúncios.
+                  {selectedPlan
+                    ? `Plano ${selectedPlan.name} · ${
+                        selectedPlan.adsLimit == null
+                          ? 'anúncios ilimitados'
+                          : `${gate?.activeAds ?? 0}/${selectedPlan.adsLimit} anúncios ativos`
+                      }.`
+                    : 'Sua mensalidade Pix precisa estar ativa para este anúncio ir ao ar.'}
                 </p>
-                {plans.map((plan) => (
-                  <button
-                    key={plan.id}
-                    type="button"
-                    onClick={() => draft.setField('plan', plan.id)}
-                    className={cn(
-                      'relative w-full rounded-xl border p-4 text-left transition-colors',
-                      draft.plan === plan.id
-                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                        : 'border-border/60 bg-card hover:border-primary/40',
-                      plan.highlighted && 'border-primary/40',
-                    )}
-                  >
-                    {plan.badge && (
-                      <Badge variant="primary" className="absolute right-4 top-4">
-                        {plan.badge}
-                      </Badge>
-                    )}
-                    <div className="flex items-baseline justify-between gap-4 pr-24">
-                      <h3 className="font-semibold">{plan.name}</h3>
-                      <span className="text-lg font-bold text-primary">
-                        {plan.price === 0
-                          ? 'Grátis'
-                          : formatCurrency(plan.price)}
-                        {plan.price > 0 && (
-                          <span className="text-sm font-normal text-muted-foreground">
-                            /{plan.period}
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
-                    <ul className="mt-3 space-y-1">
-                      {plan.features.slice(0, 3).map((f) => (
-                        <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Check className="size-3 text-primary" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </button>
-                ))}
+                <p className="text-sm">
+                  Título: <strong>{draft.title}</strong>
+                </p>
+                <PriceTag price={priceValue} size="md" />
               </div>
             )}
 

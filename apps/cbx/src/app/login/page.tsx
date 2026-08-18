@@ -3,8 +3,10 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { signIn } from 'next-auth/react'
 import { motion } from 'framer-motion'
 import { Mail, Lock } from 'lucide-react'
+import { toast } from 'sonner'
 import { BRAND, ROUTES } from '@/constants/brand'
 import { useAppStore } from '@/stores/app-store'
 import { BrandLogo } from '@/components/brand/brand-assets'
@@ -28,7 +30,23 @@ export default function LoginPage() {
     defaultValues: { email: '', password: '' },
   })
 
-  const onSubmit = () => {
+  const onSubmit = async (data: LoginForm) => {
+    const useApi = process.env.NEXT_PUBLIC_USE_API === '1'
+    if (useApi) {
+      const res = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
+      if (res?.error) {
+        toast.error('E-mail ou senha inválidos')
+        return
+      }
+      login()
+      router.push(ROUTES.home)
+      return
+    }
+    // Demo estático (sem banco)
     login()
     router.push(ROUTES.home)
   }
@@ -79,6 +97,10 @@ export default function LoginPage() {
           <Button type="submit" className="w-full" size="lg" loading={isSubmitting}>
             Entrar
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            Demo: ana.oliveira@gmail.com / cbx123456 (comprador) · carlos.mendes@outlook.com /
+            cbx123456 (vendedor)
+          </p>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">

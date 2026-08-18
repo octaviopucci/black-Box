@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PlanTier {
+  gratuito
+  starter
+  premium
+  empresarial
+  empresarial_ilimitado
+}
+
+enum SubscriptionStatus {
+  none
+  pending
+  active
+  expired
+  canceled
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  expired
+  cancelled
+}
+
+enum ProductCondition {
+  novo
+  seminovo
+  usado
+}
+
+enum AdStatus {
+  ativo
+  pausado
+  vendido
+  rascunho
+  expirado
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  phone         String    @default("")
+  avatar        String    @default("")
+  city          String    @default("Capão Bonito")
+  state         String    @default("SP")
+  bio           String?
+  verified      Boolean   @default(false)
+  phoneVerified Boolean   @default(false)
+  plan               PlanTier           @default(gratuito)
+  subscriptionStatus SubscriptionStatus @default(none)
+  planExpiresAt      DateTime?
+  adsLimit           Int                @default(0)
+  rating             Float              @default(0)
+  reviewCount        Int                @default(0)
+  salesCount         Int                @default(0)
+  adsCount           Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  products      Product[]
+  favorites     Favorite[]
+  payments      Payment[]
+  sentMessages  Message[] @relation("MessageSender")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Category {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  icon         String
+  color        String    @default("#7c3aed")
+  image        String    @default("")
+  productCount Int       @default(0)
+  products     Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String           @id @default(cuid())
+  title        String
+  slug         String           @unique
+  description  String           @db.Text
+  price        Float
+  oldPrice     Float?
+  condition    ProductCondition @default(usado)
+  images       String[]
+  categoryId   String
+  sellerId     String
+  storeId      String?
+  city         String           @default("Capão Bonito")
+  neighborhood String           @default("Centro")
+  views        Int              @default(0)
+  favoritesCount Int            @default(0)
+  status       AdStatus         @default(ativo)
+  sponsored    Boolean          @default(false)
+  featured     Boolean          @default(false)
+  tags         String[]
+  specs        Json             @default("{}")
+  lat          Float            @default(-24.0059)
+  lng          Float            @default(-48.3448)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  category  Category   @relation(fields: [categoryId], references: [id])
+  seller    User       @relation(fields: [sellerId], references: [id])
+  favorites Favorite[]
+
+  @@index([status, createdAt])
+  @@index([categoryId])
+  @@index([sellerId])
+  @@map("products")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  userId            String
+  plan              PlanTier
+  amount            Float
+  status            PaymentStatus @default(pending)
+  pixCopyPaste      String?       @db.Text
+  pixQrBase64       String?       @db.Text
+  pixExpiresAt      DateTime?
+  provider          String        @default("sandbox")
+  providerPaymentId String?       @unique
+  paidAt            DateTime?
+  periodStart       DateTime?
+  periodEnd         DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("payments")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
+model Conversation {
+  id                 String    @id @default(cuid())
+  productId          String
+  productTitle       String
+  productImage       String
+  buyerId            String
+  sellerId           String
+  lastMessage        String    @default("")
+  lastMessageAt      DateTime  @default(now())
+  createdAt          DateTime  @default(now())
+  messages           Message[]
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  text           String   @db.Text
+  read           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("MessageSender", fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
