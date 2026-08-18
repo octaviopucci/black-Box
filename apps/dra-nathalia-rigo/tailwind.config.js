@@ -4,24 +4,26 @@ export default {
   theme: {
     extend: {
       colors: {
-        fog: '#E4EEEC',
-        ice: '#F3F8F6',
-        ink: '#0C1916',
-        cryo: '#3D6E68',
-        mauve: '#6F4552',
-        sage: '#9BB5AC',
-        mute: '#5A6C67',
-        beam: '#C9A36A',
+        cream: '#faf6f0',
+        paper: '#fffdf9',
+        ink: '#2a2218',
+        gold: '#b8955a',
+        'gold-light': '#d4b87a',
+        rose: '#c9a0a8',
+        mute: '#7a6f63',
       },
       fontFamily: {
-        display: ['Fraunces', 'Georgia', 'serif'],
-        sans: ['Manrope', 'system-ui', 'sans-serif'],
+        display: ['Cormorant Garamond', 'Georgia', 'serif'],
+        sans: ['Montserrat', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
-        mark: '0.32em',
+        mark: '0.28em',
       },
       maxWidth: {
-        measure: '38rem',
+        measure: '36rem',
+      },
+      boxShadow: {
+        soft: '0 18px 50px -24px rgba(42, 34, 24, 0.35)',
       },
     },
   },

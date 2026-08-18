@@ -14,7 +14,7 @@ export function usePageMeta(title: string, description: string) {
       })()
     node.setAttribute('content', description)
     return () => {
-      document.title = `${brand.honorific} · Enfermeira esteta · Sorocaba`
+      document.title = `${brand.name} · Estética Avançada · Sorocaba`
     }
   }, [title, description])
 }

@@ -3,15 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --fog: #e4eeec;
-  --ice: #f3f8f6;
-  --ink: #0c1916;
-  --cryo: #3d6e68;
-  --mauve: #6f4552;
-  --sage: #9bb5ac;
-  --mute: #5a6c67;
-  --beam: #c9a36a;
-  --mercury: 10;
+  --cream: #faf6f0;
+  --paper: #fffdf9;
+  --ink: #2a2218;
+  --gold: #b8955a;
+  --gold-light: #d4b87a;
+  --rose: #c9a0a8;
+  --mute: #7a6f63;
+  --line: rgba(42, 34, 24, 0.1);
 }
 
 html {
@@ -19,48 +18,33 @@ html {
 }
 
 body {
-  background: var(--fog);
+  background: var(--cream);
   color: var(--ink);
-  font-family: Manrope, system-ui, sans-serif;
+  font-family: Montserrat, system-ui, sans-serif;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: #3d6e68;
-  color: #f3f8f6;
+  background: var(--gold);
+  color: var(--paper);
 }
 
 :focus-visible {
-  outline: 2px solid #3d6e68;
+  outline: 2px solid var(--gold);
   outline-offset: 3px;
 }
 
-.grain {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  opacity: 0.22;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+.display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.gold-line {
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  height: 1px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-
-  .grain {
-    display: none;
-  }
-}
-
-.display {
-  font-family: Fraunces, Georgia, serif;
-  font-optical-sizing: auto;
-  font-variation-settings: 'SOFT' 40, 'WONK' 0.7;
-}
-
-.mercury-fill {
-  height: calc(var(--mercury) * 1%);
 }

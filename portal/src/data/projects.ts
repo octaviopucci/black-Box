@@ -166,7 +166,7 @@ export const projects: ClientProject[] = [
     name: 'Dra. Nathalia Rigo',
     client: 'Nathalia Rigo · Sorocaba',
     description:
-      'Ateliê digital da enfermeira esteta: criolipólise, preenchimento labial e epilação a laser no Parque São Bento — avaliação pelo Instagram.',
+      'Site alinhado ao Instagram @dranathaliarigo: estética avançada, criolipólise, preenchimento labial e laser no Parque São Bento — Transforme-se hoje.',
     href: '/dra-nathalia-rigo/',
     status: 'demo',
     tags: ['React', 'Estética', 'Sorocaba'],
