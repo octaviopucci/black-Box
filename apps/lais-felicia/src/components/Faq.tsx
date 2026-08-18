@@ -3,28 +3,28 @@ import { Reveal } from './Reveal'
 
 export function Faq() {
   return (
-    <section id="faq" className="px-5 py-24 sm:px-8 sm:py-28">
-      <div className="mx-auto max-w-3xl">
-        <Reveal>
-          <p className="eyebrow">Dúvidas</p>
-          <h2 className="display-title mt-4 text-4xl sm:text-5xl">Antes de chamar</h2>
-        </Reveal>
-
-        <div className="mt-12 space-y-0 border-t border-ash-line">
-          {faqs.map((item, i) => (
-            <Reveal key={item.q} delay={i * 0.03}>
-              <details className="group border-b border-ash-line">
-                <summary className="cursor-pointer list-none py-5 font-display text-xl marker:content-none [&::-webkit-details-marker]:hidden">
-                  <span className="flex items-center justify-between gap-4">
-                    {item.q}
-                    <span className="text-rose transition group-open:rotate-45">+</span>
-                  </span>
-                </summary>
-                <p className="pb-5 text-sm leading-relaxed text-ink/62">{item.a}</p>
-              </details>
-            </Reveal>
-          ))}
+    <section id="faq" className="section-pad">
+      <Reveal>
+        <div className="mb-12 text-center">
+          <p className="eyebrow">Perguntas frequentes</p>
+          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Dúvidas mais comuns</h2>
         </div>
+      </Reveal>
+
+      <div className="mx-auto max-w-3xl space-y-3.5">
+        {faqs.map((item, i) => (
+          <Reveal key={item.q} delay={i * 0.03}>
+            <details className="group overflow-hidden rounded-xl border border-gold/20 bg-night" open={i === 0}>
+              <summary className="cursor-pointer list-none px-5 py-4 font-display text-base font-semibold text-white marker:content-none [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center justify-between gap-4">
+                  {item.q}
+                  <span className="text-gold transition group-open:rotate-45">+</span>
+                </span>
+              </summary>
+              <p className="px-5 pb-5 text-sm leading-relaxed text-white/65">{item.a}</p>
+            </details>
+          </Reveal>
+        ))}
       </div>
     </section>
   )

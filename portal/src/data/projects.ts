@@ -156,7 +156,7 @@ export const projects: ClientProject[] = [
     name: 'Studio Laís Felicia',
     client: 'Laís Felicia · Capão Bonito',
     description:
-      'Landing de design de sobrancelhas, henna, brow lamination e cursos presenciais. Identidade rose, fotos reais e conversão WhatsApp.',
+      'Landing dark de autoridade (estrutura Duda Nito / NODA): hero sobreposto, serviços, cursos, FAQ e WhatsApp. Fotos reais e identidade rose gold.'
     href: '/lais-felicia/',
     status: 'demo',
     tags: ['React', 'Beleza', 'Premium'],
