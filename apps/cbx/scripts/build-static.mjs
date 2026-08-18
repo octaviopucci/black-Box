@@ -18,6 +18,8 @@ let movedApi = false
 let movedAuth = false
 
 try {
+  execSync('npx prisma generate', { stdio: 'inherit', cwd: root })
+
   mkdirSync(hideRoot, { recursive: true })
 
   if (existsSync(apiDir)) {
