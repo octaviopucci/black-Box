@@ -1,12 +1,16 @@
 import { motion, useScroll, useSpring } from 'framer-motion'
+import { useMotion } from '../hooks/useMotion'
 
 export function PageProgress() {
+  const { reduced } = useMotion()
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 120,
     damping: 28,
     restDelta: 0.001,
   })
+
+  if (reduced) return null
 
   return (
     <motion.div

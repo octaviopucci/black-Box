@@ -2,6 +2,9 @@ import { asset, results, whatsappUrl } from '../data/site'
 import { Reveal } from './Reveal'
 
 export function Results() {
+  const lead = results[0]
+  const rest = results.slice(1)
+
   return (
     <section id="resultados" className="px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
@@ -12,17 +15,65 @@ export function Results() {
           </h2>
         </Reveal>
 
-        <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-          {results.map((item, i) => (
-            <Reveal key={item.file} delay={i * 0.05} className={i === 0 ? 'col-span-2 md:col-span-2' : ''}>
-              <figure className="relative overflow-hidden bg-paper-blush">
+        <div className="mt-12 grid gap-4 lg:grid-cols-12 lg:gap-5">
+          <Reveal className="lg:col-span-7">
+            <figure>
+              <img
+                src={asset(lead.file)}
+                alt={lead.alt}
+                className="aspect-[4/5] w-full object-cover object-top"
+                loading="lazy"
+              />
+              <figcaption className="mt-3 text-[11px] uppercase tracking-[0.22em] text-ash">
+                {lead.caption}
+              </figcaption>
+            </figure>
+          </Reveal>
+
+          <div className="grid grid-cols-2 gap-4 lg:col-span-5 lg:grid-cols-1">
+            {rest.slice(0, 2).map((item, i) => (
+              <Reveal key={item.file} delay={0.06 * (i + 1)}>
+                <figure>
+                  <img
+                    src={asset(item.file)}
+                    alt={item.alt}
+                    className="aspect-[4/5] w-full object-cover lg:aspect-[5/4]"
+                    loading="lazy"
+                  />
+                  <figcaption className="mt-3 text-[11px] uppercase tracking-[0.22em] text-ash">
+                    {item.caption}
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+
+        <Reveal className="mt-6">
+          <figure>
+            <img
+              src={asset('brow-compare.jpg')}
+              alt="Antes e depois de um design em sobrancelha rala, com preenchimento e arco definido"
+              className="aspect-[16/9] w-full object-cover"
+              loading="lazy"
+            />
+            <figcaption className="mt-3 text-[11px] uppercase tracking-[0.22em] text-ash">
+              Antes e depois
+            </figcaption>
+          </figure>
+        </Reveal>
+
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          {rest.slice(2).map((item, i) => (
+            <Reveal key={item.file} delay={0.05 * i}>
+              <figure>
                 <img
                   src={asset(item.file)}
                   alt={item.alt}
-                  className={`w-full object-cover ${i === 0 ? 'aspect-[4/5] md:aspect-[5/4]' : 'aspect-[3/4]'}`}
+                  className="aspect-[4/5] w-full object-cover sm:aspect-[5/4]"
                   loading="lazy"
                 />
-                <figcaption className="absolute bottom-3 left-3 text-[11px] uppercase tracking-[0.22em] text-white">
+                <figcaption className="mt-3 text-[11px] uppercase tracking-[0.22em] text-ash">
                   {item.caption}
                 </figcaption>
               </figure>
@@ -30,32 +81,7 @@ export function Results() {
           ))}
         </div>
 
-        <Reveal className="mt-10 grid grid-cols-2 gap-3 md:max-w-xl">
-          <figure className="overflow-hidden bg-paper-blush">
-            <img
-              src={asset('epi-before.jpg')}
-              alt="Antes da epilação na costeleta"
-              className="aspect-[4/3] w-full object-cover"
-              loading="lazy"
-            />
-            <figcaption className="px-1 py-2 text-[11px] uppercase tracking-[0.2em] text-ash">
-              Antes
-            </figcaption>
-          </figure>
-          <figure className="overflow-hidden bg-paper-blush">
-            <img
-              src={asset('epi-after.jpg')}
-              alt="Depois da epilação na costeleta"
-              className="aspect-[4/3] w-full object-cover"
-              loading="lazy"
-            />
-            <figcaption className="px-1 py-2 text-[11px] uppercase tracking-[0.2em] text-ash">
-              Depois
-            </figcaption>
-          </figure>
-        </Reveal>
-
-        <Reveal className="mt-10 flex flex-wrap items-center gap-4">
+        <Reveal className="mt-12 flex flex-wrap items-center gap-4">
           <p className="max-w-md text-sm text-ink/60">
             Um detalhe na finalização muda o caimento. A henna preenche. O desenho segura o olhar
             no lugar certo.
