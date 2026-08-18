@@ -162,6 +162,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Beleza', 'Premium'],
   },
   {
+    id: 'dra-nathalia-rigo',
+    name: 'Dra. Nathalia Rigo',
+    client: 'Nathalia Rigo · Sorocaba',
+    description:
+      'Site alinhado ao Instagram @dranathaliarigo: estética avançada, criolipólise, preenchimento labial e laser no Parque São Bento — Transforme-se hoje.',
+    href: '/dra-nathalia-rigo/',
+    status: 'demo',
+    tags: ['React', 'Estética', 'Sorocaba'],
+  },
+  {
     id: 'gl-locacoes',
     name: 'G&L Locações',
     client: 'G&L Locações de Brinquedos · Capão Bonito',
