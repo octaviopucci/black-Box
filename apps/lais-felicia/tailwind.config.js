@@ -4,30 +4,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        paper: {
-          DEFAULT: '#FBF6F7',
-          soft: '#FFFCFC',
-          blush: '#F4E6EA',
+        night: {
+          DEFAULT: '#0c0c0c',
+          soft: '#141414',
+          lift: '#1a1a1a',
         },
-        rose: {
+        gold: {
           DEFAULT: '#C9899A',
           deep: '#B56B7E',
           soft: '#E2B8C2',
-          mist: 'rgba(201, 137, 154, 0.16)',
+          mist: 'rgba(201, 137, 154, 0.22)',
         },
-        ink: {
-          DEFAULT: '#2A2426',
-          soft: '#4A4245',
-        },
-        ash: {
-          DEFAULT: '#8A7F82',
-          line: 'rgba(42, 36, 38, 0.12)',
+        paper: {
+          DEFAULT: '#F4EDEE',
+          mute: '#cfc4c7',
         },
       },
       fontFamily: {
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        script: ['"Great Vibes"', 'cursive'],
-        sans: ['"Outfit"', 'system-ui', 'sans-serif'],
+        display: ['"Syne"', 'system-ui', 'sans-serif'],
+        sans: ['"Didact Gothic"', 'system-ui', 'sans-serif'],
       },
       transitionTimingFunction: {
         silk: 'cubic-bezier(0.22, 1, 0.36, 1)',
@@ -35,17 +30,20 @@ export default {
       backgroundImage: {
         grain:
           "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E\")",
-        heroFade:
-          'linear-gradient(180deg, rgba(42,36,38,0.18) 0%, rgba(42,36,38,0.28) 38%, rgba(42,36,38,0.78) 100%)',
       },
       keyframes: {
-        glowPulse: {
-          '0%, 100%': { opacity: '0.35', transform: 'scale(1)' },
-          '50%': { opacity: '0.85', transform: 'scale(1.08)' },
+        preloaderSpin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        bounceLine: {
+          '0%, 100%': { transform: 'scaleX(0.55)', opacity: '0.45' },
+          '50%': { transform: 'scaleX(1)', opacity: '1' },
         },
       },
       animation: {
-        'glow-pulse': 'glowPulse 3.6s ease-in-out infinite',
+        'preloader-spin': 'preloaderSpin 1.7s cubic-bezier(0.65, 0.05, 0.35, 0.95) infinite',
+        'bounce-line': 'bounceLine 1.6s ease-in-out infinite',
       },
     },
   },

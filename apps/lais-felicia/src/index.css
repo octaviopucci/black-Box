@@ -3,11 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --paper: #fbf6f7;
-  --rose: #c9899a;
-  --ink: #2a2426;
-  --mute: #8a7f82;
-  color-scheme: light;
+  --night: #0c0c0c;
+  --gold: #c9899a;
+  --paper: #f4edee;
+  color-scheme: dark;
 }
 
 html {
@@ -17,12 +16,9 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Outfit', system-ui, sans-serif;
-  color: var(--ink);
-  background:
-    radial-gradient(ellipse 55% 40% at 0% 0%, rgba(201, 137, 154, 0.14), transparent 55%),
-    radial-gradient(ellipse 45% 32% at 100% 8%, rgba(201, 137, 154, 0.08), transparent 50%),
-    linear-gradient(180deg, #fffafb 0%, var(--paper) 42%, #f3e8eb 100%);
+  font-family: 'Didact Gothic', system-ui, sans-serif;
+  color: #ddd;
+  background: #0c0c0c;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -33,62 +29,61 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 90;
-  opacity: 0.03;
+  opacity: 0.035;
   background-image: theme('backgroundImage.grain');
   background-size: 180px 180px;
-  mix-blend-mode: multiply;
+  mix-blend-mode: overlay;
 }
 
 ::selection {
   background: rgba(201, 137, 154, 0.35);
-  color: var(--ink);
+  color: #fff;
+}
+
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
 }
 
 @layer components {
   .eyebrow {
-    @apply inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-rose-deep;
+    @apply inline-block text-[12px] font-bold uppercase tracking-[0.22em] text-gold;
   }
 
   .display-title {
-    @apply font-display font-medium leading-[1.02] tracking-tight text-balance;
+    @apply font-display font-bold leading-[1.15] tracking-tight text-white;
   }
 
-  .cta-rose {
-    @apply inline-flex items-center justify-center gap-2 bg-rose px-6 py-3.5 text-sm font-medium tracking-wide text-white transition duration-500 ease-silk hover:bg-rose-deep;
+  .section-pad {
+    @apply px-5 py-16 sm:px-8 sm:py-20 lg:py-24;
   }
 
-  .cta-ink {
-    @apply inline-flex items-center justify-center gap-2 bg-ink px-6 py-3.5 text-sm font-medium tracking-wide text-paper transition duration-500 ease-silk hover:bg-ink-soft;
+  .cta-gold {
+    @apply relative inline-flex items-center justify-center px-1 text-sm font-display font-bold uppercase tracking-[0.18em] text-white;
   }
 
-  .cta-ghost {
-    @apply inline-flex items-center justify-center gap-2 border border-ink/15 px-5 py-3.5 text-sm font-medium text-ink/80 transition duration-500 ease-silk hover:border-rose hover:text-rose-deep;
+  .cta-gold::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -10px;
+    height: 2px;
+    background: var(--gold);
+    animation: bounceLine 1.6s ease-in-out infinite;
+  }
+
+  .check-gold {
+    @apply mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-gold text-[10px] text-gold;
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .hide-scrollbar {
+    scrollbar-width: none;
   }
-
-  .corridor-track {
-    display: flex;
-    width: max-content;
-    align-items: stretch;
-  }
-
-  .chevron-soft {
-    background-image: linear-gradient(
-        135deg,
-        rgba(201, 137, 154, 0.09) 25%,
-        transparent 25%,
-        transparent 50%,
-        rgba(201, 137, 154, 0.09) 50%,
-        rgba(201, 137, 154, 0.09) 75%,
-        transparent 75%,
-        transparent
-      );
-    background-size: 48px 48px;
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -97,7 +92,9 @@ body::before {
     scroll-behavior: auto;
   }
 
-  .animate-glow-pulse {
+  .cta-gold::after,
+  .animate-preloader-spin,
+  .animate-bounce-line {
     animation: none !important;
   }
 }
