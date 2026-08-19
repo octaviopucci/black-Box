@@ -40,6 +40,13 @@ export const site = {
   ],
 } as const
 
+export const heroVideo = {
+  src: 'hero-scrub.mp4',
+  poster: 'hero-scrub-poster.jpg',
+  fallback: 'portrait.jpg',
+  scrollVh: 300,
+} as const
+
 export const serviceHighlights = [
   {
     id: 'design',
