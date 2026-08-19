@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import { courses, whatsappUrl } from '../data/site'
+import { courses, whatsappUrl } from '../../data/site'
 import { Carousel } from './Carousel'
 import { Reveal } from './Reveal'
 
@@ -18,30 +18,30 @@ export function Courses() {
           <article
             key={course.id}
             data-card
-            className="relative w-[86vw] max-w-[520px] shrink-0 snap-start overflow-hidden rounded-md border border-white/10 bg-night px-7 py-10 sm:px-10"
+            className="relative w-[86vw] max-w-[520px] shrink-0 snap-start overflow-hidden rounded-md border border-ink/10 bg-surface-lift px-7 py-10 shadow-sm sm:px-10"
           >
-            <p className="font-display text-sm font-bold uppercase tracking-[0.18em] text-gold">
+            <p className="font-display text-sm font-bold uppercase tracking-[0.18em] text-gold-deep">
               {course.kicker}
               <br />
               {course.title}
             </p>
             <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-start">
-              <p className="shrink-0 font-display text-4xl font-bold text-white">{course.price}</p>
+              <p className="shrink-0 font-display text-4xl font-bold text-ink">{course.price}</p>
               <ul className="space-y-2.5">
                 {course.items.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-white/75">
-                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold" strokeWidth={2.5} />
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-ink-soft">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-deep" strokeWidth={2.5} />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <p className="mt-6 text-xs text-white/40">{course.includes}</p>
+            <p className="mt-6 text-xs text-ink-mute">{course.includes}</p>
             <a
               href={whatsappUrl(
                 `Olá! Vim pelo site e quero me inscrever no curso ${course.kicker} ${course.title}.`,
               )}
-              className="mt-8 inline-flex border border-gold px-5 py-3 text-xs font-display font-bold uppercase tracking-[0.16em] text-white transition hover:bg-gold"
+              className="mt-8 inline-flex border border-gold px-5 py-3 text-xs font-display font-bold uppercase tracking-[0.16em] text-ink transition hover:bg-gold hover:text-white"
             >
               Quero me inscrever
             </a>

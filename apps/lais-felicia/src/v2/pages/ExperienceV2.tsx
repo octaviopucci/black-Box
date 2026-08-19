@@ -1,3 +1,4 @@
+import '../theme.css'
 import { About } from '../components/About'
 import { Courses } from '../components/Courses'
 import { CustomCursor } from '../components/CustomCursor'
@@ -15,12 +16,12 @@ import { Services } from '../components/Services'
 import { Stats } from '../components/Stats'
 import { Testimonials } from '../components/Testimonials'
 
-export function Experience() {
+export function ExperienceV2() {
   return (
-    <div className="min-h-screen bg-night text-paper">
+    <div className="theme-v2 min-h-screen bg-surface text-ink">
       <a
         href="#servicos"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:bg-gold focus:px-4 focus:py-2 focus:text-night"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:bg-gold focus:px-4 focus:py-2 focus:text-white"
       >
         Pular para os serviços
       </a>

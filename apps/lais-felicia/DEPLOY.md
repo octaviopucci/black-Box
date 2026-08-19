@@ -28,3 +28,6 @@ npx netlify-cli deploy --dir=dist --prod
 ## Black Box (Vercel)
 
 No monorepo, o path continua sendo `/lais-felicia/` em https://blckbox.vercel.app/lais-felicia/
+
+- **v1 (dark):** `/` — https://blckbox.vercel.app/lais-felicia/
+- **v2 (rose/cinza/branco):** `/v2` — https://blckbox.vercel.app/lais-felicia/v2

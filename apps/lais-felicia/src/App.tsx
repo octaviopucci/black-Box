@@ -9,6 +9,12 @@ const NotFoundPage = lazy(() =>
 const ServicesPage = lazy(() =>
   import('./pages/ServicesPage').then((m) => ({ default: m.ServicesPage })),
 )
+const ExperienceV2 = lazy(() =>
+  import('./v2/pages/ExperienceV2').then((m) => ({ default: m.ExperienceV2 })),
+)
+const ServicesPageV2 = lazy(() =>
+  import('./v2/pages/ServicesPageV2').then((m) => ({ default: m.ServicesPageV2 })),
+)
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -31,13 +37,15 @@ export default function App() {
       <Suspense
         fallback={
           <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-night">
-            <BrandMark className="h-16 w-16" />
+            <BrandMark className="h-16 w-16" invert />
           </div>
         }
       >
         <Routes>
           <Route path="/" element={<Experience />} />
           <Route path="/servicos" element={<ServicesPage />} />
+          <Route path="/v2" element={<ExperienceV2 />} />
+          <Route path="/v2/servicos" element={<ServicesPageV2 />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

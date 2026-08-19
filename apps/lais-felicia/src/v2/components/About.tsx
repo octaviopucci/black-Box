@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import { asset, site, skills } from '../data/site'
+import { asset, site, skills } from '../../data/site'
 import { Reveal } from './Reveal'
 
 export function About() {
@@ -10,8 +10,8 @@ export function About() {
           <Reveal>
             <p className="eyebrow">{site.role}</p>
             <h2 className="display-title mt-3 text-4xl sm:text-5xl">{site.name}</h2>
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-white/70">{site.aboutLead}</p>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-white/70">{site.aboutBody}</p>
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-ink-soft">{site.aboutLead}</p>
+            <p className="mt-4 max-w-lg text-base leading-relaxed text-ink-soft">{site.aboutBody}</p>
           </Reveal>
 
           <ul className="mt-10 space-y-3">
@@ -21,7 +21,7 @@ export function About() {
                   <span className="check-gold">
                     <Check className="h-3 w-3" strokeWidth={3} />
                   </span>
-                  <p className="text-[15px] text-white/85">{item}</p>
+                  <p className="text-[15px] text-ink">{item}</p>
                 </li>
               </Reveal>
             ))}

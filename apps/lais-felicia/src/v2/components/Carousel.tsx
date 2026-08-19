@@ -31,7 +31,7 @@ export function Carousel({ children, className = '' }: Props) {
           type="button"
           aria-label="Anterior"
           onClick={() => scrollByCard(-1)}
-          className="grid h-11 w-11 place-items-center rounded-full border-2 border-gold text-white transition hover:bg-gold"
+          className="grid h-11 w-11 place-items-center rounded-full border-2 border-gold text-ink transition hover:bg-gold hover:text-white"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -39,7 +39,7 @@ export function Carousel({ children, className = '' }: Props) {
           type="button"
           aria-label="Próximo"
           onClick={() => scrollByCard(1)}
-          className="grid h-11 w-11 place-items-center rounded-full border-2 border-gold text-white transition hover:bg-gold"
+          className="grid h-11 w-11 place-items-center rounded-full border-2 border-gold text-ink transition hover:bg-gold hover:text-white"
         >
           <ChevronRight className="h-4 w-4" />
         </button>

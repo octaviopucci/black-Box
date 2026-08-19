@@ -4,18 +4,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        /** Superfícies claras (ex-night no layout) */
         night: {
-          DEFAULT: '#FBF6F7',
-          soft: '#F3E8EB',
-          lift: '#FFFFFF',
+          DEFAULT: '#0c0c0c',
+          soft: '#141414',
+          lift: '#1a1a1a',
         },
-        /** Acento rose oficial */
         gold: {
           DEFAULT: '#C9899A',
           deep: '#B56B7E',
           soft: '#E2B8C2',
-          mist: 'rgba(201, 137, 154, 0.18)',
+          mist: 'rgba(201, 137, 154, 0.22)',
+        },
+        /** v2 — superfícies claras */
+        surface: {
+          DEFAULT: '#FBF6F7',
+          soft: '#F3E8EB',
+          lift: '#FFFFFF',
+        },
+        /** v2 — texto cinza */
+        ink: {
+          DEFAULT: '#2A2426',
+          soft: '#4A4244',
+          mute: '#8A7F82',
         },
         rose: {
           DEFAULT: '#C9899A',
@@ -23,15 +33,9 @@ export default {
           soft: '#E2B8C2',
           mist: 'rgba(201, 137, 154, 0.18)',
         },
-        /** Texto cinza oficial */
-        ink: {
-          DEFAULT: '#2A2426',
-          soft: '#4A4244',
-          mute: '#8A7F82',
-        },
         paper: {
-          DEFAULT: '#FBF6F7',
-          mute: '#CFC4C7',
+          DEFAULT: '#F4EDEE',
+          mute: '#cfc4c7',
         },
       },
       fontFamily: {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, useScroll } from 'framer-motion'
 import { ChevronUp } from 'lucide-react'
-import { useMotion } from '../hooks/useMotion'
+import { useMotion } from '../../hooks/useMotion'
 
 export function ScrollTop() {
   const { reduced } = useMotion()
@@ -20,13 +20,13 @@ export function ScrollTop() {
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="Voltar ao topo"
-      className={`fixed bottom-24 right-5 z-40 h-12 w-12 text-gold transition duration-500 sm:bottom-28 sm:right-7 ${
+      className={`fixed bottom-24 right-5 z-40 h-12 w-12 text-gold-deep transition duration-500 sm:bottom-28 sm:right-7 ${
         shown ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >
       <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36" aria-hidden>
         <path
-          className="fill-none stroke-white/15"
+          className="fill-none stroke-ink/12"
           strokeWidth="1.6"
           d="M18 2.5 a 15.5 15.5 0 0 1 0 31 a 15.5 15.5 0 0 1 0 -31"
         />
