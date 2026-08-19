@@ -1394,3 +1394,4 @@ Carregue conforme necessário:
 - `premium-site-brief` — intake rápido antes de codar
 - `anti-ai-landing` — composição premium sem cara de IA
 - `scroll-cinematic` — scroll craft (parallax, pin, scrub)
+- `netlify-preview` — deploy temporário na Netlify ao finalizar (senha `Site`)
