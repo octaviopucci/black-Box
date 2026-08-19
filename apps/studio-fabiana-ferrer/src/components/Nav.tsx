@@ -16,19 +16,17 @@ export default function Nav() {
     return () => observer.disconnect()
   }, [])
 
-  const tone = onHero
-    ? 'text-paper/90 [&_a:hover]:text-paper'
-    : 'text-ink/80 [&_a:hover]:text-accent'
-
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 px-5 py-6 transition-colors duration-500 md:px-10 ${tone}`}
+      className={`fixed inset-x-0 top-0 z-50 px-6 py-6 transition-colors duration-500 sm:px-8 md:px-10 ${
+        onHero ? 'text-white' : 'text-ink/80'
+      }`}
     >
-      <div className="mx-auto flex max-w-[90rem] items-end justify-between gap-6">
+      <div className="mx-auto flex w-full min-w-0 max-w-[90rem] items-end justify-between gap-4">
         <a
           href="#inicio"
-          className={`font-sans text-[0.68rem] font-medium uppercase tracking-mark transition-colors ${
-            onHero ? 'text-paper/70' : 'text-mute'
+          className={`shrink-0 font-sans text-[0.68rem] font-medium uppercase tracking-mark transition-colors ${
+            onHero ? 'text-white' : 'text-mute'
           }`}
         >
           Sorocaba
@@ -39,7 +37,9 @@ export default function Nav() {
             <a
               key={item.id}
               href={`#${item.id}`}
-              className="text-[0.72rem] font-medium uppercase tracking-mark transition-colors"
+              className={`text-[0.72rem] font-medium uppercase tracking-mark transition-colors ${
+                onHero ? 'text-white hover:text-white/80' : 'hover:text-accent'
+              }`}
             >
               {item.label}
             </a>
@@ -50,8 +50,8 @@ export default function Nav() {
           href={brand.instagramDm}
           target="_blank"
           rel="noopener noreferrer"
-          className={`border-b pb-0.5 text-[0.72rem] font-medium uppercase tracking-mark transition-colors ${
-            onHero ? 'border-paper/40 text-paper' : 'border-ink/25 text-ink'
+          className={`shrink-0 border-b pb-0.5 text-[0.72rem] font-medium uppercase tracking-mark transition-colors ${
+            onHero ? 'border-white/50 text-white hover:border-white' : 'border-ink/25 text-ink'
           }`}
         >
           Instagram
