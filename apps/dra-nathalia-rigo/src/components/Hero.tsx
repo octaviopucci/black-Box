@@ -20,10 +20,10 @@ export function Hero() {
         <img
           src={asset(media.hero)}
           alt={`${brand.name} no consultório de estética avançada em Sorocaba`}
-          className="h-full w-full scale-x-[-1] object-cover object-[left_22%]"
+          className="h-full w-full object-cover object-[82%_22%] sm:object-[78%_22%] md:object-[75%_22%]"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink from-40% via-ink/55 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/15 to-ink/45" />
         <div className="grain absolute inset-0 opacity-35" aria-hidden />
       </motion.div>
@@ -47,10 +47,12 @@ export function Hero() {
           transition={{ duration: 0.85, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
           className="display mt-5 leading-[0.88] tracking-[-0.02em]"
         >
-          <span className="block text-[clamp(3.2rem,12vw,7.5rem)] font-semibold text-gold-light">
+          <span className="block text-[clamp(1.6rem,6vw,3.75rem)] font-semibold text-gold-light">
             Dra. Nathalia
           </span>
-          <span className="block text-[clamp(3.2rem,12vw,7.5rem)] font-semibold text-gold-light">Rigo</span>
+          <span className="block text-[clamp(3.2rem,12vw,7.5rem)] font-semibold leading-[0.88] text-gold-light">
+            Rigo
+          </span>
         </motion.div>
 
         <motion.h1
