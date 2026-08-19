@@ -3,7 +3,7 @@ import { InstagramIcon } from '@/components/InstagramIcon'
 import { instagramUrl, site } from '@/data/site'
 
 export function Booking() {
-  const member = site.team[0]
+  const member = site.professionals.find((person) => person.id === 'ana-paula')!
 
   return (
     <section id="agendar" className="bg-mauve-deep px-6 py-24 text-paper sm:px-10 lg:px-16 lg:py-32">

@@ -123,6 +123,9 @@ export function Hero() {
         <a href="#clinica" className="transition-colors hover:text-paper">
           Clínica
         </a>
+        <a href="#equipe" className="transition-colors hover:text-paper">
+          Equipe
+        </a>
         <a href="#agendar" className="transition-colors hover:text-paper">
           Agendar
         </a>

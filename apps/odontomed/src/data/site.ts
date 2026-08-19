@@ -4,14 +4,12 @@ export const media = {
   clinic: '/instagram/post-4.jpg',
   process: '/instagram/post-2.jpg',
   periodontal: '/instagram/post-3.jpg',
-  gallery: [
-    '/instagram/post-1.jpg',
-    '/instagram/post-2.jpg',
-    '/instagram/post-3.jpg',
-    '/instagram/post-4.jpg',
-    '/instagram/post-5.jpg',
-    '/instagram/post-6.jpg',
-  ],
+  team: {
+    anaPaula: '/team/ana-paula.jpg',
+    avaliacao: '/team/avaliacao-clinica.jpg',
+    clinica1: '/team/equipe-clinica-1.jpg',
+    clinica2: '/team/equipe-clinica-2.jpg',
+  },
 } as const
 
 export const site = {
@@ -34,6 +32,10 @@ export const site = {
     city: 'Bom Retiro',
     state: 'SC',
     note: 'Localização informada em publicações oficiais no Instagram (#bomretirosc).',
+  },
+  teamIntro: {
+    lead: 'Foi uma tarde muito agradável, as meninas foram super atenciosas comigo e eu amei conhecer todo esse processo.',
+    source: 'Legenda oficial — Instagram @odontomed.br',
   },
   treatments: [
     {
@@ -80,42 +82,46 @@ export const site = {
     secondary: media.clinic,
     source: 'Instagram @odontomed.br',
   },
-  team: [
+  professionals: [
     {
       id: 'ana-paula',
       name: 'Ana Paula',
       role: 'Agenda e atendimento',
       description:
         'Cuida da agenda de todos os profissionais da clínica e também atende pelo WhatsApp.',
+      photo: media.team.anaPaula,
+      featured: true,
       source: 'Instagram @odontomed.br',
     },
-  ],
-  instagramPosts: [
     {
-      id: 1,
-      caption:
-        'Primeira etapa do tratamento: raspagem e limpeza dental — procedimento tranquilo, sem nada invasivo.',
-      image: media.gallery[0],
-      permalink: 'https://www.instagram.com/p/DcMtJWSJL-a/',
+      id: 'avaliacao-clinica',
+      name: 'Profissional da clínica',
+      role: 'Avaliação e registro',
+      description:
+        'Participa do primeiro dia de atendimento com anamnese, avaliação e registro fotográfico para acompanhar cada detalhe do processo.',
+      photo: media.team.avaliacao,
+      featured: false,
+      source: 'Instagram @odontomed.br',
     },
     {
-      id: 2,
-      caption:
-        'Anamnese, avaliação e registro fotográfico para acompanhar cada detalhe do processo.',
-      image: media.gallery[1],
-      permalink: 'https://www.instagram.com/p/DcCOvBopOAS/',
+      id: 'equipe-clinica-1',
+      name: 'Profissional da clínica',
+      role: 'Equipe clínica',
+      description:
+        'Profissional associada em publicação oficial @odontomed.br. Mais do que substituir um dente, um implante devolve confiança, conforto e qualidade de vida.',
+      photo: media.team.clinica1,
+      featured: false,
+      source: 'Instagram @odontomed.br — implantes dentários',
     },
     {
-      id: 3,
-      caption: 'Antes e depois de tratamento periodontal publicado no feed oficial.',
-      image: media.gallery[2],
-      permalink: 'https://www.instagram.com/p/DbtSrbCRsMg/',
-    },
-    {
-      id: 4,
-      caption: 'Cada sorriso restaurado representa uma nova fase, com mais segurança para sorrir.',
-      image: media.gallery[3],
-      permalink: 'https://www.instagram.com/p/DbqRb91RV0G/',
+      id: 'equipe-clinica-2',
+      name: 'Profissional da clínica',
+      role: 'Equipe clínica',
+      description:
+        'Profissional associado em publicação oficial @odontomed.br. Cada sorriso restaurado representa uma nova fase, trazendo mais segurança para sorrir e viver com confiança.',
+      photo: media.team.clinica2,
+      featured: false,
+      source: 'Instagram @odontomed.br — implantes dentários',
     },
   ],
 } as const
