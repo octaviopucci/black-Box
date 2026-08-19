@@ -28,6 +28,7 @@
     "dev:chama": "npm --prefix apps/chama run dev",
     "dev:traco": "npm --prefix apps/traco run dev",
     "dev:mussi": "npm --prefix apps/clinica-mussi-estetica run dev",
+    "dev:odontomed": "npm --prefix apps/odontomed run dev",
     "dev:pix": "npm --prefix apps/pix-gateway run dev",
     "test:pix": "npm --prefix apps/pix-gateway test",
     "build:maciel": "npm --prefix apps/maciel-motors-gestor ci --include=dev && VITE_BASE=/maciel-motors/ VITE_OUT_DIR=dist npm --prefix apps/maciel-motors-gestor run build",
@@ -53,8 +54,9 @@
     "build:chama": "npm --prefix apps/chama ci --include=dev && VITE_BASE=/chama/ VITE_OUT_DIR=dist npm --prefix apps/chama run build",
     "build:traco": "npm --prefix apps/traco ci --include=dev && VITE_BASE=/traco/ VITE_OUT_DIR=dist npm --prefix apps/traco run build",
     "build:mussi": "npm --prefix apps/clinica-mussi-estetica ci --include=dev && VITE_BASE=/clinica-mussi-estetica/ VITE_OUT_DIR=dist npm --prefix apps/clinica-mussi-estetica run build",
+    "build:odontomed": "npm --prefix apps/odontomed ci --include=dev && VITE_BASE=/odontomed/ VITE_OUT_DIR=dist npm --prefix apps/odontomed run build",
     "build:portal": "npm --prefix portal ci --include=dev && npm --prefix portal run build",
-    "build": "npm run build:portal && npm run build:maciel && npm run build:maciel-x && npm run build:lp-motors && npm run build:lp-motors-x && npm run build:porthal && npm run build:marcio && npm run build:sogov && npm run build:dna && npm run build:prado && npm run build:harmonie && npm run build:pucci && npm run build:na && npm run build:matsubara && npm run build:danielle && npm run build:gl && npm run build:cbx && npm run build:pav && npm run build:rian && npm run build:chama && npm run build:traco && npm run build:lais && npm run build:nathalia && npm run build:mussi && node scripts/assemble-dist.mjs",
+    "build": "npm run build:portal && npm run build:maciel && npm run build:maciel-x && npm run build:lp-motors && npm run build:lp-motors-x && npm run build:porthal && npm run build:marcio && npm run build:sogov && npm run build:dna && npm run build:prado && npm run build:harmonie && npm run build:pucci && npm run build:na && npm run build:matsubara && npm run build:danielle && npm run build:gl && npm run build:cbx && npm run build:pav && npm run build:rian && npm run build:chama && npm run build:traco && npm run build:lais && npm run build:nathalia && npm run build:mussi && npm run build:odontomed && node scripts/assemble-dist.mjs",
     "bundle:pix": "node scripts/bundle-pix-api.mjs",
     "vercel-build": "npm run bundle:pix && npm run build",
     "preview": "npx --yes serve -s dist -l 4173"
