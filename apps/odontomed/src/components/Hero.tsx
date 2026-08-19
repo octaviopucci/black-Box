@@ -39,7 +39,7 @@ export function Hero() {
         <img
           src={media.hero}
           alt="Recepção acolhedora na OdontoMed, clínica odontológica em Bom Retiro/SC"
-          className="h-[118%] w-full object-cover object-[center_28%]"
+          className="h-[118%] w-full object-cover object-[50%_18%]"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-mauve-deep/55 via-mauve-deep/35 to-mauve-deep/88" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(176,125,112,0.22),transparent_55%)]" />
@@ -122,9 +122,6 @@ export function Hero() {
         </a>
         <a href="#clinica" className="transition-colors hover:text-paper">
           Clínica
-        </a>
-        <a href="#equipe" className="transition-colors hover:text-paper">
-          Equipe
         </a>
         <a href="#agendar" className="transition-colors hover:text-paper">
           Agendar

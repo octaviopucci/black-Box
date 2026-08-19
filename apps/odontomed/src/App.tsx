@@ -3,7 +3,6 @@ import { Clinic } from '@/components/Clinic'
 import { Evidence } from '@/components/Evidence'
 import { Footer } from '@/components/Footer'
 import { Hero } from '@/components/Hero'
-import { Professionals } from '@/components/Professionals'
 import { PulseInstagram } from '@/components/PulseInstagram'
 import { Treatments } from '@/components/Treatments'
 
@@ -15,7 +14,6 @@ export default function App() {
         <Treatments />
         <Clinic />
         <Evidence />
-        <Professionals />
         <Booking />
       </main>
       <Footer />

@@ -5,13 +5,15 @@ export function Clinic() {
   return (
     <section id="clinica" className="bg-mauve text-paper">
       <div className="grid lg:grid-cols-2">
-        <Reveal className="relative min-h-[52vh] lg:min-h-[88vh]">
-          <img
-            src={site.atmosphere.image}
-            alt="Ambiente acolhedor da recepção OdontoMed"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-mauve-deep/25" />
+        <Reveal className="relative overflow-hidden">
+          <div className="aspect-[3/4] sm:aspect-[4/5] lg:aspect-auto lg:min-h-[88vh]">
+            <img
+              src={site.atmosphere.image}
+              alt="Ambiente acolhedor da recepção OdontoMed"
+              className="h-full w-full object-cover object-[50%_16%] lg:absolute lg:inset-0"
+            />
+          </div>
+          <div className="pointer-events-none absolute inset-0 bg-mauve-deep/25 lg:block" />
         </Reveal>
 
         <div className="flex flex-col justify-center px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
@@ -29,7 +31,7 @@ export function Clinic() {
             <img
               src={site.atmosphere.secondary}
               alt="Equipe e consultório da OdontoMed"
-              className="aspect-[4/3] w-full object-cover"
+              className="aspect-[3/4] w-full object-cover object-top"
             />
           </Reveal>
 
