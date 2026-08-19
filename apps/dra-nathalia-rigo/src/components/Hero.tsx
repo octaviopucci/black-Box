@@ -16,14 +16,20 @@ export function Hero() {
 
   return (
     <section ref={sectionRef} className="relative min-h-[100svh] overflow-hidden bg-ink text-paper">
-      <motion.div style={reduce ? undefined : { y, opacity }} className="absolute inset-0">
-        <img
-          src={asset(media.hero)}
-          alt={`${brand.name} no consultório de estética avançada em Sorocaba`}
-          className="h-full w-full object-cover object-[82%_22%] sm:object-[78%_22%] md:object-[75%_22%]"
-          fetchPriority="high"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink from-40% via-ink/55 to-transparent" />
+      <motion.div style={reduce ? undefined : { y, opacity }} className="absolute inset-0 overflow-hidden">
+        {/* Foto ancorada à direita, espelhada para o rosto olhar o texto */}
+        <div className="absolute inset-y-0 right-0 w-[66%] overflow-hidden sm:w-[54%] md:w-[48%]">
+          <div className="h-full w-full scale-x-[-1]">
+            <img
+              src={asset(media.hero)}
+              alt={`${brand.name} no consultório de estética avançada em Sorocaba`}
+              className="h-full w-full min-h-[118%] object-cover object-[left_36%] sm:object-[left_38%]"
+              fetchPriority="high"
+            />
+          </div>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-ink from-38% via-ink/62 via-58% to-transparent" />
+        <div className="absolute top-0 right-0 h-[32%] w-[62%] bg-gradient-to-b from-ink via-ink/90 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/15 to-ink/45" />
         <div className="grain absolute inset-0 opacity-35" aria-hidden />
       </motion.div>
