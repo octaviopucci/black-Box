@@ -43,10 +43,14 @@ body {
   @apply font-sans text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-copper;
 }
 
+.hero-copy {
+  text-shadow: 0 2px 28px rgba(36, 28, 32, 0.55);
+}
+
 .cta-primary {
-  @apply inline-flex items-center justify-center rounded-full bg-copper px-7 py-3.5 font-sans text-sm font-semibold tracking-wide text-paper transition-colors duration-300 hover:bg-copper-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper;
+  @apply inline-flex items-center justify-center rounded-full bg-copper px-7 py-3.5 font-sans text-sm font-bold tracking-wide text-paper transition-colors duration-300 hover:bg-copper-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper;
 }
 
 .cta-ghost {
-  @apply inline-flex items-center justify-center rounded-full border border-paper/35 bg-paper/10 px-7 py-3.5 font-sans text-sm font-semibold tracking-wide text-paper backdrop-blur-sm transition-colors duration-300 hover:bg-paper/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper;
+  @apply inline-flex items-center justify-center rounded-full border border-paper/35 bg-paper/10 px-7 py-3.5 font-sans text-sm font-bold tracking-wide text-paper backdrop-blur-sm transition-colors duration-300 hover:bg-paper/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper;
 }
