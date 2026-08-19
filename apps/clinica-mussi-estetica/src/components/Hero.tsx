@@ -112,6 +112,9 @@ export function Hero() {
             >
               Agendar avaliação
             </a>
+            <a href="#equipe" className="touch-link px-2 py-4 text-sm font-medium text-paper-lift">
+              Equipe
+            </a>
             <a href="#procedimentos" className="touch-link px-2 py-4 text-sm font-medium text-paper-lift">
               Procedimentos
             </a>

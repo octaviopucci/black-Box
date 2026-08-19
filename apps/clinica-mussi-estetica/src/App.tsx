@@ -5,6 +5,7 @@ import { Gallery } from '@/components/Gallery'
 import { Hero } from '@/components/Hero'
 import { Presence } from '@/components/Presence'
 import { PulseWhatsApp } from '@/components/PulseWhatsApp'
+import { Team } from '@/components/Team'
 import { Voices } from '@/components/Voices'
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
       <main>
         <Hero />
         <Presence />
+        <Team />
         <Care />
         <Gallery />
         <Voices />

@@ -14,6 +14,17 @@ export const media = {
     '/instagram/post-5.jpg',
     '/instagram/post-6.jpg',
   ],
+  team: {
+    eny: '/team/eny-mussi.jpg',
+    marcia: '/team/marcia.jpg',
+    samie: '/team/dra-samiebaptista.jpg',
+    gislene: '/team/psi-gislenevilas.jpg',
+    thici: '/team/thici_lashdesigner.jpg',
+    vania: '/team/vania-rodrigues1211.jpg',
+    ana: '/team/anaaa_mussi.jpg',
+    enidelcy: '/team/enidelcy.jpg',
+    esteticaSorocaba: '/team/esteticasorocaba__.jpg',
+  },
 } as const
 
 export const site = {
@@ -80,6 +91,100 @@ export const site = {
       lead: 'Cuidado que vai além da estética — percebido em cada detalhe.',
       note: 'Depoimentos e reels destacam acolhimento, ambiente e resultado na autoestima.',
       image: media.clinic,
+    },
+  ],
+  teamIntro: {
+    lead: 'Você merece um cuidado que vai além da estética.',
+    body: 'Há 20 anos, construímos um espaço onde técnica, acolhimento e confiança caminham juntos. Cada profissional contribui com sua especialidade para que você tenha uma experiência completa.',
+    source: 'Instagram @clinicamussiestetica',
+  },
+  professionals: [
+    {
+      id: 'eny',
+      name: 'Eny Mussi',
+      role: 'Fundadora',
+      description:
+        'A Clínica Mussi nasceu da soma de todas as experiências, aprendizados e amores que habitam a Eny Mussi. Do primeiro passo que você dá na Mussi até cada tratamento, tudo é convite para reencontrar a si mesma(o).',
+      photo: media.team.eny,
+      featured: true,
+      source: 'Instagram @clinicamussiestetica',
+    },
+    {
+      id: 'marcia',
+      name: 'Márcia',
+      role: 'Recepção e acolhimento',
+      description:
+        'Porque uma experiência de cuidado também precisa transmitir acolhimento, segurança e tranquilidade desde o primeiro olá. A Márcia faz parte de quem torna essa experiência possível todos os dias.',
+      photo: media.team.marcia,
+      featured: true,
+      source: 'Instagram @clinicamussiestetica',
+    },
+    {
+      id: 'samie',
+      name: 'Dra. Samie Baptista',
+      role: 'Equipe clínica',
+      description:
+        'Profissional associada em publicação oficial da clínica — cada especialidade contribui para uma experiência completa, respeitando sua história e individualidade.',
+      photo: media.team.samie,
+      instagram: 'https://www.instagram.com/dra.samiebaptista',
+      source: 'Instagram @clinicamussiestetica',
+    },
+    {
+      id: 'gislene',
+      name: 'Gislene Vilas Boas',
+      role: 'Psicologia',
+      description:
+        'Profissional associada em publicação oficial da clínica, presente nas experiências Mussi publicadas no Instagram.',
+      photo: media.team.gislene,
+      instagram: 'https://www.instagram.com/psi.gislenevilas',
+      source: 'Instagram @clinicamussiestetica',
+    },
+    {
+      id: 'thici',
+      name: 'Thici',
+      role: 'Lash designer',
+      description:
+        'Profissional associada em publicação oficial da clínica — especialidade em design de cílios, conforme perfil @thici_lashdesigner.',
+      photo: media.team.thici,
+      instagram: 'https://www.instagram.com/thici_lashdesigner',
+      source: 'Instagram @clinicamussiestetica',
+    },
+    {
+      id: 'vania',
+      name: 'Vania Rodrigues',
+      role: 'Equipe',
+      description: 'Profissional associada em publicação oficial da clínica.',
+      photo: media.team.vania,
+      instagram: 'https://www.instagram.com/vania.rodrigues1211',
+      source: 'Instagram @clinicamussiestetica',
+    },
+    {
+      id: 'ana',
+      name: 'Ana Mussi',
+      role: 'Equipe',
+      description: 'Profissional associada em publicação oficial da clínica.',
+      photo: media.team.ana,
+      instagram: 'https://www.instagram.com/anaaa_mussi',
+      source: 'Instagram @clinicamussiestetica',
+    },
+    {
+      id: 'enidelcy',
+      name: 'Enidelcy Mussi',
+      role: 'Equipe',
+      description: 'Profissional associada em publicação oficial da clínica.',
+      photo: media.team.enidelcy,
+      instagram: 'https://www.instagram.com/enidelcy',
+      source: 'Instagram @clinicamussiestetica',
+    },
+    {
+      id: 'estetica-sorocaba',
+      name: 'Estética Sorocaba',
+      role: 'Parceira · Spa Day Mussi',
+      description:
+        'Profissional associada em publicação oficial da clínica — coautora da experiência Spa Day Mussi.',
+      photo: media.team.esteticaSorocaba,
+      instagram: 'https://www.instagram.com/esteticasorocaba__',
+      source: 'Instagram @clinicamussiestetica',
     },
   ],
   experience: [
