@@ -30,7 +30,7 @@ export function Clinic() {
           <Reveal delay={0.08} className="mt-12 overflow-hidden">
             <img
               src={site.atmosphere.secondary}
-              alt="Equipe e consultório da OdontoMed"
+              alt="Registro fotográfico durante avaliação na OdontoMed"
               className="aspect-[3/4] w-full object-cover object-top"
             />
           </Reveal>

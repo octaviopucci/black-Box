@@ -1,9 +1,18 @@
 export const media = {
   profile: '/instagram/profile.jpg',
-  hero: '/instagram/post-1.jpg',
+  hero: '/instagram/post-4.jpg',
+  reception: '/instagram/post-1.jpg',
   clinic: '/instagram/post-4.jpg',
   process: '/instagram/post-2.jpg',
   periodontal: '/instagram/post-3.jpg',
+  gallery: [
+    '/instagram/post-1.jpg',
+    '/instagram/post-2.jpg',
+    '/instagram/post-3.jpg',
+    '/instagram/post-4.jpg',
+    '/instagram/post-5.jpg',
+    '/instagram/post-6.jpg',
+  ],
 } as const
 
 export const site = {
@@ -21,6 +30,9 @@ export const site = {
     instagramHandle: '@odontomed.br',
     bookingNote:
       'Ana Paula cuida da agenda de todos os profissionais da clínica e também atende pelo WhatsApp.',
+  },
+  instagram: {
+    profile: media.profile,
   },
   location: {
     city: 'Bom Retiro',
@@ -68,10 +80,53 @@ export const site = {
   atmosphere: {
     title: 'Recepção que acompanha o cuidado.',
     body: 'Atendimento acolhedor desde a chegada — como registrado nas gravações e visitas de pacientes na clínica.',
-    image: media.hero,
-    secondary: media.clinic,
+    image: media.reception,
+    secondary: media.process,
     source: 'Instagram @odontomed.br',
   },
+  instagramPosts: [
+    {
+      id: 1,
+      caption:
+        'Primeira etapa do tratamento: raspagem e limpeza dental — procedimento tranquilo, sem nada invasivo.',
+      image: media.gallery[0],
+      permalink: 'https://www.instagram.com/p/DcMtJWSJL-a/',
+    },
+    {
+      id: 2,
+      caption:
+        'Anamnese, avaliação e registro fotográfico para acompanhar cada detalhe do processo.',
+      image: media.gallery[1],
+      permalink: 'https://www.instagram.com/p/DcCOvBopOAS/',
+    },
+    {
+      id: 3,
+      caption:
+        'A saúde da gengiva faz toda a diferença no sorriso — tratamento periodontal com antes e depois.',
+      image: media.gallery[2],
+      permalink: 'https://www.instagram.com/p/DbtSrbCRsMg/',
+    },
+    {
+      id: 4,
+      caption:
+        'Mais do que substituir um dente, um implante devolve confiança, conforto e qualidade de vida.',
+      image: media.gallery[3],
+      permalink: 'https://www.instagram.com/p/DbqRb91RV0G/',
+    },
+    {
+      id: 5,
+      caption: 'Odontomed — Odontologia Avançada e Saúde Especializada. #bomretirosc',
+      image: media.gallery[4],
+      permalink: 'https://www.instagram.com/p/DbekLwZxUez/',
+    },
+    {
+      id: 6,
+      caption:
+        'Cada sorriso tem uma história. Nunca é tarde para voltar a sorrir com implantes dentários.',
+      image: media.gallery[5],
+      permalink: 'https://www.instagram.com/p/DbJjctpTC58/',
+    },
+  ],
 } as const
 
 export function instagramUrl(message?: string) {

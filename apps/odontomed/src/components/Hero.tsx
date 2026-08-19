@@ -38,8 +38,8 @@ export function Hero() {
       <div ref={imageRef} className="absolute inset-0 will-change-transform">
         <img
           src={media.hero}
-          alt="Recepção acolhedora na OdontoMed, clínica odontológica em Bom Retiro/SC"
-          className="h-[118%] w-full object-cover object-[50%_18%]"
+          alt="Equipe OdontoMed em consultório, clínica odontológica em Bom Retiro/SC"
+          className="h-[118%] w-full object-cover object-top sm:object-[50%_12%]"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-mauve-deep/55 via-mauve-deep/35 to-mauve-deep/88" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(176,125,112,0.22),transparent_55%)]" />
@@ -122,6 +122,9 @@ export function Hero() {
         </a>
         <a href="#clinica" className="transition-colors hover:text-paper">
           Clínica
+        </a>
+        <a href="#instagram" className="transition-colors hover:text-paper">
+          Instagram
         </a>
         <a href="#agendar" className="transition-colors hover:text-paper">
           Agendar
