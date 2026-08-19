@@ -18,7 +18,7 @@ export function Hero() {
         <img
           src={media.hero}
           alt=""
-          className="h-full w-full object-cover object-[center_20%]"
+          className="h-full w-full object-cover object-[center_22%] md:object-[center_18%]"
           fetchPriority="high"
         />
       </motion.div>
@@ -54,15 +54,15 @@ export function Hero() {
           </h1>
 
           <motion.div
-            className="mt-8 max-w-measure"
+            className="mt-8 max-w-measure text-white"
             initial={reduced ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.55 }}
           >
-            <p className="font-display text-[clamp(1.35rem,2.8vw,2rem)] leading-tight text-white/92">
+            <p className="font-display text-[clamp(1.35rem,2.8vw,2rem)] leading-tight text-white">
               {site.headline}
             </p>
-            <p className="mt-4 max-w-[34rem] text-base leading-relaxed text-white/72 md:text-lg">
+            <p className="mt-4 max-w-[34rem] text-base leading-relaxed text-white md:text-lg">
               {site.support}
             </p>
           </motion.div>

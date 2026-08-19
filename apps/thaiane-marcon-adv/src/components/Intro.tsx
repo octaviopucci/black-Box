@@ -8,9 +8,9 @@ export function Intro() {
         <Reveal>
           <div className="relative aspect-[4/5] max-w-md overflow-hidden bg-ink/5">
             <img
-              src={media.profile}
+              src={media.portrait}
               alt={`Retrato de ${site.name}`}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover object-[center_18%]"
               loading="lazy"
             />
           </div>
