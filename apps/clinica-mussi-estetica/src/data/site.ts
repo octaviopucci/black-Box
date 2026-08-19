@@ -1,12 +1,35 @@
+export const media = {
+  profile: '/instagram/profile.jpg',
+  hero: '/instagram/post-6.jpg',
+  doctor: '/instagram/post-5.jpg',
+  clinic: '/instagram/post-4.jpg',
+  spa: '/instagram/post-2.jpg',
+  gallery: [
+    '/instagram/post-1.jpg',
+    '/instagram/post-2.jpg',
+    '/instagram/post-3.jpg',
+    '/instagram/post-4.jpg',
+    '/instagram/post-5.jpg',
+    '/instagram/post-6.jpg',
+  ],
+} as const
+
 export const site = {
   brand: {
     short: 'Mussi',
     legal: 'Clínica Mussi Estética Avançada',
     alternate: 'Mussi Estética Facial e Corporal',
-    promise: 'Tratamentos e cuidados visando sempre sua beleza e saúde.',
+    promise:
+      'Variedade de procedimentos em um só lugar, com profissionais qualificados e resultados com segurança e excelência.',
     niche: 'Clínica estética facial e corporal',
     city: 'Sorocaba',
     state: 'SP',
+    followers: 2521,
+  },
+  doctor: {
+    name: 'Dra. Samie Baptista',
+    handle: '@dra.samiebaptista',
+    note: 'Profissional associada em conteúdo oficial @clinicamussiestetica',
   },
   contact: {
     whatsapp: '5515981493623',
@@ -34,16 +57,27 @@ export const site = {
     rating: 5,
     count: 5,
   },
-  careAreas: [
+  procedures: [
     {
-      id: 'facial',
-      title: 'Estética facial',
-      note: 'Categoria informada no nome oficial da clínica.',
+      id: 'spa-day',
+      title: 'Spa Day Mussi',
+      lead: 'O verdadeiro luxo é parar e, por algumas horas, ser cuidada em cada detalhe.',
+      note: 'Experiência publicada no Instagram — desacelerar, relaxar e voltar para si.',
+      image: media.spa,
     },
     {
-      id: 'corporal',
-      title: 'Estética corporal',
-      note: 'Categoria informada no nome oficial da clínica.',
+      id: 'estetica-facial-corporal',
+      title: 'Procedimentos estéticos',
+      lead: 'Facial e corporal em um só lugar, com equipe preparada para o melhor atendimento.',
+      note: 'Copy extraída de publicação oficial: segurança, excelência e autocuidado.',
+      image: media.hero,
+    },
+    {
+      id: 'experiencia-mussi',
+      title: 'Experiência Mussi',
+      lead: 'Cuidado que vai além da estética — percebido em cada detalhe.',
+      note: 'Depoimentos e reels destacam acolhimento, ambiente e resultado na autoestima.',
+      image: media.clinic,
     },
   ],
   experience: [
@@ -59,8 +93,8 @@ export const site = {
     },
     {
       id: 'resultado',
-      line: 'Resultados que transformam a autoestima.',
-      source: 'Depoimento MHPD RJ, Lista Mais',
+      line: 'Quando o cuidado é verdadeiro, ele é percebido.',
+      source: 'Instagram @clinicamussiestetica',
     },
   ],
   testimonials: [
@@ -94,6 +128,13 @@ export const site = {
       author: 'Danyllo Paes da Costa',
       date: '13/02/2021',
       quote: 'Super recomendo! Esposa sai linda!',
+    },
+    {
+      id: 'fernanda',
+      author: 'Fernanda',
+      date: 'Instagram',
+      quote:
+        'Viveu a experiência Mussi e compartilha, com as próprias palavras, como foi se sentir cuidada em cada detalhe.',
     },
   ],
 } as const
