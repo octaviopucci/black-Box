@@ -51,6 +51,13 @@ export const site = {
   ],
 } as const
 
+export const heroVideo = {
+  src: 'hero-scrub.mp4',
+  poster: 'hero-scrub-poster.jpg',
+  fallback: 'portrait.jpg',
+  scrollVh: 300,
+} as const
+
 export const skills = [
   'Correção e simetria',
   'Método RT de marcação',
