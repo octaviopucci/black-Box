@@ -1,6 +1,13 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { brand, media, procedures } from '@/data/site'
+import {
+  brand,
+  highlightThemes,
+  media,
+  philosophyQuotes,
+  procedures,
+  results,
+} from '@/data/site'
 import { asset } from '@/lib/asset'
 
 function Reveal({
@@ -26,42 +33,112 @@ function Reveal({
   )
 }
 
+export function BrandIntroSection() {
+  return (
+    <section className="border-b border-ink/10 bg-paper py-16 md:py-20">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 md:grid-cols-[1.2fr_0.8fr] md:px-8">
+        <Reveal>
+          <p className="text-[11px] uppercase tracking-mark text-gold">@{brand.instagramHandle}</p>
+          <h2 className="display mt-3 text-[clamp(2rem,4vw,3.2rem)] font-semibold leading-tight">
+            {brand.businessName}
+          </h2>
+          <p className="mt-5 max-w-measure text-base leading-relaxed text-mute">
+            {brand.bioLines[0]} {brand.bioLegacy}
+          </p>
+          <p className="mt-3 text-sm text-mute">
+            {brand.instagramStats.posts} publicações · {brand.instagramStats.followers} seguidores ·{' '}
+            {brand.bioLines[1]}
+          </p>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <img
+            src={asset(media.logo)}
+            alt="Nathalia Rigo Estética & Saúde"
+            className="w-full object-cover"
+            loading="lazy"
+          />
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
 export function ProceduresSection() {
   return (
-    <section id="procedimentos" className="bg-paper py-24 md:py-32">
+    <section id="procedimentos" className="bg-cream py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal>
           <p className="text-[11px] uppercase tracking-mark text-gold">Procedimentos</p>
           <h2 className="display mt-4 max-w-2xl text-[clamp(2.4rem,5.5vw,4.5rem)] font-semibold leading-[0.95]">
-            Estética avançada, publicada no Instagram
+            O que o Instagram publica
           </h2>
           <p className="mt-5 max-w-measure text-base leading-relaxed text-mute">
-            Criolipólise, preenchimento labial e epilação a laser — os três eixos do perfil @
-            {brand.instagramHandle}. Fotos de procedimentos e resultados no feed oficial.
+            Preenchimentos, tratamentos faciais, criolipólise e laser — com foto real quando
+            disponível no feed.
           </p>
         </Reveal>
 
-        <div className="mt-16 divide-y divide-ink/10 border-y border-ink/10">
+        <div className="mt-16 space-y-24">
           {procedures.map((item, index) => (
-            <Reveal key={item.slug} delay={index * 0.06}>
-              <article className="grid gap-6 py-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-end md:gap-16 md:py-14">
+            <Reveal key={item.slug} delay={index * 0.04}>
+              <article
+                className={`grid gap-8 md:grid-cols-2 md:items-center md:gap-14 ${
+                  index % 2 === 1 ? 'md:[&>*:first-child]:order-2' : ''
+                }`}
+              >
                 <div>
                   <p className="text-[10px] uppercase tracking-mark text-gold">{item.area}</p>
-                  <h3 className="display mt-3 text-[clamp(2rem,4vw,3.2rem)] font-semibold leading-tight">
+                  <h3 className="display mt-3 text-[clamp(2rem,4vw,3.4rem)] font-semibold leading-tight">
                     {item.name}
                   </h3>
-                  <p className="mt-4 max-w-md text-sm leading-relaxed text-mute">{item.lead}</p>
+                  <p className="display mt-4 text-xl leading-snug text-ink/90">{item.lead}</p>
+                  <p className="mt-5 text-base leading-relaxed text-mute">{item.body}</p>
+                  <p className="mt-4 text-[11px] uppercase tracking-mark text-mute">{item.caption}</p>
+                  <div className="mt-8 flex flex-wrap gap-4">
+                    <Link
+                      to={`/procedimentos/${item.slug}`}
+                      className="text-[11px] uppercase tracking-mark text-gold underline underline-offset-[6px]"
+                    >
+                      Saiba mais
+                    </Link>
+                    {!item.image && (
+                      <a
+                        href={brand.instagramUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] uppercase tracking-mark text-mute underline underline-offset-[6px]"
+                      >
+                        Ver no Instagram
+                      </a>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <p className="text-base leading-relaxed text-ink/85">{item.body}</p>
-                  <p className="mt-4 text-[11px] uppercase tracking-mark text-mute">{item.note}</p>
-                  <Link
-                    to={`/procedimentos/${item.slug}`}
-                    className="mt-6 inline-flex text-[11px] uppercase tracking-mark text-gold underline underline-offset-[6px] transition hover:text-ink"
-                  >
-                    Saiba mais
-                  </Link>
-                </div>
+
+                {item.image ? (
+                  <div className="overflow-hidden bg-ink/5">
+                    <img
+                      src={asset(item.image)}
+                      alt={`${item.name} — foto publicada no Instagram`}
+                      className="aspect-[4/5] w-full object-cover object-center md:aspect-[3/4]"
+                      loading="lazy"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex min-h-[280px] flex-col justify-center border border-ink/10 bg-paper px-8 py-10 md:min-h-[360px]">
+                    <p className="text-[11px] uppercase tracking-mark text-gold">Feed @dranathaliarigo</p>
+                    <p className="display mt-4 text-2xl font-semibold leading-snug">
+                      Fotos e vídeos deste procedimento no Instagram
+                    </p>
+                    <a
+                      href={brand.instagramUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-8 inline-flex w-fit bg-ink px-6 py-3 text-[11px] uppercase tracking-mark text-paper"
+                    >
+                      Abrir perfil
+                    </a>
+                  </div>
+                )}
               </article>
             </Reveal>
           ))}
@@ -71,18 +148,100 @@ export function ProceduresSection() {
   )
 }
 
-export function InstagramFeedSection() {
+export function ResultsSection() {
   return (
-    <section className="border-t border-ink/10 bg-cream py-24 md:py-28">
+    <section id="resultados" className="bg-ink py-24 text-paper md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal>
-          <p className="text-[11px] uppercase tracking-mark text-gold">Instagram</p>
+          <p className="text-[11px] uppercase tracking-mark text-gold-light/85">Resultados</p>
+          <h2 className="display mt-4 max-w-xl text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[0.95]">
+            Antes e depois reais
+          </h2>
+          <p className="mt-5 max-w-measure text-base leading-relaxed text-paper/65">
+            Imagens publicadas no feed — naturalidade e expectativa realista, não filtro de revista.
+          </p>
+        </Reveal>
+
+        <div className="mt-14 grid gap-10 md:grid-cols-2">
+          {results.map((item, index) => (
+            <Reveal key={item.slug} delay={index * 0.08}>
+              <figure>
+                <img
+                  src={asset(item.image)}
+                  alt={item.title}
+                  className="aspect-[3/4] w-full object-cover object-center"
+                  loading="lazy"
+                />
+                <figcaption className="mt-5">
+                  <p className="display text-2xl font-semibold">{item.title}</p>
+                  <p className="mt-2 text-sm text-paper/60">{item.caption}</p>
+                </figcaption>
+              </figure>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export function HighlightsSection() {
+  return (
+    <section id="destaques" className="border-y border-ink/10 bg-paper py-24 md:py-28">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <Reveal>
+          <p className="text-[11px] uppercase tracking-mark text-gold">Destaques</p>
           <h2 className="display mt-4 max-w-xl text-[clamp(2rem,4.5vw,3.6rem)] font-semibold leading-tight">
-            Fotos reais de procedimentos
+            Temas do perfil
           </h2>
           <p className="mt-4 max-w-measure text-sm leading-relaxed text-mute">
-            Resultados, bastidores e novidades publicados por @{brand.instagramHandle} — a mesma
-            referência visual do consultório.
+            Os destaques do Instagram organizam o conteúdo por assunto — estes são os eixos visíveis
+            no perfil @dranathaliarigo.
+          </p>
+        </Reveal>
+
+        <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {highlightThemes.map((item, index) => (
+            <Reveal key={item.title} delay={index * 0.06}>
+              <div className="border-t border-gold/40 pt-6">
+                <h3 className="display text-2xl font-semibold">{item.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-mute">{item.text}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal className="mt-16" delay={0.1}>
+          <div className="divide-y divide-ink/10 border-y border-ink/10">
+            {philosophyQuotes.map((item) => (
+              <blockquote key={item.quote} className="py-8">
+                <p className="display text-[clamp(1.4rem,3vw,2rem)] font-medium leading-snug">
+                  “{item.quote}”
+                </p>
+                <cite className="mt-3 block text-[11px] not-italic uppercase tracking-mark text-mute">
+                  {item.source}
+                </cite>
+              </blockquote>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+export function InstagramFeedSection() {
+  return (
+    <section className="bg-cream py-24 md:py-28">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <Reveal>
+          <p className="text-[11px] uppercase tracking-mark text-gold">Instagram ao vivo</p>
+          <h2 className="display mt-4 max-w-xl text-[clamp(2rem,4.5vw,3.6rem)] font-semibold leading-tight">
+            Feed, Reels e novidades
+          </h2>
+          <p className="mt-4 max-w-measure text-sm leading-relaxed text-mute">
+            Preenchimento labial, criolipólise, laser e bastidores — tudo o que ainda não coube em
+            foto local continua no perfil oficial.
           </p>
         </Reveal>
 
@@ -119,7 +278,7 @@ export function ProfessionalSection() {
           <img
             src={asset(media.profissional)}
             alt="Dra. Nathalia Rigo, enfermeira esteta em Sorocaba"
-            className="absolute inset-0 h-full w-full object-cover object-[center_18%]"
+            className="absolute inset-0 h-full w-full object-cover object-[center_20%]"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/55 via-transparent to-ink/20 md:bg-gradient-to-r md:from-transparent md:to-ink/30" />
@@ -129,14 +288,14 @@ export function ProfessionalSection() {
           <Reveal>
             <p className="text-[11px] uppercase tracking-mark text-gold-light/80">Profissional</p>
             <h2 className="display mt-4 text-[clamp(2.4rem,4.5vw,3.8rem)] font-semibold leading-[0.95]">
-              Enfermagem com 12 anos de experiência
+              Enfermeira esteta · COREN {brand.coren}
             </h2>
             <p className="mt-6 max-w-measure text-base leading-relaxed text-paper/72">
-              {brand.profession}. Em estética avançada, o cuidado começa na avaliação — anamnese,
-              indicação e protocolo antes de qualquer procedimento.
+              {brand.profession}. {brand.experienceYears} anos de experiência publicados no perfil.
+              Avaliação, anamnese e protocolo antes de qualquer procedimento.
             </p>
             <p className="mt-4 max-w-measure text-base leading-relaxed text-paper/72">
-              ⚜ {brand.bioLines[0]}
+              ⚜ {brand.bioLegacy}
             </p>
             <Link
               to="/sobre"
@@ -156,8 +315,8 @@ export function SpaceSection() {
     <section id="espaco" className="relative min-h-[70vh] overflow-hidden bg-ink text-paper md:min-h-[85vh]">
       <img
         src={asset(media.espaco)}
-        alt="Consultório de estética avançada no Parque São Bento, Sorocaba"
-        className="absolute inset-0 h-full w-full object-cover object-[center_35%]"
+        alt="Consultório Nathalia Rigo Estética & Saúde no Parque São Bento, Sorocaba"
+        className="absolute inset-0 h-full w-full object-cover object-[center_22%]"
         loading="lazy"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-ink/50" />
@@ -167,7 +326,7 @@ export function SpaceSection() {
         <Reveal>
           <p className="text-[11px] uppercase tracking-mark text-gold-light/85">Espaço</p>
           <h2 className="display mt-4 max-w-2xl text-[clamp(2.4rem,5vw,4rem)] font-semibold leading-[0.95]">
-            Parque São Bento, piso superior
+            Consultório · Parque São Bento
           </h2>
           <p className="mt-5 max-w-measure text-base leading-relaxed text-paper/75">
             {brand.address.street}, {brand.address.complement}
@@ -175,14 +334,24 @@ export function SpaceSection() {
             {brand.address.district} · {brand.city}–{brand.address.state}
           </p>
           <p className="mt-3 text-sm text-paper/55">{brand.hoursNote}</p>
-          <a
-            href={brand.mapsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-8 inline-flex text-[11px] uppercase tracking-mark text-gold-light underline underline-offset-[6px]"
-          >
-            Ver no mapa
-          </a>
+          <div className="mt-8 flex flex-wrap gap-6">
+            <a
+              href={brand.mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[11px] uppercase tracking-mark text-gold-light underline underline-offset-[6px]"
+            >
+              Ver no mapa
+            </a>
+            <a
+              href={brand.facebookUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[11px] uppercase tracking-mark text-paper/55 underline underline-offset-[6px]"
+            >
+              Facebook
+            </a>
+          </div>
         </Reveal>
       </div>
     </section>
@@ -196,11 +365,10 @@ export function ContactSection() {
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="text-[11px] uppercase tracking-mark text-gold">Agendamento</p>
           <h2 className="display mt-4 text-[clamp(2.4rem,5vw,4rem)] font-semibold leading-[0.95]">
-            {brand.cta}
+            {brand.ctaAlt}
           </h2>
           <p className="mt-5 text-base leading-relaxed text-mute">
-            Pelo Instagram @{brand.instagramHandle}. Toque na bio ou envie direct — é o canal
-            publicado pela profissional.
+            Instagram, WhatsApp ou e-mail — canais publicados nos perfis oficiais da Dra. Nathalia.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <a
@@ -211,13 +379,28 @@ export function ContactSection() {
             >
               {brand.cta}
             </a>
+            <a
+              href={brand.whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex border border-ink/15 px-8 py-4 text-[11px] uppercase tracking-mark text-ink transition hover:border-gold hover:text-gold"
+            >
+              WhatsApp
+            </a>
             <Link
               to="/contato"
               className="inline-flex border border-ink/15 px-8 py-4 text-[11px] uppercase tracking-mark text-ink transition hover:border-gold hover:text-gold"
             >
-              Endereço e horários
+              Todos os contatos
             </Link>
           </div>
+          <p className="mt-8 text-sm text-mute">
+            <a href={`mailto:${brand.email}`} className="underline underline-offset-4">
+              {brand.email}
+            </a>
+            {' · '}
+            {brand.phone}
+          </p>
         </Reveal>
       </div>
     </section>

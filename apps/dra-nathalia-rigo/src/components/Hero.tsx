@@ -20,7 +20,7 @@ export function Hero() {
         <img
           src={asset(media.hero)}
           alt={`${brand.name} no consultório de estética avançada em Sorocaba`}
-          className="h-full w-full object-cover object-[center_22%]"
+          className="h-full w-full object-cover object-[center_35%]"
           fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/72 to-ink/25" />
@@ -69,6 +69,15 @@ export function Hero() {
           className="mt-5 max-w-measure text-sm uppercase tracking-[0.18em] text-paper/55"
         >
           {brand.bioLines[1]} · {brand.bioLines[2]}
+        </motion.p>
+
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-3 max-w-measure text-sm leading-relaxed text-paper/50"
+        >
+          {brand.bioLegacy}
         </motion.p>
 
         <motion.div
