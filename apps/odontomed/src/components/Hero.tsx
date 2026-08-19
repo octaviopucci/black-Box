@@ -12,40 +12,47 @@ const heroWords = ['Odontologia', 'avançada', 'com', 'cuidado', 'de', 'verdade.
 export function Hero() {
   const reduced = usePrefersReducedMotion()
   const reducedMotion = useReducedMotion()
-  const imageRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+  const imageRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
-    if (reduced || !imageRef.current) return
+    if (reduced || !sectionRef.current || !imageRef.current) return
+
+    const section = sectionRef.current
+    const image = imageRef.current
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        imageRef.current,
-        { scale: 1, yPercent: 0 },
-        {
-          scale: 1.03,
-          yPercent: 4,
+      const mm = gsap.matchMedia()
+
+      mm.add('(min-width: 768px)', () => {
+        gsap.to(image, {
+          yPercent: -5,
           ease: 'none',
           scrollTrigger: {
-            trigger: imageRef.current,
+            trigger: section,
             start: 'top top',
             end: 'bottom top',
-            scrub: 1.4,
+            scrub: 2.8,
           },
-        },
-      )
-    })
+        })
+      })
+    }, section)
 
     return () => ctx.revert()
   }, [reduced])
 
   return (
-    <section className="relative min-h-[100dvh] overflow-hidden bg-mauve-deep">
-      <div ref={imageRef} className="absolute inset-0 will-change-transform">
+    <section ref={sectionRef} className="relative min-h-[100dvh] overflow-hidden bg-mauve-deep">
+      <div className="absolute inset-0 overflow-hidden">
         <img
+          ref={imageRef}
           src={media.hero}
           alt="Equipe OdontoMed em consultório, clínica odontológica em Bom Retiro/SC"
-          className="h-full w-full object-cover object-top sm:object-[50%_12%]"
+          className="h-[106%] w-full max-w-none object-cover object-top will-change-transform sm:object-[50%_12%]"
         />
+      </div>
+
+      <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-mauve-deep/60 via-mauve-deep/45 to-mauve-deep/92" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(176,125,112,0.18),transparent_55%)]" />
         <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-mauve-deep/95 via-mauve-deep/55 to-transparent" />
