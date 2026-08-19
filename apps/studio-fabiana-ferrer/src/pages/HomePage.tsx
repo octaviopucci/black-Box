@@ -1,12 +1,11 @@
 import { brand } from '@/data/site'
 import { usePageMeta } from '@/lib/usePageMeta'
-import CareStream from '@/components/CareStream'
+import Cuidados from '@/components/Cuidados'
 import Evidence from '@/components/Evidence'
 import Footer from '@/components/Footer'
 import Hero from '@/components/Hero'
+import Manifesto from '@/components/Manifesto'
 import Nav from '@/components/Nav'
-import Pillars from '@/components/Pillars'
-import PulseInstagram from '@/components/PulseInstagram'
 import Shell from '@/components/Shell'
 import Space from '@/components/Space'
 import Understand from '@/components/Understand'
@@ -23,15 +22,14 @@ export default function HomePage() {
       <Nav />
       <main>
         <Hero />
-        <Pillars />
-        <CareStream />
+        <Manifesto />
+        <Cuidados />
         <Evidence />
         <Space />
         <Understand />
         <Visit />
       </main>
       <Footer />
-      <PulseInstagram />
     </Shell>
   )
 }

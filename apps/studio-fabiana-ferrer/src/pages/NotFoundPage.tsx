@@ -8,14 +8,14 @@ export default function NotFoundPage() {
 
   return (
     <Shell>
-      <div className="flex min-h-dvh flex-col items-center justify-center px-4 text-center">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-mark text-sage">404</p>
-        <h1 className="mt-3 font-display text-4xl text-forest">Página não encontrada</h1>
+      <div className="flex min-h-dvh flex-col items-start justify-center px-5 md:px-10">
+        <p className="text-[0.68rem] font-medium uppercase tracking-mark text-mute">404</p>
+        <h1 className="mt-4 font-display text-4xl text-ink">Página não encontrada</h1>
         <Link
           to="/"
-          className="mt-8 rounded-full bg-forest px-6 py-3 text-sm font-semibold text-paper"
+          className="mt-8 border-b border-ink/30 pb-1 text-[0.75rem] font-medium uppercase tracking-mark text-ink"
         >
-          Voltar ao início
+          Voltar
         </Link>
       </div>
     </Shell>

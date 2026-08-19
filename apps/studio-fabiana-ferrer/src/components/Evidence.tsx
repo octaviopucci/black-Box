@@ -1,39 +1,30 @@
-import { motion } from 'framer-motion'
 import { evidence } from '@/data/site'
-import { useMotion } from '@/hooks/useMotion'
 import Reveal from './Reveal'
 
 export default function Evidence() {
-  const { stagger } = useMotion()
-
   return (
-    <section className="px-4 py-16 md:px-8 md:py-24" aria-label="Evidências visuais">
-      <div className="mx-auto max-w-6xl">
+    <section className="border-t hairline bg-ink text-paper" aria-label="Fotos reais">
+      <div className="mx-auto max-w-[90rem] px-5 py-16 md:px-10 md:py-24">
         <Reveal>
-          <p className="text-[0.72rem] font-semibold uppercase tracking-mark text-sage">Na prática</p>
-          <h2 className="mt-3 max-w-prose font-display text-3xl font-medium text-forest md:text-4xl">
-            Fotos reais do Instagram — procedimentos, resultados e bastidores.
+          <h2 className="max-w-prose font-display text-[clamp(1.8rem,4vw,2.8rem)] font-medium leading-[1.05] tracking-[-0.02em]">
+            Na prática — imagens do Instagram oficial.
           </h2>
         </Reveal>
 
-        <div className="mt-10 columns-1 gap-4 sm:columns-2 lg:columns-3">
-          {evidence.map((item, index) => (
-            <Reveal key={item.src} delay={stagger * (index % 3)}>
-              <motion.figure
-                whileHover={{ scale: 1.01 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-                className="mb-4 break-inside-avoid overflow-hidden rounded-[1.5rem] border border-forest/8 bg-paper shadow-tactile"
-              >
+        <div className="mt-12 grid gap-px bg-paper/10 md:grid-cols-2 lg:grid-cols-3">
+          {evidence.map((item) => (
+            <Reveal key={item.src}>
+              <figure className="bg-ink">
                 <img
                   src={`${import.meta.env.BASE_URL}${item.src}`}
                   alt={item.alt}
-                  className="w-full object-cover"
+                  className="aspect-[4/5] w-full object-cover"
                   loading="lazy"
                 />
-                <figcaption className="px-4 py-3 text-xs font-medium text-smoke">
+                <figcaption className="px-1 py-4 text-[0.72rem] leading-relaxed text-paper/55">
                   {item.caption}
                 </figcaption>
-              </motion.figure>
+              </figure>
             </Reveal>
           ))}
         </div>

@@ -1,106 +1,78 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { useRef } from 'react'
 import { brand } from '@/data/site'
-import { useMotion } from '@/hooks/useMotion'
-import Reveal from './Reveal'
+
+const words = ['Fabiana', 'Ferrer']
 
 export default function Hero() {
-  const { fade, stagger } = useMotion()
+  const ref = useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '14%'])
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, reduced ? 1 : 1.06])
+  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '8%'])
 
   return (
-    <section
-      id="inicio"
-      className="relative flex min-h-dvh items-center px-4 pb-20 pt-28 md:px-8 md:pt-32"
-    >
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
-        <div>
-          <Reveal>
-            <p className="text-[0.72rem] font-semibold uppercase tracking-mark text-sage">
-              Sorocaba · Centro
-            </p>
-          </Reveal>
+    <section id="inicio" ref={ref} className="relative h-dvh min-h-[36rem] overflow-hidden">
+      <motion.div
+        style={{ y: imageY, scale: imageScale }}
+        className="absolute inset-0 origin-center will-change-transform"
+      >
+        <img
+          src={`${import.meta.env.BASE_URL}media/7.jpg`}
+          alt="Depilação a laser no Studio Fabiana Ferrer em Sorocaba"
+          className="h-full w-full object-cover object-[center_20%]"
+          loading="eager"
+        />
+      </motion.div>
 
-          <Reveal delay={stagger}>
-            <h1 className="mt-4 max-w-measure font-display text-[clamp(2.4rem,6vw,4.2rem)] font-medium leading-[1.05] tracking-tight text-forest text-balance">
-              {brand.inclusion}
-            </h1>
-          </Reveal>
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{ background: 'var(--hero-fade)' }}
+      />
 
-          <Reveal delay={stagger * 2}>
-            <p className="mt-6 max-w-measure text-lg leading-relaxed text-smoke">
-              {brand.promise}
-            </p>
-          </Reveal>
+      <motion.div
+        style={{ y: contentY }}
+        className="relative flex h-full flex-col justify-end px-5 pb-14 pt-28 md:px-10 md:pb-20"
+      >
+        <div className="mx-auto w-full max-w-[90rem]">
+          <p className="text-[0.68rem] font-medium uppercase tracking-mark text-paper/65">
+            Laser e Estética · Centro
+          </p>
 
-          <Reveal delay={stagger * 3}>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href={brand.instagramDm}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-forest px-6 py-3.5 text-sm font-semibold text-paper shadow-lift transition hover:bg-pine"
+          <h1 className="mt-4 max-w-[12ch] font-display text-[clamp(3.4rem,11vw,7.5rem)] font-medium leading-[0.9] tracking-[-0.03em] text-paper">
+            {words.map((word, i) => (
+              <motion.span
+                key={word}
+                className="block"
+                initial={reduced ? false : { opacity: 0, y: 28 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.9,
+                  delay: reduced ? 0 : 0.12 + i * 0.1,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
               >
-                {brand.cta}
-              </a>
-              <a
-                href={brand.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-paper/70 px-5 py-3.5 text-sm font-semibold text-forest backdrop-blur transition hover:border-sage/40 hover:bg-paper"
-              >
-                @{brand.instagramHandle}
-              </a>
-            </div>
-          </Reveal>
+                {word}
+              </motion.span>
+            ))}
+          </h1>
 
-          <Reveal delay={stagger * 4}>
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-forest/10 pt-8">
-              {[
-                { label: 'Seguidores', value: brand.stats.followers.toLocaleString('pt-BR') },
-                { label: 'Publicações', value: String(brand.stats.posts) },
-                { label: 'Destaques', value: String(brand.stats.highlights) },
-              ].map((item) => (
-                <div key={item.label}>
-                  <dt className="text-[0.68rem] uppercase tracking-mark text-smoke">{item.label}</dt>
-                  <dd className="mt-1 font-display text-2xl text-forest">{item.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
-        </div>
+          <p className="mt-6 max-w-measure text-pretty text-base leading-relaxed text-paper/82 md:text-lg">
+            {brand.inclusion}
+          </p>
 
-        <motion.div
-          className="relative"
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...fade, delay: 0.15 }}
-        >
-          <div className="relative overflow-hidden rounded-[2rem] bg-forest shadow-lift">
-            <img
-              src={`${import.meta.env.BASE_URL}media/2.jpg`}
-              alt="Profissional do Studio Fabiana Ferrer demonstrando depilação a laser"
-              className="aspect-[4/5] w-full object-cover"
-              loading="eager"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-forest/70 via-forest/10 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-              <p className="max-w-xs font-display text-xl leading-snug text-paper">
-                Depois de conhecer a depilação a laser, a lâmina fica no passado.
-              </p>
-              <p className="mt-2 text-sm text-leaf/90">Conteúdo publicado no Instagram do studio</p>
-            </div>
-          </div>
-
-          <motion.div
-            aria-hidden
-            className="absolute -bottom-6 -left-4 hidden rounded-2xl border border-leaf/30 bg-paper/90 px-4 py-3 shadow-glow backdrop-blur md:block"
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          <a
+            href={brand.instagramDm}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-10 inline-block border-b border-paper/50 pb-1 text-[0.75rem] font-medium uppercase tracking-mark text-paper transition hover:border-paper"
           >
-            <p className="text-xs font-semibold uppercase tracking-mark text-sage">Todos os tons</p>
-            <p className="mt-1 text-sm text-forest">de pele</p>
-          </motion.div>
-        </motion.div>
-      </div>
+            {brand.cta}
+          </a>
+        </div>
+      </motion.div>
     </section>
   )
 }
