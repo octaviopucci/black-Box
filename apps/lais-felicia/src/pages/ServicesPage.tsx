@@ -2,12 +2,15 @@ import { Link } from 'react-router-dom'
 import { CustomCursor } from '../components/CustomCursor'
 import { Footer } from '../components/Footer'
 import { Navbar } from '../components/Navbar'
+import { PriceBlock } from '../components/PriceBlock'
 import { PulseWhatsApp } from '../components/PulseWhatsApp'
 import { Reveal } from '../components/Reveal'
 import { ScrollTop } from '../components/ScrollTop'
 import { asset, extras, plans, services, whatsappUrl } from '../data/site'
 
 export function ServicesPage() {
+  const procedureRows = services.map((item) => ({ name: item.name, price: item.price }))
+
   return (
     <div className="min-h-screen bg-night text-paper">
       <CustomCursor />
@@ -22,6 +25,23 @@ export function ServicesPage() {
               Valores e o que entra em cada procedimento. Escolha o que combina com o seu olhar e
               chame no WhatsApp.
             </p>
+          </Reveal>
+
+          <Reveal delay={0.06}>
+            <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {services.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className="group flex items-center justify-between gap-4 rounded-md border border-white/10 bg-night-lift/30 px-5 py-4 transition hover:border-gold/35"
+                >
+                  <span className="text-sm text-white/80 transition group-hover:text-white">
+                    {item.name}
+                  </span>
+                  <span className="font-display text-lg font-bold text-gold">{item.price}</span>
+                </a>
+              ))}
+            </div>
           </Reveal>
 
           <div className="mt-16 space-y-20">
@@ -52,33 +72,48 @@ export function ServicesPage() {
             ))}
           </div>
 
-          <div className="mt-24 grid gap-12 border-t border-white/10 pt-14 lg:grid-cols-2">
+          <div className="mt-24 space-y-8 border-t border-white/10 pt-14">
             <Reveal>
-              <h2 className="display-title text-3xl">Epilação</h2>
-              <ul className="mt-6 space-y-3">
-                {extras.map((item) => (
-                  <li key={item.name} className="flex justify-between gap-4 text-sm text-white/75">
-                    <span>{item.name}</span>
-                    <span className="text-gold">{item.price}</span>
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-            <Reveal delay={0.08}>
-              <h2 className="display-title text-3xl">Planos</h2>
-              <ul className="mt-6 space-y-3">
-                {plans.map((item) => (
-                  <li key={item.name} className="flex justify-between gap-4 text-sm text-white/75">
-                    <span>{item.name}</span>
-                    <span className="text-gold">{item.price}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-4 text-xs leading-relaxed text-white/40">
-                Combos válidos por 30 dias, sem acumular e sem transferir. Pagamento na primeira
-                sessão.
+              <p className="eyebrow">Valores</p>
+              <h2 className="display-title mt-2 text-3xl sm:text-4xl">Tabela completa</h2>
+              <p className="mt-3 max-w-xl text-sm text-white/55">
+                Procedimentos, epilação e planos em um só lugar. Pagamento na sessão: Pix, cartão ou
+                dinheiro.
               </p>
             </Reveal>
+
+            <div className="grid gap-8 lg:grid-cols-2">
+              <PriceBlock
+                eyebrow="Sobrancelhas"
+                title="Procedimentos"
+                rows={procedureRows}
+                footer={
+                  <a href={whatsappUrl()} className="cta-gold">
+                    Agendar procedimento
+                  </a>
+                }
+              />
+              <div className="space-y-8">
+                <PriceBlock
+                  eyebrow="Complementos"
+                  title="Epilação"
+                  rows={extras}
+                  delay={0.06}
+                />
+                <PriceBlock
+                  eyebrow="Economia"
+                  title="Planos"
+                  rows={plans}
+                  note="Combos válidos por 30 dias, sem acumular e sem transferir. Pagamento na primeira sessão."
+                  delay={0.1}
+                  footer={
+                    <a href={whatsappUrl()} className="cta-gold">
+                      Quero um plano
+                    </a>
+                  }
+                />
+              </div>
+            </div>
           </div>
 
           <Reveal className="mt-16">
