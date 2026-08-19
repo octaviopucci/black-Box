@@ -4,7 +4,45 @@ export const media = {
   espaco: 'media/espaco.jpg',
   logo: 'media/logo-cover.jpg',
   profile: 'media/profile-picture.jpg',
+  criolipolise: 'media/criolipolise.jpg',
+  preenchimentoFacial: 'media/preenchimento-facial.jpg',
+  preenchimentoFacialResultado: 'media/preenchimento-facial-antes-depois.jpg',
+  tratamentoFacial: 'media/antes-depois-facial.jpg',
 } as const
+
+export const instagramHighlights = [
+  {
+    title: 'Preenchimentos',
+    text: 'Labial e facial — doses pensadas, resultados naturais.',
+    image: media.preenchimentoFacial,
+  },
+  {
+    title: 'Resultados',
+    text: 'Antes e depois reais publicados no feed.',
+    image: media.tratamentoFacial,
+  },
+  {
+    title: 'Corporal',
+    text: 'Criolipólise e contorno — tecnologia com avaliação prévia.',
+    image: media.criolipolise,
+  },
+  {
+    title: 'Consultório',
+    text: 'Parque São Bento · ambiente acolhedor.',
+    image: media.espaco,
+  },
+] as const
+
+export const feedGallery = [
+  { image: 'media/profissional.jpg', label: 'Profissional · FULL BODY 2026' },
+  { image: 'media/hero.jpg', label: 'Consultório · uniforme' },
+  { image: 'media/espaco.jpg', label: 'Espaço · Parque São Bento' },
+  { image: 'media/preenchimento-facial.jpg', label: 'Preenchimento facial' },
+  { image: 'media/preenchimento-facial-antes-depois.jpg', label: 'Bigode chinês · antes e depois' },
+  { image: 'media/antes-depois-facial.jpg', label: 'Tratamento facial · resultado' },
+  { image: 'media/criolipolise.jpg', label: 'Criolipólise · contorno corporal' },
+  { image: 'media/profile-picture.jpg', label: 'Perfil @dranathaliarigo' },
+] as const
 
 export const brand = {
   name: 'Dra. Nathalia Rigo',
@@ -107,10 +145,22 @@ export const results = [
     image: 'media/preenchimento-facial.jpg',
   },
   {
+    slug: 'preenchimento-facial-sessao',
+    title: 'Evolução facial',
+    caption: 'Antes e depois em sessão — expectativa realista.',
+    image: 'media/preenchimento-facial-antes-depois.jpg',
+  },
+  {
     slug: 'tratamento-facial',
     title: 'Tratamento facial',
     caption: 'Menos marcas, mais leveza.',
     image: 'media/antes-depois-facial.jpg',
+  },
+  {
+    slug: 'criolipolise',
+    title: 'Criolipólise',
+    caption: 'Contorno corporal — antes e depois publicado no Instagram.',
+    image: 'media/criolipolise.jpg',
   },
 ] as const
 
@@ -148,8 +198,8 @@ export const procedures = [
     area: 'Corporal',
     lead: 'Contorno com tecnologia de resfriamento controlado.',
     body: 'Procedimento corporal publicado no histórico do perfil e nas listagens do espaço. Indicação e plano saem na avaliação de enfermagem.',
-    caption: 'Fotos no feed e destaques do Instagram.',
-    image: null,
+    caption: 'Foto real extraída do feed @dranathaliarigo.',
+    image: 'media/criolipolise.jpg',
   },
   {
     slug: 'epilacao-a-laser',

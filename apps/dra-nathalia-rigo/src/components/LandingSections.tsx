@@ -2,7 +2,8 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
   brand,
-  highlightThemes,
+  feedGallery,
+  instagramHighlights,
   media,
   philosophyQuotes,
   procedures,
@@ -162,7 +163,7 @@ export function ResultsSection() {
           </p>
         </Reveal>
 
-        <div className="mt-14 grid gap-10 md:grid-cols-2">
+        <div className="mt-14 grid gap-8 md:grid-cols-2">
           {results.map((item, index) => (
             <Reveal key={item.slug} delay={index * 0.08}>
               <figure>
@@ -192,21 +193,27 @@ export function HighlightsSection() {
         <Reveal>
           <p className="text-[11px] uppercase tracking-mark text-gold">Destaques</p>
           <h2 className="display mt-4 max-w-xl text-[clamp(2rem,4.5vw,3.6rem)] font-semibold leading-tight">
-            Temas do perfil
+            Temas do Instagram
           </h2>
           <p className="mt-4 max-w-measure text-sm leading-relaxed text-mute">
-            Os destaques do Instagram organizam o conteúdo por assunto — estes são os eixos visíveis
-            no perfil @dranathaliarigo.
+            Eixos visíveis no perfil @dranathaliarigo — preenchimentos, resultados, corporal e
+            consultório.
           </p>
         </Reveal>
 
-        <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          {highlightThemes.map((item, index) => (
+        <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {instagramHighlights.map((item, index) => (
             <Reveal key={item.title} delay={index * 0.06}>
-              <div className="border-t border-gold/40 pt-6">
-                <h3 className="display text-2xl font-semibold">{item.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-mute">{item.text}</p>
-              </div>
+              <article>
+                <img
+                  src={asset(item.image)}
+                  alt={item.title}
+                  className="aspect-[4/5] w-full object-cover object-center"
+                  loading="lazy"
+                />
+                <h3 className="display mt-5 text-2xl font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-mute">{item.text}</p>
+              </article>
             </Reveal>
           ))}
         </div>
@@ -225,6 +232,42 @@ export function HighlightsSection() {
             ))}
           </div>
         </Reveal>
+      </div>
+    </section>
+  )
+}
+
+export function FeedGallerySection() {
+  return (
+    <section className="bg-cream py-24 md:py-28">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <Reveal>
+          <p className="text-[11px] uppercase tracking-mark text-gold">Feed</p>
+          <h2 className="display mt-4 max-w-xl text-[clamp(2rem,4.5vw,3.6rem)] font-semibold leading-tight">
+            Galeria do Instagram
+          </h2>
+          <p className="mt-4 max-w-measure text-sm leading-relaxed text-mute">
+            Fotos reais extraídas do perfil — profissional, espaço, procedimentos e resultados.
+          </p>
+        </Reveal>
+
+        <div className="mt-12 columns-2 gap-4 md:columns-3 md:gap-6">
+          {feedGallery.map((item, index) => (
+            <Reveal key={item.image} delay={index * 0.03} className="mb-4 break-inside-avoid md:mb-6">
+              <figure>
+                <img
+                  src={asset(item.image)}
+                  alt={item.label}
+                  className="w-full object-cover"
+                  loading="lazy"
+                />
+                <figcaption className="mt-2 text-[10px] uppercase tracking-mark text-mute">
+                  {item.label}
+                </figcaption>
+              </figure>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   )

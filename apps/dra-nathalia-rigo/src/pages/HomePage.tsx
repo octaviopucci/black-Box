@@ -3,6 +3,7 @@ import { Hero } from '@/components/Hero'
 import {
   BrandIntroSection,
   ContactSection,
+  FeedGallerySection,
   HighlightsSection,
   InstagramFeedSection,
   ProceduresSection,
@@ -25,6 +26,7 @@ export default function HomePage() {
       <ProceduresSection />
       <ResultsSection />
       <HighlightsSection />
+      <FeedGallerySection />
       <InstagramFeedSection />
       <ProfessionalSection />
       <SpaceSection />
