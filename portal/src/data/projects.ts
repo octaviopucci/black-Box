@@ -172,6 +172,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Estética', 'Sorocaba'],
   },
   {
+    id: 'studio-fabiana-ferrer',
+    name: 'Studio Fabiana Ferrer',
+    client: 'Fabiana Ferrer · Sorocaba',
+    description:
+      'Experiência “Respiração Verde”: depilação a laser e estética para todos os tons de pele — autocuidado acessível, seguro e confortável no Centro de Sorocaba.',
+    href: '/studio-fabiana-ferrer/',
+    status: 'demo',
+    tags: ['React', 'Estética', 'Sorocaba'],
+  },
+  {
     id: 'gl-locacoes',
     name: 'G&L Locações',
     client: 'G&L Locações de Brinquedos · Capão Bonito',

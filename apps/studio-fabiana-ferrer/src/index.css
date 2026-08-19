@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0c1210;
+  --paper: #f3efe6;
+  --accent: #1b4332;
+  --accent-soft: #2d6a4f;
+  --mute: #5f6b64;
+  --line: rgba(12, 18, 16, 0.12);
+  --hero-fade: linear-gradient(
+    105deg,
+    rgba(12, 18, 16, 0.82) 0%,
+    rgba(12, 18, 16, 0.55) 42%,
+    rgba(12, 18, 16, 0.08) 100%
+  );
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply overflow-x-hidden bg-paper font-sans text-ink antialiased;
+  }
+
+  ::selection {
+    background: rgba(27, 67, 50, 0.22);
+    color: var(--ink);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .hairline {
+    border-color: var(--line);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

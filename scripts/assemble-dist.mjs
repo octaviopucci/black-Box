@@ -22,6 +22,7 @@ const danielleDist = join(root, 'apps', 'danielle-matsubara', 'dist')
 const glDist = join(root, 'apps', 'gl-locacoes', 'dist')
 const laisDist = join(root, 'apps', 'lais-felicia', 'dist')
 const nathaliaDist = join(root, 'apps', 'dra-nathalia-rigo', 'dist')
+const fabianaDist = join(root, 'apps', 'studio-fabiana-ferrer', 'dist')
 const cbxDist = join(root, 'apps', 'cbx', 'out')
 const pavDist = join(root, 'apps', 'protocolo-pav', 'dist')
 const rianDist = join(root, 'apps', 'rian', 'dist')
@@ -75,6 +76,9 @@ if (!existsSync(laisDist)) {
 }
 if (!existsSync(nathaliaDist)) {
   throw new Error('apps/dra-nathalia-rigo/dist não encontrado — rode build:nathalia')
+}
+if (!existsSync(fabianaDist)) {
+  throw new Error('apps/studio-fabiana-ferrer/dist não encontrado — rode build:fabiana')
 }
 if (!existsSync(cbxDist)) {
   throw new Error('apps/cbx/out não encontrado — rode build:cbx')
@@ -132,6 +136,8 @@ function publish(target) {
   cpSync(laisDist, join(target, 'lais-felicia'), { recursive: true })
   mkdirSync(join(target, 'dra-nathalia-rigo'), { recursive: true })
   cpSync(nathaliaDist, join(target, 'dra-nathalia-rigo'), { recursive: true })
+  mkdirSync(join(target, 'studio-fabiana-ferrer'), { recursive: true })
+  cpSync(fabianaDist, join(target, 'studio-fabiana-ferrer'), { recursive: true })
   mkdirSync(join(target, 'cbx'), { recursive: true })
   cpSync(cbxDist, join(target, 'cbx'), { recursive: true })
   mkdirSync(join(target, 'protocolo-pav'), { recursive: true })
