@@ -2,15 +2,13 @@ import { Link } from 'react-router-dom'
 import { CustomCursor } from '../components/CustomCursor'
 import { Footer } from '../components/Footer'
 import { Navbar } from '../components/Navbar'
-import { PriceBlock } from '../components/PriceBlock'
+import { PriceTables } from '../components/PriceTables'
 import { PulseWhatsApp } from '../components/PulseWhatsApp'
 import { Reveal } from '../components/Reveal'
 import { ScrollTop } from '../components/ScrollTop'
-import { asset, extras, plans, services, whatsappUrl } from '../data/site'
+import { asset, services, whatsappUrl } from '../data/site'
 
 export function ServicesPage() {
-  const procedureRows = services.map((item) => ({ name: item.name, price: item.price }))
-
   return (
     <div className="min-h-screen bg-night text-paper">
       <CustomCursor />
@@ -71,52 +69,12 @@ export function ServicesPage() {
               </article>
             ))}
           </div>
+        </section>
 
-          <div className="mt-24 space-y-8 border-t border-white/10 pt-14">
-            <Reveal>
-              <p className="eyebrow">Valores</p>
-              <h2 className="display-title mt-2 text-3xl sm:text-4xl">Tabela completa</h2>
-              <p className="mt-3 max-w-xl text-sm text-white/55">
-                Procedimentos, epilação e planos em um só lugar. Pagamento na sessão: Pix, cartão ou
-                dinheiro.
-              </p>
-            </Reveal>
+        <PriceTables />
 
-            <div className="grid gap-8 lg:grid-cols-2">
-              <PriceBlock
-                eyebrow="Sobrancelhas"
-                title="Procedimentos"
-                rows={procedureRows}
-                footer={
-                  <a href={whatsappUrl()} className="cta-gold">
-                    Agendar procedimento
-                  </a>
-                }
-              />
-              <div className="space-y-8">
-                <PriceBlock
-                  eyebrow="Complementos"
-                  title="Epilação"
-                  rows={extras}
-                  delay={0.06}
-                />
-                <PriceBlock
-                  eyebrow="Economia"
-                  title="Planos"
-                  rows={plans}
-                  note="Combos válidos por 30 dias, sem acumular e sem transferir. Pagamento na primeira sessão."
-                  delay={0.1}
-                  footer={
-                    <a href={whatsappUrl()} className="cta-gold">
-                      Quero um plano
-                    </a>
-                  }
-                />
-              </div>
-            </div>
-          </div>
-
-          <Reveal className="mt-16">
+        <section className="section-pad pt-0">
+          <Reveal>
             <Link to="/" className="text-sm uppercase tracking-[0.18em] text-gold">
               Voltar ao início
             </Link>

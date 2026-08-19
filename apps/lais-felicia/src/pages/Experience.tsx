@@ -8,6 +8,7 @@ import { Gallery } from '../components/Gallery'
 import { Hero } from '../components/Hero'
 import { Navbar } from '../components/Navbar'
 import { Preloader } from '../components/Preloader'
+import { PriceTables } from '../components/PriceTables'
 import { PulseWhatsApp } from '../components/PulseWhatsApp'
 import { ScrollTop } from '../components/ScrollTop'
 import { Services } from '../components/Services'
@@ -31,6 +32,7 @@ export function Experience() {
         <Hero />
         <Divider />
         <Services />
+        <PriceTables />
         <Divider />
         <About />
         <Divider />
