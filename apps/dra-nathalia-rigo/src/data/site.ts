@@ -8,6 +8,7 @@ export const media = {
   preenchimentoFacial: 'media/preenchimento-facial.jpg',
   preenchimentoFacialResultado: 'media/preenchimento-facial-antes-depois.jpg',
   tratamentoFacial: 'media/antes-depois-facial.jpg',
+  preenchimentoLabial: 'media/preenchimento-labial.jpg',
 } as const
 
 export const instagramHighlights = [
@@ -37,6 +38,7 @@ export const feedGallery = [
   { image: 'media/profissional.jpg', label: 'Profissional · FULL BODY 2026' },
   { image: 'media/hero.jpg', label: 'Consultório · uniforme' },
   { image: 'media/espaco.jpg', label: 'Espaço · Parque São Bento' },
+  { image: 'media/preenchimento-labial.jpg', label: 'Preenchimento labial · antes e depois' },
   { image: 'media/preenchimento-facial.jpg', label: 'Preenchimento facial' },
   { image: 'media/preenchimento-facial-antes-depois.jpg', label: 'Bigode chinês · antes e depois' },
   { image: 'media/antes-depois-facial.jpg', label: 'Tratamento facial · resultado' },
@@ -172,7 +174,7 @@ export const procedures = [
     lead: 'Será que apenas 1 ml faz diferença?',
     body: 'Volume e desenho que respeitam a sua boca — publicado no Instagram com foco em naturalidade. Avaliação de enfermagem antes de qualquer aplicação.',
     caption: 'Antes e depois publicado nos Reels do perfil.',
-    image: null,
+    image: 'media/preenchimento-labial.jpg',
   },
   {
     slug: 'preenchimento-facial',
