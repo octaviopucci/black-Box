@@ -59,18 +59,18 @@ function HeroMedia({ videoRef, scrub }: { videoRef: RefObject<HTMLVideoElement |
   const poster = asset(heroVideo.poster)
 
   return (
-    <div className="absolute inset-0 bg-ink">
+    <div className="absolute -inset-px bg-night">
       <img
         src={poster}
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center"
         fetchPriority="high"
       />
       {scrub ? (
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center"
           src={asset(heroVideo.src)}
           poster={poster}
           muted
@@ -79,15 +79,16 @@ function HeroMedia({ videoRef, scrub }: { videoRef: RefObject<HTMLVideoElement |
           aria-hidden
         />
       ) : null}
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 to-ink/15" />
-      <div className="absolute inset-0 bg-gradient-to-r from-ink/55 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/55 via-ink/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-ink/35 via-transparent to-transparent sm:from-ink/45" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[rgba(201,137,154,0.28)] via-transparent to-transparent" />
     </div>
   )
 }
 
 function HeroScrubCopy() {
   return (
-    <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-20 pt-28 sm:px-8 lg:justify-center lg:pb-24">
+    <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col justify-end px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(7rem,calc(env(safe-area-inset-top)+4.5rem))] sm:px-8 lg:justify-center lg:pb-24">
       <Reveal>
         <p className="eyebrow !text-gold-soft">{site.role}</p>
         <h1 className="display-title mt-3 text-white text-[clamp(2.8rem,12vw,6.5rem)]">{site.headline}</h1>
@@ -125,13 +126,13 @@ export function Hero() {
   if (!scrub) return <HeroStatic />
 
   return (
-    <section id="topo" ref={sectionRef} data-video-slot className="relative bg-ink">
-      <div ref={pinRef} className="relative h-[100svh] w-full">
+    <section id="topo" ref={sectionRef} data-video-slot className="relative overflow-hidden bg-night">
+      <div ref={pinRef} className="relative h-[100dvh] min-h-[100svh] w-full overflow-hidden">
         <HeroMedia videoRef={videoRef} scrub />
         <HeroScrubCopy />
         <p
           aria-hidden
-          className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-[10px] uppercase tracking-[0.32em] text-white/40"
+          className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 text-[10px] uppercase tracking-[0.32em] text-white/40"
         >
           Role para ver
         </p>
