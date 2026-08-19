@@ -172,6 +172,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Estética', 'Sorocaba'],
   },
   {
+    id: 'thaiane-marcon-adv',
+    name: 'Thaiane Marcon',
+    client: 'Thaiane Marcon · Advogada Trabalhista',
+    description:
+      'Landing editorial de direito do trabalho: hero full-bleed, atuação extraída do Instagram @thaianemarcon.adv, ENJA SP 2026 e Simpósio OAB Sorocaba.',
+    href: '/thaiane-marcon-adv/',
+    status: 'demo',
+    tags: ['React', 'Advocacia', 'Premium'],
+  },
+  {
     id: 'clinica-mussi-estetica',
     name: 'Clínica Mussi Estética',
     client: 'Mussi · Sorocaba',
