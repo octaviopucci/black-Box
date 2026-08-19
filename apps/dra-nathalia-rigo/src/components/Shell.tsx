@@ -124,14 +124,16 @@ export function Shell({ children }: { children: ReactNode }) {
             ))}
       </nav>
 
-      <a
-        href={brand.instagramDm}
-        target="_blank"
-        rel="noreferrer"
-        className="fixed bottom-16 right-4 z-50 bg-gold px-5 py-3 text-[11px] font-semibold uppercase tracking-mark text-ink shadow-soft md:bottom-6"
-      >
-        {brand.cta}
-      </a>
+      {!onHome && (
+        <a
+          href={brand.instagramDm}
+          target="_blank"
+          rel="noreferrer"
+          className="fixed bottom-16 right-4 z-50 bg-gold px-5 py-3 text-[11px] font-semibold uppercase tracking-mark text-ink shadow-soft md:bottom-6"
+        >
+          {brand.cta}
+        </a>
+      )}
     </div>
   )
 }

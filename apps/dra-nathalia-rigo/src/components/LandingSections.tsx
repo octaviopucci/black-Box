@@ -68,18 +68,7 @@ export function ProceduresSection() {
   return (
     <section id="procedimentos" className="bg-cream py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <Reveal>
-          <p className="text-[11px] uppercase tracking-mark text-gold">Procedimentos</p>
-          <h2 className="display mt-4 max-w-2xl text-[clamp(2.4rem,5.5vw,4.5rem)] font-semibold leading-[0.95]">
-            O que o Instagram publica
-          </h2>
-          <p className="mt-5 max-w-measure text-base leading-relaxed text-mute">
-            Preenchimentos, tratamentos faciais, criolipólise e laser — com foto real quando
-            disponível no feed.
-          </p>
-        </Reveal>
-
-        <div className="mt-16 space-y-24">
+        <div className="space-y-24">
           {procedures.map((item, index) => (
             <Reveal key={item.slug} delay={index * 0.04}>
               <article

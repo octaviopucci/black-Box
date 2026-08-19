@@ -1,7 +1,7 @@
 export const media = {
-  hero: 'media/profissional.jpg',
+  hero: 'media/espaco.jpg',
   profissional: 'media/hero.jpg',
-  espaco: 'media/espaco.jpg',
+  espaco: 'media/profissional.jpg',
   logo: 'media/logo-cover.jpg',
   profile: 'media/profile-picture.jpg',
   criolipolise: 'media/criolipolise.jpg',
@@ -99,7 +99,6 @@ export const nav = [
 export const landingSections = [
   { id: 'procedimentos', label: 'Procedimentos' },
   { id: 'resultados', label: 'Resultados' },
-  { id: 'destaques', label: 'Destaques' },
   { id: 'profissional', label: 'Profissional' },
   { id: 'espaco', label: 'Espaço' },
   { id: 'contato', label: 'Contato' },
@@ -140,6 +139,12 @@ export const philosophyQuotes = [
 ] as const
 
 export const results = [
+  {
+    slug: 'preenchimento-labial',
+    title: 'Preenchimento labial',
+    caption: 'Para lábios mais volumosos e naturais.',
+    image: 'media/preenchimento-labial.jpg',
+  },
   {
     slug: 'preenchimento-facial',
     title: 'Preenchimento facial',

@@ -20,7 +20,7 @@ export function Hero() {
         <img
           src={asset(media.hero)}
           alt={`${brand.name} no consultório de estética avançada em Sorocaba`}
-          className="h-full w-full object-cover object-[center_35%]"
+          className="h-full w-full object-cover object-[center_22%]"
           fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/72 to-ink/25" />
