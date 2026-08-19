@@ -25,7 +25,7 @@ export function Gallery() {
               }`}
               loading="lazy"
             />
-            <div className="pointer-events-none absolute inset-0 bg-night/20 opacity-0 transition group-hover:opacity-100" />
+            <div className="pointer-events-none absolute inset-0 bg-gold/15 opacity-0 transition group-hover:opacity-100" />
           </figure>
         ))}
       </div>

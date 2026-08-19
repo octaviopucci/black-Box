@@ -10,7 +10,7 @@ import { asset, services, whatsappUrl } from '../data/site'
 
 export function ServicesPage() {
   return (
-    <div className="min-h-screen bg-night text-paper">
+    <div className="min-h-screen bg-night text-ink">
       <CustomCursor />
       <ScrollTop />
       <Navbar />
@@ -19,7 +19,7 @@ export function ServicesPage() {
           <Reveal>
             <p className="eyebrow">Atendimentos</p>
             <h1 className="display-title mt-3 max-w-3xl text-4xl sm:text-6xl">Serviços detalhados</h1>
-            <p className="mt-5 max-w-xl text-white/65">
+            <p className="mt-5 max-w-xl text-ink-soft">
               Valores e o que entra em cada procedimento. Escolha o que combina com o seu olhar e
               chame no WhatsApp.
             </p>
@@ -31,12 +31,12 @@ export function ServicesPage() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className="group flex items-center justify-between gap-4 rounded-md border border-white/10 bg-night-lift/30 px-5 py-4 transition hover:border-gold/35"
+                  className="group flex items-center justify-between gap-4 rounded-md border border-ink/10 bg-night-lift px-5 py-4 transition hover:border-gold/35"
                 >
-                  <span className="text-sm text-white/80 transition group-hover:text-white">
+                  <span className="text-sm text-ink-soft transition group-hover:text-ink">
                     {item.name}
                   </span>
-                  <span className="font-display text-lg font-bold text-gold">{item.price}</span>
+                  <span className="font-display text-lg font-bold text-gold-deep">{item.price}</span>
                 </a>
               ))}
             </div>
@@ -47,7 +47,7 @@ export function ServicesPage() {
               <article
                 key={item.id}
                 id={item.id}
-                className="grid scroll-mt-28 items-center gap-10 border-t border-white/10 pt-12 lg:grid-cols-12"
+                className="grid scroll-mt-28 items-center gap-10 border-t border-ink/10 pt-12 lg:grid-cols-12"
               >
                 <Reveal className={`lg:col-span-5 ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
                   <img
@@ -60,8 +60,8 @@ export function ServicesPage() {
                 <Reveal delay={0.08} className="lg:col-span-6 lg:col-start-7">
                   <p className="eyebrow">Procedimento</p>
                   <h2 className="display-title mt-3 text-3xl sm:text-5xl">{item.name}</h2>
-                  <p className="mt-4 font-display text-3xl text-gold">{item.price}</p>
-                  <p className="mt-5 max-w-md text-base leading-relaxed text-white/70">{item.text}</p>
+                  <p className="mt-4 font-display text-3xl text-gold-deep">{item.price}</p>
+                  <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft">{item.text}</p>
                   <a href={whatsappUrl()} className="cta-gold mt-8">
                     Quero agendar
                   </a>
@@ -75,7 +75,7 @@ export function ServicesPage() {
 
         <section className="section-pad pt-0">
           <Reveal>
-            <Link to="/" className="text-sm uppercase tracking-[0.18em] text-gold">
+            <Link to="/" className="text-sm uppercase tracking-[0.18em] text-gold-deep">
               Voltar ao início
             </Link>
           </Reveal>

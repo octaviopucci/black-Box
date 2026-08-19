@@ -17,10 +17,10 @@ import { Testimonials } from '../components/Testimonials'
 
 export function Experience() {
   return (
-    <div className="min-h-screen bg-night text-paper">
+    <div className="min-h-screen bg-night text-ink">
       <a
         href="#servicos"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:bg-gold focus:px-4 focus:py-2 focus:text-night"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:bg-gold focus:px-4 focus:py-2 focus:text-white"
       >
         Pular para os serviços
       </a>

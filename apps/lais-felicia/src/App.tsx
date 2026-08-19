@@ -31,7 +31,7 @@ export default function App() {
       <Suspense
         fallback={
           <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-night">
-            <BrandMark className="h-16 w-16" invert />
+            <BrandMark className="h-16 w-16" />
           </div>
         }
       >

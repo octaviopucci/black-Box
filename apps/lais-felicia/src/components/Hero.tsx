@@ -9,7 +9,7 @@ function HeroStatic() {
     <section id="topo" className="overflow-hidden pt-24 sm:pt-28">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <div className="lg:hidden">
-          <div className="relative mx-auto mb-6 max-w-sm overflow-hidden rounded-2xl border border-gold/25 bg-night-lift/80 px-5 py-5 text-center backdrop-blur">
+          <div className="relative mx-auto mb-6 max-w-sm overflow-hidden rounded-2xl border border-gold/25 bg-night-lift px-5 py-5 text-center backdrop-blur">
             <p className="eyebrow">{site.role}</p>
             <h1 className="display-title mt-1 text-[2.6rem]">{site.headline}</h1>
             <span className="absolute inset-x-1/3 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
@@ -21,7 +21,7 @@ function HeroStatic() {
               className="w-full object-cover object-center"
               fetchPriority="high"
             />
-            <p className="px-1 py-5 text-center text-[15px] leading-relaxed text-white/80">{site.lead}</p>
+            <p className="px-1 py-5 text-center text-[15px] leading-relaxed text-ink-soft">{site.lead}</p>
             <div className="pb-8 text-center">
               <a href={whatsappUrl()} className="cta-gold">
                 Entre em contato
@@ -41,7 +41,7 @@ function HeroStatic() {
             <Reveal>
               <p className="eyebrow">{site.role}</p>
               <h1 className="display-title mt-2 text-6xl xl:text-7xl">{site.headline}</h1>
-              <p className="mt-6 max-w-md text-base leading-relaxed text-white/75">{site.lead}</p>
+              <p className="mt-6 max-w-md text-base leading-relaxed text-ink-soft">{site.lead}</p>
               <div className="mt-10">
                 <a href={whatsappUrl()} className="cta-gold">
                   Entre em contato
@@ -59,7 +59,7 @@ function HeroMedia({ videoRef, scrub }: { videoRef: RefObject<HTMLVideoElement |
   const poster = asset(heroVideo.poster)
 
   return (
-    <div className="absolute inset-0 bg-night">
+    <div className="absolute inset-0 bg-ink">
       <img
         src={poster}
         alt=""
@@ -79,8 +79,8 @@ function HeroMedia({ videoRef, scrub }: { videoRef: RefObject<HTMLVideoElement |
           aria-hidden
         />
       ) : null}
-      <div className="absolute inset-0 bg-gradient-to-t from-night/85 via-night/35 to-night/15" />
-      <div className="absolute inset-0 bg-gradient-to-r from-night/55 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 to-ink/15" />
+      <div className="absolute inset-0 bg-gradient-to-r from-ink/55 via-transparent to-transparent" />
     </div>
   )
 }
@@ -89,11 +89,11 @@ function HeroScrubCopy() {
   return (
     <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-20 pt-28 sm:px-8 lg:justify-center lg:pb-24">
       <Reveal>
-        <p className="eyebrow">{site.role}</p>
-        <h1 className="display-title mt-3 text-[clamp(2.8rem,12vw,6.5rem)]">{site.headline}</h1>
-        <p className="mt-6 max-w-lg text-base leading-relaxed text-white/75 sm:text-lg">{site.lead}</p>
+        <p className="eyebrow !text-gold-soft">{site.role}</p>
+        <h1 className="display-title mt-3 text-white text-[clamp(2.8rem,12vw,6.5rem)]">{site.headline}</h1>
+        <p className="mt-6 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">{site.lead}</p>
         <div className="mt-10">
-          <a href={whatsappUrl()} className="cta-gold">
+          <a href={whatsappUrl()} className="cta-gold !text-gold-soft">
             Entre em contato
           </a>
         </div>
@@ -125,13 +125,13 @@ export function Hero() {
   if (!scrub) return <HeroStatic />
 
   return (
-    <section id="topo" ref={sectionRef} data-video-slot className="relative bg-night">
+    <section id="topo" ref={sectionRef} data-video-slot className="relative bg-ink">
       <div ref={pinRef} className="relative h-[100svh] w-full">
         <HeroMedia videoRef={videoRef} scrub />
         <HeroScrubCopy />
         <p
           aria-hidden
-          className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-[10px] uppercase tracking-[0.32em] text-white/35"
+          className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-[10px] uppercase tracking-[0.32em] text-white/40"
         >
           Role para ver
         </p>

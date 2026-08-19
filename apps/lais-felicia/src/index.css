@@ -3,10 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --night: #0c0c0c;
-  --gold: #c9899a;
-  --paper: #f4edee;
-  color-scheme: dark;
+  --paper: #fbf6f7;
+  --rose: #c9899a;
+  --ink: #2a2426;
+  --ink-mute: #8a7f82;
+  color-scheme: light;
 }
 
 html {
@@ -17,8 +18,11 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: 'Didact Gothic', system-ui, sans-serif;
-  color: #ddd;
-  background: #0c0c0c;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 55% 40% at 0% 0%, rgba(201, 137, 154, 0.12), transparent 55%),
+    radial-gradient(ellipse 45% 32% at 100% 8%, rgba(201, 137, 154, 0.07), transparent 50%),
+    linear-gradient(180deg, #fffafb 0%, var(--paper) 42%, #f3e8eb 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -29,15 +33,15 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 90;
-  opacity: 0.035;
+  opacity: 0.025;
   background-image: theme('backgroundImage.grain');
   background-size: 180px 180px;
-  mix-blend-mode: overlay;
+  mix-blend-mode: multiply;
 }
 
 ::selection {
-  background: rgba(201, 137, 154, 0.35);
-  color: #fff;
+  background: rgba(201, 137, 154, 0.32);
+  color: var(--ink);
 }
 
 html.has-custom-cursor,
@@ -47,11 +51,11 @@ html.has-custom-cursor * {
 
 @layer components {
   .eyebrow {
-    @apply inline-block text-[12px] font-bold uppercase tracking-[0.22em] text-gold;
+    @apply inline-block text-[12px] font-bold uppercase tracking-[0.22em] text-gold-deep;
   }
 
   .display-title {
-    @apply font-display font-bold leading-[1.15] tracking-tight text-white;
+    @apply font-display font-bold leading-[1.15] tracking-tight text-ink;
   }
 
   .section-pad {
@@ -59,7 +63,7 @@ html.has-custom-cursor * {
   }
 
   .cta-gold {
-    @apply relative inline-flex items-center justify-center px-1 text-sm font-display font-bold uppercase tracking-[0.18em] text-white;
+    @apply relative inline-flex items-center justify-center px-1 text-sm font-display font-bold uppercase tracking-[0.18em] text-gold-deep;
   }
 
   .cta-gold::after {
@@ -69,12 +73,12 @@ html.has-custom-cursor * {
     right: 0;
     bottom: -10px;
     height: 2px;
-    background: var(--gold);
+    background: var(--rose);
     animation: bounceLine 1.6s ease-in-out infinite;
   }
 
   .check-gold {
-    @apply mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-gold text-[10px] text-gold;
+    @apply mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-gold text-[10px] text-gold-deep;
   }
 }
 

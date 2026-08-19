@@ -29,9 +29,9 @@ export function Services() {
                 loading="lazy"
               />
             </div>
-            <h3 className="mt-5 font-display text-xl font-bold text-white">{item.name}</h3>
-            <p className="mt-2 font-display text-2xl font-bold text-gold">{item.price}</p>
-            <p className="mt-1 text-sm text-white/55">{item.line}</p>
+            <h3 className="mt-5 font-display text-xl font-bold text-ink">{item.name}</h3>
+            <p className="mt-2 font-display text-2xl font-bold text-gold-deep">{item.price}</p>
+            <p className="mt-1 text-sm text-ink-mute">{item.line}</p>
           </Link>
         ))}
       </Carousel>
