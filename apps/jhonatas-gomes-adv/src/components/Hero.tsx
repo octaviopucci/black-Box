@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
-import { site, whatsappUrl } from '@/data/site'
+import { media, site, whatsappUrl } from '@/data/site'
 import { useHeroParallax } from '@/hooks/useMotion'
 
 const words = site.name.split(' ')
@@ -13,9 +13,9 @@ export function Hero() {
     <section id="inicio" className="relative min-h-[100svh] overflow-hidden bg-ink">
       <div ref={mediaRef} className="absolute inset-0 will-change-transform">
         <img
-          src={site.topics[0].image}
+          src={media.hero}
           alt="Jhonatas Gomes, advogado trabalhista, em consultório"
-          className="h-[115%] w-full object-cover object-[center_18%]"
+          className="h-[115%] w-full object-cover object-[center_20%]"
           fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/78 to-ink/20" />
@@ -56,7 +56,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-xl text-lg leading-relaxed text-paper/82 md:text-xl"
+            className="mt-6 max-w-xl text-lg font-bold leading-relaxed text-snow md:text-xl"
           >
             {site.headline}
           </motion.p>

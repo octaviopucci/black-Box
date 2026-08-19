@@ -1,6 +1,7 @@
 export const media = {
   profile: '/instagram/profile.jpg',
-  hero: '/instagram/post-1.jpg',
+  hero: '/instagram/hero.jpg',
+  heroSource: 'https://www.instagram.com/p/C0NFEuILDeA/',
   gallery: [
     '/instagram/post-1.jpg',
     '/instagram/post-2.jpg',
