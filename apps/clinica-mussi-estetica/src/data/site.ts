@@ -1,9 +1,11 @@
 export const media = {
   profile: '/instagram/profile.jpg',
   hero: '/instagram/post-6.jpg',
-  doctor: '/instagram/post-5.jpg',
+  heroVideo: '/media/clinic-exterior.mp4',
+  doctor: '/media/founder-eny-mussi.jpg',
   clinic: '/instagram/post-4.jpg',
   spa: '/instagram/post-2.jpg',
+  testimonialVideo: '/media/testimonial-fernanda.mp4',
   gallery: [
     '/instagram/post-1.jpg',
     '/instagram/post-2.jpg',
@@ -27,9 +29,9 @@ export const site = {
     followers: 2521,
   },
   doctor: {
-    name: 'Dra. Samie Baptista',
-    handle: '@dra.samiebaptista',
-    note: 'Profissional associada em conteúdo oficial @clinicamussiestetica',
+    name: 'Eny Mussi',
+    handle: '@clinicamussiestetica',
+    note: 'Fundadora · Clínica Mussi Estética',
   },
   contact: {
     whatsapp: '5515981493623',

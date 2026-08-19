@@ -36,10 +36,21 @@ export function Hero() {
       </header>
 
       <motion.div style={{ y: planeY }} className="absolute inset-0">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={media.hero}
+          className="h-full w-full object-cover"
+        >
+          <source src={media.heroVideo} type="video/mp4" />
+        </video>
         <img
           src={media.hero}
-          alt="Clínica Mussi Estética em Sorocaba"
-          className="h-full w-full object-cover"
+          alt=""
+          aria-hidden
+          className="hidden h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-ink/88 via-ink/55 to-ink/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-ink/30" />
