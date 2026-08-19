@@ -22,7 +22,7 @@ export function Preloader() {
         <img
           src={asset('logo-256.png')}
           alt=""
-          className="h-16 w-16 rounded-full object-cover"
+          className="h-20 w-20 object-contain"
         />
       </div>
       <p className="absolute mt-48 font-display text-xs font-bold uppercase tracking-[0.32em] text-gold">

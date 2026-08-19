@@ -56,40 +56,31 @@ function HeroStatic() {
 }
 
 function HeroMedia({ videoRef, scrub }: { videoRef: RefObject<HTMLVideoElement | null>; scrub: boolean }) {
-  const overlays = (
-    <>
-      <div className="absolute inset-0 bg-gradient-to-t from-night via-night/55 to-night/25" />
-      <div className="absolute inset-0 bg-gradient-to-r from-night/70 via-night/20 to-transparent" />
-    </>
-  )
+  const poster = asset(heroVideo.poster)
 
-  if (scrub) {
-    return (
-      <div className="absolute inset-0">
+  return (
+    <div className="absolute inset-0 bg-night">
+      <img
+        src={poster}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 h-full w-full object-cover object-center"
+        fetchPriority="high"
+      />
+      {scrub ? (
         <video
           ref={videoRef}
-          className="h-full w-full object-cover object-center"
+          className="absolute inset-0 h-full w-full object-cover object-center"
           src={asset(heroVideo.src)}
-          poster={asset(heroVideo.poster)}
+          poster={poster}
           muted
           playsInline
           preload="auto"
           aria-hidden
         />
-        {overlays}
-      </div>
-    )
-  }
-
-  return (
-    <div className="absolute inset-0">
-      <img
-        src={asset(heroVideo.poster)}
-        alt="Laís Felicia no Studio Laís Felicia"
-        className="h-full w-full object-cover object-center"
-        fetchPriority="high"
-      />
-      {overlays}
+      ) : null}
+      <div className="absolute inset-0 bg-gradient-to-t from-night/85 via-night/35 to-night/15" />
+      <div className="absolute inset-0 bg-gradient-to-r from-night/55 via-transparent to-transparent" />
     </div>
   )
 }
@@ -113,31 +104,29 @@ function HeroScrubCopy() {
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
+  const pinRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const { reduced } = useMotion()
   const scrub = !reduced
 
-  useScrollVideoScrub(sectionRef, videoRef, {
+  useScrollVideoScrub(sectionRef, pinRef, videoRef, {
     enabled: scrub,
-    scrollVh: heroVideo.scrollVh,
+    scrollLength: heroVideo.scrollLength,
   })
 
   useEffect(() => {
-    if (!scrub || !videoRef.current) return
-    videoRef.current.pause()
+    if (!scrub) return
+    const video = videoRef.current
+    if (!video) return
+    video.pause()
+    video.currentTime = 0
   }, [scrub])
 
   if (!scrub) return <HeroStatic />
 
   return (
-    <section
-      id="topo"
-      ref={sectionRef}
-      data-video-slot
-      className="relative bg-night"
-      style={{ height: `${heroVideo.scrollVh}vh` }}
-    >
-      <div className="sticky top-0 h-[100svh] overflow-hidden">
+    <section id="topo" ref={sectionRef} data-video-slot className="relative bg-night">
+      <div ref={pinRef} className="relative h-[100svh] w-full">
         <HeroMedia videoRef={videoRef} scrub />
         <HeroScrubCopy />
         <p

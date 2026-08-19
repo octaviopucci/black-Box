@@ -18,7 +18,7 @@ export function BrandMark({
       <img
         src={asset('logo-256.png')}
         alt="Laís Felicia, designer de sobrancelhas"
-        className={`${className} rounded-full object-cover`}
+        className={`${className} object-contain`}
         width={80}
         height={80}
       />
