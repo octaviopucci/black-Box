@@ -9,33 +9,67 @@ function navTo(href: string) {
   return href
 }
 
+/** Navbar escura enquanto o hero (vídeo) ainda ocupa a tela — evita faixa clara ao rolar o scrub */
+function useHeroNav() {
+  const { pathname } = useLocation()
+  const [onHero, setOnHero] = useState(pathname === '/')
+
+  useEffect(() => {
+    if (pathname !== '/') {
+      setOnHero(false)
+      return
+    }
+
+    const hero = document.querySelector<HTMLElement>('#topo[data-video-slot]')
+    if (!hero) {
+      setOnHero(false)
+      return
+    }
+
+    const update = () => {
+      const rect = hero.getBoundingClientRect()
+      setOnHero(rect.bottom > 80)
+    }
+
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update, { passive: true })
+
+    const observer = new ResizeObserver(update)
+    observer.observe(hero)
+
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+      observer.disconnect()
+    }
+  }, [pathname])
+
+  return onHero
+}
+
 export function Navbar() {
   const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 18)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const onHero = useHeroNav()
+  const onLight = !onHero
 
   useEffect(() => {
     setOpen(false)
   }, [pathname])
 
-  const onLight = scrolled || open
-
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition duration-500 ${
-        onLight ? 'border-b border-ink/8 bg-night/92 backdrop-blur-md' : 'bg-transparent'
+        onLight
+          ? 'border-b border-ink/8 bg-night/92 backdrop-blur-md'
+          : 'border-b border-transparent bg-transparent'
       }`}
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5 sm:px-8">
         <Link to="/" className="relative z-10" aria-label={site.studio}>
-          <BrandMark className="h-9 w-9 sm:h-10 sm:w-10" invert={!onLight} showWordmark />
+          <BrandMark className="h-9 w-9 sm:h-10 sm:w-10" invert={onHero && !open} showWordmark />
         </Link>
 
         <nav className="hidden items-center gap-7 lg:flex">
@@ -52,14 +86,20 @@ export function Navbar() {
           ))}
           <a
             href={whatsappUrl()}
-            className="text-[12px] font-display font-bold uppercase tracking-[0.16em] text-gold-deep"
+            className={`text-[12px] font-display font-bold uppercase tracking-[0.16em] ${
+              onLight ? 'text-gold-deep' : 'text-gold-soft'
+            }`}
           >
             Contato
           </a>
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <span className="grid h-10 w-10 place-items-center rounded-full border border-gold/40 text-gold-deep">
+          <span
+            className={`grid h-10 w-10 place-items-center rounded-full border ${
+              onLight ? 'border-gold/40 text-gold-deep' : 'border-gold/40 text-gold-soft'
+            }`}
+          >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden>
               <path
                 d="M6.5 4.5h2.2l1.1 3.2-1.5 1.5a12.5 12.5 0 0 0 6.5 6.5l1.5-1.5 3.2 1.1v2.2c0 .9-.7 1.6-1.6 1.6C10.6 19.1 4.9 13.4 4.9 6.1c0-.9.7-1.6 1.6-1.6Z"

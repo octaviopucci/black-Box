@@ -59,18 +59,18 @@ function HeroMedia({ videoRef, scrub }: { videoRef: RefObject<HTMLVideoElement |
   const poster = asset(heroVideo.poster)
 
   return (
-    <div className="absolute -inset-px bg-night">
+    <div className="absolute -inset-x-0 -top-3 bottom-0 z-0 bg-night">
       <img
         src={poster}
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center"
+        className="absolute inset-0 h-full w-full scale-[1.04] object-cover object-[center_18%]"
         fetchPriority="high"
       />
       {scrub ? (
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center"
+          className="absolute inset-0 h-full w-full scale-[1.04] object-cover object-[center_18%]"
           src={asset(heroVideo.src)}
           poster={poster}
           muted
@@ -126,8 +126,8 @@ export function Hero() {
   if (!scrub) return <HeroStatic />
 
   return (
-    <section id="topo" ref={sectionRef} data-video-slot className="relative overflow-hidden bg-night">
-      <div ref={pinRef} className="relative h-[100dvh] min-h-[100svh] w-full overflow-hidden">
+    <section id="topo" ref={sectionRef} data-video-slot className="relative isolate overflow-hidden bg-night">
+      <div ref={pinRef} className="relative z-[1] h-[100dvh] min-h-[100svh] w-full overflow-hidden">
         <HeroMedia videoRef={videoRef} scrub />
         <HeroScrubCopy />
         <p
