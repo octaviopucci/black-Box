@@ -8,7 +8,6 @@ export function Footer() {
           <p className="font-display text-lg text-ink">
             {site.name} · {site.title}
           </p>
-          <p className="mt-1 text-sm text-mute">Conteúdo extraído de {site.instagram.source}</p>
         </div>
         <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-mute" aria-label="Rodapé">
           {site.nav.map((item) => (

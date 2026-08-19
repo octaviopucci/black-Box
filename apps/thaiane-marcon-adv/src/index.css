@@ -56,13 +56,29 @@ body {
 }
 
 .hero-mask {
+  background:
+    linear-gradient(90deg, rgba(18, 17, 15, 0.92) 0%, rgba(18, 17, 15, 0.55) 42%, transparent 68%),
+    linear-gradient(180deg, rgba(18, 17, 15, 0.15) 0%, transparent 40%, rgba(18, 17, 15, 0.75) 100%);
+}
+
+.hero-photo-fade {
   background: linear-gradient(
     180deg,
-    rgba(18, 17, 15, 0.25) 0%,
-    rgba(18, 17, 15, 0.45) 35%,
-    rgba(18, 17, 15, 0.88) 72%,
-    rgba(18, 17, 15, 0.96) 100%
+    transparent 0%,
+    transparent 55%,
+    rgba(18, 17, 15, 0.85) 88%,
+    #12110f 100%
   );
+}
+
+.hero-copy-panel {
+  background: #12110f;
+}
+
+@media (min-width: 768px) {
+  .hero-copy-panel {
+    background: transparent;
+  }
 }
 
 .section-rule {

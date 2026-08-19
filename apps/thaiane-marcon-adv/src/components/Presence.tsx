@@ -10,7 +10,7 @@ export function Presence() {
             Presença
           </p>
           <h2 className="mt-4 max-w-measure font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05]">
-            Formação contínua e conexão com a jovem advocacia.
+            {site.presenceHeading}
           </h2>
         </Reveal>
 

@@ -13,11 +13,11 @@ export function Contact() {
                 Contato
               </p>
               <h2 className="mt-4 font-display text-[clamp(2.2rem,5vw,4rem)] leading-[1.02] text-ink">
-                Próximo passo pelo Instagram.
+                Entre em contato.
               </h2>
               <p className="mt-6 max-w-measure text-lg leading-relaxed text-mute">
-                Envie uma mensagem pelo perfil oficial para orientação sobre direito do trabalho.
-                Sem formulários genéricos — o canal verificado da advogada é o ponto de partida.
+                Tire dúvidas sobre seu caso ou agende uma conversa. Resposta direta, sem
+                formulários intermediários.
               </p>
             </div>
             <div className="md:text-right">

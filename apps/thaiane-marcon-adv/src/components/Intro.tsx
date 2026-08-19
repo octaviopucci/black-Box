@@ -32,19 +32,6 @@ export function Intro() {
               </Reveal>
             ))}
           </div>
-          <Reveal delay={0.2}>
-            <p className="mt-8 text-sm text-mute/80">
-              {site.instagram.followers.toLocaleString('pt-BR')} seguidores ·{' '}
-              <a
-                href={site.instagram.url}
-                target="_blank"
-                rel="noreferrer"
-                className="font-medium text-accent underline-offset-4 hover:underline"
-              >
-                @{site.instagram.handle}
-              </a>
-            </p>
-          </Reveal>
         </div>
       </div>
     </section>

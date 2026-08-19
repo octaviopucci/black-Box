@@ -20,60 +20,59 @@ export const media = {
 export const site = {
   name: 'Thaiane Marcon',
   title: 'Advogada Trabalhista',
-  headline: 'Direito do trabalho, explicado com clareza.',
+  headline: 'Seus direitos no trabalho, com linguagem que você entende.',
   support:
-    'Conteúdo educativo sobre direitos e deveres — da justa causa ao prazo de pagamento do salário.',
+    'Orientação em rescisões, salários e relações de emprego — para quem precisa de resposta clara antes de decidir.',
   instagram: {
     handle: 'thaianemarcon.adv',
     url: 'https://www.instagram.com/thaianemarcon.adv/',
     followers: 4508,
-    source: 'Instagram @thaianemarcon.adv',
   },
   intro: [
-    'No Instagram, Thaiane traduz temas trabalhistas do dia a dia — rescisões, prazos salariais e decisões que impactam empregados e empresas.',
-    'Participa de encontros da jovem advocacia e eventos da OAB Sorocaba, em constante atualização sobre inovações e transformações da advocacia.',
+    'Advogada especializada em direito do trabalho, Thaiane conduz cada caso com objetividade — do empregado que precisa entender uma rescisão à empresa que busca conformidade nas relações de emprego.',
+    'Atua com formação continuada no circuito da OAB Sorocaba e da jovem advocacia nacional, participando de congressos e simpósios da área.',
   ],
   practice: [
     {
       id: 'justa-causa',
       title: 'Justa causa e rescisão',
       description:
-        'Análise de condutas graves no ambiente de trabalho — como comercialização irregular de medicamentos nas dependências da empresa, com manutenção da dispensa por justa causa (TRT-2).',
-      source: 'Legenda Instagram, post DcL3tvrRhNC',
+        'Análise de condutas graves no ambiente de trabalho e defesa ou impugnação de dispensa por justa causa — com avaliação técnica da gravidade dos fatos e dos riscos para empregado e empregador.',
     },
     {
       id: 'salario',
       title: 'Salário e prazos legais',
       description:
-        'Orientação sobre o 5º dia útil para pagamento — inclusive quando feriados geram dúvida. Sábado conta como dia útil; domingo e feriado não.',
-      source: 'Legenda Instagram, abril/2026',
+        'Esclarecimento sobre prazos de pagamento, atraso salarial e contagem de dias úteis — inclusive em meses com feriados, quando dúvidas sobre o quinto dia útil são frequentes.',
     },
     {
-      id: 'atualizacao',
-      title: 'Atualização e formação',
+      id: 'relacoes',
+      title: 'Relações de emprego',
       description:
-        'Presença no ENJA SP 2026 e no II Simpósio de Direito do Trabalho (OAB Sorocaba), com foco em troca de experiências e reflexões sobre a advocacia trabalhista.',
-      source: 'Legendas Instagram — ENJA SP 2026 e Simpósio OAB Sorocaba',
+        'Assessoria em conflitos e obrigações do dia a dia laboral, com foco em decisões informadas — da admissão à rescisão, passando por direitos, deveres e procedimentos legais.',
     },
   ],
+  practiceHeading: 'Áreas em que atuo com foco e clareza.',
   presence: [
     {
       id: 'enja',
       title: 'ENJA SP 2026',
       image: media.presence.enja,
       quote:
-        'Foram dois dias de aprendizado, troca de experiências e reflexões sobre inovações e transformações da advocacia, sempre reforçando a importância de estarmos em constante atualização.',
-      tags: ['#ENJASP2026', '#JovemAdvocacia', '#OABSP'],
+        'Dois dias de aprendizado, troca de experiências e reflexões sobre inovações e transformações da advocacia — reforçando a importância de estar em constante atualização.',
+      tags: ['Jovem Advocacia', 'OAB SP'],
     },
     {
       id: 'simposio',
       title: 'II Simpósio de Direito do Trabalho',
       image: media.presence.simposio,
       quote:
-        'Evento realizado pela comissão @advtrabalhista.oabsorocaba — espaço de formação e conexão entre profissionais do direito do trabalho em Sorocaba.',
+        'Participação no evento promovido pela comissão de direito do trabalho da OAB Sorocaba — formação e conexão entre profissionais da área.',
       tags: ['OAB Sorocaba', 'Direito do Trabalho'],
     },
   ],
+  presenceHeading: 'Formação contínua e presença na advocacia trabalhista.',
+  galleryHeading: 'Eventos, formação e orientação sobre direito do trabalho.',
   nav: [
     { label: 'Atuação', href: '#atuacao' },
     { label: 'Presença', href: '#presenca' },
@@ -81,7 +80,7 @@ export const site = {
     { label: 'Contato', href: '#contato' },
   ],
   cta: {
-    label: 'Falar no Instagram',
+    label: 'Enviar mensagem',
     href: 'https://www.instagram.com/thaianemarcon.adv/',
   },
 } as const

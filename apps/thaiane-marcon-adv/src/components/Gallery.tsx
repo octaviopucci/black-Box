@@ -10,7 +10,7 @@ export function Gallery() {
             Conteúdo
           </p>
           <h2 className="mt-4 max-w-measure font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-ink">
-            Publicações reais do Instagram — educação, eventos e bastidores.
+            {site.galleryHeading}
           </h2>
         </Reveal>
 
@@ -37,7 +37,7 @@ export function Gallery() {
               rel="noreferrer"
               className="inline-flex items-center rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold tracking-wide text-ink transition hover:border-accent hover:text-accent"
             >
-              Ver perfil @{site.instagram.handle}
+              Acompanhar
             </a>
           </div>
         </Reveal>

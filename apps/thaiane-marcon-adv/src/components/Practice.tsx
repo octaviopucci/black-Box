@@ -8,7 +8,7 @@ export function Practice() {
         <Reveal>
           <p className="text-[0.72rem] font-semibold tracking-mark text-accent uppercase">Atuação</p>
           <h2 className="mt-4 max-w-measure font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-ink">
-            Temas que aparecem no conteúdo e na prática trabalhista.
+            {site.practiceHeading}
           </h2>
         </Reveal>
 
@@ -21,7 +21,6 @@ export function Practice() {
                 </span>
                 <h3 className="mt-6 font-display text-2xl leading-tight text-ink">{item.title}</h3>
                 <p className="mt-4 flex-1 text-base leading-relaxed text-mute">{item.description}</p>
-                <p className="mt-8 text-xs tracking-wide text-mute/70 uppercase">{item.source}</p>
               </article>
             </Reveal>
           ))}
