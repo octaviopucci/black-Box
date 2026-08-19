@@ -172,6 +172,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Estética', 'Sorocaba'],
   },
   {
+    id: 'clinica-mussi-estetica',
+    name: 'Clínica Mussi Estética',
+    client: 'Mussi · Sorocaba',
+    description:
+      'Landing calm & tactile: estética facial e corporal em Jardim Nova Ipanema. Copy e depoimentos extraídos de fontes públicas — WhatsApp e Instagram oficiais.',
+    href: '/clinica-mussi-estetica/',
+    status: 'demo',
+    tags: ['React', 'Estética', 'Premium'],
+  },
+  {
     id: 'gl-locacoes',
     name: 'G&L Locações',
     client: 'G&L Locações de Brinquedos · Capão Bonito',
