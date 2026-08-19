@@ -18,11 +18,11 @@ export default function Nav() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 px-6 py-6 transition-colors duration-500 sm:px-8 md:px-10 ${
+      className={`fixed inset-x-0 top-0 z-50 box-border py-6 pl-[max(1.5rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] transition-colors duration-500 sm:pl-8 sm:pr-8 md:pl-10 md:pr-10 ${
         onHero ? 'text-white' : 'text-ink/80'
       }`}
     >
-      <div className="mx-auto flex w-full min-w-0 max-w-[90rem] items-end justify-between gap-4">
+      <div className="flex w-full min-w-0 items-end justify-between gap-4">
         <a
           href="#inicio"
           className={`shrink-0 font-sans text-[0.68rem] font-medium uppercase tracking-mark transition-colors ${

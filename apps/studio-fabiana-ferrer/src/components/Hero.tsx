@@ -8,52 +8,52 @@ export default function Hero() {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '12%'])
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, reduced ? 1 : 1.05])
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '6%'])
+  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '10%'])
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1.08, reduced ? 1.08 : 1.14])
+  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '5%'])
 
   return (
     <section id="inicio" ref={ref} className="relative isolate h-dvh min-h-[36rem]">
-      {/* Camada de mídia — overflow só aqui, não no texto */}
+      {/* Foto sem texto embutido no topo — media/2, enquadrada para cortar legenda inferior */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           style={{ y: imageY, scale: imageScale }}
           className="absolute inset-0 origin-center will-change-transform"
         >
           <img
-            src={`${import.meta.env.BASE_URL}media/7.jpg`}
-            alt="Depilação a laser no Studio Fabiana Ferrer em Sorocaba"
-            className="h-full w-full object-cover object-[center_25%]"
+            src={`${import.meta.env.BASE_URL}media/2.jpg`}
+            alt="Atendimento de depilação a laser no Studio Fabiana Ferrer"
+            className="h-full w-full object-cover object-[52%_22%]"
             loading="eager"
           />
         </motion.div>
 
+        <div aria-hidden className="absolute inset-0 bg-black/45" />
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25"
+          className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/35"
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent"
+          className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black to-transparent"
         />
       </div>
 
-      {/* Conteúdo — fora do overflow-hidden */}
       <motion.div
         style={{ y: contentY }}
-        className="relative z-10 flex h-full w-full min-w-0 flex-col justify-end px-6 pb-16 pt-28 sm:px-8 md:px-10 md:pb-20"
+        className="relative z-10 box-border flex h-full w-full flex-col justify-end pb-[max(4rem,env(safe-area-inset-bottom))] pl-[max(1.5rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] pt-28 sm:pl-8 sm:pr-8 md:pb-20 md:pl-10 md:pr-10"
       >
-        <div className="w-full min-w-0 max-w-measure">
+        <div className="w-full max-w-measure">
           <p className="text-[0.68rem] font-medium uppercase tracking-mark text-white">
             Laser e Estética · Centro
           </p>
 
-          <h1 className="mt-4 font-display text-[clamp(2.6rem,12vw,7rem)] font-medium leading-[0.92] tracking-tight text-white">
+          <h1 className="mt-4 font-display text-[clamp(2.5rem,11vw,6.5rem)] font-medium leading-[0.92] tracking-tight text-white">
             {words.map((word, i) => (
               <motion.span
                 key={word}
-                className="block"
-                initial={reduced ? false : { opacity: 0, y: 24 }}
+                className="block overflow-visible"
+                initial={reduced ? false : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.9,
@@ -74,7 +74,7 @@ export default function Hero() {
             href={brand.instagramDm}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-10 inline-block border-b border-white/60 pb-1 text-[0.75rem] font-medium uppercase tracking-mark text-white transition hover:border-white"
+            className="mt-10 inline-block border-b border-white/70 pb-1 text-[0.75rem] font-medium uppercase tracking-mark text-white"
           >
             {brand.cta}
           </a>
