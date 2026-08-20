@@ -9,16 +9,16 @@ export function Hero() {
   const reduced = useReducedMotion()
 
   return (
-    <section className="relative h-[100svh] min-h-[640px] overflow-hidden bg-ink">
+    <section className="relative h-[100svh] min-h-[640px] overflow-hidden bg-paper">
       <div ref={imageRef} className="absolute inset-0 will-change-transform">
         <img
           src={media.hero}
           alt="Dr. Gabriel Giovani — cirurgião-dentista"
-          className="h-[120%] w-full object-cover object-[center_20%]"
+          className="h-full w-full object-cover object-center md:object-[center_15%]"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-ink/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/60 via-ink/15 to-transparent md:max-w-[55%]" />
         <div className="absolute inset-0 bg-grain opacity-[0.07] mix-blend-overlay" />
       </div>
 
