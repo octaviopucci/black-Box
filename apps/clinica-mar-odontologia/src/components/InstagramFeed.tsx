@@ -1,4 +1,4 @@
-import { feedPosts, site } from '@/data/site'
+import { feedPosts, feedLinks, site } from '@/data/site'
 import { Reveal } from '@/components/Reveal'
 
 export function InstagramFeed() {
@@ -14,8 +14,8 @@ export function InstagramFeed() {
               Acompanhe a clínica no dia a dia.
             </h2>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-mar-ink-soft">
-              Campanhas, resultados, lembretes de manutenção e dicas de saúde
-              bucal — tudo no perfil oficial.
+              Publicações com identidade própria no feed — vídeos e dicas no
+              perfil oficial.
             </p>
           </div>
           <a
@@ -28,7 +28,7 @@ export function InstagramFeed() {
           </a>
         </Reveal>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
           {feedPosts.map((post, index) => (
             <Reveal key={post.id} delay={index * 0.05}>
               <a
@@ -37,21 +37,44 @@ export function InstagramFeed() {
                 rel="noopener noreferrer"
                 className="group block overflow-hidden bg-mar-mist"
               >
-                <div className="aspect-[4/5] overflow-hidden">
+                <div className="aspect-[4/3] overflow-hidden bg-mar-paper">
                   <img
                     src={post.image}
                     alt={post.alt}
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 ease-tide group-hover:scale-[1.03]"
+                    className="h-full w-full object-contain p-6 transition-transform duration-700 ease-tide group-hover:scale-[1.02] md:p-8"
                   />
                 </div>
-                <p className="px-4 py-3 text-sm leading-snug text-mar-ink-soft transition-colors group-hover:text-mar-ink">
+                <p className="border-t border-mar-line px-5 py-4 text-sm leading-snug text-mar-ink-soft transition-colors group-hover:text-mar-ink">
                   {post.caption}
                 </p>
               </a>
             </Reveal>
           ))}
         </div>
+
+        <Reveal delay={0.1} className="mt-10">
+          <p className="text-[0.7rem] uppercase tracking-[0.28em] text-mar-wave">
+            Mais no Instagram
+          </p>
+          <ul className="mt-4 divide-y divide-mar-line border-t border-mar-line">
+            {feedLinks.map((link) => (
+              <li key={link.id}>
+                <a
+                  href={link.permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between gap-4 py-4 text-mar-ink-soft transition-colors hover:text-mar-rose-deep"
+                >
+                  <span>{link.label}</span>
+                  <span aria-hidden className="text-xs uppercase tracking-[0.18em]">
+                    Ver →
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </div>
     </section>
   )

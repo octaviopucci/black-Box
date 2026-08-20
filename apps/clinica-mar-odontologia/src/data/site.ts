@@ -37,20 +37,14 @@ export const site = {
   source: 'Instagram @clinicamarodontologia',
 } as const
 
+/** Each image used in exactly one section — no repeats across the site. */
 export const media = {
   profile: '/instagram/profile.jpg',
-  hero: '/instagram/post-7.jpg',
-  logoCard: '/instagram/post-8.jpg',
+  about: '/instagram/post-7.jpg',
   transformation: '/instagram/post-2.jpg',
   campaign: '/instagram/post-1.jpg',
-  gallery: [
-    '/instagram/post-1.jpg',
-    '/instagram/post-2.jpg',
-    '/instagram/post-6.jpg',
-    '/instagram/post-9.jpg',
-    '/instagram/post-7.jpg',
-    '/instagram/post-5.jpg',
-  ],
+  feedBrand: '/instagram/post-9.jpg',
+  feedIdentity: '/instagram/post-8.jpg',
 } as const
 
 export const careAreas = [
@@ -116,8 +110,7 @@ export const educationPosts = [
     id: 'halito',
     title: 'Mau hálito vai além da escovação',
     excerpt:
-      'A causa pode estar na língua, na gengiva ou em outros fatores que precisam de avaliação. Agende e descubra a verdadeira origem.',
-    image: '/instagram/post-5.jpg',
+      'A causa pode estar na língua, na gengiva ou em outros fatores que precisam de avaliação. O chiclete apenas disfarça o problema por alguns minutos.',
     permalink: 'https://www.instagram.com/p/DbLfiySid8e/',
     source: 'Instagram @clinicamarodontologia',
   },
@@ -126,7 +119,6 @@ export const educationPosts = [
     title: 'Raspador de língua: faz diferença?',
     excerpt:
       'Ajuda a remover resíduos e bactérias, contribuindo para hálito mais fresco — mas complementa escovação e fio dental, não substitui.',
-    image: '/instagram/post-3.jpg',
     permalink: 'https://www.instagram.com/p/DbLfixNCN7t/',
     source: 'Instagram @clinicamarodontologia',
   },
@@ -135,7 +127,6 @@ export const educationPosts = [
     title: 'Cuidados na hora de comer',
     excerpt:
       'Alimentos como pé de moleque e grãos de pipoca exigem atenção para evitar danos aos dentes — aproveite sem abrir mão do cuidado.',
-    image: '/instagram/post-4.jpg',
     permalink: 'https://www.instagram.com/p/DbLfiyLiHk3/',
     source: 'Instagram @clinicamarodontologia',
   },
@@ -144,7 +135,6 @@ export const educationPosts = [
     title: 'Manutenção do aparelho',
     excerpt:
       'Já fez a manutenção deste mês? Consultas regulares evitam atrasos e mantêm seu tratamento no caminho certo.',
-    image: '/instagram/post-6.jpg',
     permalink: 'https://www.instagram.com/p/DbLZlLCiikm/',
     source: 'Instagram @clinicamarodontologia',
   },
@@ -155,7 +145,7 @@ export const campaign = {
   headline: 'Indique quem ainda não conhece a clínica.',
   body: 'Seu sorriso pode trazer um prêmio incrível: indique amigos e familiares e concorra a um Galaxy Buds Core Samsung. Quanto mais indicar, mais chances de ganhar.',
   cta: 'Passe na recepção e confira as regras da campanha.',
-  image: '/instagram/post-1.jpg',
+  image: media.campaign,
   permalink: 'https://www.instagram.com/p/DcMWsZ4BOon/',
   source: 'Instagram @clinicamarodontologia',
 } as const
@@ -182,48 +172,45 @@ export const aboutPoints = [
   },
 ] as const
 
+/** Only posts with visually unique images — no duplicate thumbnails. */
 export const feedPosts = [
   {
-    id: 1,
-    image: '/instagram/post-1.jpg',
-    alt: 'Campanha Sorriso Premiado — indique amigos na Clínica Mar',
-    caption: 'Indique amigos e concorra a Galaxy Buds Core Samsung.',
-    permalink: 'https://www.instagram.com/p/DcMWsZ4BOon/',
-  },
-  {
-    id: 2,
-    image: '/instagram/post-2.jpg',
-    alt: 'Resultado de reabilitação ortodôntica e estética',
-    caption: 'Planejamento ortodôntico e estético na reabilitação.',
-    permalink: 'https://www.instagram.com/p/DbLftqIlnNL/',
-  },
-  {
-    id: 6,
-    image: '/instagram/post-6.jpg',
-    alt: 'Lembrete de manutenção do aparelho ortodôntico',
-    caption: 'Manutenção mensal do aparelho.',
-    permalink: 'https://www.instagram.com/p/DbLZlLCiikm/',
-  },
-  {
-    id: 9,
-    image: '/instagram/post-9.jpg',
-    alt: 'Agende sua manutenção — Clínica Mar Odontologia',
+    id: 'brand',
+    image: media.feedBrand,
+    alt: 'Identidade visual Clínica Mar — manutenção ortodôntica',
     caption: 'Agende e mantenha o tratamento no caminho certo.',
     permalink: 'https://www.instagram.com/p/DZxX2OXCMbY/',
   },
   {
-    id: 7,
-    image: '/instagram/post-7.jpg',
-    alt: 'Equipe Clínica Mar Odontologia',
-    caption: 'Conteúdo educativo no Instagram.',
-    permalink: 'https://www.instagram.com/p/DaimSkzp8O4/',
+    id: 'identity',
+    image: media.feedIdentity,
+    alt: 'Logo Clínica Mar Odontologia e Estética',
+    caption: 'Odontologia e estética em Belo Horizonte.',
+    permalink: 'https://www.instagram.com/p/DaS4zs9CrZf/',
+  },
+] as const
+
+/** Video posts without unique thumbnails — link only, no repeated image. */
+export const feedLinks = [
+  {
+    id: 'halito',
+    label: 'Mau hálito: causas além da escovação',
+    permalink: 'https://www.instagram.com/p/DbLfiySid8e/',
   },
   {
-    id: 5,
-    image: '/instagram/post-5.jpg',
-    alt: 'Dicas sobre saúde bucal e mau hálito',
-    caption: 'Mau hálito: causas além da escovação.',
-    permalink: 'https://www.instagram.com/p/DbLfiySid8e/',
+    id: 'lingua',
+    label: 'Raspador de língua — mito ou necessidade?',
+    permalink: 'https://www.instagram.com/p/DbLfixNCN7t/',
+  },
+  {
+    id: 'festa',
+    label: 'Cuidados com os dentes na hora de comer',
+    permalink: 'https://www.instagram.com/p/DbLfiyLiHk3/',
+  },
+  {
+    id: 'manutencao',
+    label: 'Lembrete: manutenção do aparelho',
+    permalink: 'https://www.instagram.com/p/DbLZlLCiikm/',
   },
 ] as const
 

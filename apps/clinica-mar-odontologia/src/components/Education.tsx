@@ -13,39 +13,34 @@ export function Education() {
             Dicas que a clínica compartilha no dia a dia.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-mar-ink-soft">
-            Conteúdo educativo extraído do Instagram oficial — sem promessas
-            genéricas, com orientação prática.
+            Conteúdo educativo do Instagram oficial — toque em cada tema para ver
+            o post completo.
           </p>
         </Reveal>
 
-        <div className="mt-14 grid gap-8 md:grid-cols-2">
+        <div className="mt-14 grid gap-0 divide-y divide-mar-line border-y border-mar-line md:grid-cols-2 md:divide-x md:divide-y-0">
           {educationPosts.map((post, index) => (
             <Reveal key={post.id} delay={index * 0.06}>
               <a
                 href={post.permalink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group grid overflow-hidden bg-mar-mist md:grid-cols-[140px_1fr]"
+                className="group flex h-full flex-col justify-between p-8 transition-colors hover:bg-mar-mist md:p-10"
               >
-                <div className="aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[180px]">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 ease-tide group-hover:scale-[1.04]"
-                  />
-                </div>
-                <div className="flex flex-col justify-center p-6 md:p-8">
-                  <h3 className="font-display text-[clamp(1.35rem,2.5vw,1.65rem)] leading-tight text-mar-ink transition-colors group-hover:text-mar-rose-deep">
+                <div>
+                  <span className="font-display text-4xl text-mar-peach/70">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="mt-4 font-display text-[clamp(1.35rem,2.5vw,1.65rem)] leading-tight text-mar-ink transition-colors group-hover:text-mar-rose-deep">
                     {post.title}
                   </h3>
                   <p className="mt-3 text-base leading-relaxed text-mar-ink-soft">
                     {post.excerpt}
                   </p>
-                  <p className="mt-4 text-xs uppercase tracking-[0.18em] text-mar-wave">
-                    {post.source}
-                  </p>
                 </div>
+                <p className="mt-8 text-xs uppercase tracking-[0.2em] text-mar-wave transition-colors group-hover:text-mar-rose-deep">
+                  Ver no Instagram →
+                </p>
               </a>
             </Reveal>
           ))}
