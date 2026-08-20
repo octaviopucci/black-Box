@@ -16,7 +16,7 @@ export const site = {
 
 export const media = {
   profile: '/instagram/profile.jpg',
-  hero: '/instagram/post-21.jpg',
+  hero: '/instagram/hero-reel.jpg',
   doctor: '/instagram/post-5.jpg',
 } as const
 
