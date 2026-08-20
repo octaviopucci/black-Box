@@ -3,7 +3,7 @@ import { Reveal } from '@/components/Reveal'
 
 export function Contact() {
   return (
-    <section id="contato" className="bg-mar-paper py-24 md:py-32">
+    <section id="contato" className="border-t border-mar-line bg-mar-mist py-24 md:py-32">
       <div className="mx-auto grid max-w-[1400px] gap-16 px-5 md:grid-cols-[1.1fr_0.9fr] md:px-10">
         <Reveal>
           <p className="text-[0.7rem] uppercase tracking-[0.32em] text-mar-rose-deep">
@@ -13,7 +13,7 @@ export function Contact() {
             Avenida Contagem, 1451
           </h2>
           <p className="mt-3 text-lg text-mar-ink-soft">
-            Belo Horizonte, MG
+            Belo Horizonte, MG · CEP {site.address.cep}
           </p>
 
           <div className="mt-10 space-y-6">
@@ -25,6 +25,11 @@ export function Contact() {
             >
               {site.contact.phone}
             </a>
+
+            <p className="max-w-md text-base leading-relaxed text-mar-ink-soft">
+              Agende avaliação, tire dúvidas sobre tratamento ou passe na
+              recepção para conhecer a campanha Sorriso Premiado.
+            </p>
 
             <a
               href={site.address.mapsUrl}
