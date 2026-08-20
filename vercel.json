@@ -57,7 +57,8 @@
     { "source": "/rian/(.*)", "destination": "/rian/index.html" },
     { "source": "/chama/(.*)", "destination": "/chama/index.html" },
     { "source": "/traco/(.*)", "destination": "/traco/index.html" },
-    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|lais-felicia|dra-nathalia-rigo|protocolo-pav|rian|chama|traco|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/marcenarianoe/(.*)", "destination": "/marcenarianoe/index.html" },
+    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|lais-felicia|dra-nathalia-rigo|protocolo-pav|rian|chama|traco|marcenarianoe|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
