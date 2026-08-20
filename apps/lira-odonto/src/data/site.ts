@@ -34,6 +34,7 @@ export type Procedure = {
   lead: string
   body: string
   image: string
+  resultImage?: string
   tags: string[]
   source: string
 }
@@ -45,6 +46,7 @@ export const procedures: Procedure[] = [
     lead: 'Correção com respeito ao rosto, à mordida e à naturalidade.',
     body: 'Trocar facetas erradas não é só mudar o sorriso — é corrigir decisões tomadas sem respeitar sua essência. Um sorriso bonito começa na escolha de quem entende que cada detalhe importa.',
     image: '/instagram/post-1.jpg',
+    resultImage: '/instagram/facetas-result.jpg',
     tags: ['FacetasEmResina', 'LentesEmResina', 'SorrisoNatural'],
     source: 'Instagram @liraodontocaruaru',
   },
@@ -62,7 +64,7 @@ export const procedures: Procedure[] = [
     title: 'Lentes de Alto Padrão',
     lead: 'Elegância sem exagero. Harmonia que atravessa o tempo.',
     body: 'Um sorriso de alto padrão não precisa ser branco demais ou artificial para impressionar. Cada faceta é planejada de forma exclusiva — o resultado que faz perguntarem: “Como você consegue estar sempre tão bem?”',
-    image: '/instagram/post-4.jpg',
+    image: '/instagram/post-14.jpg',
     tags: ['OdontologiaEstética', 'TransformaçãoDoSorriso'],
     source: 'Instagram @liraodontocaruaru',
   },
@@ -101,11 +103,6 @@ export const results: ResultCase[] = [
     id: 'r13',
     image: '/instagram/post-13.jpg',
     aspect: 'square',
-  },
-  {
-    id: 'r14',
-    image: '/instagram/post-14.jpg',
-    aspect: 'wide',
   },
 ]
 

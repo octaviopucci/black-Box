@@ -23,13 +23,43 @@ export function Procedures() {
                 }`}
               >
                 <div className="relative overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="aspect-[4/5] w-full object-cover object-center"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/25 via-transparent to-transparent" />
+                  {item.resultImage ? (
+                    <div className="grid grid-cols-2 gap-1">
+                      <figure className="relative overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={`Antes — ${item.title}`}
+                          className="aspect-[3/4] w-full object-cover object-top"
+                          loading="lazy"
+                        />
+                        <figcaption className="absolute bottom-3 left-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-paper/80">
+                          Antes
+                        </figcaption>
+                      </figure>
+                      <figure className="relative overflow-hidden">
+                        <img
+                          src={item.resultImage}
+                          alt={`Resultado — ${item.title}`}
+                          className="aspect-[3/4] w-full object-cover object-top"
+                          loading="lazy"
+                        />
+                        <figcaption className="absolute bottom-3 left-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-paper/80">
+                          Resultado
+                        </figcaption>
+                        <div className="absolute inset-0 bg-gradient-to-t from-ink/20 via-transparent to-transparent" />
+                      </figure>
+                    </div>
+                  ) : (
+                    <>
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="aspect-[4/5] w-full object-cover object-center"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink/25 via-transparent to-transparent" />
+                    </>
+                  )}
                 </div>
 
                 <div>
