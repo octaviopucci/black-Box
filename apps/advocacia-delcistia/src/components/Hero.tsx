@@ -98,14 +98,16 @@ export function Hero() {
 
   return (
     <section ref={sectionRef} className="relative md:min-h-[100svh] md:overflow-hidden">
-      {/* Mobile: foto completa, sem texto por cima */}
-      <div className="border-b border-line bg-ink-lift md:hidden">
-        <img
-          src={media.hero}
-          alt="Equipe da Advocacia Del Cistia em ambiente judiciário"
-          className="mx-auto block w-full object-contain object-center"
-          fetchPriority="high"
-        />
+      {/* Mobile: recorte da linha do peito pra cima — rostos visíveis, sem barriga das togas */}
+      <div className="relative overflow-hidden border-b border-line bg-ink-lift md:hidden">
+        <div className="relative aspect-[4/3] w-full overflow-hidden">
+          <img
+            src={media.hero}
+            alt="Equipe da Advocacia Del Cistia em ambiente judiciário"
+            className="absolute inset-x-0 top-0 h-[178%] w-full object-cover object-top"
+            fetchPriority="high"
+          />
+        </div>
       </div>
 
       {/* Desktop: full-bleed com parallax */}
