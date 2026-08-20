@@ -14,11 +14,11 @@ export function Hero() {
         <img
           src={media.hero}
           alt="Dr. Gabriel Giovani — cirurgião-dentista"
-          className="h-full w-full object-cover object-center md:object-[center_15%]"
+          className="h-full w-full object-cover object-[center_25%]"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/25 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/60 via-ink/15 to-transparent md:max-w-[55%]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/35 to-ink/5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-ink/20 to-transparent md:max-w-[62%]" />
         <div className="absolute inset-0 bg-grain opacity-[0.07] mix-blend-overlay" />
       </div>
 
