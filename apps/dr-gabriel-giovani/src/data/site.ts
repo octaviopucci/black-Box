@@ -1,6 +1,6 @@
 export const media = {
   profile: '/instagram/profile.jpg',
-  hero: '/instagram/post-9.jpg',
+  hero: '/hero-dr-gabriel.jpg',
 } as const
 
 export type ResultCase = {

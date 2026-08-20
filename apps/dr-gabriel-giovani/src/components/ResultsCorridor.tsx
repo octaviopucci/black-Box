@@ -9,13 +9,9 @@ export function ResultsCorridor() {
   return (
     <section id="resultados" ref={containerRef} className="relative h-[100svh] bg-ink-soft">
       <div className="absolute left-6 top-8 z-10 md:left-10 md:top-12 lg:left-16">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-soft">Resultados</p>
-        <h2 className="mt-2 font-display text-2xl font-medium text-paper md:text-3xl">
-          Casos reais, sem repetição
+        <h2 className="font-display text-2xl font-medium text-paper md:text-3xl">
+          Resultados: Casos Reais
         </h2>
-        <p className="mt-2 max-w-xs text-sm text-paper/50">
-          {results.length} transformações únicas extraídas do Instagram oficial.
-        </p>
       </div>
 
       <div className="flex h-full items-center overflow-hidden pt-28">

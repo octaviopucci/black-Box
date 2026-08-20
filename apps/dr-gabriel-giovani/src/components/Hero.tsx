@@ -13,11 +13,12 @@ export function Hero() {
       <div ref={imageRef} className="absolute inset-0 will-change-transform">
         <img
           src={media.hero}
-          alt="Resultado de reabilitação estética — Dr. Gabriel Giovani"
-          className="h-[120%] w-full object-cover object-center"
+          alt="Dr. Gabriel Giovani — cirurgião-dentista"
+          className="h-[120%] w-full object-cover object-[center_20%]"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-ink/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-ink/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/50 via-transparent to-transparent" />
         <div className="absolute inset-0 bg-grain opacity-[0.07] mix-blend-overlay" />
       </div>
 
