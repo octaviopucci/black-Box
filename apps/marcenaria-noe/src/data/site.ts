@@ -16,19 +16,18 @@ export const site = {
   },
 } as const
 
+/** Imagens por shortcode — extraídas via instaloader (foto real de cada post). */
 export const media = {
   profile: '/instagram/profile.jpg',
-  hero: '/instagram/post-1.jpg',
+  hero: '/instagram/DadaK37TSAP.jpg',
   gallery: [
-    '/instagram/post-1.jpg',
-    '/instagram/post-5.jpg',
-    '/instagram/post-3.jpg',
-    '/instagram/post-4.jpg',
-    '/instagram/post-2.jpg',
-    '/instagram/post-6.jpg',
-    '/instagram/post-12.jpg',
-    '/instagram/post-13.jpg',
-    '/instagram/post-14.jpg',
+    '/instagram/DadaK37TSAP.jpg',
+    '/instagram/DYkOMaUDR9M.jpg',
+    '/instagram/DY65lb0R2K4.jpg',
+    '/instagram/DY5DtLLzX0B.jpg',
+    '/instagram/DZi3PTrFdoM.jpg',
+    '/instagram/DYkNtLQt4uY.jpg',
+    '/instagram/DYkNtMZtaKq.jpg',
   ],
 } as const
 
@@ -45,7 +44,7 @@ export type PortfolioItem = {
 export const portfolio: PortfolioItem[] = [
   {
     id: 1,
-    image: '/instagram/post-1.jpg',
+    image: '/instagram/DadaK37TSAP.jpg',
     title: 'Sala de jantar',
     excerpt: 'Uma sala de jantar luxuosa e refinada.',
     tags: ['moveissobmedida', 'saladejantar', 'moveisaltopadrao'],
@@ -54,7 +53,7 @@ export const portfolio: PortfolioItem[] = [
   },
   {
     id: 2,
-    image: '/instagram/post-5.jpg',
+    image: '/instagram/DYkOMaUDR9M.jpg',
     title: 'Cozinha clássica contemporânea',
     excerpt:
       'Elegância, funcionalidade e sofisticação em cada detalhe — armários off-white, puxadores dourados, revestimento marmorizado iluminado e eletros em preto.',
@@ -64,7 +63,7 @@ export const portfolio: PortfolioItem[] = [
   },
   {
     id: 3,
-    image: '/instagram/post-3.jpg',
+    image: '/instagram/DY65lb0R2K4.jpg',
     title: 'Penteadeira',
     excerpt: 'Uma penteadeira linda e charmosa.',
     tags: ['penteadeirascamarim', 'dormitoriosmodernos', 'moveisplanejados'],
@@ -73,7 +72,7 @@ export const portfolio: PortfolioItem[] = [
   },
   {
     id: 4,
-    image: '/instagram/post-4.jpg',
+    image: '/instagram/DY5DtLLzX0B.jpg',
     title: 'Quarto gamer',
     excerpt: 'Lindo quarto gamer.',
     tags: ['quartogamer', 'moveisplanejados', 'marcenaria'],
@@ -82,7 +81,7 @@ export const portfolio: PortfolioItem[] = [
   },
   {
     id: 5,
-    image: '/instagram/post-2.jpg',
+    image: '/instagram/DZi3PTrFdoM.jpg',
     title: 'Letra caixa personalizada',
     excerpt:
       'Letra caixa MRNT feita para o departamento @jovensapso — peça exclusiva em MDF personalizado.',
