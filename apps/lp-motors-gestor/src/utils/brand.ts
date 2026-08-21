@@ -326,3 +326,11 @@ export function readLogoAsDataUrl(file: File, maxBytes = 700_000): Promise<strin
     reader.readAsDataURL(file)
   })
 }
+
+/** Lê a logo e remove fundo sólido automaticamente (PNG transparente). SVG permanece intacto. */
+export async function processLogoFile(file: File): Promise<string> {
+  const raw = await readLogoAsDataUrl(file)
+  if (file.type === 'image/svg+xml') return raw
+  const { removeLogoBackground } = await import('@/utils/logoBackground')
+  return removeLogoBackground(raw)
+}

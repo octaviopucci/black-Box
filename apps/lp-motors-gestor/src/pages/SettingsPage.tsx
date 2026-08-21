@@ -26,6 +26,7 @@ import {
   normalizeBrand,
   normalizeHex,
   readLogoAsDataUrl,
+  processLogoFile,
   suggestPainel,
   suggestSurface,
   suggestText,
@@ -203,9 +204,10 @@ export function SettingsPage() {
   const onLogoFile = async (file?: File | null) => {
     if (!file) return
     try {
-      const dataUrl = await readLogoAsDataUrl(file)
+      toast('Processando logo…', 'info')
+      const dataUrl = await processLogoFile(file)
       setValue('logo', dataUrl, { shouldDirty: true })
-      toast('Logo carregada. Salve para manter.', 'success')
+      toast('Logo com fundo transparente. Salve para manter.', 'success')
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Falha ao carregar logo', 'error')
     }
@@ -540,7 +542,7 @@ export function SettingsPage() {
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
                 <ImagePlus className="h-4 w-4" />
-                Enviar logo
+                Enviar logo (fundo removido auto)
               </Button>
               <Button type="button" variant="ghost" onClick={() => setValue('logo', '')}>
                 Remover logo
