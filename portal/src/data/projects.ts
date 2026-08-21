@@ -182,6 +182,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Estética', 'Premium'],
   },
   {
+    id: 'odontomed',
+    name: 'OdontoMed',
+    client: 'OdontoMed · Bom Retiro/SC',
+    description:
+      'Odontologia avançada com hero full-bleed, copy e fotos do @odontomed.br — implantes, periodontia, clareamento e agendamento via Instagram.',
+    href: '/odontomed/',
+    status: 'demo',
+    tags: ['React', 'Odontologia', 'Premium'],
+  },
+  {
     id: 'gl-locacoes',
     name: 'G&L Locações',
     client: 'G&L Locações de Brinquedos · Capão Bonito',
