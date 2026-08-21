@@ -8,6 +8,7 @@ const portalDist = join(root, 'portal', 'dist')
 const macielDist = join(root, 'apps', 'maciel-motors-gestor', 'dist')
 const macielXDist = join(root, 'apps', 'maciel-motors-gestor', 'dist-x')
 const lpMotorsDist = join(root, 'apps', 'lp-motors-gestor', 'dist')
+const lpMotorsDomainDist = join(root, 'apps', 'lp-motors-gestor', 'dist-domain')
 const lpMotorsXDist = join(root, 'apps', 'lp-motors-gestor', 'dist-x')
 const porthalDist = join(root, 'apps', 'porthal-imoveis', 'dist')
 const marcioDist = join(root, 'apps', 'marcio-mariano', 'dist')
@@ -35,6 +36,9 @@ if (!existsSync(macielXDist)) {
   throw new Error('apps/maciel-motors-gestor/dist-x não encontrado — rode build:maciel-x')
 }
 if (!existsSync(lpMotorsDist)) throw new Error('apps/lp-motors-gestor/dist não encontrado — rode build:lp-motors')
+if (!existsSync(lpMotorsDomainDist)) {
+  throw new Error('apps/lp-motors-gestor/dist-domain não encontrado — rode build:lp-motors-domain')
+}
 if (!existsSync(lpMotorsXDist)) {
   throw new Error('apps/lp-motors-gestor/dist-x não encontrado — rode build:lp-motors-x')
 }
@@ -108,6 +112,9 @@ function publish(target) {
   // LP Motors (produto novo — paralelo, não substitui o Maciel)
   mkdirSync(join(target, 'lp-motors'), { recursive: true })
   cpSync(lpMotorsDist, join(target, 'lp-motors'), { recursive: true })
+  // LP Gestor — build raiz para lpgestor.com.br
+  mkdirSync(join(target, 'lpgestor'), { recursive: true })
+  cpSync(lpMotorsDomainDist, join(target, 'lpgestor'), { recursive: true })
   mkdirSync(join(target, 'lp-motors-x'), { recursive: true })
   cpSync(lpMotorsXDist, join(target, 'lp-motors-x'), { recursive: true })
   mkdirSync(join(target, 'porthal-imoveis'), { recursive: true })

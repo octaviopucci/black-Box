@@ -32,6 +32,8 @@ Não altera o Maciel Motors (`/maciel-motors/`), que continua sendo publicado em
 
 Cadastro público de loja: `/lp-motors/cadastro` — cada loja vira uma organização isolada na nuvem.
 
+**Domínio produção:** [lpgestor.com.br](https://lpgestor.com.br) — ver [DOMAIN.md](./DOMAIN.md) para DNS e Vercel.
+
 ---
 
 ## Sync multi-dispositivo (obrigatório em produção)

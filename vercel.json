@@ -3,6 +3,20 @@
   "outputDirectory": "public",
   "framework": null,
   "installCommand": "npm install",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.lpgestor.com.br" }],
+      "destination": "https://lpgestor.com.br/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/lp-motors/:path*",
+      "has": [{ "type": "host", "value": "lpgestor.com.br" }],
+      "destination": "/:path*",
+      "permanent": true
+    }
+  ],
   "functions": {
     "api/pix.ts": {
       "memory": 1024,
@@ -34,6 +48,9 @@
     { "source": "/api/chama/(.*)", "destination": "/api/chama?path=$1" },
     { "source": "/api/traco", "destination": "/api/traco?path=health" },
     { "source": "/api/traco/(.*)", "destination": "/api/traco?path=$1" },
+    { "source": "/assets/(.*)", "destination": "/lpgestor/assets/$1", "has": [{ "type": "host", "value": "lpgestor.com.br" }] },
+    { "source": "/favicon.svg", "destination": "/lpgestor/favicon.svg", "has": [{ "type": "host", "value": "lpgestor.com.br" }] },
+    { "source": "/((?!api(?:/|$)|assets(?:/|$)|favicon\\.svg$).*)", "destination": "/lpgestor/index.html", "has": [{ "type": "host", "value": "lpgestor.com.br" }] },
     { "source": "/pix", "destination": "/pix/index.html" },
     { "source": "/pix/", "destination": "/pix/index.html" },
     { "source": "/maciel-motors-x/(.*)", "destination": "/maciel-motors-x/index.html" },
