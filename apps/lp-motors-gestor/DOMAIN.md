@@ -24,7 +24,30 @@ A API continua em **`/api/lp-motors/*`** no mesmo domínio (sync, FIPE, login).
 
 ---
 
-## 2. Registro.br — DNS
+## 2. Hostinger — DNS (hPanel)
+
+1. Acesse [hpanel.hostinger.com](https://hpanel.hostinger.com)
+2. **Domínios** → clique em **lpgestor.com.br**
+3. Menu lateral: **DNS / Zona DNS** (ou **Gerenciar DNS**)
+4. **Remova** registros conflitantes no `@` (A antigo para Hostinger, parking page, etc.)
+5. **Adicione ou edite:**
+
+| Tipo | Nome | Aponta para / Valor | TTL |
+|------|------|---------------------|-----|
+| **A** | `@` | `76.76.21.21` | 14400 (ou padrão) |
+| **CNAME** | `www` | `cname.vercel-dns.com` | 14400 |
+
+6. **Salvar** — propagação costuma levar 15 min a 4 h (raro até 24 h)
+
+### Atenção Hostinger
+
+- Se existir **registro AAAA** no `@` apontando para Hostinger, **apague** (pode conflitar com a Vercel).
+- Se existir **CNAME no `@`**, a Hostinger não permite — use só o **A** `76.76.21.21` no `@`.
+- Nameservers devem ser os da Hostinger (padrão). **Não** precisa mudar NS para a Vercel.
+
+---
+
+## 2b. Registro.br — DNS (se o domínio estiver lá)
 
 No painel do domínio **lpgestor.com.br** → **DNS**:
 
