@@ -28,6 +28,7 @@ const rianDist = join(root, 'apps', 'rian', 'dist')
 const chamaDist = join(root, 'apps', 'chama', 'dist')
 const tracoDist = join(root, 'apps', 'traco', 'dist')
 const mussiDist = join(root, 'apps', 'clinica-mussi-estetica', 'dist')
+const thaianeDist = join(root, 'apps', 'thaiane-marcon-adv', 'dist')
 
 if (!existsSync(portalDist)) throw new Error('portal/dist não encontrado — rode build:portal')
 if (!existsSync(macielDist)) throw new Error('apps/maciel-motors-gestor/dist não encontrado — rode build:maciel')
@@ -95,6 +96,9 @@ if (!existsSync(tracoDist)) {
 if (!existsSync(mussiDist)) {
   throw new Error('apps/clinica-mussi-estetica/dist não encontrado — rode build:mussi')
 }
+if (!existsSync(thaianeDist)) {
+  throw new Error('apps/thaiane-marcon-adv/dist não encontrado — rode build:thaiane')
+}
 
 function publish(target) {
   rmSync(target, { recursive: true, force: true })
@@ -148,6 +152,8 @@ function publish(target) {
   cpSync(tracoDist, join(target, 'traco'), { recursive: true })
   mkdirSync(join(target, 'clinica-mussi-estetica'), { recursive: true })
   cpSync(mussiDist, join(target, 'clinica-mussi-estetica'), { recursive: true })
+  mkdirSync(join(target, 'thaiane-marcon-adv'), { recursive: true })
+  cpSync(thaianeDist, join(target, 'thaiane-marcon-adv'), { recursive: true })
   const pixWeb = join(root, 'apps', 'pix-gateway', 'web')
   mkdirSync(join(target, 'pix'), { recursive: true })
   cpSync(pixWeb, join(target, 'pix'), { recursive: true })
