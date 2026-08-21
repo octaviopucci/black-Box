@@ -1,0 +1,26 @@
+name: Sync to lpgestor repo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: lpgestor-release
+          fetch-depth: 0
+
+      - name: Push to octaviopucci/lpgestor
+        env:
+          TOKEN: ${{ secrets.LPGESTOR_PUSH_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "Adicione o secret LPGESTOR_PUSH_TOKEN em Settings → Secrets → Actions"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add lpgestor "https://x-access-token:${TOKEN}@github.com/octaviopucci/lpgestor.git"
+          git push lpgestor HEAD:main --force
