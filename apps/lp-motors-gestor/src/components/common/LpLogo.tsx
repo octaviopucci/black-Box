@@ -72,7 +72,12 @@ export function LpLogo({
           src={logo}
           alt={label}
           className="shrink-0 object-contain"
-          style={{ width: s, height: s, borderRadius: 'var(--lp-radius)' }}
+          style={{
+            width: s,
+            height: s,
+            borderRadius: 'var(--lp-radius)',
+            background: 'transparent',
+          }}
         />
       ) : (
         <Mark size={s} accent={accent} copper={copper} ink={ink} />

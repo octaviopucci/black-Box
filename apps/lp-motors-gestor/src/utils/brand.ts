@@ -6,6 +6,7 @@ import type {
   Settings,
 } from '@/types'
 import { APP_NAME, APP_SHORT } from '@/config/variant'
+import { removeLogoBackground } from '@/utils/logoBackground'
 
 /** Fotos de luxo (Unsplash) — lazy via CSS background, uma por atmosfera. */
 export const ATMOSPHERE_IMAGES: Record<BrandAtmosfera, string> = {
@@ -327,10 +328,21 @@ export function readLogoAsDataUrl(file: File, maxBytes = 700_000): Promise<strin
   })
 }
 
+/** Resultado do processamento de logo. */
+export type ProcessedLogo = {
+  dataUrl: string
+  backgroundRemoved: boolean
+}
+
 /** Lê a logo e remove fundo sólido automaticamente (PNG transparente). SVG permanece intacto. */
-export async function processLogoFile(file: File): Promise<string> {
+export async function processLogoFile(file: File): Promise<ProcessedLogo> {
   const raw = await readLogoAsDataUrl(file)
-  if (file.type === 'image/svg+xml') return raw
-  const { removeLogoBackground } = await import('@/utils/logoBackground')
-  return removeLogoBackground(raw)
+  if (file.type === 'image/svg+xml') {
+    return { dataUrl: raw, backgroundRemoved: false }
+  }
+  const processed = await removeLogoBackground(raw)
+  return {
+    dataUrl: processed.dataUrl,
+    backgroundRemoved: processed.removed,
+  }
 }

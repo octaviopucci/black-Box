@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -134,6 +134,7 @@ function previewSettings(values: FormValues): Settings {
 export function SettingsPage() {
   const { settings, updateSettings, toast, syncStatus, cloudHealth, user } = useApp()
   const fileRef = useRef<HTMLInputElement>(null)
+  const [logoProcessing, setLogoProcessing] = useState(false)
   const {
     register,
     handleSubmit,
@@ -203,13 +204,21 @@ export function SettingsPage() {
 
   const onLogoFile = async (file?: File | null) => {
     if (!file) return
+    setLogoProcessing(true)
     try {
-      toast('Processando logo…', 'info')
-      const dataUrl = await processLogoFile(file)
+      const { dataUrl, backgroundRemoved } = await processLogoFile(file)
       setValue('logo', dataUrl, { shouldDirty: true })
-      toast('Logo com fundo transparente. Salve para manter.', 'success')
+      toast(
+        backgroundRemoved
+          ? 'Fundo removido — logo transparente. Salve para manter.'
+          : 'Logo carregada (fundo já transparente ou não detectado). Salve para manter.',
+        'success',
+      )
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Falha ao carregar logo', 'error')
+    } finally {
+      setLogoProcessing(false)
+      if (fileRef.current) fileRef.current.value = ''
     }
   }
 
@@ -540,9 +549,14 @@ export function SettingsPage() {
             </div>
             <Input className="mt-3" label="Endereço" {...register('endereco')} />
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
+              <Button
+                type="button"
+                variant="secondary"
+                loading={logoProcessing}
+                onClick={() => fileRef.current?.click()}
+              >
                 <ImagePlus className="h-4 w-4" />
-                Enviar logo (fundo removido auto)
+                {logoProcessing ? 'Removendo fundo…' : 'Enviar logo (fundo removido auto)'}
               </Button>
               <Button type="button" variant="ghost" onClick={() => setValue('logo', '')}>
                 Remover logo
@@ -555,6 +569,22 @@ export function SettingsPage() {
                 onChange={(e) => void onLogoFile(e.target.files?.[0])}
               />
             </div>
+            {values.logo ? (
+              <div
+                className="mt-4 inline-flex items-center justify-center border border-lp-line p-4"
+                style={{
+                  borderRadius: 'var(--lp-radius-lg)',
+                  background:
+                    'repeating-conic-gradient(color-mix(in srgb, var(--lp-steel) 22%, transparent) 0% 25%, transparent 0% 50%) 0 0 / 16px 16px',
+                }}
+              >
+                <img
+                  src={values.logo}
+                  alt="Preview logo"
+                  className="max-h-24 max-w-[220px] object-contain"
+                />
+              </div>
+            ) : null}
             <Textarea className="mt-3" label="Logo (URL / data URL)" {...register('logo')} />
           </div>
 
