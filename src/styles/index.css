@@ -1,0 +1,322 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --lp-ink: #e8eef6;
+  --lp-slate: #081018;
+  --lp-steel: rgba(232, 238, 246, 0.62);
+  --lp-mist: rgba(232, 238, 246, 0.06);
+  --lp-paper: #0b1018;
+  --lp-surface: #121a26;
+  --lp-line: rgba(232, 238, 246, 0.12);
+  --lp-accent: #0f766e;
+  --lp-accent-dim: #0d5f59;
+  --lp-accent-soft: rgba(15, 118, 110, 0.16);
+  --lp-copper: #c4a574;
+  --lp-glow: rgba(15, 118, 110, 0.35);
+  --lp-radius: 0.65rem;
+  --lp-radius-lg: 0.95rem;
+  --lp-photo: none;
+  --lp-photo-opacity: 0.42;
+  --lp-wash: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--lp-ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+  background-color: var(--lp-paper);
+  background-image: var(--lp-wash), var(--lp-photo);
+  background-size: auto, cover;
+  background-position: center, center;
+  background-attachment: fixed, fixed;
+  background-repeat: no-repeat, no-repeat;
+  isolation: isolate;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--lp-paper) 72%, transparent) 0%,
+      color-mix(in srgb, var(--lp-paper) 88%, transparent) 45%,
+      var(--lp-paper) 100%
+    ),
+    var(--lp-wash);
+  opacity: 1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: var(--lp-photo);
+  background-size: cover;
+  background-position: center;
+  opacity: var(--lp-photo-opacity);
+  transform: scale(1.04);
+  animation: lp-kenburns 48s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    animation: none;
+  }
+
+  .auth-screen__photo {
+    animation: none !important;
+  }
+}
+
+body[data-auth-screen]::after {
+  animation: none;
+  opacity: 0.18;
+  transform: scale(1.02);
+}
+
+.auth-screen__photo {
+  animation: auth-ken-burns 28s ease-in-out infinite alternate;
+}
+
+.auth-screen__shade {
+  background:
+    linear-gradient(180deg, rgba(5, 8, 12, 0.55) 0%, rgba(5, 8, 12, 0.72) 45%, rgba(5, 8, 12, 0.92) 100%),
+    radial-gradient(ellipse 90% 70% at 50% 40%, transparent 0%, rgba(5, 8, 12, 0.55) 100%);
+}
+
+.auth-screen__grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+@keyframes auth-ken-burns {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-1.2%, -0.8%, 0);
+  }
+}
+
+@keyframes lp-kenburns {
+  from {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@keyframes lp-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes lp-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--lp-steel) 45%, transparent);
+  border-radius: 999px;
+}
+
+@layer components {
+  .panel {
+    border: 1px solid var(--lp-line);
+    background: color-mix(in srgb, var(--lp-surface) 92%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--lp-paper) 40%, transparent),
+      0 18px 40px color-mix(in srgb, black 18%, transparent);
+    border-radius: var(--lp-radius-lg);
+  }
+
+  .panel-ink {
+    background: color-mix(in srgb, var(--lp-slate) 92%, transparent);
+    color: var(--lp-ink);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    box-shadow: 0 18px 40px color-mix(in srgb, black 22%, transparent);
+    border-radius: var(--lp-radius-lg);
+  }
+
+  .glass-bar {
+    background: color-mix(in srgb, var(--lp-surface) 78%, transparent);
+    border-color: var(--lp-line);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  }
+
+  .input-field {
+    @apply w-full border px-3.5 py-2.5 text-base outline-none transition;
+    color: var(--lp-ink);
+    background: color-mix(in srgb, var(--lp-surface) 88%, var(--lp-paper));
+    border-color: var(--lp-line);
+    border-radius: var(--lp-radius);
+  }
+
+  .input-field::placeholder {
+    color: var(--lp-steel);
+    opacity: 0.7;
+  }
+
+  .input-field:focus {
+    border-color: var(--lp-accent);
+    box-shadow: 0 0 0 2px var(--lp-accent-soft);
+  }
+
+  .label-field {
+    @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em];
+    color: var(--lp-steel);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50;
+    background: linear-gradient(135deg, var(--lp-accent), var(--lp-accent-dim));
+    border-radius: var(--lp-radius);
+    box-shadow: 0 8px 24px var(--lp-glow);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.06);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+    color: var(--lp-ink);
+    background: color-mix(in srgb, var(--lp-surface) 90%, transparent);
+    border-color: var(--lp-line);
+    border-radius: var(--lp-radius);
+  }
+
+  .btn-secondary:hover {
+    background: var(--lp-mist);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium transition;
+    color: var(--lp-steel);
+    border-radius: var(--lp-radius);
+  }
+
+  .btn-ghost:hover {
+    color: var(--lp-ink);
+    background: var(--lp-mist);
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 bg-lp-danger px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50;
+    border-radius: var(--lp-radius);
+  }
+
+  .section-title {
+    @apply font-display text-2xl font-bold tracking-tight sm:text-3xl;
+    color: var(--lp-ink);
+    animation: lp-fade-up 0.55s ease both;
+  }
+
+  .section-sub {
+    @apply mt-1 text-sm;
+    color: var(--lp-steel);
+  }
+
+  .kpi {
+    @apply panel p-4 sm:p-5;
+  }
+
+  .kpi-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em];
+    color: var(--lp-steel);
+  }
+
+  .kpi-value {
+    @apply mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl;
+    color: var(--lp-ink);
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 border px-2 py-0.5 text-xs font-semibold;
+    border-radius: calc(var(--lp-radius) - 0.15rem);
+  }
+
+  .table-wrap {
+    @apply overflow-x-auto border;
+    background: color-mix(in srgb, var(--lp-surface) 94%, transparent);
+    border-color: var(--lp-line);
+    border-radius: var(--lp-radius-lg);
+  }
+
+  .data-table {
+    @apply w-full min-w-[640px] text-left text-sm;
+  }
+
+  .data-table th {
+    @apply border-b px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.1em];
+    color: var(--lp-steel);
+    border-color: var(--lp-line);
+    background: var(--lp-mist);
+  }
+
+  .data-table td {
+    @apply border-b px-3 py-3 align-middle;
+    border-color: var(--lp-line);
+  }
+
+  .empty-state {
+    @apply panel flex flex-col items-center justify-center gap-3 px-6 py-16 text-center;
+  }
+
+  .skeleton {
+    @apply animate-pulse;
+    background: var(--lp-mist);
+    border-radius: var(--lp-radius);
+  }
+
+  .motion-page {
+    animation: lp-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .premium-ring {
+    box-shadow: 0 0 0 1px var(--lp-line), 0 0 40px var(--lp-glow);
+  }
+}

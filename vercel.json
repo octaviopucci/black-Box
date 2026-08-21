@@ -1,0 +1,51 @@
+{
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "dist",
+  "framework": null,
+  "installCommand": "npm install",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.lpgestor.com.br"
+        }
+      ],
+      "destination": "https://lpgestor.com.br/:path*",
+      "permanent": true
+    }
+  ],
+  "functions": {
+    "api/lp-motors.ts": {
+      "memory": 512,
+      "maxDuration": 30,
+      "includeFiles": "api/_lp-motors/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/lp-motors",
+      "destination": "/api/lp-motors?path=health"
+    },
+    {
+      "source": "/api/lp-motors/(.*)",
+      "destination": "/api/lp-motors?path=$1"
+    },
+    {
+      "source": "/((?!api(?:/|$)|assets(?:/|$)|favicon\\.svg$).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
+    }
+  ]
+}
