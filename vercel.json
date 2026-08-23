@@ -3,19 +3,6 @@
   "outputDirectory": "dist",
   "framework": null,
   "installCommand": "npm install",
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.lpgestor.com.br"
-        }
-      ],
-      "destination": "https://lpgestor.com.br/:path*",
-      "permanent": true
-    }
-  ],
   "functions": {
     "api/lp-motors.ts": {
       "memory": 512,
