@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0a1211;
+  --paper: #f1f4f2;
+  --teal: #0b4b4a;
+  --ember: #c6642e;
+  --mute: #6b7370;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.035;
+  background-image: theme('backgroundImage.grain');
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+}
+
+::selection {
+  background: rgba(47, 166, 160, 0.32);
+  color: var(--ink);
+}
+
+@layer components {
+  .eyebrow {
+    @apply mb-4 inline-flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-teal-bright;
+  }
+
+  .eyebrow-light {
+    @apply mb-4 inline-flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[0.3em];
+    color: rgba(241, 244, 242, 0.72);
+  }
+
+  .display-title {
+    @apply font-display leading-[0.98] tracking-tight text-balance;
+  }
+
+  .cta-solid {
+    @apply inline-flex items-center gap-2 rounded-full bg-ember px-6 py-3.5 text-sm font-semibold text-snow transition duration-500 ease-silk hover:bg-ember-soft;
+  }
+
+  .cta-ghost-light {
+    @apply inline-flex items-center gap-2 rounded-full border px-5 py-3.5 text-sm font-semibold transition duration-500 ease-silk;
+    border-color: rgba(241, 244, 242, 0.28);
+    color: rgba(241, 244, 242, 0.92);
+  }
+
+  .cta-ghost-light:hover {
+    border-color: rgba(47, 166, 160, 0.6);
+    color: #7fd4cf;
+  }
+
+  .cta-ghost-dark {
+    @apply inline-flex items-center gap-2 rounded-full border px-5 py-3.5 text-sm font-semibold transition duration-500 ease-silk;
+    border-color: rgba(10, 18, 17, 0.16);
+    color: rgba(10, 18, 17, 0.82);
+  }
+
+  .cta-ghost-dark:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass-dark {
+    background: rgba(10, 18, 17, 0.62);
+    backdrop-filter: blur(20px) saturate(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(1.1);
+  }
+}
+
+.breath-track {
+  animation: breathTrack 14s linear infinite;
+}
+
+.breath-line {
+  stroke-dasharray: 6 10;
+  animation: breathDash 3.6s linear infinite;
+}
+
+@keyframes breathTrack {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-420px);
+  }
+}
+
+@keyframes breathDash {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-breathe,
+  .animate-drift-slow,
+  .animate-pulse-ring,
+  .breath-track,
+  .breath-line {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
