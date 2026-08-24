@@ -8,6 +8,17 @@ import { Button } from '@/components/ui/Button'
 import { Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
 
+/** Letras/números sem acento — acentos e espaços viram formato válido automaticamente. */
+function normalizeUsername(raw: string): string {
+  return raw
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, '.')
+    .replace(/[^a-z0-9._-]/g, '')
+    .slice(0, 32)
+}
+
 export function RegisterPage() {
   const { registerStore, toast } = useApp()
   const navigate = useNavigate()
@@ -23,6 +34,11 @@ export function RegisterPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const loginUser = normalizeUsername(username)
+    if (loginUser.length < 3) {
+      toast('Usuário: use pelo menos 3 letras ou números (ex.: joao ou silva.motors).', 'error')
+      return
+    }
     if (password !== confirm) {
       toast('As senhas não coincidem.', 'error')
       return
@@ -32,7 +48,7 @@ export function RegisterPage() {
       const slug = await registerStore({
         storeName,
         ownerName,
-        username,
+        username: loginUser,
         password,
         city,
         phone,
@@ -97,13 +113,16 @@ export function RegisterPage() {
           <input
             className="input-field"
             value={username}
-            onChange={(e) => setUsername(e.target.value.toLowerCase())}
+            onChange={(e) => setUsername(normalizeUsername(e.target.value))}
             autoComplete="username"
-            placeholder="ex.: joao"
+            placeholder="ex.: joao ou silva.motors"
             required
             minLength={3}
-            pattern="[a-z0-9._-]{3,32}"
+            maxLength={32}
           />
+          <p className="mt-1.5 text-xs text-lp-steel">
+            Letras, números, ponto, hífen ou underline. Acentos viram letra simples (João → joao).
+          </p>
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
