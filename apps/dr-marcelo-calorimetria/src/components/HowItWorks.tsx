@@ -59,23 +59,23 @@ export function HowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative self-start overflow-hidden rounded-sm"
+          className="relative self-start"
         >
-          <div className="relative aspect-[4/5] w-full overflow-hidden">
+          <div className="relative overflow-hidden rounded-sm bg-ink-lift">
             <img
               src={asset('device-session.jpg')}
-              alt="Analisador metabólico portátil utilizado no exame de calorimetria indireta, no consultório do Dr. Marcelo Prado"
-              className="h-full w-full object-cover"
+              alt="Analisador metabólico portátil HandyMET utilizado no exame de calorimetria indireta, no consultório do Dr. Marcelo Prado"
+              className="block w-full"
+              width={370}
+              height={344}
               loading="lazy"
             />
             <div
-              className="absolute inset-0 mix-blend-multiply"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-16"
               style={{
-                background:
-                  'linear-gradient(200deg, rgba(11,75,74,0.55), rgba(10,18,17,0.35) 55%, rgba(198,100,46,0.18))',
+                background: 'linear-gradient(to top, rgba(10,18,17,0.45), transparent)',
               }}
             />
-            <div className="absolute inset-0 bg-grain opacity-[0.12] mix-blend-overlay" />
           </div>
           <figcaption className="mt-4 font-mono text-[11px] uppercase tracking-[0.25em] text-paper/45">
             Analisador metabólico · exame real de calorimetria indireta

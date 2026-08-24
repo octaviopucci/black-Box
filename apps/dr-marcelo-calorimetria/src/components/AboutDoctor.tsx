@@ -10,12 +10,14 @@ export function AboutDoctor() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative aspect-[4/5] w-full max-w-sm overflow-hidden rounded-sm"
+          className="relative w-full max-w-sm overflow-hidden rounded-sm"
         >
           <img
             src={asset('doctor-portrait.jpg')}
             alt={site.name}
-            className="h-full w-full object-cover"
+            className="block w-full"
+            width={900}
+            height={1009}
             loading="lazy"
           />
         </motion.div>
