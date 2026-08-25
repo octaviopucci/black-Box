@@ -174,7 +174,7 @@ export function Hero() {
 
           {useFrames && (
             <div
-              className="pointer-events-none absolute inset-0 bg-black/[0.07] backdrop-blur-[1.5px]"
+              className="pointer-events-none absolute inset-0 bg-black/[0.08]"
               aria-hidden
             />
           )}
