@@ -16,6 +16,7 @@ export const site = {
   media: {
     scrubVideo: 'calorimetria-scrub.mp4',
     scrubPoster: 'calorimetria-poster.jpg',
+    scrubFrameCount: 32,
   },
   locations: [
     {
@@ -182,4 +183,10 @@ export function bookingUrl() {
 export function asset(path: string) {
   const base = import.meta.env.BASE_URL
   return `${base}${path.replace(/^\//, '')}`
+}
+
+export function scrubFramePaths() {
+  return Array.from({ length: site.media.scrubFrameCount }, (_, i) =>
+    asset(`scrub-frames/frame-${String(i + 1).padStart(3, '0')}.jpg`),
+  )
 }
