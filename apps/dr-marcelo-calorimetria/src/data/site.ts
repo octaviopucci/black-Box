@@ -13,6 +13,10 @@ export const site = {
   instagram: 'https://www.instagram.com/dr.marceloprado',
   instagramHandle: '@dr.marceloprado',
   linktree: 'https://linktr.ee/dr.marceloprado',
+  media: {
+    scrubVideo: 'calorimetria-scrub.mp4',
+    scrubPoster: 'calorimetria-poster.jpg',
+  },
   locations: [
     {
       id: 'capao',
