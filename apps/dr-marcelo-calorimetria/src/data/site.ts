@@ -16,7 +16,9 @@ export const site = {
   media: {
     scrubVideo: 'calorimetria-scrub.mp4',
     scrubPoster: 'calorimetria-poster.jpg',
-    scrubFrameCount: 32,
+    scrubMobilePoster: 'calorimetria-poster-mobile.jpg',
+    scrubMobileFrameCount: 81,
+    scrubMobileFrameDir: 'scrub-frames-mobile',
   },
   locations: [
     {
@@ -185,8 +187,8 @@ export function asset(path: string) {
   return `${base}${path.replace(/^\//, '')}`
 }
 
-export function scrubFramePaths() {
-  return Array.from({ length: site.media.scrubFrameCount }, (_, i) =>
-    asset(`scrub-frames/frame-${String(i + 1).padStart(3, '0')}.jpg`),
+export function scrubMobileFramePaths() {
+  return Array.from({ length: site.media.scrubMobileFrameCount }, (_, i) =>
+    asset(`${site.media.scrubMobileFrameDir}/frame-${String(i + 1).padStart(3, '0')}.jpg`),
   )
 }

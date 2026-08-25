@@ -1,15 +1,16 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowDown } from 'lucide-react'
-import { site, bookingUrl, asset, scrubFramePaths } from '../data/site'
+import { site, bookingUrl, asset, scrubMobileFramePaths } from '../data/site'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 import { usePreferFrameScrub } from '../hooks/usePreferFrameScrub'
 import { useScrollFrameScrub, useScrollVideoScrub } from '../hooks/useScrollVideoScrub'
 
 const headlineWords = site.headline.split(' ')
-const posterSrc = asset(site.media.scrubPoster)
+const posterDesktop = asset(site.media.scrubPoster)
+const posterMobile = asset(site.media.scrubMobilePoster)
 const videoSrc = asset(site.media.scrubVideo)
-const scrubFrames = scrubFramePaths()
+const scrubFrames = scrubMobileFramePaths()
 
 function HeroCopy() {
   return (
@@ -84,7 +85,7 @@ function HeroStatic() {
   return (
     <section id="topo" className="relative min-h-[100svh] overflow-hidden bg-ink text-paper">
       <img
-        src={posterSrc}
+        src={posterDesktop}
         alt=""
         className="absolute inset-0 h-full w-full object-cover object-center"
         width={1280}
@@ -109,16 +110,17 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
   const pinRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const frameRef = useRef<HTMLImageElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const scrub = !reduced
   const useFrames = preferFrames
+  const posterSrc = useFrames ? posterMobile : posterDesktop
 
-  useScrollFrameScrub(sectionRef, pinRef, frameRef, {
+  useScrollFrameScrub(sectionRef, pinRef, canvasRef, {
     enabled: scrub && useFrames,
     frames: scrubFrames,
-    scrollLength: 2,
-    scrub: 0.35,
+    scrollLength: 1.75,
+    scrub: 0.12,
   })
 
   useScrollVideoScrub(sectionRef, pinRef, videoRef, {
@@ -144,21 +146,16 @@ export function Hero() {
             alt=""
             aria-hidden
             className="absolute inset-0 h-full w-full object-cover object-center"
-            width={1280}
-            height={720}
+            width={useFrames ? 720 : 1280}
+            height={useFrames ? 1280 : 720}
             fetchPriority="high"
           />
 
           {useFrames ? (
-            <img
-              ref={frameRef}
-              src={scrubFrames[0]}
-              alt=""
+            <canvas
+              ref={canvasRef}
               aria-hidden
-              className="absolute inset-0 h-full w-full object-cover object-center"
-              width={1280}
-              height={720}
-              fetchPriority="high"
+              className="absolute inset-0 h-full w-full"
             />
           ) : (
             <video
@@ -171,6 +168,13 @@ export function Hero() {
               preload="auto"
               width={1280}
               height={720}
+              aria-hidden
+            />
+          )}
+
+          {useFrames && (
+            <div
+              className="pointer-events-none absolute inset-0 bg-black/[0.07] backdrop-blur-[1.5px]"
               aria-hidden
             />
           )}
