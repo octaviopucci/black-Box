@@ -5,11 +5,13 @@ function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3)
 }
 
-export function useCountUp(
-  target: number,
-  active: boolean,
-  { duration = 1.6, decimals = 0 }: { duration?: number; decimals?: number } = {},
-) {
+type CountOptions = {
+  duration?: number
+  decimals?: number
+  delay?: number
+}
+
+export function useCountUp(target: number, active: boolean, { duration = 1.6, decimals = 0, delay = 0 }: CountOptions = {}) {
   const reduced = useReducedMotion()
   const [value, setValue] = useState(0)
 
@@ -25,23 +27,30 @@ export function useCountUp(
 
     let frame = 0
     let start: number | null = null
+    const delayMs = delay * 1000
 
     const tick = (now: number) => {
       if (start === null) start = now
-      const progress = Math.min((now - start) / (duration * 1000), 1)
+      const elapsed = now - start - delayMs
+      if (elapsed < 0) {
+        frame = requestAnimationFrame(tick)
+        return
+      }
+      const progress = Math.min(elapsed / (duration * 1000), 1)
       setValue(target * easeOutCubic(progress))
       if (progress < 1) frame = requestAnimationFrame(tick)
+      else setValue(target)
     }
 
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [active, duration, reduced, target])
+  }, [active, delay, duration, reduced, target])
 
   if (decimals > 0) return value.toFixed(decimals)
   return Math.round(value).toLocaleString('pt-BR')
 }
 
-export function useCountUpProgress(active: boolean, duration = 2.2) {
+export function useCountUpProgress(active: boolean, duration = 2.2, delay = 0) {
   const reduced = useReducedMotion()
   const [progress, setProgress] = useState(0)
 
@@ -57,17 +66,24 @@ export function useCountUpProgress(active: boolean, duration = 2.2) {
 
     let frame = 0
     let start: number | null = null
+    const delayMs = delay * 1000
 
     const tick = (now: number) => {
       if (start === null) start = now
-      const p = Math.min((now - start) / (duration * 1000), 1)
+      const elapsed = now - start - delayMs
+      if (elapsed < 0) {
+        frame = requestAnimationFrame(tick)
+        return
+      }
+      const p = Math.min(elapsed / (duration * 1000), 1)
       setProgress(easeOutCubic(p))
       if (p < 1) frame = requestAnimationFrame(tick)
+      else setProgress(1)
     }
 
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [active, duration, reduced])
+  }, [active, delay, duration, reduced])
 
   return progress
 }
