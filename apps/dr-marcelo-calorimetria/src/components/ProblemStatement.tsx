@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { problemLines, site, asset } from '../data/site'
+import { HarrisBenedictCalc } from './HarrisBenedictCalc'
 
 const vsMontage = asset(site.media.vsMontage)
 
@@ -52,6 +53,8 @@ export function ProblemStatement() {
             loading="lazy"
           />
         </motion.div>
+
+        <HarrisBenedictCalc />
       </div>
     </section>
   )
