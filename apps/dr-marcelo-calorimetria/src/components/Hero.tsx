@@ -14,8 +14,22 @@ const scrubFrames = scrubMobileFramePaths()
 
 function HeroCopy() {
   return (
-    <div className="relative z-10 flex h-full flex-col justify-end px-5 pb-8 pt-28 text-paper sm:px-8 sm:pb-12 md:pb-16 lg:px-10">
+    <div className="relative z-10 flex h-full flex-col justify-between px-5 pb-8 pt-28 text-paper sm:px-8 sm:pb-12 md:pb-16 lg:px-10">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto w-full max-w-6xl pt-2 sm:pt-6"
+      >
+        <p className="font-display text-[clamp(2.1rem,9vw,4.5rem)] leading-[0.92] tracking-tight" aria-hidden>
+          <span className="block">Calorimetria</span>
+          <span className="-mt-1 block text-right text-paper/88">Indireta</span>
+        </p>
+      </motion.div>
+
       <div className="mx-auto w-full max-w-6xl">
+        <h1 className="sr-only">{site.examName}</h1>
+
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -26,7 +40,7 @@ function HeroCopy() {
           {site.specialty} · {site.crm}
         </motion.p>
 
-        <h1 className="display-title max-w-[14ch] text-[clamp(2.25rem,8.5vw,5.25rem)] leading-[0.96] sm:max-w-4xl">
+        <p className="display-title mt-4 max-w-[14ch] text-[clamp(2.25rem,8.5vw,5.25rem)] leading-[0.96] sm:max-w-4xl">
           {headlineWords.map((word, i) => (
             <motion.span
               key={`${word}-${i}`}
@@ -38,7 +52,7 @@ function HeroCopy() {
               {word}
             </motion.span>
           ))}
-        </h1>
+        </p>
 
         <motion.p
           initial={{ opacity: 0, y: 14 }}
