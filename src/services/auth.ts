@@ -11,6 +11,7 @@ import {
   getSession,
   loadDatabase,
   saveDatabase,
+  saveStoreSlug,
   setSession,
   type SessionUser,
 } from '@/services/database'
@@ -35,6 +36,7 @@ export const authService = {
       const cloud = await cloudSync.login(username, password, store)
       if (cloud) {
         setSession(cloud.session, remember)
+        if (cloud.session.organizationSlug) saveStoreSlug(cloud.session.organizationSlug)
         return { success: true, message: 'Login sincronizado na nuvem', user: cloud.session }
       }
     } catch (e) {
@@ -80,6 +82,8 @@ export const authService = {
     try {
       const cloud = await cloudSync.register(input)
       setSession(cloud.session, input.remember !== false)
+      if (cloud.slug) saveStoreSlug(cloud.slug)
+      else if (cloud.session.organizationSlug) saveStoreSlug(cloud.session.organizationSlug)
       return {
         success: true,
         message: `Loja criada. Código: ${cloud.slug}`,

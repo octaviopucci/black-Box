@@ -179,17 +179,13 @@ export class JsonStore {
     if (!this.dirty) return
     writeFileSync(FILE_PATH, JSON.stringify(this.store))
     if (blobConfigured()) {
-      try {
-        await put(BLOB_PATHNAME, JSON.stringify(this.store), {
-          access: 'public',
-          addRandomSuffix: false,
-          allowOverwrite: true,
-          contentType: 'application/json',
-          ...blobAuthOptions(),
-        })
-      } catch (err) {
-        console.warn('[lp-motors] blob persist failed', err)
-      }
+      await put(BLOB_PATHNAME, JSON.stringify(this.store), {
+        access: 'private',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: 'application/json',
+        ...blobAuthOptions(),
+      })
     }
     this.dirty = false
   }

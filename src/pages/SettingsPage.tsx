@@ -14,8 +14,10 @@ import {
 import { Input, Checkbox, Textarea } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { MotionPage } from '@/components/common/MotionPage'
+import { StoreCodePanel } from '@/components/common/StoreCodePanel'
 import { useApp } from '@/context/AppContext'
 import { maskPhone, cn } from '@/utils'
+import { getStoreSlug } from '@/services/database'
 import { LpLogo } from '@/components/common/LpLogo'
 import {
   ATMOSPHERE_IMAGES,
@@ -133,6 +135,7 @@ function previewSettings(values: FormValues): Settings {
 
 export function SettingsPage() {
   const { settings, updateSettings, toast, syncStatus, cloudHealth, user } = useApp()
+  const storeSlug = user?.organizationSlug || getStoreSlug()
   const fileRef = useRef<HTMLInputElement>(null)
   const [logoProcessing, setLogoProcessing] = useState(false)
   const {
@@ -246,6 +249,13 @@ export function SettingsPage() {
             PC e celular sincronizam automaticamente — basta fazer login com o mesmo código da loja.
           </p>
         </div>
+        {storeSlug ? (
+          <StoreCodePanel
+            slug={storeSlug}
+            title="Seu código de loja (permanente)"
+            hint="Use no login em outro aparelho. Este código não muda — guarde com a senha."
+          />
+        ) : null}
         <div
           className={cn(
             'flex items-start gap-3 border px-4 py-3',

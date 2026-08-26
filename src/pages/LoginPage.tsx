@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/Input'
 import { Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
 import { brandFullName } from '@/utils/brand'
+import { normalizeUsername } from '@/utils/authUsername'
 
 export function LoginPage() {
   const { login, toast, settings } = useApp()
@@ -24,7 +25,7 @@ export function LoginPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await login(username, password, remember, store || undefined)
+      await login(normalizeUsername(username), password, remember, store.trim() || undefined)
       navigate('/')
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Falha no login', 'error')
@@ -92,14 +93,17 @@ export function LoginPage() {
         </label>
 
         <label className="block">
-          <span className="label-field">Código da loja (se precisar)</span>
+          <span className="label-field">Código da loja</span>
           <input
             className="input-field"
             value={store}
-            onChange={(e) => setStore(e.target.value.toLowerCase())}
+            onChange={(e) => setStore(e.target.value.toLowerCase().trim())}
             placeholder="ex.: silva-motors"
             autoComplete="organization"
           />
+          <p className="mt-1.5 text-xs text-lp-steel">
+            Obrigatório em outro celular ou aba anônima. Veja em Configurações → Nuvem.
+          </p>
         </label>
 
         <div className="flex items-center justify-between">

@@ -21,6 +21,7 @@ const SESSION_KEY = `lp_motors_gestor_session${storageSuffix}`
 const REMEMBER_KEY = `lp_motors_gestor_remember${storageSuffix}`
 const ORG_TOKEN_KEY = `lp_motors_gestor_token${storageSuffix}`
 const SYNC_META_KEY = `lp_motors_gestor_sync${storageSuffix}`
+const STORE_SLUG_KEY = `lp_motors_gestor_store_slug${storageSuffix}`
 
 /** Only LP Motors legacy keys — never touch Maciel Motors storage (separate product). */
 const LEGACY_DB_KEYS = storageSuffix
@@ -382,6 +383,27 @@ export function getCloudToken(): string | null {
 
 export function setCloudToken(token: string): void {
   localStorage.setItem(ORG_TOKEN_KEY, token)
+}
+
+/** Código da loja — usado no login em outro aparelho/navegador. */
+export function saveStoreSlug(slug: string): void {
+  try {
+    localStorage.setItem(STORE_SLUG_KEY, slug)
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getStoreSlug(): string | undefined {
+  const session = getSession()
+  if (session?.organizationSlug) return session.organizationSlug
+  try {
+    const db = loadDatabase()
+    if (db.organization?.slug) return db.organization.slug
+    return localStorage.getItem(STORE_SLUG_KEY) || undefined
+  } catch {
+    return localStorage.getItem(STORE_SLUG_KEY) || undefined
+  }
 }
 
 export function ensureChecklist(db: Database, vehicleId: string): VehicleChecklist {

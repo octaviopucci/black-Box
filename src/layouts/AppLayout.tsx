@@ -29,6 +29,7 @@ import { LpLogo } from '@/components/common/LpLogo'
 import { MotionPage } from '@/components/common/MotionPage'
 import { LoadingOverlay, Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
+import { getStoreSlug } from '@/services/database'
 import { vehicleService } from '@/services/vehicles'
 import { cn, formatCurrency } from '@/utils'
 import { APP_NAME } from '@/config/variant'
@@ -86,6 +87,7 @@ const MOBILE_QUICK = [
 
 export function AppLayout() {
   const { user, logout, loading, settings, syncStatus, alerts } = useApp()
+  const storeSlug = user?.organizationSlug || getStoreSlug()
   const showDeviceBanner = syncStatus === 'device-only'
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -197,6 +199,11 @@ export function AppLayout() {
                 <p className="text-[10px] uppercase tracking-wider text-lp-steel">
                   {user?.organizationName || user?.role}
                 </p>
+                {storeSlug ? (
+                  <p className="font-mono text-[10px] text-lp-accent" title="Código da loja">
+                    {storeSlug}
+                  </p>
+                ) : null}
               </div>
               <button type="button" className="btn-ghost p-1" onClick={logout} title="Sair">
                 <LogOut className="h-4 w-4" />

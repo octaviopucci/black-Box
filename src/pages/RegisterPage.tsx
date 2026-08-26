@@ -4,20 +4,11 @@ import { motion } from 'framer-motion'
 import { Building2, Eye, EyeOff, Lock, MapPin, Phone, User } from 'lucide-react'
 import { LpLogo } from '@/components/common/LpLogo'
 import { AuthScreenShell, authFadeUp } from '@/components/common/AuthScreenShell'
+import { StoreCodePanel } from '@/components/common/StoreCodePanel'
 import { Button } from '@/components/ui/Button'
 import { Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
-
-/** Letras/números sem acento — acentos e espaços viram formato válido automaticamente. */
-function normalizeUsername(raw: string): string {
-  return raw
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/\s+/g, '.')
-    .replace(/[^a-z0-9._-]/g, '')
-    .slice(0, 32)
-}
+import { normalizeUsername } from '@/utils/authUsername'
 
 export function RegisterPage() {
   const { registerStore, toast } = useApp()
@@ -31,6 +22,7 @@ export function RegisterPage() {
   const [phone, setPhone] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [createdSlug, setCreatedSlug] = useState<string | null>(null)
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,12 +45,36 @@ export function RegisterPage() {
         city,
         phone,
       })
-      toast(`Guarde o código da loja: ${slug}`, 'info')
-      navigate('/')
+      setCreatedSlug(slug)
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Falha no cadastro', 'error')
       setLoading(false)
     }
+  }
+
+  if (createdSlug) {
+    return (
+      <AuthScreenShell className="py-16">
+        <Toast />
+        <motion.div className="panel mx-auto max-w-lg space-y-6 border-white/10 p-6 shadow-lift sm:p-8" variants={authFadeUp}>
+          <div className="text-center">
+            <LpLogo size="lg" className="mx-auto justify-center" />
+            <h1 className="mt-4 font-cinema text-3xl text-lp-ink">Loja criada!</h1>
+            <p className="section-sub mt-2">
+              Anote ou copie o código abaixo. Sem ele não dá para entrar em outro celular ou aba
+              anônima.
+            </p>
+          </div>
+          <StoreCodePanel
+            slug={createdSlug}
+            hint="Guarde em local seguro (WhatsApp, bloco de notas). Você também verá este código em Configurações."
+          />
+          <Button type="button" className="w-full" onClick={() => navigate('/')}>
+            Entrar no sistema
+          </Button>
+        </motion.div>
+      </AuthScreenShell>
+    )
   }
 
   return (
