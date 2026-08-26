@@ -21,9 +21,8 @@ function HeroCopy() {
         transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
         className="mx-auto w-full max-w-6xl pt-2 sm:pt-6"
       >
-        <p className="font-display text-[clamp(2.1rem,9vw,4.5rem)] leading-[0.92] tracking-tight" aria-hidden>
-          <span className="block">Calorimetria</span>
-          <span className="-mt-1 block text-right text-paper/88">Indireta</span>
+        <p className="font-display text-[clamp(1.75rem,6.5vw,3.5rem)] leading-none tracking-tight" aria-hidden>
+          Calorimetria Indireta
         </p>
       </motion.div>
 
