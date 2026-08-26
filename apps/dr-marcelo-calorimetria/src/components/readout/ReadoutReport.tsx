@@ -4,6 +4,7 @@ import { readoutSample } from '../../data/readoutSample'
 import { useCountUp } from '../../hooks/useCountUp'
 import { useReportStage } from '../../hooks/useReportStage'
 import { MetabolicChart } from './MetabolicChart'
+import { ExerciseTable } from './ExerciseTable'
 
 const silk = [0.22, 1, 0.36, 1] as const
 
@@ -166,7 +167,7 @@ export function ReadoutReport() {
   const carbsDisplay = useCountUp(readoutSample.exam.carbs, examStage.active, { duration: 1.6, decimals: 1, delay: 0.28 })
 
   return (
-    <div className="mt-12 overflow-hidden rounded-md border border-line bg-snow shadow-soft">
+    <div className="mt-12 w-full max-w-full overflow-hidden rounded-md border border-line bg-snow shadow-soft">
       {/* Report header */}
       <div ref={headerStage.ref} className="border-b border-line bg-gradient-to-b from-[#F7F9F8] to-snow px-4 py-4 sm:px-6">
         <h3 className="font-display text-lg text-ink sm:text-xl">Exame de Calorimetria Indireta</h3>
@@ -176,7 +177,7 @@ export function ReadoutReport() {
         </div>
       </div>
 
-      <div className="space-y-0 p-4 sm:p-6">
+      <div className="w-full max-w-full space-y-0 overflow-hidden p-3 sm:p-6">
         {/* TMB */}
         <section ref={tmbStage.ref} className="border-b border-line py-7">
           <h4 className="font-display text-[15px] font-medium text-ink">Taxa Metabólica Basal</h4>
@@ -209,7 +210,7 @@ export function ReadoutReport() {
         <section ref={examStage.ref} className="border-b border-line py-7">
           <h4 className="font-display text-[15px] font-medium text-ink">Seu Exame</h4>
 
-          <div className="-mx-1 mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div className="mt-4 flex flex-wrap gap-2">
             <MetricChip label="RQ" value={readoutSample.exam.rq} active={examStage.active} decimals={2} />
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -260,38 +261,11 @@ export function ReadoutReport() {
         {/* Tabela */}
         <section ref={tableStage.ref} className="py-7">
           <h4 className="font-display text-[15px] font-medium text-ink">Exercício Físico</h4>
-          <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-mute">Gasto calórico (KCal)</p>
+          <p className="mt-0.5 hidden font-mono text-[10px] uppercase tracking-wider text-mute sm:block">
+            Gasto calórico (KCal)
+          </p>
 
-          <div className="mt-4 overflow-x-auto rounded border border-line/80">
-            <table className="w-full min-w-[540px] border-collapse text-left text-[11px]">
-              <thead>
-                <tr className="border-b border-line bg-[#F7F9F8] text-[#5C6562]">
-                  <th className="px-3 py-2.5 font-medium">Exercício Físico</th>
-                  <th className="px-2 py-2.5 text-center font-medium">METs</th>
-                  <th className="px-2 py-2.5 text-center font-normal">20 min</th>
-                  <th className="px-2 py-2.5 text-center font-normal">30 min</th>
-                  <th className="px-2 py-2.5 text-center font-normal">60 min</th>
-                </tr>
-              </thead>
-              <tbody>
-                {readoutSample.exercises.map((row, i) => (
-                  <motion.tr
-                    key={row.name}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={tableStage.active ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.35, delay: 0.08 + i * 0.045, ease: silk }}
-                    className="border-b border-line/60 last:border-0"
-                  >
-                    <td className="px-3 py-2.5 font-medium text-ink">{row.name}</td>
-                    <td className="px-2 py-2.5 text-center tabular-nums text-mute">{row.mets}</td>
-                    <td className="px-2 py-2.5 text-center font-mono tabular-nums text-ember">{row.kcal20}</td>
-                    <td className="px-2 py-2.5 text-center font-mono tabular-nums text-ember">{row.kcal30}</td>
-                    <td className="px-2 py-2.5 text-center font-mono tabular-nums text-ember">{row.kcal60}</td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ExerciseTable active={tableStage.active} />
 
           <p className="mt-3 font-mono text-[10px] text-mute">{readoutSample.exerciseFootnote}</p>
           <div className="mt-4">

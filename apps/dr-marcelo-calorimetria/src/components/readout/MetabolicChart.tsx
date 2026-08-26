@@ -3,24 +3,30 @@ import { readoutSample } from '../../data/readoutSample'
 import { useCountUpProgress } from '../../hooks/useCountUp'
 import { useChartStage } from '../../hooks/useReportStage'
 
-const W = 400
-const H = 228
-const PL = 42
-const PR = 52
-const PT = 22
-const PB = 32
-const chartW = W - PL - PR
-const chartH = H - PT - PB
+/** viewBox calibrado para caber em mobile sem scroll horizontal */
+const VB = { w: 300, h: 252 }
+const PL = 28
+const PR = 22
+const PT = 24
+const PB = 38
+const plotW = VB.w - PL - PR
+const plotH = VB.h - PT - PB
 
 function mapX(minute: number, maxMin: number) {
-  return PL + (minute / maxMin) * chartW
+  return PL + (minute / maxMin) * plotW
 }
 
 function mapY(value: number, min: number, max: number) {
-  return PT + chartH - ((value - min) / (max - min)) * chartH
+  return PT + plotH - ((value - min) / (max - min)) * plotH
 }
 
-function buildPartialPath(
+function tickRange(min: number, max: number, step: number) {
+  const ticks: number[] = []
+  for (let v = min; v <= max + step * 0.01; v += step) ticks.push(v)
+  return ticks
+}
+
+function buildSeriesPath(
   values: readonly number[],
   minutes: readonly number[],
   min: number,
@@ -28,148 +34,234 @@ function buildPartialPath(
   maxMin: number,
   progress: number,
 ) {
-  const totalPts = values.length
-  const exactIdx = progress * (totalPts - 1)
+  const exactIdx = progress * (minutes.length - 1)
   const lastFull = Math.floor(exactIdx)
   const frac = exactIdx - lastFull
-
   const pts: { x: number; y: number }[] = []
-  for (let i = 0; i <= lastFull && i < totalPts; i++) {
+
+  for (let i = 0; i <= lastFull && i < minutes.length; i++) {
     pts.push({ x: mapX(minutes[i], maxMin), y: mapY(values[i], min, max) })
   }
-  if (lastFull < totalPts - 1 && frac > 0) {
-    const v0 = values[lastFull]
-    const v1 = values[lastFull + 1]
-    const m0 = minutes[lastFull]
-    const m1 = minutes[lastFull + 1]
-    const v = v0 + (v1 - v0) * frac
-    const m = m0 + (m1 - m0) * frac
+  if (lastFull < minutes.length - 1 && frac > 0) {
+    const v = values[lastFull] + (values[lastFull + 1] - values[lastFull]) * frac
+    const m = minutes[lastFull] + (minutes[lastFull + 1] - minutes[lastFull]) * frac
     pts.push({ x: mapX(m, maxMin), y: mapY(v, min, max) })
   }
-  if (pts.length < 2) return ''
-  return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  if (pts.length < 2) return { path: '', pts: [] as { x: number; y: number }[] }
+  const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')
+  return { path, pts }
 }
+
+const LEGEND = [
+  { color: '#3DAA5C', label: 'Ve (L/min)' },
+  { color: '#7B6BA8', label: 'TMB*' },
+  { color: '#B8424F', label: 'VO₂ (mL/Kg·min)' },
+] as const
 
 export function MetabolicChart() {
   const { ref, active: chartActive } = useChartStage()
   const { chart, stabilizationMin } = readoutSample
   const maxMin = chart.minutes[chart.minutes.length - 1]
+  const drawProgress = useCountUpProgress(chartActive, 6, 0.3)
 
-  /** Long draw — still animating when user sees the chart */
-  const drawProgress = useCountUpProgress(chartActive, 6.2, 0.35)
-  const scanX = PL + chartW * drawProgress
-  const stabThreshold = stabilizationMin / maxMin
-  const showStab = drawProgress >= stabThreshold
+  const ve = buildSeriesPath(chart.ve, chart.minutes, chart.scales.ve.min, chart.scales.ve.max, maxMin, drawProgress)
+  const tmb = buildSeriesPath(chart.tmb, chart.minutes, chart.scales.tmb.min, chart.scales.tmb.max, maxMin, drawProgress)
+  const vo2 = buildSeriesPath(chart.vo2, chart.minutes, chart.scales.vo2.min, chart.scales.vo2.max, maxMin, drawProgress)
 
-  const vePath = buildPartialPath(chart.ve, chart.minutes, chart.scales.ve.min, chart.scales.ve.max, maxMin, drawProgress)
-  const vo2Path = buildPartialPath(chart.vo2, chart.minutes, chart.scales.vo2.min, chart.scales.vo2.max, maxMin, drawProgress)
-  const tmbPath = buildPartialPath(chart.tmb, chart.minutes, chart.scales.tmb.min, chart.scales.tmb.max, maxMin, drawProgress)
-
+  const scanX = mapX(maxMin * drawProgress, maxMin)
   const stabX = mapX(stabilizationMin, maxMin)
+  const showStab = drawProgress >= stabilizationMin / maxMin
+
+  const veTicks = tickRange(chart.scales.ve.min, chart.scales.ve.max, chart.scales.ve.step)
+  const tmbTicks = tickRange(chart.scales.tmb.min, chart.scales.tmb.max, chart.scales.tmb.step)
+  const vo2Ticks = tickRange(chart.scales.vo2.min, chart.scales.vo2.max, chart.scales.vo2.step)
+  const xTicks = tickRange(0, maxMin, 2)
 
   return (
-    <div ref={ref} className="mt-8">
-      {/* Legend — fades in before draw */}
+    <div ref={ref} className="mt-6 w-full max-w-full">
       <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={chartActive ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="mb-3 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[10px] text-mute"
+        initial={{ opacity: 0 }}
+        animate={chartActive ? { opacity: 1 } : {}}
+        className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
       >
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-0.5 w-5 rounded bg-[#3DAA5C]" aria-hidden /> Ve (L/min)
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-0.5 w-5 rounded bg-[#7B6BA8]" aria-hidden /> TMB*
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-0.5 w-5 rounded bg-[#C45C6A]" aria-hidden /> VO₂ (ml/Kg·min)
-        </span>
+        {LEGEND.map((item) => (
+          <span key={item.label} className="inline-flex items-center gap-1.5 text-[9px] text-[#444] sm:text-[10px]">
+            <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: item.color }} aria-hidden />
+            {item.label}
+          </span>
+        ))}
       </motion.div>
 
-      <div className="overflow-x-auto rounded border border-line/80 bg-[#FAFBFA] p-2 sm:p-3">
-        <svg viewBox={`0 0 ${W} ${H}`} className="min-w-[340px] w-full" role="img" aria-label="Gráfico de estabilização do exame">
-          {/* Y-axis labels — Ve */}
-          {chart.scales.ve.ticks.map((t) => (
-            <text key={`ve-${t}`} x={PL - 6} y={mapY(t, chart.scales.ve.min, chart.scales.ve.max)} textAnchor="end" dominantBaseline="middle" className="fill-[#3DAA5C] text-[7px] font-mono">
+      <div className="w-full overflow-hidden rounded border border-[#E2E6E3] bg-white">
+        <svg
+          viewBox={`0 0 ${VB.w} ${VB.h}`}
+          width="100%"
+          height="auto"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label="Gráfico Ve, TMB e VO₂ ao longo do tempo"
+          className="block w-full max-w-full"
+        >
+          {/* Grid horizontal (Ve) */}
+          {veTicks.map((t) => (
+            <line
+              key={`h-${t}`}
+              x1={PL}
+              y1={mapY(t, chart.scales.ve.min, chart.scales.ve.max)}
+              x2={PL + plotW}
+              y2={mapY(t, chart.scales.ve.min, chart.scales.ve.max)}
+              stroke="#E8EBE9"
+              strokeWidth="0.75"
+            />
+          ))}
+
+          {/* Grid vertical */}
+          {xTicks.map((m) => (
+            <line
+              key={`v-${m}`}
+              x1={mapX(m, maxMin)}
+              y1={PT}
+              x2={mapX(m, maxMin)}
+              y2={PT + plotH}
+              stroke="#E8EBE9"
+              strokeWidth="0.75"
+            />
+          ))}
+
+          {/* Eixo Y esquerdo — Ve */}
+          <text
+            x={8}
+            y={PT + plotH / 2}
+            transform={`rotate(-90, 8, ${PT + plotH / 2})`}
+            textAnchor="middle"
+            className="fill-[#3DAA5C] text-[7px] font-medium"
+          >
+            Ve (L/min)
+          </text>
+          {veTicks.map((t) => (
+            <text
+              key={`vel-${t}`}
+              x={PL - 4}
+              y={mapY(t, chart.scales.ve.min, chart.scales.ve.max)}
+              textAnchor="end"
+              dominantBaseline="middle"
+              className="fill-[#3DAA5C] text-[6.5px] font-mono"
+            >
               {t}
             </text>
           ))}
 
-          {/* Y-axis — VO2 right inner */}
-          {chart.scales.vo2.ticks.map((t) => (
-            <text key={`vo2-${t}`} x={W - PR + 8} y={mapY(t, chart.scales.vo2.min, chart.scales.vo2.max)} textAnchor="start" dominantBaseline="middle" className="fill-[#C45C6A] text-[7px] font-mono">
-              {t.toFixed(1)}
-            </text>
-          ))}
-
-          {/* Y-axis — TMB right outer (offset) */}
-          {chart.scales.tmb.ticks.map((t, i) => (
-            <text key={`tmb-${t}`} x={W - 6} y={PT + (i / (chart.scales.tmb.ticks.length - 1)) * chartH} textAnchor="end" dominantBaseline="middle" className="fill-[#7B6BA8] text-[6px] font-mono">
+          {/* Eixo Y direito interno — TMB */}
+          <text
+            x={VB.w - 10}
+            y={PT + plotH / 2 - 8}
+            transform={`rotate(90, ${VB.w - 10}, ${PT + plotH / 2 - 8})`}
+            textAnchor="middle"
+            className="fill-[#7B6BA8] text-[7px] font-medium"
+          >
+            TMB*
+          </text>
+          {tmbTicks.map((t) => (
+            <text
+              key={`tmbl-${t}`}
+              x={PL + plotW + 3}
+              y={mapY(t, chart.scales.tmb.min, chart.scales.tmb.max)}
+              textAnchor="start"
+              dominantBaseline="middle"
+              className="fill-[#7B6BA8] text-[5.5px] font-mono"
+            >
               {t}
             </text>
           ))}
 
-          {/* Grid */}
-          {[0, 2, 4, 6, 8, 10, 12, 14, 16].map((m) => (
-            <g key={m}>
-              <line x1={mapX(m, maxMin)} y1={PT} x2={mapX(m, maxMin)} y2={PT + chartH} stroke="#E2E6E3" strokeWidth="1" />
-              {m % 4 === 0 && (
-                <text x={mapX(m, maxMin)} y={H - 8} textAnchor="middle" className="fill-mute text-[8px] font-mono">
-                  {m}
-                </text>
-              )}
-            </g>
+          {/* Eixo Y direito externo — VO₂ */}
+          <text
+            x={VB.w - 2}
+            y={PT + plotH / 2 + 10}
+            transform={`rotate(90, ${VB.w - 2}, ${PT + plotH / 2 + 10})`}
+            textAnchor="middle"
+            className="fill-[#B8424F] text-[6px] font-medium"
+          >
+            VO₂ (mL/Kg·min)
+          </text>
+          {vo2Ticks.map((t) => (
+            <text
+              key={`vo2l-${t}`}
+              x={VB.w - 4}
+              y={mapY(t, chart.scales.vo2.min, chart.scales.vo2.max)}
+              textAnchor="end"
+              dominantBaseline="middle"
+              className="fill-[#B8424F] text-[5.5px] font-mono"
+            >
+              {t % 1 === 0 ? t.toFixed(0) : t.toFixed(1)}
+            </text>
           ))}
 
-          <line x1={PL} y1={PT + chartH} x2={PL + chartW} y2={PT + chartH} stroke="#D7DEDA" strokeWidth="1" />
+          {/* Eixo X */}
+          {xTicks.map((m) => (
+            <text
+              key={`x-${m}`}
+              x={mapX(m, maxMin)}
+              y={PT + plotH + 12}
+              textAnchor="middle"
+              className="fill-[#666] text-[6.5px] font-mono"
+            >
+              {m}
+            </text>
+          ))}
+          <text x={PL + plotW / 2} y={VB.h - 6} textAnchor="middle" className="fill-[#666] text-[7px]">
+            Tempo (min)
+          </text>
 
-          {/* Animated lines — built point-by-point from progress */}
-          {tmbPath && (
-            <path d={tmbPath} fill="none" stroke="#7B6BA8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Linhas — ordem: TMB, VO₂, Ve (Ve por cima) */}
+          {tmb.path && (
+            <path d={tmb.path} fill="none" stroke="#7B6BA8" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" />
           )}
-          {vo2Path && (
-            <path d={vo2Path} fill="none" stroke="#C45C6A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          {vo2.path && (
+            <path d={vo2.path} fill="none" stroke="#B8424F" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" />
           )}
-          {vePath && (
-            <path d={vePath} fill="none" stroke="#3DAA5C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-          )}
-
-          {/* Scan cursor — travels WITH the draw, separate from finished state */}
-          {chartActive && drawProgress < 1 && (
-            <g>
-              <line x1={scanX} y1={PT} x2={scanX} y2={PT + chartH} stroke="rgba(198,100,46,0.35)" strokeWidth="1" />
-              <circle cx={scanX} cy={PT + chartH} r="3" fill="#C6642E" opacity={0.85} />
-            </g>
+          {ve.path && (
+            <path d={ve.path} fill="none" stroke="#3DAA5C" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
           )}
 
-          {/* Stabilization — only after scan passes that minute */}
+          {/* Marcadores circulares — como referência HandyMET */}
+          {ve.pts.map((p, i) => (
+            <circle key={`ve-dot-${i}`} cx={p.x} cy={p.y} r="2.2" fill="#3DAA5C" stroke="white" strokeWidth="0.6" />
+          ))}
+          {tmb.pts.map((p, i) => (
+            <circle key={`tmb-dot-${i}`} cx={p.x} cy={p.y} r="2" fill="#7B6BA8" stroke="white" strokeWidth="0.5" />
+          ))}
+          {vo2.pts.map((p, i) => (
+            <circle key={`vo2-dot-${i}`} cx={p.x} cy={p.y} r="2" fill="#B8424F" stroke="white" strokeWidth="0.5" />
+          ))}
+
+          {/* Cursor de scan durante animação */}
+          {chartActive && drawProgress < 0.995 && (
+            <line x1={scanX} y1={PT} x2={scanX} y2={PT + plotH} stroke="rgba(198,100,46,0.25)" strokeWidth="0.75" />
+          )}
+
+          {/* Tempo de estabilização */}
           {showStab && (
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
-              <line x1={stabX} y1={PT} x2={stabX} y2={PT + chartH} stroke="#C6642E" strokeWidth="1.5" />
-              <text x={stabX + 3} y={PT + 11} className="fill-ember text-[7px] font-medium">
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+              <line x1={stabX} y1={PT} x2={stabX} y2={PT + plotH} stroke="#D97706" strokeWidth="1.2" />
+              <text x={stabX + 2} y={PT + 9} className="fill-[#D97706] text-[6px] font-medium">
                 Tempo de Estabilização
               </text>
             </motion.g>
           )}
 
-          <text x={W / 2} y={H - 1} textAnchor="middle" className="fill-mute text-[8px]">
-            Tempo (min)
+          {/* Rodapé — referência */}
+          <text x={PL} y={VB.h - 14} className="fill-[#888] text-[6px]">
+            www.handymet.com
           </text>
-
-          {/* HandyMET mark */}
-          <text x={W - 8} y={PT + chartH - 4} textAnchor="end" className="text-[9px] font-bold">
-            <tspan fill="#C6642E">HANDY </tspan>
-            <tspan fill="#6B7370" className="font-normal">MET</tspan>
+          <text x={VB.w - PL} y={VB.h - 14} textAnchor="end" className="text-[8px] font-bold">
+            <tspan fill="#C4A574">HANDY </tspan>
+            <tspan fill="#8B4513">M</tspan>
+            <tspan fill="#D97706">E</tspan>
+            <tspan fill="#8B4513">T</tspan>
           </text>
         </svg>
       </div>
-
-      {!chartActive && (
-        <p className="mt-2 text-center font-mono text-[9px] uppercase tracking-widest text-mute/60">
-          Role para iniciar o gráfico
-        </p>
-      )}
     </div>
   )
 }
