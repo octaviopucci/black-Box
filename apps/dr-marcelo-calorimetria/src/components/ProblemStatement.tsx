@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
-import { problemLines } from '../data/site'
+import { problemLines, site, asset } from '../data/site'
+
+const vsMontage = asset(site.media.vsMontage)
 
 export function ProblemStatement() {
   return (
@@ -33,6 +35,23 @@ export function ProblemStatement() {
             </motion.p>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-14 overflow-hidden rounded-sm bg-ink shadow-lift"
+        >
+          <img
+            src={vsMontage}
+            alt="Calculadora versus analisador metabólico portátil"
+            className="block w-full"
+            width={2752}
+            height={1536}
+            loading="lazy"
+          />
+        </motion.div>
       </div>
     </section>
   )

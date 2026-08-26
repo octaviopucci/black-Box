@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
-import { metrics, fuelSplit } from '../data/site'
+import { metrics, readoutIntro, site, asset } from '../data/site'
+
+const reportSample = asset(site.media.reportSample)
 
 export function Readout() {
   return (
@@ -28,10 +30,27 @@ export function Readout() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="mt-4 max-w-md text-sm leading-relaxed text-mute"
+          className="mt-4 max-w-xl text-sm leading-relaxed text-mute"
         >
-          Valores ilustrativos de um laudo real de Calorimetria Indireta, apenas como referência de leitura — o seu resultado é individual.
+          {readoutIntro}
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-12 overflow-hidden rounded-sm border border-line bg-paper-deep shadow-lift"
+        >
+          <img
+            src={reportSample}
+            alt="Exemplo de laudo de Calorimetria Indireta com gráficos de VO₂, TMB e ventilação"
+            className="block w-full"
+            width={736}
+            height={1600}
+            loading="lazy"
+          />
+        </motion.div>
 
         <div className="mt-14 divide-y divide-line border-y border-line">
           {metrics.map((metric, i) => (
@@ -56,38 +75,15 @@ export function Readout() {
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-16"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mt-8 font-mono text-[10px] uppercase tracking-[0.2em] text-mute"
         >
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-teal-soft">Consumo em repouso</p>
-          <h3 className="mt-1 font-display text-lg text-ink">
-            De onde vem a energia que você queima parado
-          </h3>
-          <div className="mt-6 flex h-3 w-full overflow-hidden rounded-full bg-paper-deep">
-            <motion.div
-              initial={{ width: 0 }}
-              whileInView={{ width: `${fuelSplit.fat}%` }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-ember"
-            />
-            <motion.div
-              initial={{ width: 0 }}
-              whileInView={{ width: `${fuelSplit.carbs}%` }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-teal"
-            />
-          </div>
-          <div className="mt-3 flex justify-between font-mono text-xs text-mute">
-            <span>Gordura · {fuelSplit.fat}%</span>
-            <span>Carboidratos · {fuelSplit.carbs}%</span>
-          </div>
-        </motion.div>
+          Valores ilustrativos — o seu resultado é individual
+        </motion.p>
       </div>
     </section>
   )

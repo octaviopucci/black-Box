@@ -7,7 +7,7 @@ export const site = {
   examTagline: 'O melhor exame para avaliar seu metabolismo',
   headline: 'O seu metabolismo não se estima. Se mede.',
   support:
-    'Um exame de respiração de 15 minutos que substitui fórmulas genéricas por uma medida real e individual do seu gasto energético.',
+    'Um exame de respiração de 20 a 30 minutos que substitui fórmulas genéricas por uma medida real e individual do seu gasto energético.',
   description:
     'Exame de Calorimetria Indireta com o Dr. Marcelo Prado — Endocrinologia Aplicada. Meça sua Taxa Metabólica Basal com precisão e leve isso para o seu plano de emagrecimento ou modulação hormonal. Capão Bonito e Itapeva/SP.',
   instagram: 'https://www.instagram.com/dr.marceloprado',
@@ -19,6 +19,9 @@ export const site = {
     scrubMobilePoster: 'calorimetria-poster-mobile.jpg',
     scrubMobileFrameCount: 81,
     scrubMobileFrameDir: 'scrub-frames-mobile',
+    vsMontage: 'vs-calculadora-aparelho.jpg',
+    devicePhoto: 'aparelho-vo2master.jpg',
+    reportSample: 'laudo-graficos.jpg',
   },
   locations: [
     {
@@ -39,8 +42,15 @@ export const site = {
   about: [
     'Médico com CRM 240129/SP, o Dr. Marcelo Prado atua em endocrinologia aplicada com foco em emagrecimento e modulação hormonal — unindo ciência clínica e escuta real.',
     'A Calorimetria Indireta entrou no consultório como uma ferramenta a mais: em vez de estimar seu gasto calórico por fórmulas populacionais, ela mede as trocas gasosas da sua própria respiração para calcular, com precisão, quanto o seu corpo realmente queima.',
+    'E se você quiser passar em consulta com o Dr. Marcelo, para ele apresentar pessoalmente seu resultado e tratar de outras questões da sua saúde, além de realizar o teste de força muscular e suas medidas corporais, você terá condições especiais.',
   ],
 } as const
+
+export const energyBridge =
+  'E tem mais… Essas fórmulas não te mostram como está a eficiência energética do seu organismo. Será que ele está usando gordura como deveria?'
+
+export const audienceIntro =
+  'Quando a dieta e o treino parecem não trazer resultados, o que pode estar faltando são parâmetros exatos — para fazer ajustes personalizados para você.'
 
 export type Problem = {
   line: string
@@ -72,13 +82,13 @@ export const journey: Step[] = [
     step: '02',
     title: 'Leitura respiratória',
     description:
-      'Por cerca de 15 minutos, um analisador metabólico portátil mede o oxigênio consumido e o CO₂ produzido a cada respiração — as trocas gasosas que definem seu gasto de energia.',
+      'Por cerca de 20 a 30 minutos, um analisador metabólico portátil mede o oxigênio consumido e o CO₂ produzido a cada respiração — as trocas gasosas que definem seu gasto de energia.',
   },
   {
     step: '03',
     title: 'Laudo no mesmo atendimento',
     description:
-      'O resultado é processado ali, na consulta. O Dr. Marcelo interpreta os números e transforma isso em conduta: plano alimentar, treino ou modulação hormonal.',
+      'Exame analisado pelo médico, que elabora o laudo e te envia. Assim você terá acesso a quanto seu corpo gasta de energia durante o dia, sua eficiência energética e estimativa de gasto em diversas atividades.',
   },
 ]
 
@@ -99,19 +109,6 @@ export const metrics: Metric[] = [
     description: 'A energia que o seu corpo precisa só para manter as funções vitais em repouso, em 24 horas.',
   },
   {
-    code: 'GET',
-    label: 'Gasto Energético Total',
-    value: '2.502',
-    unit: 'kcal/dia',
-    description: 'Quanto você gasta no seu dia real, somando a taxa basal à sua rotina e atividade física.',
-  },
-  {
-    code: 'RQ',
-    label: 'Quociente Respiratório',
-    value: '0,78',
-    description: 'A relação entre CO₂ produzido e O₂ consumido — revela se seu corpo está priorizando gordura ou carboidrato como combustível.',
-  },
-  {
     code: 'VO₂',
     label: 'Consumo de oxigênio em repouso',
     value: '3,25',
@@ -127,10 +124,8 @@ export const metrics: Metric[] = [
   },
 ]
 
-export const fuelSplit = {
-  fat: 73.7,
-  carbs: 26.3,
-}
+export const readoutIntro =
+  'Exame analisado pelo médico, que elabora o laudo e te envia. Assim você terá acesso a quanto seu corpo gasta de energia durante o dia, sua eficiência energética e estimativa de gasto energético em diversas atividades.'
 
 export type Audience = {
   title: string
@@ -144,14 +139,14 @@ export const audiences: Audience[] = [
       'Quando a dieta e o treino não avançam como deveriam, medir o gasto real evita dietas "no escuro" e ajusta o plano ao seu metabolismo — não ao de uma média populacional.',
   },
   {
-    title: 'Modulação hormonal',
+    title: 'Performance',
     description:
-      'Testosterona, menopausa e metabolismo caminham juntos. Saber sua taxa basal real ajuda a calibrar cada etapa da modulação com mais precisão.',
+      'Para quem treina com objetivo claro, conhecer o consumo real de energia orienta ajustes finos de dieta, intensidade e periodização.',
   },
   {
-    title: 'Performance e hipertrofia',
+    title: 'Hipertrofia',
     description:
-      'Para quem treina com objetivo claro, conhecer o consumo real de gordura e carboidrato em repouso orienta ajustes finos de dieta e periodização.',
+      'Saber quanto seu corpo queima em repouso ajuda a calibrar superávit, distribuição de macros e recuperação para ganho de massa com precisão.',
   },
 ]
 
@@ -162,7 +157,7 @@ export const faqs = [
   },
   {
     q: 'Quanto tempo dura?',
-    a: 'Em torno de 15 minutos de coleta, dentro da própria consulta — sem necessidade de outro dia ou outro deslocamento.',
+    a: 'De 20 a 30 minutos de coleta, dentro da própria consulta — sem necessidade de outro dia ou outro deslocamento.',
   },
   {
     q: 'Por que medir em vez de estimar por fórmula?',

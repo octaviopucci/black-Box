@@ -1,3 +1,4 @@
+import { EnergyBridge } from './components/EnergyBridge'
 import { Nav } from './components/Nav'
 import { Hero } from './components/Hero'
 import { ProblemStatement } from './components/ProblemStatement'
@@ -16,6 +17,7 @@ export default function App() {
       <main>
         <Hero />
         <ProblemStatement />
+        <EnergyBridge />
         <HowItWorks />
         <Readout />
         <Audience />

@@ -29,13 +29,10 @@ export function Nav() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
-        <a href="#topo" className="flex items-center gap-2.5 text-paper">
+        <a href="#topo" className="flex items-center gap-2.5 text-paper" aria-label="Calorimetria Indireta — início">
           <Mark light />
-          <span className="font-display text-[15px] leading-none tracking-tight">
-            Dr. Marcelo Prado
-            <span className="ml-2 hidden font-mono text-[10px] uppercase tracking-[0.25em] text-teal-bright sm:inline">
-              Calorimetria
-            </span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-teal-bright">
+            Calorimetria
           </span>
         </a>
         <a

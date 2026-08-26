@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
-import { journey } from '../data/site'
+import { journey, site, asset } from '../data/site'
+
+const devicePhoto = asset(site.media.devicePhoto)
 
 export function HowItWorks() {
   return (
@@ -30,6 +32,23 @@ export function HowItWorks() {
         >
           Uma respiração tranquila. Um número exato.
         </motion.h2>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-12 overflow-hidden rounded-sm bg-paper/5 ring-1 ring-paper/10"
+        >
+          <img
+            src={devicePhoto}
+            alt="Analisador metabólico portátil VO2 Master com máscara respiratória"
+            className="block w-full max-w-md mx-auto"
+            width={554}
+            height={554}
+            loading="lazy"
+          />
+        </motion.div>
 
         <div className="mt-14 space-y-10">
           {journey.map((step, i) => (

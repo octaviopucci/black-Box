@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { audiences } from '../data/site'
+import { audiences, audienceIntro } from '../data/site'
 
 export function Audience() {
   return (
@@ -21,8 +21,18 @@ export function Audience() {
           transition={{ duration: 0.6, delay: 0.05 }}
           className="display-title max-w-lg text-[clamp(2rem,4.4vw,3rem)]"
         >
-          Um exame, três decisões clínicas
+          Um exame, três caminhos
         </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mt-6 max-w-2xl text-[15px] leading-relaxed text-paper/72"
+        >
+          {audienceIntro}
+        </motion.p>
 
         <div className="mt-16 grid gap-10 sm:grid-cols-3 sm:gap-8">
           {audiences.map((item, i) => (
