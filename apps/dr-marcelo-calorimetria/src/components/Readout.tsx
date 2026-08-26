@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion'
-import { readoutIntro, site, asset } from '../data/site'
-
-const reportSample = asset(site.media.reportSample)
+import { readoutIntro } from '../data/site'
+import { ReadoutReport } from './readout/ReadoutReport'
 
 export function Readout() {
   return (
@@ -35,22 +34,7 @@ export function Readout() {
           {readoutIntro}
         </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-12 overflow-hidden rounded-sm border border-line bg-paper-deep shadow-lift"
-        >
-          <img
-            src={reportSample}
-            alt="Exemplo de laudo de Calorimetria Indireta com gráficos de VO₂, TMB e ventilação"
-            className="block w-full"
-            width={736}
-            height={1600}
-            loading="lazy"
-          />
-        </motion.div>
+        <ReadoutReport />
       </div>
     </section>
   )
