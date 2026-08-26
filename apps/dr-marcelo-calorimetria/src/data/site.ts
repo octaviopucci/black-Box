@@ -92,38 +92,6 @@ export const journey: Step[] = [
   },
 ]
 
-export type Metric = {
-  code: string
-  label: string
-  value: string
-  unit?: string
-  description: string
-}
-
-export const metrics: Metric[] = [
-  {
-    code: 'TMB',
-    label: 'Taxa Metabólica Basal',
-    value: '1.390',
-    unit: 'kcal/dia',
-    description: 'A energia que o seu corpo precisa só para manter as funções vitais em repouso, em 24 horas.',
-  },
-  {
-    code: 'VO₂',
-    label: 'Consumo de oxigênio em repouso',
-    value: '3,25',
-    unit: 'ml/kg·min',
-    description: 'O volume de oxigênio que seu corpo consome em repouso — a base fisiológica de todo o cálculo.',
-  },
-  {
-    code: 'Ve',
-    label: 'Ventilação por minuto',
-    value: '7,25',
-    unit: 'l/min',
-    description: 'O volume de ar movimentado pela sua respiração a cada minuto durante o exame.',
-  },
-]
-
 export const readoutIntro =
   'Exame analisado pelo médico, que elabora o laudo e te envia. Assim você terá acesso a quanto seu corpo gasta de energia durante o dia, sua eficiência energética e estimativa de gasto energético em diversas atividades.'
 
