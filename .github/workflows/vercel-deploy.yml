@@ -10,8 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Vercel deploy hook
-        if: ${{ secrets.VERCEL_DEPLOY_HOOK }}
-        run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$HOOK" ]; then
+            curl -fsS -X POST "$HOOK"
+            echo "Deploy hook triggered."
+          else
+            echo "VERCEL_DEPLOY_HOOK not configured — skipping."
+          fi
 
   build-verify:
     runs-on: ubuntu-latest
@@ -25,3 +32,5 @@ jobs:
       - run: npm run vercel-build
       - name: Verify lais-felicia bundle
         run: grep -q "Por dentro do curso" public/lais-felicia/assets/ExperienceV2-*.js
+      - name: Verify heitor-da-gelsa bundle
+        run: grep -q "Heitor da Gelsa" public/heitor-da-gelsa/index.html
