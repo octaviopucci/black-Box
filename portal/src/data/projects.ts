@@ -192,6 +192,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Eventos', 'Locação'],
   },
   {
+    id: 'heitor-da-gelsa',
+    name: 'Heitor da Gelsa',
+    client: 'Heitor da Gelsa · Capão Bonito',
+    description:
+      'Site institucional premium: trajetória pública, carrossel “Quem é Heitor”, registros do Instagram e contato WhatsApp.',
+    href: '/heitor-da-gelsa/',
+    status: 'demo',
+    tags: ['React', 'Institucional', 'Capão Bonito'],
+  },
+  {
     id: 'cbx',
     name: 'CBX',
     client: 'CBX · Capão Bonito',
