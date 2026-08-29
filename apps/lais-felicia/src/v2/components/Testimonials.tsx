@@ -19,12 +19,12 @@ export function Testimonials() {
             <figure
               key={item.file}
               data-card
-              className="w-[78vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-ink/10 bg-surface-lift shadow-sm sm:w-[280px]"
+              className="w-[78vw] max-w-[300px] shrink-0 snap-start overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm sm:w-[260px]"
             >
               <img
                 src={v2Asset(item.file)}
                 alt={item.alt}
-                className="aspect-[9/16] max-h-[520px] w-full object-contain object-top bg-white"
+                className="w-full object-cover object-center"
                 loading="lazy"
               />
             </figure>

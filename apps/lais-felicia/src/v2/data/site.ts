@@ -1,4 +1,4 @@
-import { asset, site, whatsappUrl } from '../../data/site'
+import { asset, courseGallery, site, whatsappUrl } from '../../data/site'
 
 export { asset, site, whatsappUrl }
 
@@ -27,13 +27,6 @@ export const v2ServiceHighlights = [
     image: 'spa-labial.jpg',
     imageAlt: 'Spa labial com acabamento glossy',
     href: '/servicos#spa',
-  },
-  {
-    id: 'experiencia',
-    name: 'Experiência',
-    image: 'experiencia-cafe.jpg',
-    imageAlt: 'Experiência com café e mimo para clientes',
-    href: '#galeria',
   },
   {
     id: 'tintura',
@@ -101,18 +94,36 @@ export const v2Testimonials = [
   },
 ] as const
 
-export const v2CoursePhotos = [
+type V2CoursePhoto = {
+  file: string
+  alt: string
+  caption: string
+  v2?: boolean
+  objectPosition?: string
+  featured?: boolean
+}
+
+export const v2CoursePhotos: readonly V2CoursePhoto[] = [
   {
     file: 'material-apoio.jpg',
     alt: 'Guia de treinos e apostila do curso iniciante',
     caption: 'Material de apoio — guia de treinos e curso iniciante',
+    v2: true,
   },
   {
-    file: 'experiencia-certificado.jpg',
+    file: 'curso-certificado.jpg',
     alt: 'Entrega de certificado de curso',
     caption: 'Certificado ao final da formação',
+    v2: true,
+    objectPosition: 'center 42%',
+    featured: true,
   },
-] as const
+  ...courseGallery.map((item) => ({
+    file: item.file,
+    alt: item.alt,
+    caption: item.alt,
+  })),
+]
 
 export const v2CourseBonus = {
   file: 'henna-ombre-edicao.jpg',

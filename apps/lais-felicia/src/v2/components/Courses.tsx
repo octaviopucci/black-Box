@@ -1,9 +1,13 @@
 import { Check } from 'lucide-react'
-import { courses, whatsappUrl } from '../../data/site'
+import { asset, courses, whatsappUrl } from '../../data/site'
 import { v2Asset, v2CourseBonus, v2CoursePhotos } from '../data/site'
 import { Carousel } from './Carousel'
 import { Reveal } from './Reveal'
 import { Testimonials } from './Testimonials'
+
+function coursePhotoSrc(file: string, v2?: boolean) {
+  return v2 ? v2Asset(file) : asset(file)
+}
 
 export function Courses() {
   return (
@@ -52,18 +56,28 @@ export function Courses() {
       </Carousel>
 
       <Reveal delay={0.06}>
-        <div className="mx-auto mt-14 grid max-w-6xl gap-4 sm:grid-cols-2">
-          {v2CoursePhotos.map((item) => (
-            <figure key={item.file} className="overflow-hidden rounded-md border border-ink/10 bg-surface-lift">
-              <img
-                src={v2Asset(item.file)}
-                alt={item.alt}
-                className="aspect-[4/3] w-full object-cover"
-                loading="lazy"
-              />
-              <figcaption className="px-4 py-3 text-sm text-ink-soft">{item.caption}</figcaption>
-            </figure>
-          ))}
+        <div className="mx-auto mt-14 max-w-6xl">
+          <p className="eyebrow text-center">Por dentro do curso</p>
+          <h3 className="display-title mt-3 text-center text-3xl sm:text-4xl">A experiência em imagens</h3>
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {v2CoursePhotos.map((item) => (
+              <figure
+                key={item.file}
+                className={`overflow-hidden rounded-md border border-ink/10 bg-surface-lift ${
+                  item.featured ? 'col-span-2 sm:col-span-2' : ''
+                }`}
+              >
+                <img
+                  src={coursePhotoSrc(item.file, item.v2)}
+                  alt={item.alt}
+                  className={`w-full object-cover ${item.featured ? 'aspect-[16/10]' : 'aspect-[4/5]'}`}
+                  style={item.objectPosition ? { objectPosition: item.objectPosition } : undefined}
+                  loading="lazy"
+                />
+                <figcaption className="px-3 py-2.5 text-xs text-ink-soft sm:text-sm">{item.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </Reveal>
 
