@@ -1,189 +1,200 @@
 ---
 name: agency-site
 description: >-
-  Setup de 4 camadas para landing/site/SaaS com cara de agência (não genérico IA):
-  Cloud Agent + Framer Motion + design tokens + 21st.dev. Use com /agency-site
-  ao criar landing, site premium, demo cliente ou SaaS marketing. Funciona no
-  iPhone via Cursor Cloud Agent. Integra vibe-coding + anti-ai-landing.
+  Setup de 4 camadas para landing/site/SaaS com cara de agência: Cloud Agent +
+  Next.js App Router + Framer Motion + design tokens + 21st.dev/shadcn. Projetos
+  nascem em projects/<slug>/ — standalone, prontos pra sair do repo Black Box.
+  Use /agency-site. Integra vibe-coding + anti-ai-landing. iPhone ok.
 paths:
+  - "projects/**/*.{tsx,jsx,css,ts,js,html}"
   - "apps/**/*.{tsx,jsx,css,ts,js,html}"
   - "portal/**/*.{tsx,jsx,css,ts,js,html}"
 ---
 
-# Agency Site — 4 camadas
+# Agency Site — 4 camadas (Next.js)
 
-Inspirado no setup de [central-material](https://central-material.vercel.app).
-Adaptado pro **Black Box**: Vite + React + Tailwind (não Next.js), Cursor Cloud
-Agent (não Claude Code CLI).
+Inspirado no [central-material](https://central-material.vercel.app).
+Stack **padrão para projetos novos:** **Next.js 14+ App Router** + Tailwind +
+shadcn/ui + framer-motion — compatível nativo com 21st.dev.
 
-**Invoque:** `/agency-site` + produto/marca — ou descreva a landing no iPhone.
+**Invoque:** `/agency-site` + produto/marca.
 
----
-
-## As 4 camadas (mapeamento real)
-
-| Camada | Material original | No Black Box |
-|--------|-------------------|--------------|
-| **1** | Claude Code CLI | **Cursor Cloud Agent** + `vibe-coding` (processo automático via `AGENTS.md`) |
-| **2** | Framer Motion | `framer-motion` no app — instalar se faltar |
-| **3** | Skill de design | **Esta skill** + `anti-ai-landing` + [design-tokens.md](references/design-tokens.md) |
-| **4** | 21st.dev | Componentes hero/pricing/nav — ver [21st-dev.md](references/21st-dev.md) |
-
-**Erros a evitar:** [errors.md](references/errors.md)
+> **Legado:** `apps/*` (Vite) só para manutenção de demos antigas. **Todo site
+> novo** → `projects/<slug>/` (Next standalone, exportável pro cliente).
 
 ---
 
-## Fluxo automático (siga na ordem)
+## As 4 camadas
 
-### Passo 0 — Contexto mínimo
+| Camada | Material | Aqui |
+|--------|----------|------|
+| **1** | Claude Code | **Cursor Cloud Agent** + `vibe-coding` |
+| **2** | Framer Motion | `framer-motion` + `'use client'` onde animar |
+| **3** | Skill de design | Esta skill + `anti-ai-landing` + [design-tokens.md](references/design-tokens.md) |
+| **4** | 21st.dev | shadcn + copy prompt — [21st-dev.md](references/21st-dev.md) |
 
-Peça só o que faltar (bullets, aceita resposta curta do iPhone):
+Erros fatais: [errors.md](references/errors.md)
 
-1. **Produto/serviço** + nicho
-2. **Marca** (nome, @instagram ou site se tiver)
-3. **CTA principal** (WhatsApp, agendar, formulário)
-4. **App destino** — novo em `apps/<slug>/` ou redesign de app existente
-5. **Path Black Box** — ex.: `/cliente-x/` (`VITE_BASE`)
+---
 
-Se o pedido for grande ou ambíguo → **vibe-coding Fase 1** (brainstorm) antes de codar.
+## Onde o projeto vive
 
-### Passo 1 — Camada 1 (agente + processo)
+```
+projects/<slug>/          ← NOVO (Next.js, sai do repo depois)
+apps/<nome>/              ← LEGADO Vite (só manutenção, não criar novos)
+```
 
-- Sessão principal **orquestra**; não implementa tudo sozinha.
-- Plano com seções verificáveis antes de codar.
-- Commits pequenos por seção.
+Cada `projects/<slug>/` é um app Next **independente** — repo próprio, deploy
+Vercel do cliente, domínio deles. Black Box é só incubadora temporária.
+
+Scaffold: [next-scaffold.md](references/next-scaffold.md)
+
+---
+
+## Fluxo automático
+
+### Passo 0 — Contexto
+
+Peça só o que faltar:
+
+1. Produto/serviço + nicho
+2. Marca (@instagram / site)
+3. CTA (WhatsApp, agendar, form)
+4. **Slug** → `projects/<slug>/`
+5. Domínio futuro (se souber) — configura metadata depois
+
+Pedido ambíguo → vibe-coding Fase 1 (brainstorm).
+
+### Passo 1 — Scaffold Next.js
+
+Se `projects/<slug>/` não existe, crie antes de codar UI:
+
+```bash
+npx create-next-app@latest projects/<slug> \
+  --typescript --tailwind --eslint --app --src-dir \
+  --import-alias "@/*" --turbopack
+cd projects/<slug>
+npx shadcn@latest init -y
+npm install framer-motion
+```
+
+Defaults shadcn: New York, zinc, CSS variables. Detalhes em [next-scaffold.md](references/next-scaffold.md).
 
 ### Passo 2 — Camada 2 (motion)
 
-Antes de implementar, confirme no `package.json` do app:
+Ver [framer-motion.md](references/framer-motion.md). Componentes animados =
+`'use client'`. Budget: 2–4 motions intencionais.
 
-```bash
-npm --prefix apps/<app> install framer-motion
-```
+### Passo 3 — Camada 3 (tokens)
 
-**Padrões obrigatórios** — ver [framer-motion.md](references/framer-motion.md):
-
-- Hero: entrada suave (stagger ou fade+rise)
-- Seções: scroll reveal (`whileInView`, `viewport: { once: true }`)
-- Hover nos CTAs e cards interativos
-- `prefers-reduced-motion: reduce` → estático, sem animação
-
-**Budget:** 2–4 motions intencionais — não micro-animação em tudo.
-
-### Passo 3 — Camada 3 (design system)
-
-Antes de JSX, defina tokens em `src/index.css`:
+Tokens em `src/app/globals.css` (sobre `:root` do shadcn):
 
 ```css
 :root {
-  --ink: /* texto principal */;
+  --ink: /* texto */;
   --paper: /* fundo */;
-  --accent: /* CTA / destaque */;
+  --accent: /* CTA */;
   --mute: /* secundário */;
 }
 ```
 
-Regras completas: [design-tokens.md](references/design-tokens.md).
+Mapeie `--primary` do shadcn pro `--accent` da marca quando fizer sentido.
+Regras: [design-tokens.md](references/design-tokens.md) + `anti-ai-landing`.
 
-Carregue mentalmente **`anti-ai-landing`**:
-
-- Uma composição no primeiro viewport
-- Full-bleed hero, sem card flutuante genérico
-- Tipografia expressiva (não Inter/Roboto como display)
-- Sem purple-gradient-SaaS-default
-
-Para brief profundo de marca → `/prompt-site` ou `/premium-site-brief`.
+Brief profundo → `/prompt-site` ou `/premium-site-brief`.
 
 ### Passo 4 — Camada 4 (21st.dev)
 
-Para **hero, pricing, testimonials, navbar**:
+1. Copie o **prompt** do componente no 21st.dev (ou MCP 21st)
+2. Instale via shadcn CLI quando disponível: `npx shadcn@latest add <url>`
+3. Adapte copy + tokens da marca — nunca placeholder
 
-1. Busque padrão em [21st.dev](https://21st.dev) (referência visual + estrutura)
-2. **Adapte** ao stack Vite/React/Tailwind do app — não copie Next.js cru
-3. Re-skin com tokens da Camada 3 e copy real da marca
+Guia: [21st-dev.md](references/21st-dev.md)
 
-Guia: [21st-dev.md](references/21st-dev.md).
+### Passo 5 — Estrutura (App Router)
 
-### Passo 5 — Estrutura da página (padrão agency)
+```
+src/app/
+  layout.tsx      metadata, fonts
+  page.tsx        landing (ou composição de sections)
+  globals.css     tokens
+src/components/
+  sections/       hero, features, pricing, faq, footer
+  ui/             shadcn
+```
 
-Construa **seção por seção**; mostre cada uma antes da próxima (ou peça ok no mobile):
+Seções padrão — construa **uma por vez**, ok do usuário entre elas:
 
-| # | Seção | Obrigatório |
-|---|--------|-------------|
-| 1 | Navbar fixa | sim |
-| 2 | Hero (headline + CTA + visual) | sim |
-| 3 | Features (3 cards max) | sim |
-| 4 | Prova social / depoimentos | se tiver dado |
-| 5 | Pricing | se for SaaS |
-| 6 | FAQ | recomendado |
-| 7 | Footer | sim |
+| # | Seção |
+|---|--------|
+| 1 | Navbar fixa |
+| 2 | Hero (headline + CTA + visual) |
+| 3 | Features (max 3) |
+| 4 | Prova social |
+| 5 | Pricing (se SaaS) |
+| 6 | FAQ |
+| 7 | Footer |
 
-Prompt base: [initial-prompt.md](references/initial-prompt.md).
+Prompt: [initial-prompt.md](references/initial-prompt.md)
 
-### Passo 6 — Performance (não esquecer)
+### Passo 6 — Performance
 
-Antes de fechar:
+- `next/image` com `width`/`height` + `priority` só no hero LCP
+- `next/font` — subset de pesos
+- `npm run build` verde em `projects/<slug>/`
+- Lighthouse 90+ se pedido
 
-- [ ] Imagens lazy (`loading="lazy"`, dimensões explícitas)
-- [ ] Fontes: só pesos usados; `font-display: swap`
-- [ ] Build passa: `npm run build:<app>`
-- [ ] Motion respeita reduced-motion
+### Passo 7 — Entrega / saída do Black Box
 
-Peça auditoria Lighthouse se o usuário quiser 90+.
+Antes de considerar pronto:
 
-### Passo 7 — Deploy Black Box
+- [ ] `projects/<slug>/` roda sozinho (`npm run dev` dentro da pasta)
+- [ ] README mínimo: install, dev, build, env vars
+- [ ] `.env.example` se houver secrets
+- [ ] Deploy Vercel: conectar repo ou `vercel --cwd projects/<slug>`
+- [ ] **Não** acoplar ao `assemble-dist` / `VITE_BASE` — projeto sai intacto
 
-- `VITE_BASE=/<slug>/` no build
-- `npm run build:<slug>` ou script equivalente na raiz
-- Path listado no portal/README se for demo cliente
+Opcional: link temporário no portal Black Box só se o usuário pedir preview
+no domínio blckbox — não é o padrão.
 
 ---
 
-## Comandos úteis
+## Comandos
 
 ```bash
-# Dev
-npm run dev:<app>
-
-# Build (exemplo)
-npm run build:harmonie   # apps/clinica-harmonie
-
-# Novo app — copie estrutura de apps/clinica-harmonie ou apps/porthal-imoveis
+cd projects/<slug>
+npm run dev          # localhost:3000
+npm run build
+npm run start
 ```
 
 ---
 
-## Combo com outras skills
+## Legado Vite (`apps/*`)
 
-| Situação | Use |
-|----------|-----|
-| Landing nova premium | `/agency-site` (esta) |
-| Marca com Instagram/research profundo | + `/prompt-site` |
-| Brief rápido antes de codar | + `/premium-site-brief` |
-| Scroll vídeo / corridor | + `scroll-cinematic` |
-| Preview Netlify temporário | + `netlify-preview` |
-| Processo/PR/commits | automático via `vibe-coding` |
+Só toque se o pedido nomear app existente (`apps/harmonie`, etc.). Nesse caso:
+
+- Mantenha Vite + `VITE_BASE`
+- Não migre pra Next sem pedido explícito de migração
+- Para elevar visual: mesmas Camadas 2–3, 21st.dev como referência adaptada
 
 ---
 
-## iPhone — o que colar
+## iPhone
 
 ```
-/agency-site landing premium para [MARCA] — nicho [X], CTA WhatsApp, app novo apps/[slug], path /[slug]/
+/agency-site landing [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]
 ```
 
-Responda brainstorm → **ok** no plano → agente monta seção por seção.
-
-Guia mobile: `.cursor/skills/vibe-coding/references/mobile-iphone.md`
+Cria `projects/cliente-x/` em Next. Brainstorm → ok → seção por seção.
 
 ---
 
-## Checklist interno
+## Checklist
 
-- [ ] Tokens CSS definidos (Camada 3)
-- [ ] framer-motion instalado e usado com parcimônia (Camada 2)
-- [ ] Hero/pricing inspirados em 21st.dev, adaptados ao repo (Camada 4)
-- [ ] anti-ai-landing respeitado — zero cara de template IA
-- [ ] Seção por seção com ok do usuário
-- [ ] Build + path VITE_BASE corretos
-- [ ] Nenhum dos 4 erros fatais (ver errors.md)
+- [ ] Next + shadcn + framer-motion scaffoldados
+- [ ] Tokens em globals.css
+- [ ] 21st.dev integrado (shadcn nativo)
+- [ ] anti-ai-landing respeitado
+- [ ] Build standalone verde
+- [ ] Pronto pra exportar do monorepo

@@ -79,13 +79,15 @@ Detalhe: `.cursor/skills/vibe-coding/references/specialists.md`.
 | Skill | Uso |
 |-------|-----|
 | `/vibe-coding` | Fluxo completo (processo: brainstorm → PR) |
-| `/agency-site` | **Landing/site/SaaS marketing** — 4 camadas: Agent + Motion + tokens + 21st.dev |
+| `/agency-site` | **Landing/site/SaaS** — Next.js em `projects/<slug>/` + 4 camadas + 21st.dev |
 | `/prompt-site` | Marca profunda, research, produto digital premium |
 | `/premium-site-brief` | Brief rápido antes de codar landing |
 | `anti-ai-landing` | Regras anti template IA (carregada por `/agency-site`) |
 | Outras em `.cursor/skills/frontend/` | Scroll cinematic, Netlify preview, Instagram extract, etc. |
 
-**Landing nova (padrão):** `/agency-site` — vibe-coding roda por baixo via este doc.
+**Landing nova (padrão):** `/agency-site` → scaffold em `projects/<slug>/` (Next.js App Router + shadcn + framer-motion). Projeto sai do monorepo no handoff.
+
+**Legado:** demos Vite em `apps/*` — só manutenção, não criar novos.
 
 **Marca complexa:** `/agency-site` + `/prompt-site`.
 

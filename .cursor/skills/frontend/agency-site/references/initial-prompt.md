@@ -1,7 +1,6 @@
-# Prompt inicial — Camada 1+2+3+4
+# Prompt inicial — Next.js + 4 camadas
 
-Adaptado do central-material para **Black Box** (Vite, não Next.js).
-Substitua `[...]` e cole no Cursor / Cloud Agent (iPhone ok).
+Substitua `[...]`. Cole no Cursor / Cloud Agent (iPhone ok).
 
 ---
 
@@ -13,24 +12,21 @@ Substitua `[...]` e cole no Cursor / Cloud Agent (iPhone ok).
 Construa uma landing page moderna para [PRODUTO/SERVIÇO] — marca [NOME].
 
 Requisitos:
-- App em apps/[slug]/ — Vite + React + TypeScript + Tailwind (padrão Black Box)
-- VITE_BASE=/[slug]/ no build
-- framer-motion: hero entrance, scroll reveals, hover nos CTAs
-- Hero, features e pricing inspirados em componentes do 21st.dev — reimplementados
-  pro nosso stack, não Next.js
-- Tokens de design em src/index.css (--ink, --paper, --accent, --mute) — sem estética
-  genérica de IA (siga anti-ai-landing)
+- Novo projeto Next.js 14+ em projects/[slug]/ — App Router, TypeScript, Tailwind
+- shadcn/ui inicializado; framer-motion em animações
+- Hero, features e pricing de componentes 21st.dev (shadcn CLI ou copy prompt)
+- Tokens em src/app/globals.css (--ink, --paper, --accent, --mute) — anti-ai-landing
 - Navbar fixa, hero headline + CTA, 3 feature cards, prova social, pricing (se SaaS),
   FAQ, footer
-- Mobile-first, totalmente responsivo
-- Lazy-load imagens, fontes otimizadas
-- Comece pela estrutura do app, depois construa seção por seção — mostre cada
-  seção antes de passar pra próxima
+- next/image + next/font; mobile-first; Lighthouse 90+ se possível
+- Construa seção por seção — mostre cada uma antes da próxima
+- Projeto standalone (sai do monorepo Black Box depois) — não acoplar ao assemble-dist
 
 Contexto:
 - Nicho: [NICHO]
-- CTA: [WhatsApp / agendar / formulário — link ou número]
-- Instagram/site: [@ ou URL se tiver]
+- Slug: [slug]
+- CTA: [WhatsApp / agendar / form]
+- Instagram/site: [@ ou URL]
 ```
 
 ---
@@ -38,26 +34,31 @@ Contexto:
 ## Prompt curto (iPhone)
 
 ```
-/agency-site landing [MARCA] — [nicho], CTA WhatsApp [número], app apps/[slug], path /[slug]/
+/agency-site landing [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]
 ```
 
 ---
 
-## Prompt redesign (app existente)
+## SaaS marketing (com pricing)
 
 ```
-/agency-site redesign hero + primeira dobra do apps/[app]/ — manter rotas e build,
-só elevar visual pra nível agência. framer-motion + tokens novos. Mostra hero antes do resto.
+/agency-site SaaS [PRODUTO] — slug [app-x], pricing 3 tiers, trial 14 dias, CTA signup
 ```
 
 ---
 
-## Após cada seção
+## Redesign legado Vite (exceção)
 
-Usuário responde **ok** ou pede ajuste:
+Só se pedirem app antigo em apps/:
 
 ```
-Refina espaçamento e contraste do hero. Menos animação no subtítulo.
+/agency-site redesign hero apps/[app]/ — manter Vite, só elevar visual. Não migrar Next.
 ```
 
-Isso evita o Erro C (não iterar).
+---
+
+## Iteração (Erro C)
+
+```
+Refina hero: mais contraste, menos motion no subtítulo, CTA maior no mobile.
+```

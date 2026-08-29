@@ -1,57 +1,83 @@
-# 21st.dev — Camada 4
+# 21st.dev — Camada 4 (Next.js nativo)
 
-[21st.dev](https://21st.dev) — biblioteca de componentes UI (heroes, pricing, testimonials, navbars).
+[21st.dev](https://21st.dev) — 12k+ componentes React + Tailwind + shadcn.
 
-## Como usar no Black Box
+## Por que Next aqui
 
-Este repo é **Vite + React + Tailwind**, não Next.js. Nunca cole código Next/App Router cru.
+Componentes do 21st.dev nascem pra **Next.js App Router + shadcn/ui**. Com
+`projects/<slug>/` em Next, compatibilidade é **direta** — não precisa
+reimplementar de Vite.
 
-### Fluxo
+---
 
-1. **Navegue** 21st.dev → categoria (Heroes, Pricing, Testimonials, Navbars).
-2. **Escolha** 1 referência por tipo — não misture 3 estilos diferentes.
-3. **Extraia** estrutura + hierarquia visual (não dependências Next).
-4. **Reimplemente** em TSX do app com:
-   - Tokens de [design-tokens.md](design-tokens.md)
-   - `framer-motion` de [framer-motion.md](framer-motion.md)
-   - Copy real da marca (nunca lorem genérico)
-5. **Adapte** imports: `@/components` → paths do app (`src/components/...`).
+## Fluxo (padrão)
 
-### Mapeamento Next → Vite
+1. Escolha 1 componente por tipo (hero, pricing, nav…) — mesmo autor/estilo.
+2. No 21st.dev → **Copy prompt** ou comando shadcn CLI do componente.
+3. No projeto:
 
-| 21st.dev (Next) | Black Box |
-|-----------------|-----------|
-| `next/link` | `react-router-dom` `Link` ou `<a href>` |
-| `next/image` | `<img loading="lazy" width height>` |
-| `@/components/ui/*` | Componentes locais ou Tailwind direto |
-| Server components | Client components (`'use client'` irrelevante no Vite) |
+```bash
+cd projects/<slug>
+npx shadcn@latest add "<registry-url-do-componente>"
+```
 
-### Seções típicas
+Ou cole o prompt no agente: ele cria em `src/components/`.
 
-| Seção | Onde buscar no 21st.dev |
-|-------|-------------------------|
-| Hero | Heroes → full-bleed ou split |
-| Features | Feature sections / bento (max 3 cards) |
-| Pricing | Pricing → 1–3 tiers |
-| Social proof | Testimonials |
-| Nav | Navbars → sticky minimal |
+4. Re-skin: tokens `--ink`, `--paper`, `--accent` + copy da marca.
+5. Aplique `anti-ai-landing` — evite blocos SaaS-purple genéricos.
 
-### Anti-patterns
+---
 
-- Copiar JSX com `className` shadcn sem ter shadcn no app
-- Manter copy placeholder ("Acme Inc", "$99/mo")
-- Ignorar mobile — 21st.dev preview desktop ≠ suficiente; teste `sm:`/`md:`
+## Categorias por nicho Black Box
 
-### Quando NÃO usar 21st.dev
+| Nicho | 21st.dev |
+|-------|----------|
+| Clínica / estética | [Heroes](https://21st.dev/community/components/s/hero) editoriais, [testimonials](https://21st.dev/community/components/s/testimonials) |
+| Imóveis | Split hero, feature sections, CTA |
+| SaaS / gestor | [SaaS heroes](https://21st.dev/community/components/s/hero), [pricing-section](https://21st.dev/community/components/s/pricing-section) |
+| Landing completa | [landing-page](https://21st.dev/community/components/s/landing-page) |
 
-- App existente com design system forte → estenda o existente
-- Marca com direção visual já lockada em `index.css` → só motion + copy
-- Dashboard/SaaS logado → componentes marketing não servem
+Bibliotecas úteis:
+
+- [Magic UI](https://21st.dev/@dillionverma/library/magic-ui) — marketing animado
+- [Motion Primitives](https://21st.dev/@ibelick/library/motion-primitives)
+- [Aceternity UI](https://21st.dev/@manuarora700/library/aceternity-ui)
+
+---
+
+## MCP 21st (opcional)
+
+Para o agente buscar componentes sozinho:
+
+```bash
+npx @21st-dev/cli@latest init --client cursor
+```
+
+API key em [21st.dev/mcp](https://21st.dev/mcp). Free: 2 cópias/dia.
+
+---
+
+## Integração App Router
+
+| Peça | Onde |
+|------|------|
+| Server Components | layout, metadata, sections estáticas |
+| `'use client'` | framer-motion, interações, 21st animados |
+| `next/image` | fotos hero, OG |
+| `next/link` | nav interna |
+
+---
+
+## Anti-patterns
+
+- 3 estilos diferentes na mesma página
+- Copy placeholder ("Acme", "$99/mo")
+- Instalar componente shadcn sem `shadcn init`
+- Ignorar mobile
 
 ## Prompt pro agente
 
 ```
-Use 21st.dev só como referência estrutural para hero, pricing e testimonials.
-Reimplemente em Vite+React+Tailwind com nossos tokens CSS e framer-motion.
-Não importe pacotes Next. Copy 100% da marca [X].
+Instale/adapte hero, pricing e navbar do 21st.dev via shadcn no projects/[slug]/.
+Next.js App Router. Tokens da marca em globals.css. Copy real. anti-ai-landing.
 ```

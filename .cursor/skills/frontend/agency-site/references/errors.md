@@ -12,7 +12,7 @@ Do central-material — o agente deve **evitar ativamente** estes padrões.
 
 **Sintoma:** "Faz uma landing bonita" → output genérico.
 
-**Fix:** Nicho, marca, CTA, seções, path `/slug/` — ou brainstorm (vibe-coding Fase 1).
+**Fix:** Nicho, marca, CTA, seções, slug `projects/<slug>/` — ou brainstorm (vibe-coding Fase 1).
 
 ## C — Não iterar
 
@@ -27,9 +27,8 @@ motion. Mínimo 1 rodada de polish no hero.
 
 **Fix:** Antes de PR:
 
-- `loading="lazy"` + width/height em imagens
-- Subset de fontes (2 pesos display + 2 body max)
-- `npm run build:<app>` verde
+- `next/image` + dimensões; `next/font` com subset mínimo
+- `cd projects/<slug> && npm run build` verde
 - Lighthouse se pedido (meta 90+ performance)
 
 ---
