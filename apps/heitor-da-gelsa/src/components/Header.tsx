@@ -37,27 +37,27 @@ export function Header() {
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'border-b border-green/10 bg-white/90 shadow-header backdrop-blur-md'
-            : 'bg-transparent'
+            ? 'border-b border-green/10 bg-paper/92 shadow-header backdrop-blur-lg'
+            : 'bg-gradient-to-b from-green-deep/80 to-transparent'
         }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
           <Link to="/#inicio" className="group flex items-center gap-3" aria-label="Heitor da Gelsa — início">
-            <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-green-deep">
+            <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-green-deep shadow-card">
               <span className="absolute inset-x-0 top-0 h-1.5 bg-yellow" />
-              <span className="absolute bottom-0 left-0 h-2 w-2 rounded-full bg-blue-support/80" />
-              <span className="font-display text-sm font-black text-white">HG</span>
+              <span className="absolute bottom-0 left-0 h-2.5 w-2.5 rounded-full bg-blue-support/90" />
+              <span className="font-display text-sm font-black tracking-wide text-white">HG</span>
             </span>
             <span className="leading-none">
               <span
-                className={`block font-display text-sm font-black tracking-[0.18em] ${
+                className={`block font-display text-sm font-black tracking-[0.2em] ${
                   scrolled ? 'text-green-deep' : 'text-white'
                 }`}
               >
                 {siteConfig.nameLines[0]}
               </span>
               <span
-                className={`block font-display text-xs font-bold tracking-[0.28em] ${
+                className={`block font-display text-[11px] font-bold tracking-[0.32em] ${
                   scrolled ? 'text-green' : 'text-yellow'
                 }`}
               >
@@ -66,14 +66,14 @@ export function Header() {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-8 lg:flex" aria-label="Principal">
+          <nav className="hidden items-center gap-7 lg:flex" aria-label="Principal">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
                 onClick={() => handleNav(link.href)}
-                className={`relative text-xs font-bold uppercase tracking-[0.16em] transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-yellow after:transition-all hover:after:w-full ${
-                  scrolled ? 'text-graphite hover:text-green' : 'text-white/90 hover:text-yellow'
+                className={`relative text-[11px] font-bold uppercase tracking-[0.18em] transition-colors duration-200 after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-0 after:bg-yellow after:transition-all hover:after:w-full ${
+                  scrolled ? 'text-graphite hover:text-green-deep' : 'text-white/90 hover:text-yellow'
                 }`}
               >
                 {link.label}
@@ -93,13 +93,15 @@ export function Header() {
 
           <button
             type="button"
-            className={`inline-flex h-11 w-11 items-center justify-center rounded-md lg:hidden ${
-              scrolled ? 'text-green-deep' : 'text-white'
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-sm border transition-colors lg:hidden ${
+              scrolled
+                ? 'border-green/15 text-green-deep hover:bg-green/5'
+                : 'border-white/20 text-white hover:bg-white/10'
             }`}
             aria-label={open ? 'Fechar menu' : 'Abrir menu'}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X size={24} /> : <Menu size={24} />}
+            {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </header>
@@ -112,7 +114,8 @@ export function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <nav className="flex h-full flex-col justify-center gap-6 px-8" aria-label="Mobile">
+            <div className="absolute inset-0 bg-grain opacity-[0.06]" aria-hidden />
+            <nav className="relative flex h-full flex-col justify-center gap-5 px-8" aria-label="Mobile">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
@@ -123,13 +126,13 @@ export function Header() {
                   <Link
                     to={link.href}
                     onClick={() => handleNav(link.href)}
-                    className="font-display text-3xl font-black uppercase tracking-wide text-white"
+                    className="font-display text-[clamp(2rem,8vw,3rem)] font-black uppercase tracking-tight text-white"
                   >
                     {link.label}
                   </Link>
                 </motion.div>
               ))}
-              <Button href={`https://wa.me/${siteConfig.whatsapp}`} variant="primary" external className="mt-4 w-full">
+              <Button href={`https://wa.me/${siteConfig.whatsapp}`} variant="primary" external className="mt-6 w-full">
                 Fale com Heitor
               </Button>
             </nav>
