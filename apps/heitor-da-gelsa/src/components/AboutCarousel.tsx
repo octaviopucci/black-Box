@@ -11,60 +11,43 @@ export function AboutCarousel() {
   function scrollTo(index: number) {
     const el = ref.current
     if (!el) return
-    const slide = el.querySelector<HTMLElement>(`[data-slide="${index}"]`)
-    slide?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
-    setActive(index)
+    const next = Math.min(Math.max(index, 0), slides.length - 1)
+    el.scrollTo({ left: next * el.clientWidth, behavior: 'smooth' })
+    setActive(next)
   }
 
   function scrollBy(dir: 1 | -1) {
-    const next = Math.min(Math.max(active + dir, 0), slides.length - 1)
-    scrollTo(next)
+    scrollTo(active + dir)
   }
 
   return (
     <Reveal delay={0.08}>
-      <div className="mt-10">
-        <div className="relative">
+      <div className="mt-10 w-full max-w-full overflow-hidden">
+        <div className="relative w-full">
           <div
             ref={ref}
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [touch-action:pan-x] [&::-webkit-scrollbar]:hidden"
             onScroll={() => {
               const el = ref.current
-              if (!el) return
-              const center = el.scrollLeft + el.clientWidth / 2
-              let closest = 0
-              let minDist = Infinity
-              slides.forEach((_, i) => {
-                const slide = el.querySelector<HTMLElement>(`[data-slide="${i}"]`)
-                if (!slide) return
-                const slideCenter = slide.offsetLeft + slide.offsetWidth / 2
-                const dist = Math.abs(center - slideCenter)
-                if (dist < minDist) {
-                  minDist = dist
-                  closest = i
-                }
-              })
-              setActive(closest)
+              if (!el || el.clientWidth === 0) return
+              setActive(Math.round(el.scrollLeft / el.clientWidth))
             }}
           >
-            {slides.map((slide) => (
-              <figure
-                key={slide.id}
-                data-slide={slide.id - 1}
-                className="w-[min(85vw,420px)] shrink-0 snap-center"
-              >
+            {slides.map((slide, i) => (
+              <figure key={slide.id} data-slide={i} className="w-full min-w-full shrink-0 snap-start">
                 <img
                   src={slide.src}
                   alt={slide.alt}
                   className="aspect-[4/5] w-full object-contain bg-green-deep/5"
                   loading="lazy"
+                  draggable={false}
                 />
               </figure>
             ))}
           </div>
 
-          <div className="mt-5 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
+          <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-center gap-2 sm:justify-start">
               <button
                 type="button"
                 aria-label="Slide anterior"
@@ -88,7 +71,7 @@ export function AboutCarousel() {
               </span>
             </div>
 
-            <div className="hidden gap-1.5 sm:flex">
+            <div className="flex justify-center gap-1.5">
               {slides.map((slide, i) => (
                 <button
                   key={slide.id}
