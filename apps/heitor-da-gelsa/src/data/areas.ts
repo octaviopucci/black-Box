@@ -7,39 +7,15 @@ export const areasOfActuation: AreaOfActuation[] = [
     slug: 'saude',
     icon: 'heart-pulse',
     description:
-      'Acompanhamento de demandas e iniciativas relacionadas à saúde pública em Capão Bonito. [INSERIR DESCRIÇÃO]',
+      'Acompanhamento de registros sobre saúde da população e entidades sociais em Capão Bonito.',
   },
   {
-    id: 'infraestrutura',
-    title: 'INFRAESTRUTURA',
-    slug: 'infraestrutura',
-    icon: 'construction',
-    description:
-      'Registros e acompanhamento de obras, vias e melhorias urbanas. [INSERIR DESCRIÇÃO]',
-  },
-  {
-    id: 'fiscalizacao',
-    title: 'FISCALIZAÇÃO',
-    slug: 'fiscalizacao',
-    icon: 'search',
-    description:
-      'Monitoramento de problemas urbanos, poluição visual e uso do espaço público. [INSERIR DESCRIÇÃO]',
-  },
-  {
-    id: 'mobilidade',
-    title: 'MOBILIDADE',
-    slug: 'mobilidade',
-    icon: 'bus',
-    description:
-      'Demandas de transporte, trânsito e circulação na cidade. [INSERIR DESCRIÇÃO]',
-  },
-  {
-    id: 'bairros',
-    title: 'BAIRROS',
-    slug: 'bairros',
+    id: 'cidade',
+    title: 'CIDADE',
+    slug: 'cidade',
     icon: 'map-pin',
     description:
-      'Presença e escuta nas diferentes regiões de Capão Bonito. [INSERIR DESCRIÇÃO]',
+      'Presença nas ruas, escuta de moradores e canal aberto de feedback via WhatsApp (15) 99859-1411.',
   },
   {
     id: 'comunidade',
@@ -47,7 +23,7 @@ export const areasOfActuation: AreaOfActuation[] = [
     slug: 'comunidade',
     icon: 'users',
     description:
-      'Proximidade com moradores, entidades e grupos locais. [INSERIR DESCRIÇÃO]',
+      'Proximidade com bairros e moradores — visitas, diálogo e registros de demandas locais.',
   },
   {
     id: 'transparencia',
@@ -55,6 +31,6 @@ export const areasOfActuation: AreaOfActuation[] = [
     slug: 'transparencia',
     icon: 'eye',
     description:
-      'Compartilhamento de registros, posicionamentos e informações públicas. [INSERIR DESCRIÇÃO]',
+      'Compartilhamento de registros, posicionamentos e informações públicas nas redes e neste site.',
   },
 ]

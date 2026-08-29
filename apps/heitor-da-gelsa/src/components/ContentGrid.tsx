@@ -1,4 +1,4 @@
-import { articles } from '@/data/articles'
+import { articles } from '@/data/site'
 import { ContentCard } from './ContentCard'
 import { Button } from './Button'
 import { Reveal } from './Reveal'

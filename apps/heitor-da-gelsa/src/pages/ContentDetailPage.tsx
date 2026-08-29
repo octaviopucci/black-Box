@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
-import { getArticleBySlug, articles } from '@/data/articles'
+import { getArticleBySlug, articles } from '@/data/site'
 import { ContentCard } from '@/components/ContentCard'
 import { NotFoundPage } from './NotFoundPage'
 

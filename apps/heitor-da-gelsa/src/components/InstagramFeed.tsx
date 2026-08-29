@@ -1,4 +1,4 @@
-import { instagramCta, instagramPosts } from '@/data/instagram'
+import { siteConfig, instagramPosts } from '@/data/site'
 import { Button } from './Button'
 import { Reveal } from './Reveal'
 
@@ -44,7 +44,7 @@ export function InstagramFeed() {
         </div>
 
         <div className="mt-10 text-center">
-          <Button href={instagramCta} variant="primary" external>
+          <Button href={siteConfig.instagramUrl} variant="primary" external>
             Ver Instagram
           </Button>
         </div>

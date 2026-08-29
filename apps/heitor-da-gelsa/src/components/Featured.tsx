@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { featuredItems } from '@/data/instagram'
+import { featuredItems } from '@/data/site'
 import { Reveal } from './Reveal'
 
 export function Featured() {

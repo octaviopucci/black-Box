@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { mapMarkers } from '@/data/mapMarkers'
+import { mapMarkers } from '@/data/site'
 import { Reveal } from './Reveal'
 
 export function MapSection() {

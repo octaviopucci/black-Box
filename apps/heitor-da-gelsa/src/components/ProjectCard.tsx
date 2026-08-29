@@ -10,17 +10,18 @@ const statusColors: Record<Project['status'], string> = {
   'CONCLUÍDO': 'bg-green text-white',
   'EM ANDAMENTO': 'bg-yellow text-green-dark',
   'EM ACOMPANHAMENTO': 'bg-blue-support text-white',
+  'REGISTRO PÚBLICO': 'bg-green-deep text-white',
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Reveal>
       <article className="group flex h-full flex-col overflow-hidden border border-green/10 bg-white shadow-card transition-all duration-300 hover:-translate-y-1">
-        <div className="relative aspect-[16/10] overflow-hidden">
+        <div className="relative aspect-[3/4] overflow-hidden bg-green-deep/5">
           <img
             src={project.image}
             alt={project.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
             loading="lazy"
           />
           {project.isPlaceholder && (

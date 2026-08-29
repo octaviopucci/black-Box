@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
-import { getProjectBySlug, projects } from '@/data/projects'
+import { getProjectBySlug, projects } from '@/data/site'
 import { ProjectCard } from '@/components/ProjectCard'
 import { siteConfig } from '@/data/site'
 import { NotFoundPage } from './NotFoundPage'

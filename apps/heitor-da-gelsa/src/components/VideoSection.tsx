@@ -1,5 +1,5 @@
 import { Play } from 'lucide-react'
-import { videos } from '@/data/videos'
+import { videos } from '@/data/site'
 import { Reveal } from './Reveal'
 
 export function VideoSection() {

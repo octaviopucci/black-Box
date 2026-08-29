@@ -1,4 +1,4 @@
-import { aboutFacts, aboutIntro, media, siteConfig } from '@/data/site'
+import { aboutExtended, aboutFacts, aboutIntro, media, siteConfig } from '@/data/site'
 import { Reveal } from './Reveal'
 
 export function About() {
@@ -14,37 +14,45 @@ export function About() {
 
         <div className="mt-12 grid gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal delay={0.05}>
-            <div className="relative">
+            <div className="overflow-hidden bg-green-deep/5">
               <img
-                src={media.about}
-                alt="Heitor da Gelsa em Capão Bonito"
-                className="aspect-[4/5] w-full rounded-sm object-cover object-[center_20%]"
+                src={media.saude}
+                alt="Heitor da Gelsa em registro sobre saúde e entidades sociais"
+                className="aspect-[3/4] w-full object-cover object-center"
                 loading="lazy"
               />
-              <div className="absolute -bottom-3 -right-3 h-full w-full border-2 border-yellow -z-10" aria-hidden />
-              <div className="absolute bottom-4 left-4 right-4 bg-green-deep/90 p-4 text-white backdrop-blur-sm">
-                <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-yellow">Na cidade</p>
-                <p className="mt-1 font-display text-lg font-bold">Presença que se vê de perto</p>
-              </div>
             </div>
           </Reveal>
 
           <div>
-            <Reveal delay={0.1}>
-              <p className="text-lg leading-relaxed text-graphite/85">{aboutIntro}</p>
-              <p className="mt-4 text-base text-graphite/70">{siteConfig.family}.</p>
+            <Reveal delay={0.08}>
+              <p className="text-lg leading-relaxed text-graphite/90">{aboutIntro}</p>
             </Reveal>
 
-            <div className="mt-10 space-y-0 divide-y divide-green/10 border-y border-green/10">
+            <div className="mt-8 space-y-4">
+              {aboutExtended.map((paragraph, i) => (
+                <Reveal key={i} delay={0.1 + i * 0.04}>
+                  <p className="text-base leading-relaxed text-graphite/80">{paragraph}</p>
+                </Reveal>
+              ))}
+            </div>
+
+            <div className="mt-10 divide-y divide-green/10 border-y border-green/10">
               {aboutFacts.map((fact, i) => (
-                <Reveal key={fact.id} delay={0.12 + i * 0.04}>
-                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-4 py-5 sm:grid-cols-2">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-green">{fact.label}</p>
-                    <p className="font-semibold text-graphite">{fact.value}</p>
+                <Reveal key={fact.id} delay={0.14 + i * 0.03}>
+                  <div className="grid gap-2 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] sm:gap-6">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-green">{fact.label}</p>
+                    <p className="font-medium text-graphite">{fact.value}</p>
                   </div>
                 </Reveal>
               ))}
             </div>
+
+            <Reveal delay={0.3}>
+              <p className="mt-8 text-xs text-graphite/50">
+                Fontes: {siteConfig.sources.join(' · ')}
+              </p>
+            </Reveal>
           </div>
         </div>
       </div>

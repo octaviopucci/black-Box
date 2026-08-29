@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { galleryFilters, galleryItems } from '@/data/gallery'
+import { galleryFilters, galleryItems } from '@/data/site'
 import { Reveal } from './Reveal'
 
 export function Gallery() {

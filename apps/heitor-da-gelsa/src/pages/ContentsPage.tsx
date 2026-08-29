@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { ContentCategory } from '@/data/site'
-import { articles } from '@/data/articles'
+import { articles } from '@/data/site'
 import { ContentCard } from '@/components/ContentCard'
 import { Reveal } from '@/components/Reveal'
 

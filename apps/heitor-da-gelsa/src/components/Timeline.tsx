@@ -1,10 +1,7 @@
-import { useRef } from 'react'
-import { timeline } from '@/data/timeline'
+import { timeline } from '@/data/site'
 import { Reveal } from './Reveal'
 
 export function Timeline() {
-  const scrollRef = useRef<HTMLDivElement>(null)
-
   return (
     <section id="trajetoria" className="overflow-hidden bg-graphite py-20 text-white sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -15,27 +12,33 @@ export function Timeline() {
           </h2>
         </Reveal>
 
-        <div
-          ref={scrollRef}
-          className="mt-12 flex gap-6 overflow-x-auto pb-4 lg:grid lg:grid-cols-5 lg:overflow-visible lg:pb-0"
-        >
-          {timeline.map((item, i) => (
-            <Reveal key={item.id} delay={i * 0.06} className="min-w-[260px] flex-1 lg:min-w-0">
-              <article className="relative h-full border-t-4 border-yellow bg-white/5 p-5 backdrop-blur-sm">
-                <span className="font-display text-3xl font-black text-yellow">{item.year}</span>
-                <h3 className="mt-3 font-display text-lg font-bold">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{item.description}</p>
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt=""
-                    className="mt-4 aspect-video w-full rounded-sm object-cover opacity-80"
-                    loading="lazy"
+        <div className="relative mt-14">
+          <div className="absolute bottom-0 left-[7px] top-0 w-px bg-yellow/30 lg:left-1/2 lg:-translate-x-px" aria-hidden />
+
+          <div className="space-y-10 lg:space-y-12">
+            {timeline.map((item, i) => (
+              <Reveal key={item.id} delay={i * 0.05}>
+                <article
+                  className={`relative grid gap-4 pl-8 lg:grid-cols-2 lg:gap-12 lg:pl-0 ${
+                    i % 2 === 0 ? 'lg:text-right' : ''
+                  }`}
+                >
+                  <div
+                    className={`absolute left-0 top-1.5 h-3.5 w-3.5 rounded-full border-2 border-yellow bg-graphite lg:left-1/2 lg:-translate-x-1/2 ${
+                      i % 2 === 0 ? 'lg:col-start-1' : ''
+                    }`}
+                    aria-hidden
                   />
-                )}
-              </article>
-            </Reveal>
-          ))}
+
+                  <div className={i % 2 === 0 ? 'lg:col-start-1 lg:pr-12' : 'lg:col-start-2 lg:pl-12'}>
+                    <span className="font-display text-2xl font-black text-yellow sm:text-3xl">{item.year}</span>
+                    <h3 className="mt-2 font-display text-lg font-bold sm:text-xl">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/70 sm:text-base">{item.description}</p>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>
