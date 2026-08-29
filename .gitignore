@@ -3,6 +3,8 @@ node_modules
 /public/*
 !/public/lais-felicia/
 !/public/lais-felicia/**
+!/public/heitor-da-gelsa/
+!/public/heitor-da-gelsa/**
 .DS_Store
 *.local
 .env
