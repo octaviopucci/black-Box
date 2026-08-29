@@ -86,12 +86,10 @@ export const aboutFacts: AboutFact[] = [
 ]
 
 export const aboutIntro =
-  'Heitor Henrique Silveira Rolim — Heitor da Gelsa — é capão-bonitense, bacharel em Direito, assessor parlamentar e exerceu dois mandatos como vereador na Câmara Municipal de Capão Bonito, nas legislaturas de 2013 a 2016 e 2017 a 2020.'
+  'Capão-bonitense, bacharel em Direito e pai do Calebe e do Arthur. O apelido “da Gelsa” remete à mãe, Maria Gelsa da Silveira, ex-vereadora — referência de origem na vida pública local.'
 
 export const aboutExtended = [
-  'O apelido “da Gelsa” remete à mãe, Maria Gelsa da Silveira, também vereadora em Capão Bonito — referência de origem e continuidade na vida pública local.',
-  'Em 2020, foi candidato a prefeito pelo PSL e ficou em terceiro lugar, com mais de cinco mil votos. Na eleição municipal de 2024, concorreu pelo MDB (nº 15), obtendo 8.733 votos, com o slogan “MUDANÇA”.',
-  'Mantém canais abertos com moradores — WhatsApp (15) 99859-1411 e Instagram @heitordagelsa — e compartilha registros de presença nas ruas, saúde, comunidade e transparência.',
+  'Mantém canais abertos com moradores via WhatsApp (15) 99859-1411 e Instagram @heitordagelsa.',
 ]
 
 export const navLinks = [
@@ -157,7 +155,6 @@ export const timeline: TimelineItem[] = [
 ]
 
 export const galleryItems: GalleryItem[] = [
-  { id: 'g1', src: media.comunidade, alt: 'Heitor da Gelsa com moradores em Capão Bonito', category: 'Comunidade' },
   { id: 'g2', src: media.rua, alt: 'Heitor da Gelsa nas ruas de Capão Bonito', category: 'Cidade' },
   { id: 'g3', src: media.saude, alt: 'Registro sobre saúde da população e entidades sociais', category: 'Reuniões' },
   { id: 'g4', src: media.trabalho, alt: 'Reunião de trabalho com documentos', category: 'Visitas' },
@@ -188,15 +185,6 @@ export const instagramPosts: InstagramPost[] = [
   },
   {
     id: 3,
-    thumbnail: media.comunidade,
-    date: '2024',
-    category: 'COMUNIDADE',
-    title: 'Presença e escuta com moradores',
-    caption: 'Registro de proximidade com a comunidade em Capão Bonito.',
-    url: 'https://www.instagram.com/p/DcJ7Vv8t2_L/',
-  },
-  {
-    id: 4,
     thumbnail: media.trabalho,
     date: '2024',
     category: 'TRANSPARÊNCIA',
@@ -314,35 +302,7 @@ export function getProjectBySlug(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug)
 }
 
-export const videos: VideoItem[] = [
-  {
-    id: 'v1',
-    title: 'Saúde da população',
-    date: '2024',
-    category: 'SAÚDE',
-    thumbnail: media.saude,
-    url: 'https://www.instagram.com/p/Dcj9pQPtFvJ/',
-    platform: 'instagram',
-  },
-  {
-    id: 'v2',
-    title: 'Presença nas ruas',
-    date: '2024',
-    category: 'CIDADE',
-    thumbnail: media.rua,
-    url: 'https://www.instagram.com/p/Dcl-Z9etEMT/',
-    platform: 'instagram',
-  },
-  {
-    id: 'v3',
-    title: 'Proximidade comunitária',
-    date: '2024',
-    category: 'COMUNIDADE',
-    thumbnail: media.comunidade,
-    url: 'https://www.instagram.com/p/DcJ7Vv8t2_L/',
-    platform: 'instagram',
-  },
-]
+export const videos: VideoItem[] = []
 
 export const mapMarkers: MapMarker[] = [
   {

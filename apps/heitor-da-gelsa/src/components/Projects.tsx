@@ -9,7 +9,7 @@ export function Projects() {
         <Reveal>
           <p className="text-xs font-bold uppercase tracking-[0.28em] text-green">Projetos e ações</p>
           <h2 className="mt-3 font-display text-[clamp(2rem,4vw,3rem)] font-black leading-tight text-green-deep">
-            Projetos e ações
+            Ações documentadas
           </h2>
           <p className="mt-4 max-w-2xl text-base text-graphite/75">
             Conheça iniciativas, demandas e ações acompanhadas ao longo da atuação pública.

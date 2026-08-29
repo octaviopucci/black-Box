@@ -44,7 +44,7 @@ export function AreasOfActuation() {
                   <h3 className="font-display text-xl font-black text-green-deep">{area.title}</h3>
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-graphite/75">{area.description}</p>
                   <a
-                    href={`/#projetos`}
+                    href="/#registros"
                     className="mt-5 inline-flex items-center text-sm font-bold uppercase tracking-wide text-green transition-colors hover:text-green-dark"
                   >
                     Saiba mais

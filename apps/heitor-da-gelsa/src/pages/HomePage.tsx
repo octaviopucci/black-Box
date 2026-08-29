@@ -3,7 +3,6 @@ import { AreasOfActuation } from '@/components/AreasOfActuation'
 import { Contact } from '@/components/Contact'
 import { Hero } from '@/components/Hero'
 import { Numbers } from '@/components/Numbers'
-import { Projects } from '@/components/Projects'
 import { Registros } from '@/components/Registros'
 import { Timeline } from '@/components/Timeline'
 
@@ -15,7 +14,6 @@ export function HomePage() {
       <Timeline />
       <Numbers />
       <AreasOfActuation />
-      <Projects />
       <Registros />
       <Contact />
     </>
