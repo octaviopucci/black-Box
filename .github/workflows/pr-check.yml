@@ -1,0 +1,51 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.filter.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            deploy:
+              - 'apps/**'
+              - 'portal/**'
+              - 'api/**'
+              - 'public/**'
+              - 'scripts/assemble-dist.mjs'
+              - 'scripts/bundle-pix-api.mjs'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vercel.json'
+
+  build-verify:
+    needs: changes
+    if: needs.changes.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run vercel-build
+      - name: Verify lais-felicia bundle
+        run: grep -q "Por dentro do curso" public/lais-felicia/assets/ExperienceV2-*.js
+      - name: Verify heitor-da-gelsa bundle
+        run: grep -q "Heitor da Gelsa" public/heitor-da-gelsa/index.html
+
+  docs-only:
+    needs: changes
+    if: needs.changes.outputs.deploy != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Docs/skills-only change — full vercel-build not required."
