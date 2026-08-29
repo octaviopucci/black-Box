@@ -11,22 +11,23 @@ import type {
   TimelineItem,
   VideoItem,
 } from './site'
+import { asset } from '@/lib/asset'
 
 /** Fotos reais em resolução completa (1179×2096) — sem recorte de arquivo. */
 export const media = {
   /** Retrato principal — presença comunitária */
-  hero: '/instagram/deep/DcJ7Vv8t2_L.jpg',
+  hero: asset('instagram/deep/DcJ7Vv8t2_L.jpg'),
   /** Presença nas ruas */
-  rua: '/instagram/deep/Dcl-Z9etEMT.jpg',
+  rua: asset('instagram/deep/Dcl-Z9etEMT.jpg'),
   /** Saúde e entidades */
-  saude: '/instagram/deep/Dcj9pQPtFvJ.jpg',
+  saude: asset('instagram/deep/Dcj9pQPtFvJ.jpg'),
   /** Proximidade com moradores */
-  comunidade: '/instagram/deep/DcJ7Vv8t2_L.jpg',
+  comunidade: asset('instagram/deep/DcJ7Vv8t2_L.jpg'),
   /** Reunião e documentos */
-  trabalho: '/instagram/deep/DcZ1Er0tO50.jpg',
+  trabalho: asset('instagram/deep/DcZ1Er0tO50.jpg'),
   /** Avatar (substituir quando houver foto HD) */
-  profile: '/instagram/post-2.jpg',
-} as const
+  profile: asset('instagram/post-2.jpg'),
+}
 
 export const siteConfig: SiteConfig = {
   name: 'Heitor da Gelsa',
@@ -97,13 +98,13 @@ export const aboutCarousel = {
   caption:
     'Cada político tem a sua estratégia e o seu jeito de trabalhar. Em todos esses anos de vida pública, aprendi uma coisa: não existe outra forma de fazer política senão perto das pessoas.',
   slides: [
-    { id: 1, src: '/instagram/carousel-Db63IUBFdpi/01.jpg', alt: 'Quem é Heitor da Gelsa — slide 1' },
-    { id: 2, src: '/instagram/carousel-Db63IUBFdpi/02.jpg', alt: 'Quem é Heitor da Gelsa — slide 2' },
-    { id: 3, src: '/instagram/carousel-Db63IUBFdpi/03.jpg', alt: 'Quem é Heitor da Gelsa — slide 3' },
-    { id: 4, src: '/instagram/carousel-Db63IUBFdpi/04.jpg', alt: 'Quem é Heitor da Gelsa — slide 4' },
-    { id: 5, src: '/instagram/carousel-Db63IUBFdpi/05.jpg', alt: 'Quem é Heitor da Gelsa — slide 5' },
+    { id: 1, src: asset('instagram/carousel-Db63IUBFdpi/01.jpg'), alt: 'Quem é Heitor da Gelsa — slide 1' },
+    { id: 2, src: asset('instagram/carousel-Db63IUBFdpi/02.jpg'), alt: 'Quem é Heitor da Gelsa — slide 2' },
+    { id: 3, src: asset('instagram/carousel-Db63IUBFdpi/03.jpg'), alt: 'Quem é Heitor da Gelsa — slide 3' },
+    { id: 4, src: asset('instagram/carousel-Db63IUBFdpi/04.jpg'), alt: 'Quem é Heitor da Gelsa — slide 4' },
+    { id: 5, src: asset('instagram/carousel-Db63IUBFdpi/05.jpg'), alt: 'Quem é Heitor da Gelsa — slide 5' },
   ],
-} as const
+} 
 
 export const navLinks = [
   { label: 'Início', href: '/#inicio' },

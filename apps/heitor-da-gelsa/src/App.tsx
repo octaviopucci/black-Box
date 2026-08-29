@@ -7,8 +7,10 @@ import { ContentDetailPage } from '@/pages/ContentDetailPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 export default function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
