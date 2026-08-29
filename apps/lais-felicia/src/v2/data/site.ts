@@ -118,11 +118,19 @@ export const v2CoursePhotos: readonly V2CoursePhoto[] = [
     objectPosition: 'center 42%',
     featured: true,
   },
-  ...courseGallery.map((item) => ({
-    file: item.file,
-    alt: item.alt,
-    caption: item.alt,
-  })),
+  ...courseGallery
+    .filter((item) => item.file !== 'course-setup.jpg' && item.file !== 'cert.jpg')
+    .map((item) => ({
+      file: item.file,
+      alt: item.alt,
+      caption: item.alt,
+    })),
+  {
+    file: 'material-complementar.jpg',
+    alt: 'Material complementar — estações com kit, apostila e mimo',
+    caption: 'Material complementar — kit, apostila e mimo no curso',
+    v2: true,
+  },
 ]
 
 export const v2CourseBonus = {

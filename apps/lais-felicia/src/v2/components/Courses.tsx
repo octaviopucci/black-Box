@@ -57,8 +57,10 @@ export function Courses() {
 
       <Reveal delay={0.06}>
         <div className="mx-auto mt-14 max-w-6xl">
-          <p className="eyebrow text-center">Por dentro do curso</p>
-          <h3 className="display-title mt-3 text-center text-3xl sm:text-4xl">A experiência em imagens</h3>
+          <div className="flex flex-col items-center text-center">
+            <p className="eyebrow">Por dentro do curso</p>
+            <h3 className="display-title mt-3 text-3xl sm:text-4xl">A experiência em imagens</h3>
+          </div>
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {v2CoursePhotos.map((item) => (
               <figure
