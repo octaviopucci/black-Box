@@ -78,11 +78,18 @@ Detalhe: `.cursor/skills/vibe-coding/references/specialists.md`.
 
 | Skill | Uso |
 |-------|-----|
-| `/vibe-coding` | Fluxo completo (este doc + SKILL.md) |
-| `/prompt-site` | Novo site/produto digital premium |
-| Outras em `.cursor/skills/frontend/` | Brief, landing, deploy preview, etc. |
+| `/vibe-coding` | Fluxo completo (processo: brainstorm → PR) |
+| `/agency-site` | **Landing/site/SaaS marketing** — 4 camadas: Agent + Motion + tokens + 21st.dev |
+| `/prompt-site` | Marca profunda, research, produto digital premium |
+| `/premium-site-brief` | Brief rápido antes de codar landing |
+| `anti-ai-landing` | Regras anti template IA (carregada por `/agency-site`) |
+| Outras em `.cursor/skills/frontend/` | Scroll cinematic, Netlify preview, Instagram extract, etc. |
 
-Quando site + backend: vibe-coding orquestra; prompt-site só na camada visual.
+**Landing nova (padrão):** `/agency-site` — vibe-coding roda por baixo via este doc.
+
+**Marca complexa:** `/agency-site` + `/prompt-site`.
+
+Quando site + backend: vibe-coding orquestra; agency-site/prompt-site na camada visual.
 
 ## Memória
 
