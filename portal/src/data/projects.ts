@@ -112,6 +112,16 @@ export const projects: ClientProject[] = [
     tags: ['React', 'Saúde', 'Awwwards'],
   },
   {
+    id: 'clinica-vida',
+    name: 'Clínica Vida',
+    client: 'Clínica Vida · Capão Bonito',
+    description:
+      'Experiência “Impulso”: clínica multidisciplinar com hero full-bleed, especialidades editoriais, FAQ e conversão WhatsApp — fisioterapia, medicina e exames.',
+    href: '/clinica-vida/',
+    status: 'demo',
+    tags: ['React', 'Saúde', 'Premium'],
+  },
+  {
     id: 'octavio-pucci',
     name: 'Octávio Pucci Tattoo',
     client: 'Octávio Pucci · Capão Bonito',
