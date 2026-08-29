@@ -11,5 +11,7 @@
 | Maciel ≠ LP Motors (produtos separados) | — | business-rule |
 | Logins demo | README.md | reference |
 | Deploy Vercel unificado | `vercel.json`, `npm run build` | architecture |
+| Story Quiz (VSL → funil) | `.cursor/skills/frontend/story-quiz/SKILL.md` | reference |
+| Funil BASE Mode Caverna | `apps/protocolo-pav/src/data/quiz.ts` | reference |
 
 _Add rows when a future session would be surprised not to know something._
