@@ -59,6 +59,18 @@ export interface AboutFact {
   value: string
 }
 
+export interface CarouselSlide {
+  id: number
+  src: string
+  alt: string
+}
+
+export interface AboutCarousel {
+  url: string
+  caption: string
+  slides: CarouselSlide[]
+}
+
 export interface AreaOfActuation {
   id: string
   title: string
@@ -156,6 +168,7 @@ export {
   aboutFacts,
   aboutIntro,
   aboutExtended,
+  aboutCarousel,
   navLinks,
   socialLinks,
   timeline,

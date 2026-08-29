@@ -92,6 +92,19 @@ export const aboutExtended = [
   'Mantém canais abertos com moradores via WhatsApp (15) 99859-1411 e Instagram @heitordagelsa.',
 ]
 
+export const aboutCarousel = {
+  url: 'https://www.instagram.com/p/Db63IUBFdpi/',
+  caption:
+    'Cada político tem a sua estratégia e o seu jeito de trabalhar. Em todos esses anos de vida pública, aprendi uma coisa: não existe outra forma de fazer política senão perto das pessoas.',
+  slides: [
+    { id: 1, src: '/instagram/carousel-Db63IUBFdpi/01.jpg', alt: 'Quem é Heitor da Gelsa — slide 1' },
+    { id: 2, src: '/instagram/carousel-Db63IUBFdpi/02.jpg', alt: 'Quem é Heitor da Gelsa — slide 2' },
+    { id: 3, src: '/instagram/carousel-Db63IUBFdpi/03.jpg', alt: 'Quem é Heitor da Gelsa — slide 3' },
+    { id: 4, src: '/instagram/carousel-Db63IUBFdpi/04.jpg', alt: 'Quem é Heitor da Gelsa — slide 4' },
+    { id: 5, src: '/instagram/carousel-Db63IUBFdpi/05.jpg', alt: 'Quem é Heitor da Gelsa — slide 5' },
+  ],
+} as const
+
 export const navLinks = [
   { label: 'Início', href: '/#inicio' },
   { label: 'Sobre', href: '/#sobre' },
