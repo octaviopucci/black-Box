@@ -16,12 +16,13 @@ interface ButtonProps {
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    'bg-yellow text-green-dark hover:bg-yellow-gold border border-yellow font-bold',
-  secondary: 'bg-green text-white hover:bg-green-dark border border-green font-semibold',
+    'bg-yellow text-green-dark hover:bg-yellow-gold hover:shadow-[0_8px_24px_rgba(255,213,0,0.35)] border border-yellow font-bold',
+  secondary:
+    'bg-green text-white hover:bg-green-dark hover:shadow-[0_8px_24px_rgba(0,168,89,0.25)] border border-green font-semibold',
   outline:
     'bg-transparent text-green border-2 border-green hover:bg-green hover:text-white font-semibold',
   'outline-white':
-    'bg-transparent text-white border-2 border-white/80 hover:bg-white hover:text-green-deep font-semibold',
+    'bg-white/5 text-white border-2 border-white/70 hover:bg-white hover:text-green-deep backdrop-blur-sm font-semibold',
 }
 
 export function Button({
@@ -35,7 +36,7 @@ export function Button({
   external,
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm tracking-wide transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow sm:text-base'
+    'inline-flex items-center justify-center gap-2 rounded-sm px-6 py-3.5 text-sm tracking-wide transition-all duration-300 ease-smooth focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow sm:text-base'
 
   const classes = `${base} ${variants[variant]} ${className}`
 
