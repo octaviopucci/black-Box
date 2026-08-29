@@ -1,11 +1,11 @@
 ---
 name: story-quiz
 description: >-
-  Cria funis Story Quiz a partir de VSL (transcrição, roteiro ou URL). Extrai
-  blocos da VSL, mapeia para estrutura Mode Caverna (pitch → perguntas → oferta)
-  e gera quiz.ts + quizVisual.ts + offerCopy. Use com /story-quiz quando o
-  usuário pedir quiz narrativo, funil de vendas interativo ou converter VSL em
-  quiz. Referência: Luiggi Stecca / XQuiz + implementação BASE em protocolo-pav.
+  Constrói Story Quiz persuasivo para qualquer produto usando a metodologia
+  Luiggi Stecca (espionar → modelar → criar). Persona fictícia, manchetes,
+  perguntas narrativas, diagnóstico fake, plano personalizado e oferta low
+  ticket. Use com /story-quiz + produto/nicho. NÃO converte VSL — aplica o
+  método ensinado na aula Story Quiz.
 paths:
   - "apps/**/src/data/quiz.ts"
   - "apps/**/src/data/quizVisual.ts"
@@ -13,158 +13,137 @@ paths:
   - "exports/base-funnels/**"
 ---
 
-# Story Quiz — VSL → funil interativo
+# Story Quiz — construtor de funis (metodologia Stecca)
 
-Converte uma **VSL** (Video Sales Letter) em um **Story Quiz**: sequência de
-telas narrativas com micro-compromissos (pitch), perguntas de qualificação e
-oferta personalizada.
+Cria um **Story Quiz completo** para **qualquer produto** que o usuário pedir,
+aplicando o método ensinado por Luiggi Stecca na aula Story Quiz (FVI / Outbox).
 
-**Invoque:** `/story-quiz` + link da VSL, transcrição ou roteiro.
+**Invoque:** `/story-quiz` + produto, nicho, promessa e checkout.
 
-**Referências no repo:**
+**Não é:** converter uma VSL em quiz. **É:** construir um funil do zero com a
+lógica da aula (espionagem → modelagem → criação).
 
-- Implementação canônica: `apps/protocolo-pav/src/data/quiz.ts` (Mode Caverna)
-- UI: `apps/protocolo-pav/src/pages/QuizV2Page.tsx`
-- Export pack: `exports/base-funnels/quiz-v2/`
-- VSL de referência (Luiggi Stecca): [references/vsl-storyquiz-example.md](references/vsl-storyquiz-example.md)
+**Referência da aula:** [references/methodology.md](references/methodology.md)  
+**Anatomia do funil (~25 etapas):** [references/funnel-anatomy.md](references/funnel-anatomy.md)
 
 ---
 
-## Regra zero — rode ANTES de escrever copy
+## Regra zero
 
-1. **Extraia** a VSL — não invente argumentos que não estão no material.
-2. **Mapeie** cada bloco da VSL para um passo do funil (ver [mode-caverna.md](references/mode-caverna.md)).
-3. **Gere** os arquivos de dados — não reimplemente a UI se `QuizV2Page` já existe no app.
-4. **Valide** que cada passo tem `why` explicando de onde veio na VSL.
-
-Se a VSL for só vídeo (sem transcrição), peça transcrição ou use Whisper no
-áudio antes de seguir.
+1. **Produto do usuário** — nunca copiar funil de concorrente; só a *estrutura*.
+2. **Persona fictícia** — especialista/personagem criado (estilo Marta Ross).
+3. **História, não formulário** — perguntas avançam narrativa; dados pessoais no fim.
+4. **Validação antes de copy** — espionar funil escalado (7+ dias) ou usar template interno.
+5. **Gerar em lotes** — 5 etapas por vez; revisar antes de continuar.
 
 ---
 
 ## Fluxo automático
 
-### Passo 0 — Intake (só o que faltar)
+### Passo 0 — Intake
+
+Peça só o que faltar:
 
 | Campo | Obrigatório | Exemplo |
 |-------|-------------|---------|
-| **VSL** | sim | URL, `.txt`, roteiro colado |
-| **Produto/marca** | sim | BASE, Outbox Club |
-| **Público** | sim | quem assiste a VSL |
-| **App destino** | sim | `apps/protocolo-pav` ou novo em `apps/<slug>/` |
-| **Checkouts/planos** | sim p/ oferta | links Kiwify/Hotmart + preços |
-| **Tom** | opcional | Caveman (padrão), formal, técnico |
-| **Perguntas** | opcional | 3–4 (padrão Mode Caverna) |
+| **Produto** | sim | curso docinhos gourmet, app BASE |
+| **Promessa** | sim | faturar R$ 1.000/semana em casa |
+| **Público** | sim | mulheres 25–45, renda extra |
+| **Preço/checkout** | sim | R$ 29,90 · link Kiwify/Hotmart |
+| **Persona** | opcional | nome + história (agente cria se vazio) |
+| **Plataforma saída** | opcional | doc markdown · XQuiz spec · React `quiz.ts` |
+| **Nicho espionagem** | opcional | palavra-chave Ad Library |
 
-### Passo 1 — Extração da VSL
+### Passo 1 — Espionagem (validação estrutural)
 
-Siga [vsl-extraction.md](references/vsl-extraction.md).
+Siga [methodology.md § Passo 1](references/methodology.md#passo-1-espionagem).
 
-**Saída obrigatória** — tabela de blocos antes de escrever o quiz:
+- Biblioteca de Anúncios Meta → termos `lead.digital`, `xquiz`, `xpage`
+- Filtrar anúncios ativos **≥ 7 dias**
+- Escolher 1 funil do nicho (ou adjacente) como **molde de estrutura**
+- Transcrever em texto: `# etapa` + `[elementos visuais]`
 
-```markdown
-| Bloco VSL | Timestamp/trecho | Passo quiz | id sugerido |
-|-----------|------------------|------------|-------------|
-| Hook | "Se você tá cansado..." | pitch | hook |
-| Problema | ... | pitch | broken-promise |
-```
+Se o usuário não quiser espionar, use [funnel-anatomy.md](references/funnel-anatomy.md)
+como molde padrão (~25 etapas validadas).
 
-Se o material for página XQuiz/Vturb (como `aula-storyquiz.xquiz.click`), extraia
-do HTML/JSON: título, copy visível, CTA, delay do botão, checkout.
+### Passo 2 — Modelagem (IA + produto novo)
 
-### Passo 2 — Arquitetura Mode Caverna
+Siga [methodology.md § Passo 2](references/methodology.md#passo-2-modelagem) e
+[ai-prompts.md](references/ai-prompts.md).
 
-Siga [mode-caverna.md](references/mode-caverna.md).
+1. Colar transcrição do funil espionado
+2. Prompt de orientação (estrutura, não copy)
+3. Pedir **produto diferente** do espionado — mesma sequência, outro nicho
+4. Gerar **5 etapas por vez** até completar quiz + página de vendas
+5. Organizar doc final: `# Etapa N`, `[IMAGEM: …]`, `[BOTÃO]`, `[QUIZ]`
 
-Sequência padrão (12–16 passos):
-
-```
-pitch×8–10 → question×3 → pitch×2 → offer×1
-```
-
-Cada `pitch` = um micro-sim ("EU TOPO", "QUERO CONTINUAR"). Cada clique avança
-a narrativa da VSL sem exigir que o lead assista 40 min de vídeo.
-
-### Passo 3 — Copy
+### Passo 3 — Copy Story Quiz
 
 Siga [copy-rules.md](references/copy-rules.md).
 
-- Voz humana, primeira pessoa quando a VSL usa
-- Frases curtas. Sem travessões (—)
-- CTAs em MAIÚSCULAS, verbo de ação
-- Não copiar a VSL inteira num passo — fatiar em telas de 3–6 linhas
+Elementos obrigatórios:
 
-### Passo 4 — Gerar arquivos
+- Manchete fake news (prova social simulada)
+- Persona: "Prazer, meu nome é…" + backstory emocional
+- Perguntas de dor (múltipla escolha, tom conversa)
+- Tela de análise/carregamento (diagnóstico fake)
+- Plano personalizado + oferta com ancoragem
 
-Siga [quiz-schema.md](references/quiz-schema.md).
+### Passo 4 — Entrega
 
-| Arquivo | Conteúdo |
-|---------|----------|
-| `src/data/quiz.ts` | `funnelSteps`, `proofs`, `offerCopy`, `quizIntro` |
-| `src/data/quizVisual.ts` | `quizVisuals` por step id |
-| `src/data/site.ts` | `brand`, `plans` (se não existir) |
+Conforme plataforma escolhida:
 
-**Não altere** `QuizV2Page.tsx` salvo pedido explícito — ela consome os dados.
+| Saída | Arquivo / formato |
+|-------|-------------------|
+| **Brief completo** | Markdown com 25 etapas + elementos visuais |
+| **React (Black Box)** | `quiz.ts` + `quizVisual.ts` — [quiz-schema.md](references/quiz-schema.md) |
+| **XQuiz spec** | JSON/blocos por etapa — [platform-mapping.md](references/platform-mapping.md) |
 
-### Passo 5 — Visuais
+Default: **brief markdown completo** + oferta. Só gera código se o usuário pedir
+ou o intake incluir app destino (`apps/<slug>/`).
 
-Para cada `pitch` com id, defina em `quizVisual.ts`:
+### Passo 5 — Verificação
 
-- `src`: path em `public/quiz-v2/<id>.jpg`
-- `alt`: descrição literal da cena (para gerar/buscar imagem depois)
-- `placement`: `hero` | `side` | `banner`
+- [ ] 20–25 etapas (quiz + PV)
+- [ ] Barra de progresso implícita (progress % crescente)
+- [ ] Persona fictícia nomeada (disclaimer interno: personagem de marketing)
+- [ ] Zero copy do funil espionado (só estrutura)
+- [ ] Perguntas de engajamento antes de renda/dados
+- [ ] Oferta: stack + garantia + ancoragem + escassez
+- [ ] Promessa legal (ex.: "até R$ X", não "R$ 50 vira R$ 1000")
 
-Alterne `hero` nos passos emocionais fortes; `banner` nos de transição.
+---
 
-### Passo 6 — Verificação
+## Anatomia resumida (25 etapas)
 
-```bash
-npm --prefix apps/<app> ci --include=dev
-npm run build:<app>   # ou dev:<app> e abrir /quiz-v2
+Ver detalhe em [funnel-anatomy.md](references/funnel-anatomy.md).
+
+```
+HOOK + promessa + bullets
+→ MANCHETE fake news
+→ PERGUNTAS dor (3–5)
+→ PERSONA + história
+→ PERGUNTAS experiência (2–3)
+→ PROVA visual (fotos produto)
+→ PERGUNTAS desejo/compromisso (3–4)
+→ MANCHETE persona viral
+→ PERGUNTAS renda/meta
+→ LOADING análise + gráfico fake
+→ ÚLTIMAS perguntas + compromisso
+→ LOADING "montando plano"
+→ PÁGINA DE VENDAS personalizada
 ```
 
-Checklist:
-
-- [ ] Progress bar sobe de 6% a 100% sem saltos estranhos
-- [ ] 3 perguntas com opções distintas e labels legíveis no mobile
-- [ ] `OfferView` espelha respostas (`mirrorBits` em QuizV2Page)
-- [ ] Checkouts abrem em nova aba
-- [ ] Nenhum passo com body vazio sem `note` ou `bullets`
-
 ---
 
-## VSL page vs Story Quiz
-
-Dois produtos distintos, mesma origem:
-
-| Peça | Função | Onde vive |
-|------|--------|-----------|
-| **VSL page** | Vídeo longo + CTA delayado | landing `/` ou `/vsl` |
-| **Story Quiz** | Narrativa fatiada + quiz + oferta | `/quiz-v2` |
-
-A VSL de Luiggi Stecca (`SQ - VSL 1`) é só a **página de aquecimento**: logo,
-Vturb, botão após 51:23, bio, checkout Hotmart. O Story Quiz completo é o funil
-interativo (como BASE em `protocolo-pav`).
-
-Ao receber só a VSL page, pergunte se o usuário quer:
-
-1. Clonar a VSL page (vídeo + delay), ou
-2. Gerar o Story Quiz completo a partir do **conteúdo falado** no vídeo
-
-Para (2), a transcrição do vídeo é obrigatória.
-
----
-
-## Integração com vibe-coding
+## Integração vibe-coding
 
 | Fase | Ação |
 |------|------|
-| Brainstorm | Confirmar app destino, checkouts, se VSL page entra no escopo |
-| Plano | Listar passos Mode Caverna + ids antes de codar |
-| Implementação | Só `quiz.ts`, `quizVisual.ts`, assets — UI existente |
-| Revisão | `code-reviewer` no diff de copy (tom, claims, checkouts) |
-
-Roteamento: `frontend-specialist` para UI nova; orquestrador para copy/dados.
+| Brainstorm | Confirmar produto, promessa, preço, plataforma de saída |
+| Plano | Listar 25 etapas com ids antes de escrever copy |
+| Implementação | Brief primeiro; código só se app destino definido |
+| Revisão | Claims legais, personagem fictícia, checkouts corretos |
 
 ---
 
@@ -172,17 +151,17 @@ Roteamento: `frontend-specialist` para UI nova; orquestrador para copy/dados.
 
 | Comando | Comportamento |
 |---------|---------------|
-| `/story-quiz` | Fluxo completo (extração → arquivos) |
-| `/story-quiz esqueleto` | Só tabela de blocos + ids, sem copy final |
-| `/story-quiz a partir de BASE` | Copia estrutura de `protocolo-pav`, troca copy |
+| `/story-quiz` | Fluxo completo para produto informado |
+| `/story-quiz esqueleto` | Só 25 etapas vazias com ids e elementos |
+| `/story-quiz react` | Gera `quiz.ts` direto no app indicado |
 
 ---
 
 ## Anti-padrões
 
-- Quiz genérico de nicho sem extrair a VSL
-- 15+ passos (abandono sobe; máx ~16)
-- Perguntas abertas (só múltipla escolha)
-- Oferta antes das perguntas
-- Copy de IA ("potencialmente", "transforme sua jornada")
-- Inventar depoimentos ou números que não estão na VSL
+- Copiar copy do funil espionado
+- Quiz tipo formulário (budget, CNPJ, email no início)
+- Persona "eu, guru" sem personagem — método usa **personagem fictícia**
+- Gerar 25 etapas de uma vez (qualidade cai)
+- Promessas ilegais ou sem qualificador ("até", "pode")
+- Confundir VSL page (vídeo longo) com Story Quiz (funil interativo)

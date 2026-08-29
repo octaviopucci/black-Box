@@ -1,27 +1,24 @@
-# Schema — quiz.ts e quizVisual.ts
+# Schema React — Story Quiz em quiz.ts
 
-Contrato de dados consumido por `QuizV2Page.tsx`. Copie tipos de
-`apps/protocolo-pav/src/data/quiz.ts` — não reinvente.
+Opcional — só quando exportar para `QuizV2Page` no Black Box.
+Para entrega default (markdown/XQuiz), use [funnel-anatomy.md](funnel-anatomy.md).
 
 ---
 
-## Tipos
+## Tipos (compatível QuizV2Page)
 
 ```typescript
-export type QuizOption = {
-  id: string
-  label: string
-}
+export type QuizOption = { id: string; label: string }
 
 export type PitchStep = {
   type: 'pitch'
   id: string
-  why: string           // rastreabilidade VSL — obrigatório
-  progress: number      // 0–100, monotônico
+  why: string
+  progress: number
   kicker?: string
   title: string
-  highlight?: string    // linha 2 do título (destaque visual)
-  body: string[]        // parágrafos; pode ser []
+  highlight?: string
+  body: string[]
   note?: { title: string; body: string[] }
   bullets?: string[]
   emphasis?: string
@@ -34,7 +31,7 @@ export type QuestionStep = {
   why: string
   progress: number
   title: string
-  helper: string        // ex.: "Escolhe uma pra avançar"
+  helper: string
   options: QuizOption[]
 }
 
@@ -42,182 +39,75 @@ export type OfferStep = {
   type: 'offer'
   id: string
   why: string
-  progress: number      // sempre 100
-}
-
-export type QuizStep = PitchStep | QuestionStep | OfferStep
-
-export type Proof = {
-  name: string
-  meta: string          // "34 anos · resultado · tempo"
-  quote: string
+  progress: number
 }
 ```
 
----
-
-## funnelSteps
-
-Array ordenado. Export:
-
-```typescript
-export const funnelSteps: QuizStep[] = [ /* ... */ ]
-
-export function buildSteps(): QuizStep[] {
-  return funnelSteps
-}
-```
+Referência canônica: `apps/protocolo-pav/src/data/quiz.ts`
 
 ---
 
-## offerCopy
+## Story Quiz → tipos
+
+| Bloco Story Quiz | type | Notas |
+|------------------|------|-------|
+| Hook, manchete, persona, reframe | `pitch` | `note` para caixas destaque |
+| Perguntas | `question` | 3–8 opções |
+| Loading/diagnóstico | `pitch` | body simula loading; CTA "Continuar" |
+| PV | `offer` | conteúdo em `offerCopy` |
+
+---
+
+## offerCopy (PV)
 
 ```typescript
 export const offerCopy = {
-  kicker: string
-  title: string
-  subtitle: string
-  luckTitle: string       // "Olha. Vou falar reto."
-  luckBody: string
-  stackTitle: string
-  stack: string[]         // o que recebe
-  valueBridge: string     // ancoragem de preço
-  mentorTitle: string
-  mentorBody: string[]
-  guaranteeTitle: string
-  guaranteeBody: string
-  faqTitle: string
-  faqs: { q: string; a: string }[]
-  cta: string
-  secondaryCta: string
-  plans: Plan[]           // de site.ts
-  proofs: Proof[]
-  cadastro: string        // URL externa se houver
-  disclaimer: string
-} as const
+  kicker: 'Seu plano está pronto',
+  title: '...',
+  subtitle: '...',
+  luckTitle: '...',
+  luckBody: '...',
+  stackTitle: 'O que você recebe',
+  stack: string[],
+  valueBridge: '...',
+  mentorTitle: '...',
+  mentorBody: string[],
+  guaranteeTitle: '...',
+  guaranteeBody: '...',
+  faqTitle: '...',
+  faqs: { q: string; a: string }[],
+  cta: 'QUERO COMEÇAR AGORA',
+  secondaryCta: '...',
+  plans: Plan[],
+  proofs: Proof[],
+  cadastro: string,
+  disclaimer: string,
+}
 ```
 
----
-
-## quizIntro
-
-Derivado do primeiro passo (hook):
-
-```typescript
-export const quizIntro = {
-  kicker: funnelSteps[0].type === 'pitch' ? funnelSteps[0].kicker : '',
-  title: funnelSteps[0].type === 'pitch' ? funnelSteps[0].title : '',
-  highlight: funnelSteps[0].type === 'pitch' ? funnelSteps[0].highlight : '',
-  body: funnelSteps[0].type === 'pitch' ? funnelSteps[0].body : [],
-  points: funnelSteps[0].type === 'pitch' ? (funnelSteps[0].bullets ?? []) : [],
-  cta: funnelSteps[0].type === 'pitch' ? funnelSteps[0].cta : '',
-} as const
-```
+Espelhamento respostas: editar `OfferView` em `QuizV2Page.tsx` para novos ids.
 
 ---
 
 ## quizVisual.ts
 
-```typescript
-const base = `${import.meta.env.BASE_URL}quiz-v2`
+Um entry por pitch id + offer:
 
-export const quizVisuals: Record<
-  string,
-  { src: string; alt: string; placement: 'hero' | 'side' | 'banner' }
-> = {
-  hook: {
-    src: `${base}/hook.jpg`,
-    alt: 'descrição literal da cena',
-    placement: 'hero',
-  },
-  // ... um entry por pitch id + offer
-}
+```typescript
+export const quizVisuals: Record<string, {
+  src: string
+  alt: string
+  placement: 'hero' | 'side' | 'banner'
+}> = { ... }
 ```
 
-**placement:**
-
-| Valor | UI |
-|-------|-----|
-| `hero` | 16:10 acima do título |
-| `side` | 4:5 lateral, max 280px |
-| `banner` | 21:9 faixa horizontal |
-
-Perguntas (`question`) não têm visual — só pitch e offer.
+Story Quiz: `hero` para manchetes e persona; `banner` para proof visual.
 
 ---
 
-## plans (site.ts)
+## Variante Mode Caverna
 
-```typescript
-export const plans = [
-  {
-    id: 'mensal',
-    name: 'Mensal',
-    price: 'R$ 17,70',
-    cadence: '/mês',
-    badge: 'Começar',
-    checkout: 'https://pay.kiwify.com.br/...',
-    highlight: false,
-    perks: ['...'],
-  },
-  // ...
-] as const
-```
+`apps/protocolo-pav` usa variante **superação** (sem fake news) — 15 passos.
+Não confundir com Story Quiz Stecca (25 passos). Ver [copy-rules.md § Diferença](copy-rules.md#diferença-vs-mode-caverna-base).
 
-Copie checkouts **exatos** da VSL/oferta. Um plano com `highlight: true`.
-
----
-
-## Template mínimo de passo pitch
-
-```typescript
-{
-  type: 'pitch',
-  id: 'hook',
-  why: 'Hook: [de onde veio na VSL em 1 linha]',
-  progress: 6,
-  kicker: 'MARCA',
-  title: 'Primeira linha do título,',
-  highlight: 'segunda linha em destaque.',
-  body: [
-    'Parágrafo 1 — fatiado da VSL.',
-    'Parágrafo 2 — consequência ou contexto.',
-  ],
-  bullets: [
-    'Bullet escaneável 1',
-    'Bullet 2',
-    'Bullet 3',
-  ],
-  cta: 'QUERO CONTINUAR',
-},
-```
-
----
-
-## Template mínimo de pergunta
-
-```typescript
-{
-  type: 'question',
-  id: 'objetivo',
-  why: 'Qualificação: objetivo principal do lead.',
-  progress: 74,
-  title: 'O que você mais quer tirar disso?',
-  helper: 'Escolhe uma pra avançar',
-  options: [
-    { id: 'resultado_a', label: 'Frase completa na voz do lead.' },
-    { id: 'resultado_b', label: 'Outra variante de desejo.' },
-    { id: 'resultado_c', label: 'Terceira variante.' },
-  ],
-},
-```
-
----
-
-## Checklist de validação TypeScript
-
-- [ ] Todos os `id` de pitch existem em `quizVisuals` (exceto se sem imagem)
-- [ ] `progress` strictly increasing
-- [ ] Último passo é `type: 'offer'` com `progress: 100`
-- [ ] `offerCopy.plans` não vazio
-- [ ] `import { brand, plans } from './site'` resolve
+Use Mode Caverna quando o produto for protocolo/comportamento, não renda extra.

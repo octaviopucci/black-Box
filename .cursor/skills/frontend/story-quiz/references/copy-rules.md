@@ -1,120 +1,226 @@
 # Regras de copy — Story Quiz
 
-Tom padrão: **Caveman** (vibe-coding) + voz humana do funil BASE.
+Tom: conversa direta, renda extra / transformação, micro-compromissos.
+Base: metodologia Luiggi Stecca (aula Story Quiz + prática Deskfunnel).
 
 ---
 
 ## Princípios
 
-1. **Fatiar, não colar** — máx 3 parágrafos + 3 bullets por pitch
-2. **Micro-compromisso** — cada CTA pede um "sim" pequeno, não "compre agora"
-3. **Voz do chão** — quem já viveu o problema (se a VSL usa primeira pessoa)
-4. **Especificidade** — números, situações concretas, zero abstração
-5. **Rastreabilidade** — campo `why` em todo passo
+1. **História contínua** — cada tela avança o arco (problema → guia → plano)
+2. **Micro-sim** — botão "Continuar" = compromisso pequeno
+3. **Empatia antes de pitch** — perguntas de dor antes de persona
+4. **Especificidade** — números, situações ("R$ 1.000/semana", "grupo da cidade")
+5. **Persona com arc** — queda → descoberta → prova → convite
 
 ---
 
-## Formato
+## Hook (etapa 1)
 
-| Regra | Certo | Errado |
-|-------|-------|--------|
-| Travessões | "Eu caí. Negociei. Voltei." | "Eu caí — negociei — voltei" |
-| CTAs | `QUERO CONTINUAR` | `Clique aqui para continuar` |
-| Títulos | 2 linhas: normal + highlight | parágrafo inteiro no title |
-| Perguntas | frase completa | "Opção A" |
-| Maiúsculas | CTAs e kicker | body inteiro |
+```
+Descubra o passo a passo para [RESULTADO] com [PRODUTO/MÉTODO]
 
----
-
-## CTAs por fase
-
-| Fase | Tom | Exemplos |
-|------|-----|----------|
-| Hook | curiosidade | QUERO CONTINUAR, FICA COMIGO |
-| Dor | identificação | EU TÔ CANSADO DISSO, ISSO SOU EU |
-| Reframe | esperança | QUERO SAIR DESSE CICLO, SIM EU TOPO |
-| Filtro | desafio | EU QUERO SEGUIR, PODE ME TESTAR |
-| Mecanismo | lógica | ISSO FAZ SENTIDO, ENTENDI |
-| Prova | pertencimento | EU VOU ENTRAR, QUERO ESTAR COM VOCÊS |
-| Transformação | desejo | EU QUERO ISSO PRA MIM |
-| Fechamento | ação | QUERO MEU ACESSO, QUERO COMEÇAR |
-
-Varie — não repetir o mesmo CTA 3x seguidas.
-
----
-
-## Anti-slop (proibido)
-
-Palavras/frases de template IA:
-
-- "transforme sua jornada"
-- "potencialmente"
-- "desbloqueie seu potencial"
-- "solução inovadora"
-- "neste artigo/vídeo"
-- "é importante ressaltar"
-- travessão (—) em qualquer lugar
-
-Carregue `anti-ai-landing` se o quiz for visual premium além do template BASE.
-
----
-
-## Perguntas — voz do lead
-
-Escreva opções como o **lead falaria**, não como o expert classificaria:
-
-| Expert (ruim) | Lead (bom) |
-|---------------|------------|
-| Nível iniciante | Fico perdido. Não sei por onde começar de verdade. |
-| Falta de disciplina | Eu sei o que fazer, mas a fissura me pega e eu caio. |
-| Avatar 3 | Me comparo, travo, e volto pro alívio fácil. |
-
-3 opções por pergunta (4–8 no `padrao` se nicho exige).
-
----
-
-## Oferta — luck frame
-
-O par `luckTitle` + `luckBody` cria frame de "não foi acaso":
-
-```typescript
-luckTitle: 'Olha. Vou falar reto.',
-luckBody: 'Você veio até aqui clicando sim. Isso não foi acaso...',
+Bullets (3):
+- Não precisa [objeção 1]
+- Comece com menos de R$ [X] para faturar até R$ [Y]
+- [Objeção 3 removida]
 ```
 
-Personalize com base na jornada do quiz, não genérico.
+Qualificadores obrigatórios: **até**, **pode**, **menos de**.
 
 ---
 
-## Provas
+## Manchetes fake news
 
-Formato:
+Formato jornalístico:
 
-```typescript
-{
-  name: 'Marcos',
-  meta: '34 anos · parou com cigarro · 287 dias limpo',
-  quote: 'Citação curta, voz real, resultado específico.',
-}
+```
+[N] [mulheres/empresários] faturam até R$ [X] por [período]
+com [atividade do produto]
 ```
 
-Só inclua se a VSL trouxer depoimentos reais. Meta = idade + contexto + resultado.
+Visual: colunas, foto stock, headline grande. Não usar logo de veículo real.
+
+Compliance: "simulação ilustrativa" se nicho sensível; evitar nomes de jornais.
 
 ---
 
-## Disclaimer
+## Perguntas
 
-Se produto de saúde/financeiro/infantil, inclua disclaimer legal da VSL em
-`offerCopy.disclaimer`. Nunca remover avisos existentes.
+### Boas
+
+```
+Quando você tenta fazer [X], o resultado fica como espera?
+○ Não, desanda
+○ Às vezes
+○ Nunca fiz, quero aprender
+```
+
+### Ruins
+
+```
+Qual seu email?
+Qual seu faturamento anual?
+Qual CRM você usa?
+```
+
+### Ordem
+
+1. Dor / situação
+2. Experiência / tentativas
+3. Desejo / compromisso
+4. Renda / meta (fim)
+5. Nome/email (só se captura — fim absoluto)
 
 ---
 
-## Adaptação de tom
+## Persona fictícia
 
-| Tom | Quando | Ajuste |
-|-----|--------|--------|
-| Caveman (padrão) | info produto, superação | frases curtas, "tá", "pra" |
-| Formal | B2B, advocacia | "você", sem gíria; CTAs iguais |
-| Técnico | SaaS dev | manter CTAs; body mais preciso |
+Template:
 
-Peça tom no intake se a VSL for formal — não force Caveman em copy corporativa.
+```
+Prazer, meu nome é [NOME].
+
+Há [tempo] eu estava [situação baixa — desemprego, dívidas, etc.].
+Assim como você, não sabia por onde começar.
+
+Até descobrir [método/produto simples].
+
+Na primeira semana [resultado pequeno e crível].
+Hoje [resultado maior].
+
+Agora vou te mostrar exatamente como você pode fazer o mesmo.
+```
+
+Personagem fictícia = OK para low ticket renda extra (método Stecca).
+Se expert real: usar nome e história verdadeira.
+
+---
+
+## Diagnóstico fake
+
+Copy loading:
+
+```
+Analisando suas respostas...
+```
+
+Copy resultado:
+
+```
+Análise do seu perfil
+
+Motivação para mudar: Alta
+Conhecimento em [tema]: Médio
+Potencial de resultado: Elevado
+
+Vamos montar um plano exclusivo para você.
+```
+
+Gráfico visual — labels genéricos, não prometer % real de sucesso.
+
+---
+
+## Página de vendas
+
+### Abertura
+
+```
+Seu plano está pronto!
+
+Com base no seu perfil, este é o caminho ideal para [resultado] com [produto].
+```
+
+Espelhar 2–3 respostas do quiz ("Você disse que…").
+
+### Stack
+
+5–7 bullets tangíveis:
+
+```
+✓ Passo a passo completo
+✓ [N] receitas/técnicas/módulos
+✓ Como organizar [processo]
+✓ Estratégia validada para vender
+```
+
+### Bônus
+
+2–3 extras com nome específico:
+
+```
+🎁 Bônus: Posts prontos para Instagram
+🎁 Bônus: Planilha de precificação
+```
+
+### Garantia antecipada
+
+**Antes** do preço (tática Stecca):
+
+```
+Teste seguro — 30 dias
+Se não gostar, devolvemos 100% do valor.
+```
+
+### Ancoragem
+
+```
+Tudo isso por apenas R$ [PREÇO]
+De R$ [ANCORA] por R$ [PREÇO]
+Valor simbólico — próximos [minutos/vagas]
+```
+
+### Escassez
+
+```
+Somente [N] vagas com este valor
+```
+
+Usar com moderação — compliance Meta.
+
+### CTA
+
+```
+QUERO COMEÇAR AGORA
+GARANTIR MINHA VAGA
+ACESSAR O MÉTODO COMPLETO
+```
+
+MAIÚSCULAS, verbo de ação.
+
+---
+
+## Anti-slop
+
+Proibido:
+
+- "Transforme sua jornada"
+- "Desbloqueie seu potencial"
+- Travessão (—)
+- "Potencialmente"
+- Promessa absoluta de renda ("você vai faturar X")
+
+---
+
+## Tom por nicho
+
+| Nicho | Ajuste |
+|-------|--------|
+| Renda extra / crafts | Informal, "pra", persona mulher comum |
+| Fitness | Resultado corporal, antes/depois real |
+| Finanças | Mais sobrio; cuidado CVM |
+| B2B | Menos fake news; case + ROI |
+| App SaaS | Perguntas sobre workflow, não renda |
+
+---
+
+## Diferença vs Mode Caverna (BASE)
+
+| Story Quiz Stecca | Mode Caverna (protocolo-pav) |
+|-------------------|------------------------------|
+| Persona fictícia / expert | Voz "eu vivi isso" |
+| Fake news + diagnóstico | Pitch emocional direto |
+| Low ticket impulso | Assinatura / protocolo |
+| ~25 etapas | ~15 etapas |
+
+Use Mode Caverna só quando o produto for superação/comportamento, não renda extra.
