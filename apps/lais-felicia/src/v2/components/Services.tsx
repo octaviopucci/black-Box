@@ -31,7 +31,6 @@ export function Services() {
               />
             </div>
             <h3 className="mt-5 font-display text-xl font-bold text-ink">{item.name}</h3>
-            <p className="mt-1 text-sm text-ink-mute">{item.line}</p>
           </Link>
         ))}
       </Carousel>

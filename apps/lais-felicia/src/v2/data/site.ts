@@ -17,7 +17,6 @@ export const v2ServiceHighlights = [
   {
     id: 'design',
     name: 'Design de sobrancelha',
-    line: 'Leitura do rosto e método RT.',
     image: 'design-sobrancelha.jpg',
     imageAlt: 'Antes e depois de design de sobrancelha',
     href: '/servicos#design',
@@ -25,7 +24,6 @@ export const v2ServiceHighlights = [
   {
     id: 'spa',
     name: 'Spa labial',
-    line: 'Hidratação e brilho nos lábios.',
     image: 'spa-labial.jpg',
     imageAlt: 'Spa labial com acabamento glossy',
     href: '/servicos#spa',
@@ -33,7 +31,6 @@ export const v2ServiceHighlights = [
   {
     id: 'experiencia',
     name: 'Experiência',
-    line: 'Acolhimento e mimo no studio.',
     image: 'experiencia-cafe.jpg',
     imageAlt: 'Experiência com café e mimo para clientes',
     href: '#galeria',
@@ -41,7 +38,6 @@ export const v2ServiceHighlights = [
   {
     id: 'tintura',
     name: 'Tintura',
-    line: 'Cor alinhada ao tom do olhar.',
     image: 'tintura.jpg',
     imageAlt: 'Antes e depois de tintura',
     href: '/servicos#tintura',
@@ -49,7 +45,6 @@ export const v2ServiceHighlights = [
   {
     id: 'henna',
     name: 'Henna ombré',
-    line: 'Preenchimento com efeito ombré.',
     image: 'henna-ombre.jpg',
     imageAlt: 'Resultado de henna ombré',
     href: '/servicos#henna',
@@ -57,7 +52,6 @@ export const v2ServiceHighlights = [
   {
     id: 'coloracao',
     name: 'Design com coloração',
-    line: 'Definição alinhada ao olhar.',
     image: 'design-coloracao.jpg',
     imageAlt: 'Antes e depois de design com coloração',
     href: '/servicos#coloracao',
@@ -65,7 +59,6 @@ export const v2ServiceHighlights = [
   {
     id: 'brow',
     name: 'Brow lamination',
-    line: 'Fios alinhados e direcionados.',
     image: 'brow-lamination.jpg',
     imageAlt: 'Antes e depois de brow lamination',
     href: '/servicos#brow',
@@ -73,7 +66,6 @@ export const v2ServiceHighlights = [
   {
     id: 'brow-tintura',
     name: 'Brow lamination com tintura',
-    line: 'Volume e cor no mesmo protocolo.',
     image: 'brow-lamination-tintura.jpg',
     imageAlt: 'Resultado de brow lamination com tintura',
     href: '/servicos#brow-tintura',
@@ -81,7 +73,6 @@ export const v2ServiceHighlights = [
   {
     id: 'costeleta',
     name: 'Epilação costeleta',
-    line: 'Acabamento limpo na linha do rosto.',
     image: 'epilacao-costeleta.jpg',
     imageAlt: 'Antes e depois de epilação de costeleta',
     href: '/servicos#costeleta',
@@ -89,7 +80,6 @@ export const v2ServiceHighlights = [
   {
     id: 'facial',
     name: 'Epilação facial',
-    line: 'Pele lisa e harmonizada.',
     image: 'epilacao-facial.jpg',
     imageAlt: 'Antes e depois de epilação facial',
     href: '/servicos#facial',
@@ -111,6 +101,19 @@ export const v2Testimonials = [
   },
 ] as const
 
+export const v2CourseMedia = [
+  {
+    file: 'material-apoio.jpg',
+    alt: 'Guia de treinos e apostila do curso iniciante',
+    caption: 'Material de apoio — guia de treinos e curso iniciante',
+  },
+  {
+    file: 'henna-ombre-edicao.jpg',
+    alt: 'Bônus de edição de foto para redes sociais',
+    caption: 'Bônus: edição de foto que atrai',
+  },
+] as const
+
 export const v2Gallery = [
   { file: 'design-sobrancelha.jpg', alt: 'Design de sobrancelha — antes e depois' },
   { file: 'tintura.jpg', alt: 'Tintura — antes e depois' },
@@ -125,5 +128,7 @@ export const v2Gallery = [
   { file: 'experiencia-bancada.jpg', alt: 'Bancada de atendimento preparada' },
   { file: 'experiencia-procedimento.jpg', alt: 'Procedimento de design no studio' },
   { file: 'experiencia-certificado.jpg', alt: 'Entrega de certificado de curso' },
-  { file: 'henna-ombre-edicao.jpg', alt: 'Henna ombré — edição de foto' },
+  { file: 'studio-equipe.jpg', alt: 'Laís Felicia no studio' },
+  { file: 'material-apoio.jpg', alt: 'Material de apoio dos cursos' },
+  { file: 'henna-ombre-edicao.jpg', alt: 'Bônus — edição de foto' },
 ] as const

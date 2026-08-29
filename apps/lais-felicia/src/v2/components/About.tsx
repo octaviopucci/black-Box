@@ -23,12 +23,11 @@ export function About() {
             <h2 className="display-title mt-3 text-4xl sm:text-5xl">{site.name}</h2>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-ink-soft">
               Designer de sobrancelhas em Capão Bonito, com foco em{' '}
-              <span className="font-semibold text-gold-deep">naturalidade</span>, simetria e um desenho
-              que respeita o seu rosto.
+              <span className="font-semibold text-gold-deep">harmonia facial</span>.
             </p>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-ink-soft">
-              Há 10 anos a Laís cuida de olhares no studio. Ela também capacita alunas do zero à prática,
-              com método RT, henna profissional e o protocolo que usa no atendimento.
+              Há 10 anos a Laís cuida de olhares no studio. Ela também capacita alunas do zero,
+              transforma sua experiência em aprendizado leve e real.
             </p>
           </Reveal>
 
@@ -49,8 +48,8 @@ export function About() {
         <Reveal delay={0.12} className="lg:col-span-5 lg:col-start-8">
           <div className="overflow-hidden rounded-md">
             <img
-              src={v2Asset('experiencia-certificado.jpg')}
-              alt="Laís Felicia entregando certificado no studio"
+              src={v2Asset('studio-equipe.jpg')}
+              alt="Laís Felicia no studio com certificado de formação"
               className="w-full object-cover"
               loading="lazy"
             />

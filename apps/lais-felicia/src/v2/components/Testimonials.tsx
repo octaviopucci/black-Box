@@ -45,7 +45,7 @@ export function Testimonials() {
                   <img
                     src={v2Asset(item.file)}
                     alt={item.alt}
-                    className="aspect-[9/16] w-full object-cover object-top"
+                    className="aspect-[9/16] max-h-[520px] w-full object-contain object-top bg-white"
                     loading="lazy"
                   />
                 </figure>
