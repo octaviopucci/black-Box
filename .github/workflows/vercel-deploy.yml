@@ -6,13 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-hook:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Vercel deploy hook
-        if: ${{ secrets.VERCEL_DEPLOY_HOOK }}
-        run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
-
   build-verify:
     runs-on: ubuntu-latest
     steps:
