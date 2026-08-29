@@ -1,6 +1,5 @@
 import { Check } from 'lucide-react'
 import { site } from '../../data/site'
-import { v2Asset } from '../data/site'
 import { Reveal } from './Reveal'
 
 const v2Skills = [
@@ -16,8 +15,8 @@ const v2Skills = [
 export function About() {
   return (
     <section id="sobre" className="section-pad">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-12">
-        <div className="lg:col-span-6">
+      <div className="mx-auto max-w-3xl">
+        <div>
           <Reveal>
             <p className="eyebrow">{site.role}</p>
             <h2 className="display-title mt-3 text-4xl sm:text-5xl">{site.name}</h2>
@@ -44,17 +43,6 @@ export function About() {
             ))}
           </ul>
         </div>
-
-        <Reveal delay={0.12} className="lg:col-span-5 lg:col-start-8">
-          <div className="overflow-hidden rounded-md">
-            <img
-              src={v2Asset('studio-equipe.jpg')}
-              alt="Laís Felicia no studio com certificado de formação"
-              className="w-full object-cover"
-              loading="lazy"
-            />
-          </div>
-        </Reveal>
       </div>
     </section>
   )

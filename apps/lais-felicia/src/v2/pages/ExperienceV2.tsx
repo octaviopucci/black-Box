@@ -14,7 +14,6 @@ import { PulseWhatsApp } from '../components/PulseWhatsApp'
 import { ScrollTop } from '../components/ScrollTop'
 import { Services } from '../components/Services'
 import { Stats } from '../components/Stats'
-import { Testimonials } from '../components/Testimonials'
 
 export function ExperienceV2() {
   return (
@@ -37,15 +36,13 @@ export function ExperienceV2() {
         <Divider />
         <About />
         <Divider />
+        <Gallery />
+        <Divider />
         <Stats />
         <Divider />
         <Courses />
         <Divider />
-        <Gallery />
-        <Divider />
         <Faq />
-        <Divider />
-        <Testimonials />
       </main>
       <Footer />
       <PulseWhatsApp />

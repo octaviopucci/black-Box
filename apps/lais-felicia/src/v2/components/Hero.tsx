@@ -130,12 +130,6 @@ export function Hero() {
       <div ref={pinRef} className="relative z-[1] h-[100dvh] min-h-[100svh] w-full overflow-hidden">
         <HeroMedia videoRef={videoRef} scrub />
         <HeroScrubCopy />
-        <p
-          aria-hidden
-          className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 text-[10px] uppercase tracking-[0.32em] text-white/40"
-        >
-          Role para ver
-        </p>
       </div>
     </section>
   )

@@ -1,4 +1,4 @@
-import { v2Asset, v2Gallery } from '../data/site'
+import { v2Asset, v2ExperienceGallery } from '../data/site'
 import { Reveal } from './Reveal'
 
 export function Gallery() {
@@ -7,12 +7,12 @@ export function Gallery() {
       <Reveal>
         <div className="mb-12 text-center">
           <p className="eyebrow">Resultados e experiência</p>
-          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Antes e depois no studio</h2>
+          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Experiência no Studio</h2>
         </div>
       </Reveal>
 
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {v2Gallery.map((item, i) => (
+        {v2ExperienceGallery.map((item, i) => (
           <figure
             key={item.file}
             className={`group relative overflow-hidden rounded-md ${i === 0 ? 'sm:col-span-2 sm:row-span-2' : ''}`}

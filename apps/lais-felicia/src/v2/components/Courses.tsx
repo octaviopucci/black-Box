@@ -1,8 +1,9 @@
 import { Check } from 'lucide-react'
 import { courses, whatsappUrl } from '../../data/site'
-import { v2Asset, v2CourseMedia } from '../data/site'
+import { v2Asset, v2CourseBonus, v2CoursePhotos } from '../data/site'
 import { Carousel } from './Carousel'
 import { Reveal } from './Reveal'
+import { Testimonials } from './Testimonials'
 
 export function Courses() {
   return (
@@ -50,9 +51,9 @@ export function Courses() {
         ))}
       </Carousel>
 
-      <Reveal delay={0.08}>
+      <Reveal delay={0.06}>
         <div className="mx-auto mt-14 grid max-w-6xl gap-4 sm:grid-cols-2">
-          {v2CourseMedia.map((item) => (
+          {v2CoursePhotos.map((item) => (
             <figure key={item.file} className="overflow-hidden rounded-md border border-ink/10 bg-surface-lift">
               <img
                 src={v2Asset(item.file)}
@@ -64,6 +65,22 @@ export function Courses() {
             </figure>
           ))}
         </div>
+      </Reveal>
+
+      <div className="mx-auto mt-20 max-w-6xl border-t border-ink/10 pt-16">
+        <Testimonials />
+      </div>
+
+      <Reveal delay={0.08}>
+        <figure className="mx-auto mt-16 max-w-6xl overflow-hidden rounded-md border border-ink/10 bg-surface-lift">
+          <img
+            src={v2Asset(v2CourseBonus.file)}
+            alt={v2CourseBonus.alt}
+            className="aspect-[4/3] w-full object-cover"
+            loading="lazy"
+          />
+          <figcaption className="px-4 py-3 text-sm text-ink-soft">{v2CourseBonus.caption}</figcaption>
+        </figure>
       </Reveal>
     </section>
   )

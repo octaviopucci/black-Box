@@ -101,20 +101,29 @@ export const v2Testimonials = [
   },
 ] as const
 
-export const v2CourseMedia = [
+export const v2CoursePhotos = [
   {
     file: 'material-apoio.jpg',
     alt: 'Guia de treinos e apostila do curso iniciante',
     caption: 'Material de apoio — guia de treinos e curso iniciante',
   },
   {
-    file: 'henna-ombre-edicao.jpg',
-    alt: 'Bônus de edição de foto para redes sociais',
-    caption: 'Bônus: edição de foto que atrai',
+    file: 'experiencia-certificado.jpg',
+    alt: 'Entrega de certificado de curso',
+    caption: 'Certificado ao final da formação',
   },
 ] as const
 
-export const v2Gallery = [
+export const v2CourseBonus = {
+  file: 'henna-ombre-edicao.jpg',
+  alt: 'Bônus de edição de foto para redes sociais',
+  caption: 'Bônus: fotos que vendem',
+} as const
+
+/** Experiência no studio: café → bancada → procedimentos */
+export const v2ExperienceGallery = [
+  { file: 'experiencia-cafe.jpg', alt: 'Experiência — café e mimo' },
+  { file: 'experiencia-bancada.jpg', alt: 'Bancada de atendimento preparada' },
   { file: 'design-sobrancelha.jpg', alt: 'Design de sobrancelha — antes e depois' },
   { file: 'tintura.jpg', alt: 'Tintura — antes e depois' },
   { file: 'henna-ombre.jpg', alt: 'Henna ombré — resultado' },
@@ -124,11 +133,5 @@ export const v2Gallery = [
   { file: 'epilacao-costeleta.jpg', alt: 'Epilação costeleta — antes e depois' },
   { file: 'epilacao-facial.jpg', alt: 'Epilação facial — antes e depois' },
   { file: 'spa-labial.jpg', alt: 'Spa labial' },
-  { file: 'experiencia-cafe.jpg', alt: 'Experiência — café e mimo' },
-  { file: 'experiencia-bancada.jpg', alt: 'Bancada de atendimento preparada' },
   { file: 'experiencia-procedimento.jpg', alt: 'Procedimento de design no studio' },
-  { file: 'experiencia-certificado.jpg', alt: 'Entrega de certificado de curso' },
-  { file: 'studio-equipe.jpg', alt: 'Laís Felicia no studio' },
-  { file: 'material-apoio.jpg', alt: 'Material de apoio dos cursos' },
-  { file: 'henna-ombre-edicao.jpg', alt: 'Bônus — edição de foto' },
 ] as const
