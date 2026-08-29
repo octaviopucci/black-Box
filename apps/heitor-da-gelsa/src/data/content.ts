@@ -70,8 +70,8 @@ export const siteConfig: SiteConfig = {
 
 export const stats: StatItem[] = [
   { id: 'mandatos', value: '02', label: 'MANDATOS COMO VEREADOR' },
-  { id: 'votos-2020', value: '5.000+', label: 'VOTOS NA ELEIÇÃO DE 2020 (PSL)' },
-  { id: 'votos-2024', value: '8.733', label: 'VOTOS NA ELEIÇÃO MUNICIPAL DE 2024' },
+  { id: 'votos-2020', value: '5.000+', label: 'VOTOS PARA PREFEITO DE CAPÃO BONITO (2020)' },
+  { id: 'votos-2024', value: '8.733', label: 'VOTOS PARA PREFEITO DE CAPÃO BONITO (2024)' },
   { id: 'formacao', value: 'DIREITO', label: 'BACHAREL — SUPERIOR COMPLETO' },
 ]
 
