@@ -18,10 +18,14 @@ export function About() {
               <img
                 src={media.about}
                 alt="Heitor da Gelsa em Capão Bonito"
-                className="aspect-[4/5] w-full rounded-sm object-cover"
+                className="aspect-[4/5] w-full rounded-sm object-cover object-[center_20%]"
                 loading="lazy"
               />
               <div className="absolute -bottom-3 -right-3 h-full w-full border-2 border-yellow -z-10" aria-hidden />
+              <div className="absolute bottom-4 left-4 right-4 bg-green-deep/90 p-4 text-white backdrop-blur-sm">
+                <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-yellow">Na cidade</p>
+                <p className="mt-1 font-display text-lg font-bold">Presença que se vê de perto</p>
+              </div>
             </div>
           </Reveal>
 

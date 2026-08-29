@@ -1,4 +1,5 @@
 import type { MapMarker } from './site'
+import { media } from './site'
 
 export const mapMarkers: MapMarker[] = [
   {
@@ -7,7 +8,7 @@ export const mapMarkers: MapMarker[] = [
     category: 'BAIRRO',
     description: 'Região central de Capão Bonito — [INSERIR DESCRIÇÃO DE ATUAÇÃO]',
     date: '[DATA]',
-    image: '/instagram/post-3.jpg',
+    image: media.presenca,
     x: 52,
     y: 48,
     isPlaceholder: true,
@@ -18,6 +19,7 @@ export const mapMarkers: MapMarker[] = [
     category: 'BAIRRO',
     description: 'Acompanhamento de demandas locais — [INSERIR DESCRIÇÃO]',
     date: '[DATA]',
+    image: media.comunidade,
     x: 38,
     y: 62,
     isPlaceholder: true,
@@ -28,7 +30,7 @@ export const mapMarkers: MapMarker[] = [
     category: 'PROJETO',
     description: 'Registro relacionado à saúde da população.',
     date: '[DATA]',
-    image: '/instagram/post-2.jpg',
+    image: media.saude,
     link: '/projetos/placeholder-saude-populacao',
     x: 65,
     y: 35,
@@ -39,7 +41,7 @@ export const mapMarkers: MapMarker[] = [
     category: 'VISITA',
     description: 'Registro de proximidade com moradores — [INSERIR DESCRIÇÃO]',
     date: '[DATA]',
-    image: '/instagram/post-6.jpg',
+    image: media.comunidade,
     x: 28,
     y: 42,
     isPlaceholder: true,

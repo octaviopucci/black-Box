@@ -174,19 +174,26 @@ export const siteConfig: SiteConfig = {
   youtubeUrl: '[INSERIR LINK DO YOUTUBE]',
 }
 
+/** Fotos reais curadas — sem prints, overlays ou artes de campanha. */
 export const media = {
-  profile: '/instagram/profile.jpg',
-  hero: '/instagram/user-ref-2.jpg',
-  about: '/instagram/user-ref-1.jpg',
+  profile: '/photos/01-hero.jpg',
+  hero: '/photos/01-hero.jpg',
+  about: '/photos/02-rua.jpg',
+  saude: '/photos/03-saude.jpg',
+  comunidade: '/photos/04-comunidade.jpg',
+  trabalho: '/photos/05-trabalho.jpg',
+  parceria: '/photos/06-parceria.jpg',
+  presenca: '/photos/07-presenca.jpg',
+  documentos: '/photos/08-documentos.jpg',
   gallery: [
-    '/instagram/post-1.jpg',
-    '/instagram/post-2.jpg',
-    '/instagram/post-3.jpg',
-    '/instagram/post-4.jpg',
-    '/instagram/post-5.jpg',
-    '/instagram/post-6.jpg',
-    '/instagram/post-7.jpg',
-    '/instagram/post-8.jpg',
+    '/photos/01-hero.jpg',
+    '/photos/02-rua.jpg',
+    '/photos/03-saude.jpg',
+    '/photos/04-comunidade.jpg',
+    '/photos/05-trabalho.jpg',
+    '/photos/06-parceria.jpg',
+    '/photos/07-presenca.jpg',
+    '/photos/08-documentos.jpg',
   ],
 }
 

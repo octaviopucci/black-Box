@@ -1,4 +1,5 @@
 import type { Article } from './site'
+import { media } from './site'
 
 export const articles: Article[] = [
   {
@@ -9,7 +10,7 @@ export const articles: Article[] = [
     summary:
       'Heitor da Gelsa e Daan Cabeleireiro se unem em favor do Dep Federal que mais ajudou a saúde de Capão Bonito e as entidades sociais.',
     readTime: '3 min',
-    image: '/instagram/post-2.jpg',
+    image: media.saude,
     body: [
       'Heitor da Gelsa e Daan Cabeleireiro se unem em favor do Dep Federal que mais ajudou a saúde de Capão Bonito e as entidades sociais.',
       'Conteúdo extraído de publicação oficial no Instagram @heitordagelsa. [INSERIR TEXTO COMPLETO QUANDO DISPONÍVEL]',
@@ -23,7 +24,7 @@ export const articles: Article[] = [
     date: '[DATA]',
     summary: 'Resumo do conteúdo sobre a cidade — aguardando dados do cliente.',
     readTime: '4 min',
-    image: '/instagram/post-3.jpg',
+    image: media.presenca,
     body: [
       'Este é um placeholder para conteúdos editoriais sobre Capão Bonito.',
       'Substitua por texto real fornecido pelo cliente.',
@@ -37,7 +38,7 @@ export const articles: Article[] = [
     date: '[DATA]',
     summary: 'Conteúdo sobre infraestrutura — aguardando dados do cliente.',
     readTime: '5 min',
-    image: '/instagram/post-1.jpg',
+    image: media.trabalho,
     body: ['Placeholder para artigo sobre infraestrutura.'],
     isPlaceholder: true,
   },
@@ -48,7 +49,7 @@ export const articles: Article[] = [
     date: '[DATA]',
     summary: 'Conteúdo sobre comunidade — aguardando dados do cliente.',
     readTime: '3 min',
-    image: '/instagram/post-6.jpg',
+    image: media.comunidade,
     body: ['Placeholder para artigo sobre comunidade.'],
     isPlaceholder: true,
   },
@@ -59,7 +60,7 @@ export const articles: Article[] = [
     date: '[DATA]',
     summary: 'Conteúdo sobre fiscalização — aguardando dados do cliente.',
     readTime: '4 min',
-    image: '/instagram/post-7.jpg',
+    image: media.documentos,
     body: ['Placeholder para artigo sobre fiscalização.'],
     isPlaceholder: true,
   },

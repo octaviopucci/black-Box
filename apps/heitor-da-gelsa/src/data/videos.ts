@@ -1,4 +1,5 @@
 import type { VideoItem } from './site'
+import { media } from './site'
 
 export const videos: VideoItem[] = [
   {
@@ -6,28 +7,26 @@ export const videos: VideoItem[] = [
     title: 'Registro sobre saúde da população',
     date: '[DATA]',
     category: 'SAÚDE',
-    thumbnail: '/instagram/post-2.jpg',
+    thumbnail: media.saude,
     url: 'https://www.instagram.com/p/Dcj9pQPtFvJ/',
     platform: 'instagram',
   },
   {
     id: 'video-2',
-    title: '[TÍTULO DO VÍDEO — PLACEHOLDER]',
+    title: 'Presença nas ruas de Capão Bonito',
     date: '[DATA]',
     category: 'CIDADE',
-    thumbnail: '/instagram/post-3.jpg',
-    url: 'https://www.instagram.com/p/Dchf1EENelz/',
+    thumbnail: media.presenca,
+    url: 'https://www.instagram.com/p/Dcl-Z9etEMT/',
     platform: 'instagram',
-    isPlaceholder: true,
   },
   {
     id: 'video-3',
-    title: '[TÍTULO DO VÍDEO — PLACEHOLDER]',
+    title: 'Proximidade com a comunidade',
     date: '[DATA]',
     category: 'COMUNIDADE',
-    thumbnail: '/instagram/post-6.jpg',
-    url: '[INSERIR URL DO YOUTUBE]',
-    platform: 'youtube',
-    isPlaceholder: true,
+    thumbnail: media.comunidade,
+    url: 'https://www.instagram.com/p/DcJ7Vv8t2_L/',
+    platform: 'instagram',
   },
 ]
