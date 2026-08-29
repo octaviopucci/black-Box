@@ -1,37 +1,47 @@
-# Framer Motion — Camada 2
-
-Stack: `framer-motion` ^12 (já padrão nos apps Black Box).
-
-## Instalar (se faltar)
+# Framer Motion — Camada 2 (Next.js)
 
 ```bash
-npm --prefix apps/<app> install framer-motion
+cd projects/<slug> && npm install framer-motion
 ```
 
-## Padrões copy-paste
+## Regra App Router
 
-### Hero entrance
+Todo componente com `motion.*` precisa `'use client'`.
+
+Componha: `page.tsx` (server) importa `<Hero />` (client).
+
+## Hero entrance
 
 ```tsx
-import { motion } from 'framer-motion';
+'use client'
+
+import { motion } from 'framer-motion'
 
 const stagger = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08 } },
-};
+}
 
 const rise = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
-};
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+  },
+}
 
-<motion.div variants={stagger} initial="hidden" animate="show">
-  <motion.h1 variants={rise}>...</motion.h1>
-  <motion.p variants={rise}>...</motion.p>
-</motion.div>
+export function Hero() {
+  return (
+    <motion.div variants={stagger} initial="hidden" animate="show">
+      <motion.h1 variants={rise}>...</motion.h1>
+      <motion.p variants={rise}>...</motion.p>
+    </motion.div>
+  )
+}
 ```
 
-### Scroll reveal (seções)
+## Scroll reveal
 
 ```tsx
 <motion.section
@@ -42,7 +52,7 @@ const rise = {
 >
 ```
 
-### CTA hover
+## CTA hover
 
 ```tsx
 <motion.a
@@ -55,37 +65,12 @@ const rise = {
 ## Reduced motion
 
 ```tsx
-import { useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from 'framer-motion'
 
-const reduce = useReducedMotion();
-// se reduce: sem animate, só render estático
+const reduce = useReducedMotion()
+if (reduce) return <StaticHero />
 ```
-
-Ou CSS global:
-
-```css
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-```
-
-## O que NÃO fazer
-
-- Bounce em tudo
-- Parallax em 6 elementos
-- Animação que atrasa leitura do headline
-- Motion sem fallback reduced-motion
 
 ## Budget
 
-Máximo **2–4** motions por página:
-
-1. Hero entrance
-2. Section reveals (reutilize o mesmo padrão)
-3. CTA hover (opcional)
-4. Um detalhe extra (ex.: logo sutil) — opcional
-
-Para scroll cinematográfico pesado → skill `scroll-cinematic` (GSAP).
+2–4 motions por landing. Scroll pesado → skill `scroll-cinematic` (GSAP, client only).

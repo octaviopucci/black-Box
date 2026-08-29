@@ -12,7 +12,7 @@ Do central-material — o agente deve **evitar ativamente** estes padrões.
 
 **Sintoma:** "Faz uma landing bonita" → output genérico.
 
-**Fix:** Nicho, marca, CTA, seções, path `/slug/` — ou brainstorm (vibe-coding Fase 1).
+**Fix:** Nicho, marca, CTA, seções, slug `projects/<slug>/` — ou brainstorm (vibe-coding Fase 1).
 
 ## C — Não iterar
 
