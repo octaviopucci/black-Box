@@ -1,4 +1,4 @@
-import { aboutFacts, aboutIntro, media } from '@/data/site'
+import { aboutFacts, aboutIntro, media, siteConfig } from '@/data/site'
 import { Reveal } from './Reveal'
 
 export function About() {
@@ -28,6 +28,7 @@ export function About() {
           <div>
             <Reveal delay={0.1}>
               <p className="text-lg leading-relaxed text-graphite/85">{aboutIntro}</p>
+              <p className="mt-4 text-base text-graphite/70">{siteConfig.family}.</p>
             </Reveal>
 
             <div className="mt-10 space-y-0 divide-y divide-green/10 border-y border-green/10">
