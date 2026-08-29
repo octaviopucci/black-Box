@@ -1,6 +1,8 @@
 node_modules
 /dist
-/public
+/public/*
+!/public/lais-felicia/
+!/public/lais-felicia/**
 .DS_Store
 *.local
 .env
