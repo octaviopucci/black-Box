@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { v2Path } from '../base'
-import { asset, serviceHighlights } from '../../data/site'
+import { v2Asset, v2ServiceHighlights } from '../data/site'
 import { Carousel } from './Carousel'
 import { Reveal } from './Reveal'
 
@@ -9,13 +9,13 @@ export function Services() {
     <section id="servicos" className="section-pad overflow-hidden">
       <Reveal>
         <div className="mb-12 text-center">
-          <p className="eyebrow">Atendimentos e formações</p>
-          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Serviços especializados</h2>
+          <p className="eyebrow">Atendimentos</p>
+          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Procedimentos</h2>
         </div>
       </Reveal>
 
       <Carousel>
-        {serviceHighlights.map((item) => (
+        {v2ServiceHighlights.map((item) => (
           <Link
             key={item.id}
             to={v2Path(item.href)}
@@ -24,14 +24,13 @@ export function Services() {
           >
             <div className="overflow-hidden rounded">
               <img
-                src={asset(item.image)}
+                src={v2Asset(item.image)}
                 alt={item.imageAlt}
                 className="aspect-[4/5] w-full object-cover transition duration-700 ease-silk group-hover:scale-[1.04]"
                 loading="lazy"
               />
             </div>
             <h3 className="mt-5 font-display text-xl font-bold text-ink">{item.name}</h3>
-            <p className="mt-2 font-display text-2xl font-bold text-gold-deep">{item.price}</p>
             <p className="mt-1 text-sm text-ink-mute">{item.line}</p>
           </Link>
         ))}

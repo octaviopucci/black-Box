@@ -115,7 +115,7 @@ export function Navbar() {
                 onLight ? 'text-ink-mute' : 'text-white/45'
               }`}
             >
-              Fale com a equipe
+              Fale com a Laís
             </p>
             <a
               href={whatsappUrl()}

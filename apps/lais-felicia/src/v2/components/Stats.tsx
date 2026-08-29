@@ -1,4 +1,4 @@
-import { stats } from '../../data/site'
+import { v2Stats } from '../data/site'
 import { Reveal } from './Reveal'
 
 export function Stats() {
@@ -12,7 +12,7 @@ export function Stats() {
       </Reveal>
 
       <div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((item, i) => (
+        {v2Stats.map((item, i) => (
           <Reveal key={item.label} delay={i * 0.06}>
             <article className="h-full rounded-2xl border border-gold/25 bg-surface-lift px-5 py-8 text-center transition duration-300 hover:-translate-y-1 hover:border-gold/50">
               <p className="font-display text-4xl font-bold text-gold-deep">{item.value}</p>
