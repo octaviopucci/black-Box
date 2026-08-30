@@ -82,6 +82,7 @@ Detalhe: `.cursor/skills/vibe-coding/references/specialists.md`.
 | `/agency-site` | **Landing/site/SaaS** — Next.js em `projects/<slug>/` + 4 camadas + 21st.dev |
 | `/prompt-site` | Marca profunda, research, produto digital premium |
 | `/premium-site-brief` | Brief rápido antes de codar landing |
+| `/story-quiz` | **Story Quiz** — metodologia Stecca: espionar → modelar → criar funil para qualquer produto |
 | `anti-ai-landing` | Regras anti template IA (carregada por `/agency-site`) |
 | Outras em `.cursor/skills/frontend/` | Scroll cinematic, Netlify preview, Instagram extract, etc. |
 
