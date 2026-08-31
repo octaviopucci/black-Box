@@ -9,11 +9,13 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
   --font-heading: var(--font-display);
-  --color-ink: hsl(var(--ink));
-  --color-paper: hsl(var(--paper));
-  --color-brand: hsl(var(--brand));
-  --color-glow: hsl(var(--glow));
-  --color-mute: hsl(var(--mute));
+  --color-show-green: var(--show-green);
+  --color-show-green-dark: var(--show-green-dark);
+  --color-show-orange: var(--show-orange);
+  --color-show-dark: var(--show-dark);
+  --color-show-yellow: var(--show-yellow);
+  --color-show-paper: var(--show-paper);
+  --color-show-muted: var(--show-muted);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -22,11 +24,6 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -46,52 +43,44 @@
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
-  /* Marca — forno quente, noite de fome, tomate e dourado */
-  --ink: 24 18% 7%;
-  --paper: 38 28% 94%;
-  --brand: 8 78% 48%;
-  --glow: 36 92% 55%;
-  --mute: 28 8% 42%;
+  --show-green: #7db641;
+  --show-green-dark: #20b355;
+  --show-orange: #f9976a;
+  --show-dark: #201e1f;
+  --show-yellow: #f5c518;
+  --show-paper: #faf8f4;
+  --show-muted: #5c5650;
 
-  --background: hsl(var(--paper));
-  --foreground: hsl(var(--ink));
-  --card: hsl(var(--paper));
-  --card-foreground: hsl(var(--ink));
-  --popover: hsl(var(--paper));
-  --popover-foreground: hsl(var(--ink));
-  --primary: hsl(var(--brand));
-  --primary-foreground: hsl(var(--paper));
-  --secondary: hsl(32 20% 88%);
-  --secondary-foreground: hsl(var(--ink));
-  --muted: hsl(32 16% 90%);
-  --muted-foreground: hsl(var(--mute));
-  --accent: hsl(var(--glow));
-  --accent-foreground: hsl(var(--ink));
+  --background: var(--show-paper);
+  --foreground: var(--show-dark);
+  --card: #ffffff;
+  --card-foreground: var(--show-dark);
+  --popover: #ffffff;
+  --popover-foreground: var(--show-dark);
+  --primary: var(--show-green-dark);
+  --primary-foreground: #ffffff;
+  --secondary: #f0ebe3;
+  --secondary-foreground: var(--show-dark);
+  --muted: #f0ebe3;
+  --muted-foreground: var(--show-muted);
+  --accent: var(--show-orange);
+  --accent-foreground: var(--show-dark);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: hsl(30 12% 82%);
-  --input: hsl(30 12% 82%);
-  --ring: hsl(var(--brand));
-  --radius: 0.375rem;
-  --sidebar: hsl(var(--paper));
-  --sidebar-foreground: hsl(var(--ink));
-  --sidebar-primary: hsl(var(--brand));
-  --sidebar-primary-foreground: hsl(var(--paper));
-  --sidebar-accent: hsl(32 20% 88%);
-  --sidebar-accent-foreground: hsl(var(--ink));
-  --sidebar-border: hsl(30 12% 82%);
-  --sidebar-ring: hsl(var(--brand));
-  --chart-1: hsl(var(--brand));
-  --chart-2: hsl(var(--glow));
-  --chart-3: hsl(var(--mute));
-  --chart-4: hsl(var(--ink));
-  --chart-5: hsl(32 20% 88%);
+  --border: #e5dfd6;
+  --input: #e5dfd6;
+  --ring: var(--show-green);
+  --radius: 0.5rem;
+  --sidebar: var(--show-paper);
+  --sidebar-foreground: var(--show-dark);
+  --sidebar-primary: var(--show-green-dark);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0ebe3;
+  --sidebar-accent-foreground: var(--show-dark);
+  --sidebar-border: #e5dfd6;
+  --sidebar-ring: var(--show-green);
 }
 
 @layer base {
@@ -99,27 +88,31 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-paper text-ink antialiased;
+    @apply bg-show-paper text-show-dark antialiased;
   }
   html {
     @apply font-sans scroll-smooth;
   }
 }
 
-/* Grain sutil — atmosfera, não textura plana */
-.grain::after {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 .display {
   font-family: var(--font-display), system-ui, sans-serif;
-  letter-spacing: 0.02em;
-  line-height: 0.92;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.price {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--show-green-dark);
+}
+
+.menu-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.menu-scroll::-webkit-scrollbar-thumb {
+  background: var(--show-green);
+  border-radius: 999px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,28 +1,30 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, DM_Sans } from "next/font/google";
+import { PT_Sans, PT_Sans_Narrow } from "next/font/google";
 import { site } from "@/data/site";
+import { menuStats } from "@/data/menu";
 import "./globals.css";
 
-const display = Bebas_Neue({
+const display = PT_Sans_Narrow({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "700"],
 });
 
-const body = DM_Sans({
+const body = PT_Sans({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
-  title: `${site.name} ${site.unit} — Esfihas abertas e pizzas`,
+  title: `${site.name} ${site.unit} — Cardápio, delivery e esfihas abertas`,
   description: site.description,
   openGraph: {
     title: `${site.name} ${site.unit}`,
-    description: site.tagline,
+    description: `${menuStats.items} itens no cardápio · ${site.hours.display}`,
     locale: "pt_BR",
     type: "website",
+    images: [{ url: "/logo.jpg", width: 224, height: 225, alt: site.name }],
   },
 };
 
@@ -31,6 +33,7 @@ const jsonLd = {
   "@type": "Restaurant",
   name: `${site.name} ${site.unit}`,
   description: site.description,
+  image: "/logo.jpg",
   address: {
     "@type": "PostalAddress",
     streetAddress: site.address.street,
@@ -41,7 +44,13 @@ const jsonLd = {
   },
   telephone: site.phone.landline,
   url: site.links.delivery,
-  servesCuisine: ["Árabe", "Pizza"],
+  servesCuisine: ["Árabe", "Pizza", "Brasileira"],
+  priceRange: "$$",
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: site.proof.googleRating,
+    bestRating: 5,
+  },
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",
@@ -69,7 +78,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col pb-20 md:pb-0">{children}</body>
     </html>
   );
 }

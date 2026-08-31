@@ -8,14 +8,14 @@ export function Gallery() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="galeria" className="bg-ink py-20 text-paper md:py-28">
-      <div className="mx-auto max-w-6xl px-6 md:px-8">
-        <div className="mb-12 flex flex-col gap-4 md:mb-16 md:flex-row md:items-end md:justify-between">
+    <section id="galeria" className="bg-show-paper py-16 md:py-24">
+      <div className="mx-auto max-w-7xl px-4 md:px-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-glow">
-              Instagram
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-show-green-dark">
+              Instagram · {site.social.followers.toLocaleString("pt-BR")} seguidores
             </p>
-            <h2 className="display mt-3 text-[clamp(2.5rem,6vw,4rem)] uppercase">
+            <h2 className="display mt-2 text-4xl text-show-dark md:text-5xl">
               Direto do forno
             </h2>
           </div>
@@ -23,30 +23,30 @@ export function Gallery() {
             href={site.links.instagram}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium text-paper/70 transition-colors hover:text-paper"
+            className="font-semibold text-show-green-dark hover:underline"
           >
-            {site.social.instagramHandle}
+            {site.social.instagramHandle} →
           </a>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3 md:gap-8">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {media.gallery.map((item, i) => (
             <motion.figure
               key={item.src}
-              className="relative aspect-[4/5] overflow-hidden"
-              initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+              className="group relative aspect-square overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-border"
+              initial={reduceMotion ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-8%" }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
             >
               <Image
                 src={item.src}
                 alt={item.alt}
                 fill
-                className="object-cover transition-transform duration-700 hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 640px) 100vw, 25vw"
               />
-              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 to-transparent px-4 py-6 text-sm text-paper/90">
+              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-show-dark/90 to-transparent p-4 text-sm text-white">
                 {item.caption}
               </figcaption>
             </motion.figure>
