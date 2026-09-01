@@ -50,6 +50,13 @@ Lenis provider, 1 pin+scrub, hero layered, btn-shine. Framer só micro-UI.
 
 **Fix:** Fallback estático — última headline visível, scroll nativo, sem Lenis.
 
+## H — Só documentou, não executou (Erro Premium)
+
+**Sintoma:** Resposta com plano/perguntas mas `projects/<slug>/` não existe.
+
+**Fix:** Rodar `bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh <slug>`,
+editar `site.config.ts`, `npm run build` verde — **na mesma resposta**.
+
 ---
 
 ## Honestidade

@@ -8,13 +8,16 @@
 Para **qualquer** pedido de feature, bug, refactor ou decisão técnica:
 
 1. Leia e siga `.cursor/skills/vibe-coding/SKILL.md` **automaticamente** — não espere
-   o usuário digitar `/vibe-coding`.
+ o usuário digitar `/vibe-coding`.
 2. Ordem: **brainstorm → plano → ondas paralelas → revisão → commit**.
 3. Aplique os três pilares embutidos: processo (Superpowers), simplicidade
-   (Ponytail), comunicação direta (Caveman).
+ (Ponytail), comunicação direta (Caveman).
 
 **Exceções (modo direto):** typo, rename, ajuste de uma linha com escopo óbvio —
 ou quando o usuário pedir `/vibe-coding direto` ou `/vibe-coding rápido`.
+
+**`/agency-site premium`:** override — **executar scaffold imediato**, sem brainstorm.
+Ver `.cursor/skills/frontend/agency-site/SKILL.md` regra zero.
 
 **Do iPhone:** Cloud Agent segue este arquivo + skill; guia mobile em
 `.cursor/skills/vibe-coding/references/mobile-iphone.md`.

@@ -1,232 +1,172 @@
 ---
 name: agency-site
 description: >-
-  Setup de 4 camadas para landing/site/SaaS com cara de agência: Cloud Agent +
-  Next.js App Router + motion (Framer + GSAP/Lenis no tier Premium) + design
-  tokens + 21st.dev/shadcn. Projetos em projects/<slug>/ — standalone. Tier
-  Premium = nível ARP Fibra (hero layered, pin+scrub, parallax). Use /agency-site.
-  Integra vibe-coding + anti-ai-landing + scroll-cinematic. iPhone ok.
+  Landing/site premium pronta para executar: kit completo em references/premium-kit/
+  + script scaffold-premium.sh. Ao invocar /agency-site premium, RODAR scaffold,
+  customizar site.config.ts, build verde — sem brainstorm, sem perguntas extras.
+  Next.js + GSAP/Lenis + hero layered + pin/scrub. Standard tier para pedidos simples.
 paths:
   - "projects/**/*.{tsx,jsx,css,ts,js,html}"
   - "apps/**/*.{tsx,jsx,css,ts,js,html}"
   - "portal/**/*.{tsx,jsx,css,ts,js,html}"
+  - ".cursor/skills/frontend/agency-site/**/*"
 ---
 
-# Agency Site — 4 camadas (Next.js)
+# Agency Site — kit executável
 
-Inspirado no [central-material](https://central-material.vercel.app).
-Referência **tier Premium:** [ARP Fibra](https://grupoarpfibra.com.br/).
+Referência visual: [ARP Fibra](https://grupoarpfibra.com.br/).
 
-Stack: **Next.js 14+ App Router** + Tailwind + shadcn/ui + motion intencional.
+**Premium = copiar kit + customizar config + build.** Não inventar do zero.
 
-**Invoque:** `/agency-site` + produto/marca. Para nível ARP: `/agency-site premium …`
+---
 
-> **Legado:** `apps/*` (Vite) só manutenção. **Site novo** → `projects/<slug>/`.
+## Regra zero — `/agency-site premium` (override vibe-coding)
+
+Quando o pedido contém **`premium`**, **`/agency-site premium`**, referência ARP,
+ou “site top / cinematic”:
+
+| Proibido | Obrigatório |
+|----------|-------------|
+| Brainstorm / plano / perguntas | **Executar na 1ª resposta** |
+| Esperar ok entre seções | Entregar landing **completa** do kit |
+| Só listar o que faria | `scaffold-premium.sh` + editar `site.config.ts` |
+| Bloquear por falta de assets | Placeholders do kit + indicar `public/*.webp` |
+
+**Só perguntar** se não der para inferir **nem marca nem slug**.
+
+### Sequência (copiar e colar)
+
+```bash
+bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh <slug>
+```
+
+1. Editar `projects/<slug>/src/site.config.ts` (copy, WhatsApp, planos, FAQ)
+2. `cd projects/<slug> && npm run build` — corrigir até verde
+3. Responder com path, comandos dev, o que falta customizar
+
+Runbook completo: [premium-runbook.md](references/premium-runbook.md)
+
+---
+
+## O kit já inclui (não recriar)
+
+```
+references/premium-kit/
+├── site.config.ts              ← único arquivo de customização principal
+├── globals.premium.css         ← tokens, grain, btn-shine, hero float, globe
+└── src/
+    ├── app/layout.tsx, page.tsx
+    ├── lib/prefers-reduced-motion.ts
+    └── components/
+        ├── providers/smooth-scroll.tsx   (Lenis + GSAP)
+        └── sections/
+            navbar, hero, lifestyle-pinned, features, statement,
+            about, pricing, benefits, support, faq, testimonials, footer
+```
+
+**13 seções** montadas em `page.tsx`. GSAP pin+scrub na lifestyle. Hero layered.
+Framer stagger no hero. WhatsApp FAB.
 
 ---
 
 ## Tiers
 
-| | **Standard** | **Premium** (padrão para “site top”) |
-|---|-------------|--------------------------------------|
-| Motion UI | Framer Motion | Framer (hover/micro) + **GSAP + Lenis** |
-| Hero | Headline + CTA + visual | **Stack 5–7 camadas** + props float CSS |
-| Scroll craft | Reveals leves | **1 seção pinned + scrub** + parallax |
-| Seções | 7 essenciais | **13** long-form ([mapa](references/premium-composition.md)) |
-| Referência | framer-motion.md | [premium-motion.md](references/premium-motion.md) + [premium-composition.md](references/premium-composition.md) |
+| | **Standard** | **Premium** |
+|---|-------------|-------------|
+| Ativação | `/agency-site landing …` | `/agency-site premium …` |
+| Entrega | Seção a seção (ok entre elas) | **Kit completo de uma vez** |
+| Motion | Framer — [framer-motion.md](references/framer-motion.md) | Kit (GSAP+Lenis+Framer) |
+| Scaffold | create-next-app manual | **`scaffold-premium.sh`** |
 
-**Default:** se o usuário pedir “moderno”, “premium”, “cinematic” ou citar referência
-tipo ARP → **Premium**. Pedido simples/rápido → Standard.
+Inferir Premium se: “moderno”, “premium”, “ARP”, “cinematic”.
 
 ---
 
-## As 4 camadas
+## Standard (pedidos simples)
 
-| Camada | Material | Aqui |
-|--------|----------|------|
-| **1** | Claude Code | **Cursor Cloud Agent** + `vibe-coding` |
-| **2** | Motion | Standard: [framer-motion.md](references/framer-motion.md) · Premium: + [premium-motion.md](references/premium-motion.md) |
-| **3** | Design | Esta skill + `anti-ai-landing` + [design-tokens.md](references/design-tokens.md) · Premium: + [premium-composition.md](references/premium-composition.md) |
-| **4** | 21st.dev | shadcn + copy prompt — [21st-dev.md](references/21st-dev.md) |
-
-Erros fatais: [errors.md](references/errors.md)
-
-Scroll pesado (vídeo scrub, corridor): skill `scroll-cinematic`.
-
----
-
-## Onde o projeto vive
-
-```
-projects/<slug>/          ← NOVO (Next.js, sai do repo depois)
-apps/<nome>/              ← LEGADO Vite (só manutenção)
-```
-
-Scaffold: [next-scaffold.md](references/next-scaffold.md)
-
----
-
-## Fluxo automático
-
-### Passo 0 — Contexto
-
-Peça só o que faltar:
-
-1. Produto/serviço + nicho
-2. Marca (@instagram / site / referência visual)
-3. CTA (WhatsApp, agendar, form)
-4. **Slug** → `projects/<slug>/`
-5. **Tier** — Standard ou Premium (inferir do pedido)
-6. Domínio futuro (metadata)
-
-Premium: confirmar assets ([lista](references/premium-composition.md#assets-mínimos-brief-antes-de-codar)).
-
-Pedido ambíguo → vibe-coding Fase 1 (brainstorm).
-
-### Passo 1 — Scaffold Next.js
-
-Se `projects/<slug>/` não existe:
+Sem `premium` no pedido:
 
 ```bash
-npx create-next-app@latest projects/<slug> \
-  --typescript --tailwind --eslint --app --src-dir \
-  --import-alias "@/*" --turbopack
-cd projects/<slug>
-npx shadcn@latest init -y
-npm install framer-motion
-# Premium only:
-npm install gsap lenis
+npx create-next-app@latest projects/<slug> --typescript --tailwind --eslint \
+  --app --src-dir --import-alias "@/*" --turbopack --yes
+cd projects/<slug> && npx shadcn@latest init -y && npm install framer-motion
 ```
 
-Defaults shadcn: New York, zinc. Detalhes: [next-scaffold.md](references/next-scaffold.md).
+7 seções essenciais — [initial-prompt.md](references/initial-prompt.md).
+Pode pedir ok entre seções.
 
-Premium: criar `SmoothScrollProvider` — ver [premium-motion.md](references/premium-motion.md).
+---
 
-### Passo 2 — Camada 2 (motion)
+## Customização pós-scaffold
 
-**Standard:** [framer-motion.md](references/framer-motion.md) — budget 2–4 motions.
+| Prioridade | Arquivo | O quê |
+|------------|---------|-------|
+| 1 | `src/site.config.ts` | Toda copy, links, pricing, FAQ, contato |
+| 2 | `public/hero.webp` | Visual hero (substitui placeholder) |
+| 3 | `public/about.webp` | Foto about |
+| 4 | `globals.premium.css` | Cores `--color-accent` se marca exigir |
+| 5 | Seções individuais | Só se pedido explícito de redesign |
 
-**Premium:**
-1. Lenis provider + GSAP ScrollTrigger no layout
-2. Hero: float CSS + Framer stagger no load
-3. **1 seção pinned** lifestyle (crossfade + parallax)
-4. Reveals GSAP nos grids
-5. btn-shine nos CTAs principais
+21st.dev é **opcional** — não bloqueia entrega Premium.
 
-Budget: [premium-motion.md#budget-premium](references/premium-motion.md#budget-premium).
+---
 
-### Passo 3 — Camada 3 (tokens)
+## Contexto — inferir, não perguntar
 
-Tokens em `src/app/globals.css`:
+| Campo | Fallback |
+|-------|----------|
+| slug | kebab-case da marca |
+| name | do pedido |
+| whatsapp | placeholder + TODO no config |
+| nicho | genérico até usuário refinar |
 
-```css
-:root {
-  --ink: /* texto / fundo escuro */;
-  --paper: /* fundo claro */;
-  --surface: /* cards, bege */;
-  --accent: /* CTA */;
-  --accent-deep: /* hover */;
-  --mute: /* secundário */;
-}
-```
+---
 
-Premium: incluir classes `.text-hero`, `.text-section`, `.text-eyebrow`, `.grain`,
-`.btn-shine`, `.reveal-init` — ver [design-tokens.md](references/design-tokens.md).
+## Performance (Premium)
 
-Brief profundo → `/prompt-site` ou `/premium-site-brief`.
-
-### Passo 4 — Camada 4 (21st.dev)
-
-1. Prompt/componente no 21st.dev
-2. `npx shadcn@latest add <url>` quando disponível
-3. Adaptar copy + tokens — nunca placeholder
-
-21st.dev entrega **componentes**; hero layered e pin vêm da skill Premium, não do 21st.
-
-### Passo 5 — Estrutura (App Router)
-
-```
-src/app/
-  layout.tsx          metadata, fonts, SmoothScrollProvider (premium)
-  page.tsx            composição de sections
-  globals.css         tokens + utility classes premium
-src/components/
-  providers/          smooth-scroll.tsx (premium)
-  sections/           hero, lifestyle-pinned, features, pricing, …
-  ui/                 shadcn
-```
-
-**Standard** — seções: [initial-prompt.md](references/initial-prompt.md)
-
-**Premium** — mapa completo: [premium-composition.md#mapa-de-seções--tier-premium](references/premium-composition.md#mapa-de-seções--tier-premium)
-
-Construa **uma seção por vez**, ok do usuário entre elas.
-
-### Passo 6 — Performance
-
-- `next/image` + `priority` só no hero LCP
-- `next/font` — subset mínimo (display + body)
-- WebP/AVIF; lazy nos props da seção pinned
-- `ScrollTrigger.refresh()` após load de fonts/images (premium)
-- `prefers-reduced-motion` — fallback estático
-- `npm run build` verde
-- Lighthouse 90+ se pedido
-
-### Passo 7 — Entrega
-
-- [ ] `npm run dev` standalone em `projects/<slug>/`
-- [ ] README: install, dev, build, env
-- [ ] `.env.example` se secrets
-- [ ] Deploy Vercel desacoplado do assemble-dist
-- [ ] Premium: pin + reduced-motion testados desktop/mobile
+- `npm run build` verde antes de responder
+- `prefers-reduced-motion` já no kit
+- `ScrollTrigger.refresh()` no SmoothScrollProvider
+- Imagens reais → `next/image` quando adicionar assets
 
 ---
 
 ## Comandos
 
 ```bash
-cd projects/<slug>
-npm run dev
-npm run build
-npm run start
+# Premium — criar projeto
+bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh <slug>
+
+# Dev
+cd projects/<slug> && npm run dev
+
+# Build
+cd projects/<slug> && npm run build
 ```
-
----
-
-## Legado Vite (`apps/*`)
-
-Só se pedirem app existente. Mesmas Camadas 2–3; GSAP/Lenis permitido. Não migrar
-Next sem pedido explícito.
 
 ---
 
 ## iPhone
 
 ```
-/agency-site premium landing [MARCA] — [nicho], ref ARP, WhatsApp [n], slug [cliente-x]
+/agency-site premium [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]
 ```
 
-Standard:
-
-```
-/agency-site landing [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]
-```
+Agente **executa scaffold** — não devolve questionário.
 
 ---
 
-## Checklist
+## Checklist Premium (antes de responder)
 
-**Standard**
-- [ ] Next + shadcn + framer-motion
-- [ ] Tokens globals.css
-- [ ] anti-ai-landing
-- [ ] Build verde
+- [ ] `projects/<slug>/` existe e `npm run build` verde
+- [ ] `site.config.ts` customizado com dados do pedido
+- [ ] Usuário sabe rodar `npm run dev`
+- [ ] Assets opcionais listados (`public/hero.webp`)
+- [ ] Não pediu ok para “próxima seção”
 
-**Premium (+)**
-- [ ] gsap + lenis + SmoothScrollProvider
-- [ ] Hero layered (5+ camadas)
-- [ ] 1 seção pinned + parallax + crossfade
-- [ ] Tipografia display + `.text-hero`
-- [ ] btn-shine + reveals
-- [ ] Mapa 13 seções ou subset acordado
-- [ ] Reduced motion + mobile pin validados
+## Referências
+
+- Motion patterns: [premium-motion.md](references/premium-motion.md)
+- Composição: [premium-composition.md](references/premium-composition.md)
+- Erros: [errors.md](references/errors.md)
+- Design: [design-tokens.md](references/design-tokens.md) + `anti-ai-landing`
