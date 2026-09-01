@@ -79,14 +79,14 @@ Detalhe: `.cursor/skills/vibe-coding/references/specialists.md`.
 | Skill | Uso |
 |-------|-----|
 | `/vibe-coding` | Fluxo completo (processo: brainstorm → PR) |
-| `/agency-site` | **Landing/site/SaaS** — Next.js em `projects/<slug>/` + 4 camadas + 21st.dev |
+| `/agency-site` | **Landing/site/SaaS** — Next.js em `projects/<slug>/` + 4 camadas + 21st.dev. Tier **Premium** = GSAP/Lenis + hero layered (ref. ARP Fibra) |
 | `/prompt-site` | Marca profunda, research, produto digital premium |
 | `/premium-site-brief` | Brief rápido antes de codar landing |
 | `/story-quiz` | **Story Quiz** — metodologia Stecca: espionar → modelar → criar funil para qualquer produto |
 | `anti-ai-landing` | Regras anti template IA (carregada por `/agency-site`) |
 | Outras em `.cursor/skills/frontend/` | Scroll cinematic, Netlify preview, Instagram extract, etc. |
 
-**Landing nova (padrão):** `/agency-site` → scaffold em `projects/<slug>/` (Next.js App Router + shadcn + framer-motion). Projeto sai do monorepo no handoff.
+**Landing nova (padrão):** `/agency-site` → scaffold em `projects/<slug>/` (Next.js App Router + shadcn + motion). Tier **premium** adiciona GSAP + Lenis. Projeto sai do monorepo no handoff.
 
 **Legado:** demos Vite em `apps/*` — só manutenção, não criar novos.
 

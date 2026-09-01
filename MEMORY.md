@@ -5,7 +5,7 @@
 | Tópico | Arquivo | Tipo |
 |--------|---------|------|
 | Fluxo vibe-coding automático | `.cursor/skills/vibe-coding/SKILL.md` | reference |
-| Landing agência (4 camadas, Next.js) | `.cursor/skills/frontend/agency-site/SKILL.md` | reference |
+| Landing agência (4 camadas, Next.js; tier Premium = GSAP/Lenis, ref. ARP) | `.cursor/skills/frontend/agency-site/SKILL.md` | reference |
 | Projetos exportáveis | `projects/<slug>/` | architecture |
 | Uso pelo iPhone | `.cursor/skills/vibe-coding/references/mobile-iphone.md` | reference |
 | Maciel ≠ LP Motors (produtos separados) | — | business-rule |

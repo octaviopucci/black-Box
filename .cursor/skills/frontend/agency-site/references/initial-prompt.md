@@ -4,7 +4,7 @@ Substitua `[...]`. Cole no Cursor / Cloud Agent (iPhone ok).
 
 ---
 
-## Prompt completo
+## Prompt completo (Standard)
 
 ```
 /agency-site
@@ -31,10 +31,48 @@ Contexto:
 
 ---
 
+## Prompt Premium (nível ARP Fibra)
+
+```
+/agency-site premium
+
+Landing premium para [PRODUTO/SERVIÇO] — marca [NOME].
+Referência visual: [ARP Fibra / URL].
+
+Requisitos tier Premium:
+- projects/[slug]/ — Next.js 14+, shadcn, framer-motion + gsap + lenis
+- SmoothScrollProvider (Lenis + ScrollTrigger.refresh)
+- Hero layered (5+ camadas: gradient, blur image, grain, grid, mascote/props float CSS)
+- 1 seção lifestyle pinned + scrub (crossfade 3 headlines + parallax data-parallax)
+- Mapa long-form: navbar, hero, lifestyle, features grid, statement accent, about,
+  pricing, benefícios, produto secundário (se couber), suporte/app, FAQ, social proof,
+  footer CTA + footer
+- Tokens: --ink, --paper, --surface, --accent, --accent-deep + .text-hero, .btn-shine
+- prefers-reduced-motion: sem pin, layout estático
+- Seção por seção com ok entre elas
+- Standalone, build verde
+
+Contexto:
+- Nicho: [NICHO]
+- Slug: [slug]
+- CTA: [WhatsApp + secundário]
+- Assets: [mascote/props/logo — ou placeholder consciente]
+```
+
+---
+
 ## Prompt curto (iPhone)
+
+Standard:
 
 ```
 /agency-site landing [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]
+```
+
+Premium:
+
+```
+/agency-site premium [MARCA] — [nicho], ref ARP, WhatsApp [n], slug [cliente-x]
 ```
 
 ---
@@ -61,4 +99,10 @@ Só se pedirem app antigo em apps/:
 
 ```
 Refina hero: mais contraste, menos motion no subtítulo, CTA maior no mobile.
+```
+
+Premium:
+
+```
+Encurtar seção pinned (h-[250vh]), suavizar parallax dos props, headline 2 mais legível no mobile.
 ```
