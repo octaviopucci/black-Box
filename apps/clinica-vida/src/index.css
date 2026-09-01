@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0f1a14;
+  --paper: #f6faf7;
+  --accent: #3d9b6a;
+  --pulse: #7ecba8;
+  --canopy: #1a3d2e;
+  --mute: #5a6b62;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 55% 42% at 0% 0%, rgba(61, 155, 106, 0.1), transparent 55%),
+    radial-gradient(ellipse 48% 38% at 100% 8%, rgba(26, 61, 46, 0.07), transparent 50%),
+    linear-gradient(180deg, #fafcf9 0%, var(--paper) 45%, #e8f0ea 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.026;
+  background-image: theme('backgroundImage.grain');
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+}
+
+::selection {
+  background: rgba(61, 155, 106, 0.32);
+  color: var(--ink);
+}
+
+@layer components {
+  .eyebrow {
+    @apply mb-4 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.34em] text-vida-deep;
+  }
+
+  .display-title {
+    @apply font-display font-semibold leading-[1.02] tracking-tight text-balance;
+  }
+
+  .cta-vida {
+    @apply inline-flex items-center gap-2 rounded-full bg-vida px-6 py-3.5 text-sm font-semibold text-paper transition duration-500 ease-silk hover:bg-vida-deep;
+  }
+
+  .cta-ink {
+    @apply inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-paper transition duration-500 ease-silk hover:bg-ink-lift;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-ink/15 px-5 py-3.5 text-sm font-medium text-ink/80 transition duration-500 ease-silk hover:border-vida hover:text-vida-deep;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    background: rgba(246, 250, 247, 0.82);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  }
+}
+
+.wave-path {
+  stroke-dasharray: 8 14;
+  animation: waveDash 18s linear infinite;
+}
+
+@keyframes waveDash {
+  to {
+    stroke-dashoffset: -400;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .wave-path {
+    animation: none;
+  }
+}

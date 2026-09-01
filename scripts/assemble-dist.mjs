@@ -16,6 +16,7 @@ const sogovDist = join(root, 'apps', 'sogov', 'dist')
 const dnaDist = join(root, 'apps', 'clinica-dna', 'dist')
 const pradoDist = join(root, 'apps', 'dr-marcelo-prado', 'dist')
 const harmonieDist = join(root, 'apps', 'clinica-harmonie', 'dist')
+const vidaDist = join(root, 'apps', 'clinica-vida', 'dist')
 const pucciDist = join(root, 'apps', 'octavio-pucci', 'dist')
 const naDist = join(root, 'apps', 'na-veiculos', 'dist')
 const matsubaraDist = join(root, 'apps', 'clinica-matsubara', 'dist')
@@ -60,6 +61,9 @@ if (!existsSync(pradoDist)) {
 }
 if (!existsSync(harmonieDist)) {
   throw new Error('apps/clinica-harmonie/dist não encontrado — rode build:harmonie')
+}
+if (!existsSync(vidaDist)) {
+  throw new Error('apps/clinica-vida/dist não encontrado — rode build:vida')
 }
 if (!existsSync(pucciDist)) {
   throw new Error('apps/octavio-pucci/dist não encontrado — rode build:pucci')
@@ -133,6 +137,8 @@ function publish(target) {
   cpSync(pradoDist, join(target, 'dr-marcelo-prado'), { recursive: true })
   mkdirSync(join(target, 'clinica-harmonie'), { recursive: true })
   cpSync(harmonieDist, join(target, 'clinica-harmonie'), { recursive: true })
+  mkdirSync(join(target, 'clinica-vida'), { recursive: true })
+  cpSync(vidaDist, join(target, 'clinica-vida'), { recursive: true })
   mkdirSync(join(target, 'octavio-pucci'), { recursive: true })
   cpSync(pucciDist, join(target, 'octavio-pucci'), { recursive: true })
   mkdirSync(join(target, 'na-veiculos'), { recursive: true })
