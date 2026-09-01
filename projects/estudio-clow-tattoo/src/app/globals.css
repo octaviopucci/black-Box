@@ -116,7 +116,7 @@
   }
 
   .grain {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
     mix-blend-mode: soft-light;
   }
 
@@ -155,23 +155,22 @@
   }
 
   .scanlines {
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      color-mix(in oklab, var(--ink) 6%, transparent) 2px,
-      color-mix(in oklab, var(--ink) 6%, transparent) 3px
-    );
-    mix-blend-mode: overlay;
+    display: none;
   }
 
   .glass-panel {
     border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
-    background: color-mix(in oklab, var(--surface) 72%, transparent);
-    backdrop-filter: blur(18px);
+    background: color-mix(in oklab, var(--surface) 92%, transparent);
     box-shadow:
       0 24px 80px color-mix(in oklab, var(--paper) 65%, transparent),
       inset 0 1px 0 color-mix(in oklab, var(--ink) 8%, transparent);
+  }
+
+  @media (min-width: 768px) {
+    .glass-panel {
+      background: color-mix(in oklab, var(--surface) 78%, transparent);
+      backdrop-filter: blur(12px);
+    }
   }
 }
 

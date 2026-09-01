@@ -11,7 +11,6 @@ export function About() {
   return (
     <section id="sobre" className="relative overflow-hidden bg-paper py-24">
       <div className="absolute left-1/2 top-0 h-20 w-px -translate-x-1/2 section-divider" />
-      <div className="pointer-events-none absolute right-0 top-0 h-[420px] w-[420px] bg-[radial-gradient(circle,rgba(255,255,255,0.04),transparent_68%)] blur-3xl" />
 
       <div className="relative mx-auto max-w-6xl px-6">
         <Reveal>

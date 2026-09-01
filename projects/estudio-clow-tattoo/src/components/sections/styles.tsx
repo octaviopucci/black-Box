@@ -16,8 +16,6 @@ const layoutClasses = [
 export function Styles() {
   return (
     <section id="estilos" className="relative overflow-hidden bg-paper py-24">
-      <div className="pointer-events-none absolute -left-32 top-1/4 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05),transparent_70%)] blur-3xl" />
-
       <div className="relative mx-auto max-w-7xl px-6">
         <Reveal>
           <SectionHeader index="03" label="Especialidades" title="Estilos de tatuagem" />

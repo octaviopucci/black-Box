@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import type { ReactNode, MouseEvent } from "react";
-import { useRef, useState } from "react";
+import type { MouseEvent, ReactNode } from "react";
+import { useRef } from "react";
+import { useReducedMotion } from "framer-motion";
 
 type MagneticButtonProps = {
   children: ReactNode;
@@ -19,17 +19,18 @@ export function MagneticButton({
 }: MagneticButtonProps) {
   const reduceMotion = useReducedMotion();
   const ref = useRef<HTMLButtonElement>(null);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   const onMove = (event: MouseEvent<HTMLButtonElement>) => {
     if (reduceMotion || !ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 10;
-    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 10;
-    setOffset({ x, y });
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 8;
+    ref.current.style.transform = `translate(${x}px, ${y}px)`;
   };
 
-  const reset = () => setOffset({ x: 0, y: 0 });
+  const reset = () => {
+    if (ref.current) ref.current.style.transform = "";
+  };
 
   const base =
     variant === "solid"
@@ -37,20 +38,15 @@ export function MagneticButton({
       : "border border-ink/30 text-ink hover:border-ink hover:bg-ink/5";
 
   return (
-    <motion.button
+    <button
       ref={ref}
       type="button"
       onClick={onClick}
       onMouseMove={onMove}
       onMouseLeave={reset}
-      animate={{ x: offset.x, y: offset.y }}
-      transition={{ type: "spring", stiffness: 260, damping: 18 }}
-      className={`relative overflow-hidden px-10 py-4 text-sm uppercase tracking-widest ${base} ${className}`}
+      className={`relative px-10 py-4 text-sm uppercase tracking-widest transition-colors duration-200 ${base} ${className}`}
     >
-      <span className="relative z-10">{children}</span>
-      {variant === "solid" ? (
-        <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-      ) : null}
-    </motion.button>
+      {children}
+    </button>
   );
 }

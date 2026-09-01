@@ -18,11 +18,8 @@ export function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.18]);
-  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "28%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
-  const watermarkX = useTransform(scrollYProgress, [0, 1], ["0%", "-8%"]);
+  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0]);
 
   return (
     <section
@@ -31,8 +28,8 @@ export function Hero() {
       className="relative min-h-[100svh] overflow-hidden"
     >
       <motion.div
-        style={reduceMotion ? undefined : { y: imageY, scale: imageScale }}
-        className="absolute inset-0 origin-center"
+        style={reduceMotion ? undefined : { y: imageY }}
+        className="absolute inset-0"
       >
         <Image
           src={site.assets.hero}
@@ -40,28 +37,26 @@ export function Hero() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[center_15%] brightness-[0.55] contrast-[1.08] saturate-[0.92]"
+          className="object-cover object-[center_15%] brightness-[0.55] contrast-[1.05]"
         />
       </motion.div>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-paper via-paper/75 to-paper/15" />
-      <div className="absolute inset-0 bg-gradient-to-t from-paper via-transparent to-paper/30" />
+      <div className="absolute inset-0 bg-gradient-to-r from-paper via-paper/75 to-paper/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-paper via-transparent to-paper/25" />
       <div className="vignette pointer-events-none absolute inset-0" />
-      <div className="grain pointer-events-none absolute inset-0 opacity-35" />
-      <div className="scanlines pointer-events-none absolute inset-0 opacity-[0.035]" />
+      <div className="grain pointer-events-none absolute inset-0 opacity-20" />
 
-      <motion.p
+      <p
         aria-hidden
-        style={reduceMotion ? undefined : { x: watermarkX }}
         className="pointer-events-none absolute -right-[8vw] top-[8vh] select-none font-display text-[clamp(6rem,22vw,18rem)] font-light leading-none tracking-tighter text-ink/[0.04]"
       >
         CLOW
-      </motion.p>
+      </p>
 
       <InkFrame />
 
       <motion.div
-        style={reduceMotion ? undefined : { y: contentY, opacity: contentOpacity }}
+        style={reduceMotion ? undefined : { opacity: contentOpacity }}
         className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-end px-6 pb-16 pt-32 md:pb-24 md:pt-40"
       >
         <motion.p
@@ -83,7 +78,7 @@ export function Hero() {
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: easeOut, delay: 1 }}
+          transition={{ duration: 0.9, ease: easeOut, delay: 0.6 }}
           className="mt-12 flex flex-wrap gap-4"
         >
           <MagneticButton
@@ -103,29 +98,22 @@ export function Hero() {
         <motion.div
           initial={reduceMotion ? false : { scaleX: 0 }}
           animate={{ scaleX: 1 }}
-          transition={{ duration: 1.2, ease: easeOut, delay: 1.2 }}
+          transition={{ duration: 1.2, ease: easeOut, delay: 0.8 }}
           className="mt-16 h-px max-w-xs origin-left bg-gradient-to-r from-ink/50 to-transparent"
         />
       </motion.div>
 
-      <motion.button
+      <button
         type="button"
         onClick={() => scrollToHash("#sobre")}
-        initial={reduceMotion ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4 }}
         className="absolute bottom-10 right-6 z-10 hidden flex-col items-center gap-3 text-mute md:flex"
         aria-label="Rolar para sobre"
       >
         <span className="text-[10px] uppercase tracking-[0.35em] [writing-mode:vertical-rl]">
           Scroll
         </span>
-        <motion.span
-          animate={reduceMotion ? undefined : { scaleY: [0.3, 1, 0.3] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          className="block h-16 w-px origin-top bg-gradient-to-b from-transparent via-ink/70 to-transparent"
-        />
-      </motion.button>
+        <span className="block h-16 w-px bg-gradient-to-b from-transparent via-ink/50 to-transparent" />
+      </button>
     </section>
   );
 }
