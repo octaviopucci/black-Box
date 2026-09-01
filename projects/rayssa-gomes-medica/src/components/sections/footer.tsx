@@ -9,7 +9,7 @@ export function CtaSection() {
   const reduce = useReducedMotion()
 
   return (
-    <section id="agendar" className="bg-fern py-24 text-paper md:py-32">
+    <section id="agendar" className="bg-brand-accent py-24 text-paper md:py-32">
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -30,7 +30,7 @@ export function CtaSection() {
             href={whatsappUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-8 py-4 text-sm font-semibold text-ink transition hover:bg-brand-accent/90"
+            className="inline-flex items-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-semibold text-paper transition hover:bg-ink/90"
           >
             WhatsApp · Agendar
             <ArrowUpRight className="size-4" />
@@ -60,7 +60,7 @@ export function Footer() {
             href={site.instagram}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition hover:text-fern"
+            className="transition hover:text-brand-accent"
           >
             {site.instagramHandle}
           </Link>
@@ -68,7 +68,7 @@ export function Footer() {
             href={site.clinic.instagram}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition hover:text-fern"
+            className="transition hover:text-brand-accent"
           >
             {site.clinic.instagramHandle}
           </Link>

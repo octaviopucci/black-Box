@@ -34,7 +34,7 @@ export const site = {
 
 export const media = {
   profile: '/instagram/profile.jpg',
-  hero: '/instagram/post-5.jpg',
+  hero: '/carousel/slide-01.jpg',
   gallery: [
     '/instagram/post-1.jpg',
     '/instagram/post-3.jpg',
@@ -42,6 +42,35 @@ export const media = {
     '/instagram/post-5.jpg',
     '/instagram/post-6.jpg',
   ],
+} as const
+
+export const carouselSlides = [
+  {
+    id: 1,
+    file: '/carousel/slide-01.jpg',
+    alt: 'Dra. Rayssa Alexandre — psicólogo ou psiquiatra?',
+  },
+  {
+    id: 3,
+    file: '/carousel/slide-03.jpg',
+    alt: 'Psicólogo e psiquiatra — diferenças no cuidado',
+  },
+  {
+    id: 4,
+    file: '/carousel/slide-04.jpg',
+    alt: 'Quando procurar um psicólogo',
+  },
+  {
+    id: 5,
+    file: '/carousel/slide-05.jpg',
+    alt: 'Quando procurar um psiquiatra',
+  },
+] as const
+
+export const carouselPost = {
+  permalink: 'https://www.instagram.com/p/DNY3yebOZFR/',
+  caption:
+    'Psicólogo e psiquiatra atuam de formas diferentes na saúde mental — entender quando procurar cada um ajuda a escolher o cuidado ideal.',
 } as const
 
 export const pillars = [

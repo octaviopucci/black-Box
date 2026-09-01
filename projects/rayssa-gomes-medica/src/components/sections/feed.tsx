@@ -29,7 +29,7 @@ export function Feed() {
             href={site.instagram}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-fern transition hover:text-fern/80"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-accent transition hover:text-brand-accent/80"
           >
             Ver no Instagram
             <ArrowUpRight className="size-4" />

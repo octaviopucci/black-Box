@@ -2,9 +2,9 @@
 
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
-import { media, site, whatsappUrl } from '@/data/site'
+import { site, whatsappUrl } from '@/data/site'
+import { HeroCarousel } from '@/components/sections/hero-carousel'
 
 const stagger = {
   hidden: {},
@@ -23,36 +23,21 @@ const rise = {
 export function Hero() {
   const reduce = useReducedMotion()
   const { scrollYProgress } = useScroll()
-  const imageY = useTransform(scrollYProgress, [0, 0.35], ['0%', '10%'])
   const contentOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0.75])
 
   return (
     <section id="topo" className="relative min-h-svh overflow-hidden bg-ink text-paper">
-      <motion.div
-        style={reduce ? undefined : { y: imageY }}
-        className="absolute inset-0"
-      >
-        <Image
-          src={media.hero}
-          alt="Dra. Rayssa Alexandre"
-          fill
-          priority
-          className="object-cover object-[center_20%] opacity-90"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-ink via-ink/72 to-ink/35" />
-        <div className="absolute inset-0 bg-linear-to-r from-ink/80 via-ink/45 to-transparent" />
-      </motion.div>
+      <HeroCarousel className="absolute inset-0" />
 
       <motion.div
         style={reduce ? undefined : { opacity: contentOpacity }}
-        className="relative z-10 mx-auto flex min-h-svh max-w-6xl flex-col justify-end px-6 pb-16 pt-28 md:px-8 md:pb-24 md:pt-32"
+        className="relative z-10 mx-auto flex min-h-svh max-w-6xl flex-col justify-end px-6 pb-20 pt-28 md:px-8 md:pb-28 md:pt-36"
       >
         <motion.div
           variants={reduce ? undefined : stagger}
           initial={reduce ? false : 'hidden'}
           animate="show"
-          className="max-w-3xl"
+          className="max-w-4xl"
         >
           <motion.p variants={reduce ? undefined : rise} className="eyebrow text-paper/70">
             {site.specialty}
@@ -60,17 +45,17 @@ export function Hero() {
 
           <motion.h1
             variants={reduce ? undefined : rise}
-            className="display-title mt-4 text-[clamp(3.5rem,11vw,7.5rem)] text-paper"
+            className="display-title mt-3 leading-[0.86] tracking-[-0.03em]"
           >
-            {site.name}
-            <span className="block text-[0.42em] font-normal tracking-[0.06em] text-brand-accent">
+            <span className="block text-[clamp(5rem,22vw,14rem)] text-paper">Rayssa</span>
+            <span className="block text-[clamp(4.25rem,18vw,11.5rem)] text-brand-accent">
               Gomes
             </span>
           </motion.h1>
 
           <motion.p
             variants={reduce ? undefined : rise}
-            className="mt-6 max-w-xl text-lg leading-relaxed text-paper/82 md:text-xl"
+            className="mt-6 max-w-xl text-lg leading-relaxed text-paper/85 md:text-xl"
           >
             {site.headline}
           </motion.p>
@@ -83,7 +68,7 @@ export function Hero() {
               href={whatsappUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-7 py-3.5 text-sm font-semibold text-ink transition hover:bg-brand-accent/90"
+              className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-7 py-3.5 text-sm font-semibold text-paper transition hover:bg-brand-accent/90"
             >
               Agendar consulta
               <ArrowUpRight className="size-4" />

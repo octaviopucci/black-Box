@@ -55,13 +55,13 @@
 }
 
 :root {
-  /* Marca — editorial clínico, calmo */
-  --ink: 24 12% 8%;
-  --paper: 38 28% 96%;
-  --brand-accent: 38 42% 58%;
-  --mute: 28 6% 42%;
-  --fern: 148 22% 28%;
-  --lilac: 285 18% 62%;
+  /* Marca — paleta do carrossel Instagram (terracotta + nude) */
+  --ink: 20 35% 18%;
+  --paper: 30 38% 93%;
+  --brand-accent: 22 40% 52%;
+  --mute: 22 14% 42%;
+  --fern: 22 40% 52%;
+  --lilac: 220 28% 72%;
 
   --background: hsl(var(--paper));
   --foreground: hsl(var(--ink));
@@ -71,15 +71,15 @@
   --popover-foreground: hsl(var(--ink));
   --primary: hsl(var(--fern));
   --primary-foreground: hsl(var(--paper));
-  --secondary: 38 20% 92%;
+  --secondary: 30 30% 90%;
   --secondary-foreground: hsl(var(--ink));
-  --muted: 38 16% 90%;
+  --muted: 30 26% 88%;
   --muted-foreground: hsl(var(--mute));
   --accent: hsl(var(--brand-accent));
   --accent-foreground: hsl(var(--ink));
   --destructive: oklch(0.577 0.245 27.325);
-  --border: 30 12% 86%;
-  --input: 30 12% 86%;
+  --border: 28 20% 84%;
+  --input: 28 20% 84%;
   --ring: hsl(var(--fern));
   --radius: 0.5rem;
   --sidebar: hsl(var(--paper));
@@ -103,9 +103,9 @@ html {
 
 body {
   background:
-    radial-gradient(ellipse 55% 38% at 0% 0%, hsl(var(--fern) / 0.07), transparent 55%),
-    radial-gradient(ellipse 45% 32% at 100% 8%, hsl(var(--brand-accent) / 0.1), transparent 50%),
-    linear-gradient(180deg, hsl(38 30% 98%) 0%, hsl(var(--paper)) 48%, hsl(34 22% 91%) 100%);
+    radial-gradient(ellipse 55% 38% at 0% 0%, hsl(var(--brand-accent) / 0.08), transparent 55%),
+    radial-gradient(ellipse 45% 32% at 100% 8%, hsl(var(--lilac) / 0.12), transparent 50%),
+    linear-gradient(180deg, hsl(30 40% 97%) 0%, hsl(var(--paper)) 48%, hsl(28 28% 90%) 100%);
   color: hsl(var(--ink));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -147,8 +147,8 @@ body::before {
   .display-title {
     font-family: var(--font-display), serif;
     font-weight: 500;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
+    line-height: 0.88;
+    letter-spacing: -0.03em;
   }
 
   .eyebrow {

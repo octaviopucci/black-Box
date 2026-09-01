@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { site } from '@/data/site'
 
@@ -19,7 +18,7 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 md:px-8">
         <Link href="#topo" className="group flex flex-col leading-none">
           <span className="font-heading text-lg font-medium tracking-tight text-ink">
-            {site.name}
+            Rayssa <span className="text-brand-accent">Gomes</span>
           </span>
           <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-mute">
             {site.crm}
@@ -31,7 +30,7 @@ export function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-ink/70 transition hover:text-fern"
+              className="text-sm font-medium text-ink/70 transition hover:text-brand-accent"
             >
               {item.label}
             </Link>
@@ -40,7 +39,7 @@ export function Navbar() {
 
         <Link
           href="#agendar"
-          className="inline-flex items-center gap-1.5 rounded-full bg-fern px-4 py-2 text-sm font-semibold text-paper transition hover:bg-fern/90"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand-accent px-4 py-2 text-sm font-semibold text-paper transition hover:bg-brand-accent/90"
         >
           Agendar
           <ArrowUpRight className="size-4" />
