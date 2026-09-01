@@ -4,3 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  NEXT_PUBLIC_WHATSAPP_NUMBER = "5515997499178"
