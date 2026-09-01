@@ -1,0 +1,52 @@
+name: Preview Studio Clow Tattoo
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cursor/clow-tattoo-premium-192e
+    paths:
+      - projects/estudio-clow-tattoo/**
+      - .github/workflows/clow-tattoo-preview.yml
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: clow-tattoo-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: projects/estudio-clow-tattoo/package-lock.json
+
+      - name: Install and build
+        working-directory: projects/estudio-clow-tattoo
+        run: |
+          npm ci
+          GITHUB_PAGES=true npm run build
+          rm -f out/_headers
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: projects/estudio-clow-tattoo/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
