@@ -5,6 +5,8 @@ node_modules
 !/public/lais-felicia/**
 !/public/heitor-da-gelsa/
 !/public/heitor-da-gelsa/**
+!/public/estudio-clow/
+!/public/estudio-clow/**
 .DS_Store
 *.local
 .env
