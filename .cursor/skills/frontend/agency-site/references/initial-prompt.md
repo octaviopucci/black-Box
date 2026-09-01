@@ -1,21 +1,24 @@
-# Prompt Premium — copiar e colar
+# Prompt — /agency-premium
 
-O agente deve **executar** — não devolver este texto como plano.
+O agente deve **executar** — não devolver plano.
 
 ```
-/agency-site premium landing [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]
+/agency-premium [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]
 ```
 
-## O que o agente faz (automático)
+Exemplo:
 
-1. `bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh cliente-x`
-2. Edita `projects/cliente-x/src/site.config.ts`
+```
+/agency-premium Clínica Sol — saúde, WhatsApp 5562999887766, slug clinica-sol
+```
+
+## O agente faz (automático)
+
+1. `bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh <slug>`
+2. Edita `projects/<slug>/src/site.config.ts`
 3. `npm run build` até verde
-4. Responde com comandos dev + assets opcionais
 
-## Prompt Standard (sem kit)
-
-Ver seção Standard em [SKILL.md](../SKILL.md).
+## Standard (landing simples)
 
 ```
 /agency-site landing [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]

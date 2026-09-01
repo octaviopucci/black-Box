@@ -1,17 +1,17 @@
 # Premium runbook — execução obrigatória
 
-Use este arquivo quando o usuário invocar `/agency-site premium`.
+Use este arquivo quando o usuário invocar **`/agency-premium`**.
 **Não brainstorm. Não esperar ok. Executar na primeira resposta.**
 
 ---
 
 ## Gatilho
 
-Qualquer uma destas frases → tier Premium + runbook:
+Qualquer uma destas frases → runbook:
 
-- `/agency-site premium`
-- `premium landing`
-- referência ARP Fibra / scroll pinned / GSAP
+- **`/agency-premium`**
+- `agency-premium`
+- `/agency-site premium` (legado — tratar igual)
 
 ---
 

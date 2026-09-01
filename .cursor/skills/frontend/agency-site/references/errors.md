@@ -56,6 +56,7 @@ Lenis provider, 1 pin+scrub, hero layered, btn-shine. Framer só micro-UI.
 
 **Fix:** Rodar `bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh <slug>`,
 editar `site.config.ts`, `npm run build` verde — **na mesma resposta**.
+Gatilho correto: **`/agency-premium`**.
 
 ---
 

@@ -1,10 +1,9 @@
 ---
 name: agency-site
 description: >-
-  Landing/site premium pronta para executar: kit completo em references/premium-kit/
-  + script scaffold-premium.sh. Ao invocar /agency-site premium, RODAR scaffold,
-  customizar site.config.ts, build verde — sem brainstorm, sem perguntas extras.
-  Next.js + GSAP/Lenis + hero layered + pin/scrub. Standard tier para pedidos simples.
+  Landing Standard (simples) em projects/<slug>/. Para site top use /agency-premium.
+  Next.js + shadcn + Framer. Kit premium e scaffold ficam aqui; execução Premium
+  na skill agency-premium.
 paths:
   - "projects/**/*.{tsx,jsx,css,ts,js,html}"
   - "apps/**/*.{tsx,jsx,css,ts,js,html}"
@@ -16,35 +15,9 @@ paths:
 
 Referência visual: [ARP Fibra](https://grupoarpfibra.com.br/).
 
-**Premium = copiar kit + customizar config + build.** Não inventar do zero.
+**Premium → use `/agency-premium`** (skill dedicada: `.cursor/skills/frontend/agency-premium/SKILL.md`).
 
----
-
-## Regra zero — `/agency-site premium` (override vibe-coding)
-
-Quando o pedido contém **`premium`**, **`/agency-site premium`**, referência ARP,
-ou “site top / cinematic”:
-
-| Proibido | Obrigatório |
-|----------|-------------|
-| Brainstorm / plano / perguntas | **Executar na 1ª resposta** |
-| Esperar ok entre seções | Entregar landing **completa** do kit |
-| Só listar o que faria | `scaffold-premium.sh` + editar `site.config.ts` |
-| Bloquear por falta de assets | Placeholders do kit + indicar `public/*.webp` |
-
-**Só perguntar** se não der para inferir **nem marca nem slug**.
-
-### Sequência (copiar e colar)
-
-```bash
-bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh <slug>
-```
-
-1. Editar `projects/<slug>/src/site.config.ts` (copy, WhatsApp, planos, FAQ)
-2. `cd projects/<slug> && npm run build` — corrigir até verde
-3. Responder com path, comandos dev, o que falta customizar
-
-Runbook completo: [premium-runbook.md](references/premium-runbook.md)
+Este arquivo: tier **Standard** + documentação do kit premium.
 
 ---
 
@@ -71,14 +44,14 @@ Framer stagger no hero. WhatsApp FAB.
 
 ## Tiers
 
-| | **Standard** | **Premium** |
+| | **Standard** (`/agency-site`) | **Premium** (`/agency-premium`) |
 |---|-------------|-------------|
-| Ativação | `/agency-site landing …` | `/agency-site premium …` |
+| Ativação | `/agency-site landing …` | **`/agency-premium …`** |
 | Entrega | Seção a seção (ok entre elas) | **Kit completo de uma vez** |
 | Motion | Framer — [framer-motion.md](references/framer-motion.md) | Kit (GSAP+Lenis+Framer) |
 | Scaffold | create-next-app manual | **`scaffold-premium.sh`** |
 
-Inferir Premium se: “moderno”, “premium”, “ARP”, “cinematic”.
+Inferir Premium → redirecionar usuário para **`/agency-premium`**.
 
 ---
 
@@ -148,21 +121,7 @@ cd projects/<slug> && npm run build
 
 ## iPhone
 
-```
-/agency-site premium [MARCA] — [nicho], WhatsApp [n], slug [cliente-x]
-```
-
-Agente **executa scaffold** — não devolve questionário.
-
----
-
-## Checklist Premium (antes de responder)
-
-- [ ] `projects/<slug>/` existe e `npm run build` verde
-- [ ] `site.config.ts` customizado com dados do pedido
-- [ ] Usuário sabe rodar `npm run dev`
-- [ ] Assets opcionais listados (`public/hero.webp`)
-- [ ] Não pediu ok para “próxima seção”
+Use **`/agency-premium`** — ver skill dedicada e [mobile-iphone.md](../../vibe-coding/references/mobile-iphone.md).
 
 ## Referências
 

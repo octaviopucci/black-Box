@@ -2,7 +2,7 @@
 
 Sites novos criados via `/agency-site`.
 
-**Premium (recomendado para site top):**
+**Premium (site top — `/agency-premium`):**
 
 ```bash
 bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh <slug>
