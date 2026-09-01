@@ -1,24 +1,26 @@
 export const siteConfig = {
   businessName: "Octávio Pucci Tattoo Infinity",
   shortName: "Octávio Pucci",
-  tagline: "Tatuagem autoral em Capão Bonito",
+  tagline: "Realismo · Fine line · Cover-ups em Capão Bonito",
   city: "Capão Bonito",
   state: "SP",
   instagram: "https://www.instagram.com/octaviopuccitattoo",
   instagramHandle: "@octaviopuccitattoo",
   heroPromise:
-    "Sua ideia vira tatuagem que você vai querer mostrar — sem pressa, sem surpresa no preço.",
+    "Cover-ups que outro tatuador recusou — com 12 anos de experiência e orçamento fechado antes de marcar.",
   address: "Capão Bonito, SP",
-  hours: "Ter–Sáb · 10h às 19h (com hora marcada)",
+  appointmentNote:
+    "Atendimento com hora marcada. Endereço confirmado no WhatsApp depois do orçamento.",
+  hours: "Ter–Sáb · com hora marcada",
   mapQuery: "Capão Bonito, São Paulo, Brasil",
   mapEmbedUrl:
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d118123.456!2d-48.345!3d-24.008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94c9a8b8c8c8c8c9%3A0x0!2sCap%C3%A3o%20Bonito%2C%20SP!5e0!3m2!1spt-BR!2sbr!4v1700000000000!5m2!1spt-BR!2sbr",
 } as const;
 
 export const stats = [
-  { value: "8+", label: "anos tatuando" },
-  { value: "500+", label: "clientes atendidos" },
-  { value: "5.0", label: "nota no Google" },
+  { value: "12+", label: "anos tatuando" },
+  { value: "P&B", label: "realismo preto e cinza" },
+  { value: "Cover", label: "ups inacreditáveis" },
 ] as const;
 
 export type Service = {
@@ -30,39 +32,25 @@ export type Service = {
 
 export const services: Service[] = [
   {
-    id: "personalizada",
-    name: "Tatuagem personalizada",
-    price: "A partir de R$ 350",
+    id: "realismo-pb",
+    name: "Realismo preto e cinza",
+    price: "Orçamento personalizado",
     description:
-      "Conta sua ideia. Eu desenho exclusivo pro seu corpo — tamanho, encaixe e estilo combinados antes de marcar.",
-  },
-  {
-    id: "realismo-blackwork",
-    name: "Realismo & blackwork",
-    price: "Orçamento por sessão",
-    description:
-      "Sombras profundas, preto sólido, retratos e peças grandes. Sessões de 4 a 6 horas, conforme o projeto.",
+      "Retratos, sombras profundas e detalhe fino. Cada peça é desenhada pro seu corpo — tamanho e encaixe combinados antes da sessão.",
   },
   {
     id: "fineline",
-    name: "Fineline & minimalista",
-    price: "A partir de R$ 250",
+    name: "Fine line",
+    price: "Orçamento personalizado",
     description:
-      "Linhas finas, letras, símbolos pequenos. Ideal pra primeira tattoo ou complemento delicado.",
+      "Linhas finas, letras, símbolos delicados. Ideal pra complemento ou primeira tattoo — sempre com projeto exclusivo.",
   },
   {
     id: "cover-up",
-    name: "Cover-up & reforma",
-    price: "Orçamento na hora",
+    name: "Coberturas e reformas",
+    price: "Orçamento personalizado",
     description:
-      "Cobrir ou reformar tattoo antiga. Mando foto pelo WhatsApp e digo se dá, quanto custa e quantas sessões.",
-  },
-  {
-    id: "retoque",
-    name: "Retoque",
-    price: "Grátis em 30 dias",
-    description:
-      "Passou do prazo de cicatrização e precisa ajustar? Retoque incluso no mês seguinte à sessão.",
+      "Especialidade da casa. Manda foto da tattoo antiga pelo WhatsApp — digo se dá, quantas sessões e quanto custa, sem enrolação.",
   },
 ];
 
@@ -71,37 +59,37 @@ export const steps = [
     number: "01",
     title: "Manda sua ideia",
     description:
-      "WhatsApp com referência, local do corpo e tamanho aproximado. Respondo em até 24h.",
+      "WhatsApp com referência, local do corpo e tamanho aproximado. Se for cover-up, manda foto do que quer cobrir.",
   },
   {
     number: "02",
-    title: "Orçamento fechado",
+    title: "Orçamento personalizado",
     description:
-      "Valor por projeto, não por hora surpresa. Data marcada só depois que você aprovar tudo.",
+      "Valor fechado pro seu projeto — não por hora surpresa. Só marcamos data depois que você aprovar tudo.",
   },
   {
     number: "03",
     title: "Sessão + cuidados",
     description:
-      "Desenho ajustado no dia. Saia com orientação de cicatrização e retoque incluso.",
+      "Desenho ajustado no dia. Saia com orientação de cicatrização e contato direto se precisar de algo depois.",
   },
 ] as const;
 
 export const testimonials = [
   {
     name: "Mariana S.",
-    text: "Fui com medo de doer e saí querendo marcar a próxima. Explicou cada passo, preço fechado antes, zero enrolação.",
-    detail: "Fineline no pulso",
+    text: "Fine line no pulso — linha perfeita, zero borrão. Explicou o cuidado depois e respondeu dúvida no WhatsApp no dia seguinte.",
+    detail: "Fine line · pulso",
   },
   {
     name: "Rafael T.",
-    text: "Cover-up que outro estúdio disse que não dava. Octávio mostrou opções, cobriu tudo e ficou natural.",
-    detail: "Cover-up no braço",
+    text: "Dois estúdios disseram que meu cover-up não dava. Octávio cobriu tudo em duas sessões. Parece que nunca existiu a tattoo velha.",
+    detail: "Cover-up · antebraço",
   },
   {
     name: "Camila L.",
-    text: "Marcou sábado porque só consigo folga no fim de semana. Retoque depois de duas semanas, sem custo.",
-    detail: "Realismo no antebraço",
+    text: "Retrato em preto e cinza da minha avó. Chorei quando vi pronto. Orçamento fechado antes, sem taxa escondida no final.",
+    detail: "Realismo P&B · costas",
   },
 ] as const;
 
@@ -109,16 +97,16 @@ export const faqItems = [
   {
     question: "Quanto custa?",
     answer:
-      "Depende do tamanho, local e detalhe. Manda referência no WhatsApp que eu passo valor fechado antes de marcar.",
+      "Cada projeto é diferente. Manda referência no WhatsApp que eu monto orçamento personalizado — valor fechado antes de marcar.",
   },
   {
-    question: "Dói muito?",
+    question: "Cover-up dá mesmo?",
     answer:
-      "Varia pelo local do corpo. Uso técnica pausada — se precisar parar, paramos. A maioria aguenta bem sessões de 3–4h.",
+      "Depende do que você tem e do que quer. Manda foto que eu digo na hora se dá, quantas sessões e quanto fica.",
   },
   {
-    question: "Quanto tempo demora?",
+    question: "Como marco horário?",
     answer:
-      "Pequena: uma sessão. Grande ou realismo: pode ser 2–3 sessões. Combinamos tudo antes.",
+      "Atendimento só com hora marcada. Depois do orçamento aprovado, combino dia e passo o endereço certinho.",
   },
 ] as const;

@@ -15,8 +15,8 @@ export function Services() {
           O que faço
         </h2>
         <p className="mt-4 max-w-xl text-lg text-muted-foreground">
-          Cada trabalho é projeto fechado. Você sabe o valor antes de deitar na
-          cadeira.
+          Realismo P&B, fine line e cover-ups. Cada trabalho com orçamento
+          personalizado — você sabe o valor antes de deitar na cadeira.
         </p>
 
         <ul className="mt-12 divide-y divide-border">

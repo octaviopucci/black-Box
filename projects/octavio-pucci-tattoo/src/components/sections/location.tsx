@@ -7,7 +7,7 @@ export function Location() {
     <section id="local" className="bg-muted/20 py-16 md:py-24">
       <div className="mx-auto max-w-6xl px-6 md:px-8">
         <h2 className="font-heading text-3xl text-foreground uppercase md:text-4xl">
-          Onde fica
+          Como marcar
         </h2>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-12">
@@ -18,8 +18,7 @@ export function Location() {
                 <p className="font-semibold">{siteConfig.businessName}</p>
                 <p className="text-muted-foreground">{siteConfig.address}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Atendimento com hora marcada — confirme pelo WhatsApp antes de
-                  ir.
+                  {siteConfig.appointmentNote}
                 </p>
               </div>
             </div>
