@@ -24,7 +24,8 @@ BUILD_PATTERNS=(
   '^scripts/bundle-pix-api\.mjs$'
   '^package\.json$'
   '^package-lock\.json$'
-  '^vercel\.json$'
+  '^projects/'
+  '^scripts/assemble-estudio-clow-only\.mjs$'
 )
 
 needs_build=0
