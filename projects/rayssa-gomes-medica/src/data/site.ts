@@ -35,6 +35,11 @@ export const site = {
 export const media = {
   profile: '/instagram/profile.jpg',
   hero: '/carousel/slide-01.jpg',
+  heroVideo: {
+    src: '/video/hero.mp4',
+    poster: '/video/hero-poster.jpg',
+    scrollLength: 2.6,
+  },
   gallery: [
     '/instagram/post-1.jpg',
     '/instagram/post-3.jpg',
