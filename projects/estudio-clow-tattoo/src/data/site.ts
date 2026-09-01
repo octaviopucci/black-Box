@@ -39,23 +39,27 @@ Domingo: Fechado`,
   styles: [
     {
       title: "Preto & Cinza",
+      tagline: "Arte feita através de luz, sombra e detalhes.",
       desc: "Sombras profundas, contrastes precisos e detalhes que transformam pele em arte. Cada traço revela profundidade e emoção.",
       image:
-        "https://media.base44.com/images/public/6a2ec6a5abe80eb43c19249d/a197e5f1d_7d905181-c7ac-4588-9b7b-2ffdffecf170.jpg",
+        "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/e7950d191_IMG_0820.jpg",
     },
     {
       title: "Colorido",
+      tagline: "Expressão através de cores, vida e personalidade.",
       desc: "Cores que dão vida às ideias e transformam histórias em arte permanente. Vibrante, intenso e cheio de personalidade.",
       image:
-        "https://media.base44.com/images/public/6a2ec6a5abe80eb43c19249d/d5d2f3624_f0dcfa2c-2d85-43d1-9806-99a3c669956b.jpg",
+        "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/2a99f1c33_a8a37897-6b0a-44d2-8a7d-0e7241e33e3a.jpg",
     },
     {
       title: "Projetos Personalizados",
+      tagline: "Criado exclusivamente para você.",
       desc: "Tatuagens criadas exclusivamente para cada cliente. Seu projeto é único, assim como sua história.",
       image:
-        "https://media.base44.com/images/public/6a2ec6a5abe80eb43c19249d/627ac8abf_70f0ed2b-7470-4d47-8fb3-d0ab5128d0b9.jpg",
+        "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/d2b975259_f8f2f203-755c-4193-9fa7-d81509e76f03.jpg",
     },
   ],
+  artistTags: ["Black & Grey", "Realismo", "Colorido", "Personalizado"],
   process: [
     {
       step: "01",

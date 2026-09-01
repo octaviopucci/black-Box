@@ -8,6 +8,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-line: var(--line);
   --color-ink: var(--ink);
   --color-accent: var(--accent);
   --color-mute: var(--mute);
@@ -53,9 +56,12 @@
 
 :root {
   --paper: #050505;
-  --ink: #f5f5f5;
-  --accent: #d8d8d8;
-  --mute: #9a9a9a;
+  --surface: #0a0a0a;
+  --elevated: #1a1a1a;
+  --line: #333333;
+  --ink: #ffffff;
+  --accent: #f5f5f5;
+  --mute: #a1a1a1;
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -112,6 +118,32 @@
   .grain {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
     mix-blend-mode: soft-light;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .section-divider {
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in oklab, var(--line) 100%, transparent)
+    );
+  }
+
+  .hairline-x {
+    background: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in oklab, var(--line) 100%, transparent),
+      transparent
+    );
   }
 }
 

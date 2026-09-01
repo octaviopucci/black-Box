@@ -18,7 +18,7 @@ export function Testimonials() {
   };
 
   return (
-    <section className="relative py-24 md:py-32">
+    <section className="relative bg-surface py-20">
       <div className="mx-auto max-w-4xl px-6 text-center">
         <Reveal>
           <p className="text-[11px] uppercase tracking-[0.4em] text-mute">

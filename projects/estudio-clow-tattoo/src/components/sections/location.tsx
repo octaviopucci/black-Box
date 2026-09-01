@@ -6,7 +6,7 @@ import { Reveal } from "@/components/motion/reveal";
 
 export function Location() {
   return (
-    <section id="contato" className="relative py-24 md:py-32">
+    <section id="contato" className="relative bg-surface py-20">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal className="text-center">
           <p className="text-[11px] uppercase tracking-[0.4em] text-mute">

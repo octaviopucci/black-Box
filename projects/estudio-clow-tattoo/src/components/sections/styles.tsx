@@ -1,70 +1,57 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { site } from "@/data/site";
 import { scrollToHash } from "@/lib/whatsapp";
 import { Reveal } from "@/components/motion/reveal";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export function Styles() {
-  const reduceMotion = useReducedMotion();
-
   return (
-    <section id="estilos" className="relative py-24 md:py-32">
+    <section id="estilos" className="relative bg-paper py-20">
       <div className="mx-auto max-w-7xl px-6">
-        <Reveal className="max-w-2xl">
-          <p className="text-[11px] uppercase tracking-[0.4em] text-mute">
-            Especialidades
-          </p>
-          <h2 className="mt-5 font-display text-[clamp(2.2rem,5vw,4.5rem)] italic leading-[1.02] text-ink">
-            Estilos de tatuagem
-          </h2>
+        <Reveal>
+          <SectionHeader label="Especialidades" title="Estilos de tatuagem" />
         </Reveal>
-      </div>
 
-      <div className="mt-14 space-y-3">
-        {site.styles.map((style, index) => (
-          <Reveal key={style.title} delay={index * 0.06}>
-            <article className="group relative min-h-[52vh] overflow-hidden md:min-h-[62vh]">
-              <Image
-                src={style.image}
-                alt={style.title}
-                fill
-                sizes="100vw"
-                className="object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-paper via-paper/85 to-paper/20" />
-              <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/40 to-transparent md:hidden" />
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {site.styles.map((style, index) => (
+            <Reveal key={style.title} delay={index * 0.12}>
+              <article className="group relative cursor-pointer overflow-hidden bg-elevated">
+                <div className="relative aspect-[3/4] overflow-hidden">
+                  <Image
+                    src={style.image}
+                    alt={style.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-all duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-elevated via-elevated/30 to-transparent" />
+                </div>
 
-              <div className="relative z-10 mx-auto flex h-full max-w-7xl items-end px-6 py-12 md:items-center md:py-0">
-                <motion.div
-                  initial={reduceMotion ? false : { opacity: 0, x: -24 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-10%" }}
-                  transition={{ duration: 0.8, delay: 0.1 }}
-                  className="max-w-xl"
-                >
-                  <p className="text-[11px] uppercase tracking-[0.36em] text-mute">
-                    0{index + 1}
+                <div className="relative z-10 -mt-20 p-8">
+                  <p className="mb-2 text-xs uppercase tracking-[0.3em] text-mute">
+                    {style.tagline}
                   </p>
-                  <h3 className="mt-4 font-display text-4xl italic text-ink md:text-5xl">
+                  <h3 className="mb-4 font-display text-3xl italic text-ink">
                     {style.title}
                   </h3>
-                  <p className="mt-5 max-w-md text-base font-light leading-relaxed text-mute">
+                  <p className="text-sm font-light leading-relaxed text-mute">
                     {style.desc}
                   </p>
                   <button
                     type="button"
                     onClick={() => scrollToHash("#trabalhos")}
-                    className="mt-8 text-[11px] uppercase tracking-[0.28em] text-ink underline-offset-4 hover:underline"
+                    className="mt-6 border-b border-ink/30 pb-1 text-sm uppercase tracking-widest text-ink transition-colors hover:border-ink"
                   >
                     Ver trabalhos
                   </button>
-                </motion.div>
-              </div>
-            </article>
-          </Reveal>
-        ))}
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );

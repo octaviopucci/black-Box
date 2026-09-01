@@ -24,7 +24,7 @@ const initialState: QuoteFormData = {
 };
 
 const fieldClass =
-  "w-full border border-ink/15 bg-transparent px-4 py-3.5 text-sm text-ink outline-none transition-colors placeholder:text-mute/70 focus:border-ink";
+  "w-full border border-line bg-elevated px-4 py-3.5 text-sm text-ink outline-none transition-colors placeholder:text-mute/60 focus:border-mute";
 
 export function QuoteForm() {
   const [form, setForm] = useState<QuoteFormData>(initialState);
@@ -44,16 +44,16 @@ export function QuoteForm() {
   };
 
   return (
-    <section id="orcamento" className="relative py-24 md:py-32">
+    <section id="orcamento" className="relative bg-paper py-20">
       <div className="mx-auto max-w-3xl px-6">
         <Reveal className="text-center">
-          <p className="text-[11px] uppercase tracking-[0.4em] text-mute">
+          <span className="text-xs uppercase tracking-[0.4em] text-mute">
             Orçamento
-          </p>
-          <h2 className="mt-5 font-display text-[clamp(2.2rem,5vw,4.5rem)] italic leading-[1.02] text-ink">
+          </span>
+          <h2 className="mt-4 font-display text-4xl font-light italic text-ink sm:text-5xl md:text-6xl">
             Solicitar orçamento
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-base font-light text-mute">
+          <p className="mx-auto mt-4 max-w-xl font-light text-mute">
             Preencha os campos abaixo e enviaremos sua solicitação diretamente
             para nosso WhatsApp.
           </p>
@@ -182,7 +182,7 @@ export function QuoteForm() {
 
             <button
               type="submit"
-              className="w-full bg-ink px-6 py-4 text-[11px] uppercase tracking-[0.28em] text-paper transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full bg-accent px-6 py-4 text-sm font-semibold uppercase tracking-widest text-paper transition-colors hover:bg-accent/90"
             >
               Enviar orçamento pelo WhatsApp
             </button>

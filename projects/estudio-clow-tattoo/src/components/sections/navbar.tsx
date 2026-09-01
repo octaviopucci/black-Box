@@ -30,7 +30,7 @@ export function Navbar() {
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-all duration-500",
           scrolled
-            ? "border-b border-ink/10 bg-paper/80 backdrop-blur-xl"
+            ? "border-b border-line/80 bg-paper/90 backdrop-blur-xl"
             : "bg-transparent",
         )}
       >
@@ -47,8 +47,8 @@ export function Navbar() {
               width={160}
               height={64}
               className={cn(
-                "w-auto transition-all duration-500",
-                scrolled ? "h-10" : "h-14 md:h-16",
+                "w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-500",
+                scrolled ? "h-12" : "h-16 md:h-20",
               )}
             />
           </button>
@@ -59,7 +59,7 @@ export function Navbar() {
                 key={item.href}
                 type="button"
                 onClick={() => navigate(item.href)}
-                className="text-[11px] uppercase tracking-[0.32em] text-mute transition-colors hover:text-ink"
+                className="text-xs uppercase tracking-[0.32em] text-mute transition-colors hover:text-ink"
               >
                 {item.label}
               </button>
@@ -70,7 +70,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => navigate("#orcamento")}
-              className="border border-ink/20 px-6 py-2.5 text-[11px] uppercase tracking-[0.28em] text-ink transition-colors hover:bg-ink hover:text-paper"
+              className="border border-ink/25 px-6 py-2.5 text-xs uppercase tracking-[0.28em] text-ink transition-colors hover:bg-ink/10"
             >
               Orçamento
             </button>

@@ -20,7 +20,7 @@ export function WhatsAppFab() {
         event.preventDefault();
         openWhatsApp("Olá, StudioClownTattoo! Gostaria de mais informações.");
       }}
-      className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-ink text-paper shadow-lg shadow-ink/20"
+      className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-paper shadow-lg shadow-black/40"
       aria-label="WhatsApp StudioClownTattoo"
     >
       <MessageCircle className="h-6 w-6" />

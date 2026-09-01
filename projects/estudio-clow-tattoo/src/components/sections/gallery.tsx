@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { site, type GalleryCategory } from "@/data/site";
 import { Reveal } from "@/components/motion/reveal";
+import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/utils";
 
 const filters: { id: GalleryCategory; label: string }[] = [
@@ -15,152 +16,180 @@ const filters: { id: GalleryCategory; label: string }[] = [
 ];
 
 export function Gallery() {
-  const reduceMotion = useReducedMotion();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<GalleryCategory>("all");
-  const [index, setIndex] = useState(0);
-  const [lightbox, setLightbox] = useState<number | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const items = useMemo(() => {
     if (filter === "all") return site.gallery;
     return site.gallery.filter((item) => item.category === filter);
   }, [filter]);
 
-  const current = items[index] ?? items[0];
-
-  const go = (direction: -1 | 1) => {
-    if (!items.length) return;
-    setIndex((prev) => (prev + direction + items.length) % items.length);
+  const scrollBy = (direction: -1 | 1) => {
+    scrollRef.current?.scrollBy({ left: direction * 300, behavior: "smooth" });
   };
 
-  return (
-    <section id="trabalhos" className="relative overflow-hidden py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
-        <Reveal className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.4em] text-mute">
-              Portfólio
-            </p>
-            <h2 className="mt-5 font-display text-[clamp(2.2rem,5vw,4.5rem)] italic leading-[1.02] text-ink">
-              Nossos trabalhos
-            </h2>
-          </div>
+  const openLightbox = (index: number) => setLightboxIndex(index);
+  const closeLightbox = () => setLightboxIndex(null);
 
-          <div className="flex flex-wrap gap-3">
-            {filters.map((item) => (
+  const goLightbox = (direction: -1 | 1) => {
+    if (lightboxIndex === null) return;
+    const next = (lightboxIndex + direction + items.length) % items.length;
+    setLightboxIndex(next);
+  };
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") goLightbox(-1);
+      if (event.key === "ArrowRight") goLightbox(1);
+      if (event.key === "Escape") closeLightbox();
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxIndex, items.length]);
+
+  return (
+    <section id="trabalhos" className="relative bg-surface py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <Reveal>
+          <SectionHeader label="Portfólio" title="Nossos trabalhos" />
+        </Reveal>
+
+        <Reveal delay={0.08} className="mt-8 flex flex-wrap justify-center gap-2">
+          {filters.map((item) => {
+            const count =
+              item.id === "all"
+                ? site.gallery.length
+                : site.gallery.filter((g) => g.category === item.id).length;
+
+            return (
               <button
                 key={item.id}
                 type="button"
-                onClick={() => {
-                  setFilter(item.id);
-                  setIndex(0);
-                }}
+                onClick={() => setFilter(item.id)}
                 className={cn(
-                  "px-4 py-2 text-[11px] uppercase tracking-[0.24em] transition-colors",
+                  "px-5 py-2.5 text-xs uppercase tracking-widest transition-all duration-300",
                   filter === item.id
-                    ? "bg-ink text-paper"
-                    : "border border-ink/15 text-mute hover:text-ink",
+                    ? "bg-accent font-medium text-paper"
+                    : "border border-line text-mute hover:border-ink hover:text-ink",
                 )}
               >
                 {item.label}
+                {filter === item.id ? ` (${count})` : ""}
               </button>
+            );
+          })}
+        </Reveal>
+
+        <Reveal delay={0.12} className="group/row relative mt-6">
+          <button
+            type="button"
+            onClick={() => scrollBy(-1)}
+            className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center border border-line bg-paper/80 text-ink opacity-0 transition-opacity hover:bg-elevated group-hover/row:opacity-100"
+            aria-label="Rolar para esquerda"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollBy(1)}
+            className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center border border-line bg-paper/80 text-ink opacity-0 transition-opacity hover:bg-elevated group-hover/row:opacity-100"
+            aria-label="Rolar para direita"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+
+          <div
+            ref={scrollRef}
+            className="scrollbar-hide flex gap-2 overflow-x-auto scroll-smooth px-1"
+          >
+            {items.map((item, index) => (
+              <motion.button
+                key={item.src}
+                type="button"
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.03 }}
+                onClick={() => openLightbox(index)}
+                className="group relative h-44 w-44 shrink-0 overflow-hidden bg-elevated sm:h-48 sm:w-48"
+              >
+                <Image
+                  src={item.src}
+                  alt={`Trabalho ${index + 1}`}
+                  fill
+                  sizes="192px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover:bg-black/50">
+                  <Search
+                    className="h-7 w-7 text-ink opacity-0 transition-opacity group-hover:opacity-100"
+                    strokeWidth={1.5}
+                  />
+                </div>
+              </motion.button>
             ))}
           </div>
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-12">
-          <div className="relative aspect-[4/5] overflow-hidden bg-ink/5 md:aspect-[16/10]">
-            <AnimatePresence mode="wait">
-              {current && (
-                <motion.button
-                  key={current.src}
-                  type="button"
-                  initial={reduceMotion ? false : { opacity: 0, scale: 1.02 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.55 }}
-                  onClick={() => setLightbox(index)}
-                  className="relative h-full w-full"
-                >
-                  <Image
-                    src={current.src}
-                    alt="Trabalho StudioClownTattoo"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 1200px"
-                    className="object-cover"
-                  />
-                </motion.button>
-              )}
-            </AnimatePresence>
-
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-paper to-transparent" />
-
-            <div className="absolute inset-y-0 left-0 flex items-center px-3">
-              <button
-                type="button"
-                onClick={() => go(-1)}
-                className="flex h-11 w-11 items-center justify-center border border-ink/15 bg-paper/70 backdrop-blur-sm transition-colors hover:bg-paper"
-                aria-label="Anterior"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="absolute inset-y-0 right-0 flex items-center px-3">
-              <button
-                type="button"
-                onClick={() => go(1)}
-                className="flex h-11 w-11 items-center justify-center border border-ink/15 bg-paper/70 backdrop-blur-sm transition-colors hover:bg-paper"
-                aria-label="Próxima"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-5 flex items-center justify-between text-sm text-mute">
-            <span>
-              {index + 1} de {items.length}
-            </span>
-            <div className="hidden gap-2 md:flex">
-              {items.slice(0, 8).map((item, i) => (
-                <button
-                  key={item.src}
-                  type="button"
-                  onClick={() => setIndex(i)}
-                  className={cn(
-                    "h-1.5 transition-all",
-                    i === index ? "w-8 bg-ink" : "w-3 bg-ink/20",
-                  )}
-                  aria-label={`Ir para imagem ${i + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        </Reveal>
+        <p className="mt-3 text-center text-xs text-mute/70 md:hidden">
+          ← deslize para ver mais →
+        </p>
+        {lightboxIndex !== null && (
+          <p className="mt-1 text-center text-xs text-mute/60">
+            {lightboxIndex + 1} de {items.length}
+          </p>
+        )}
       </div>
 
       <AnimatePresence>
-        {lightbox !== null && items[lightbox] && (
+        {lightboxIndex !== null && items[lightboxIndex] && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-paper/95 p-4 backdrop-blur-md"
-            onClick={() => setLightbox(null)}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-paper/95 p-4 backdrop-blur-md"
+            onClick={closeLightbox}
           >
             <button
               type="button"
               className="absolute right-6 top-6 text-ink"
-              onClick={() => setLightbox(null)}
+              onClick={closeLightbox}
               aria-label="Fechar"
             >
               <X className="h-6 w-6" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goLightbox(-1);
+              }}
+              className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-line bg-paper/80"
+              aria-label="Anterior"
+            >
+              <ChevronLeft />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goLightbox(1);
+              }}
+              className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-line bg-paper/80"
+              aria-label="Próxima"
+            >
+              <ChevronRight />
             </button>
             <div
               className="relative h-[80vh] w-full max-w-5xl"
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={items[lightbox].src}
+                src={items[lightboxIndex].src}
                 alt="Trabalho ampliado"
                 fill
                 sizes="100vw"

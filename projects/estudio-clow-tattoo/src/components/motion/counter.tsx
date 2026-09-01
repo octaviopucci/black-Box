@@ -11,7 +11,7 @@ type CounterProps = {
 
 export function Counter({ value, suffix = "", label }: CounterProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
+  const inView = useInView(ref, { once: true, margin: "-100px" });
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
@@ -31,12 +31,12 @@ export function Counter({ value, suffix = "", label }: CounterProps) {
   }, [inView, value]);
 
   return (
-    <div ref={ref} className="border-t border-ink/10 pt-6">
-      <p className="font-display text-4xl leading-none tracking-tight text-ink md:text-5xl">
-        {display.toLocaleString("pt-BR")}
+    <div ref={ref} className="text-center">
+      <div className="font-display text-5xl font-light text-ink sm:text-6xl">
+        +{display.toLocaleString("pt-BR")}
         {suffix}
-      </p>
-      <p className="mt-3 text-xs uppercase tracking-[0.28em] text-mute">{label}</p>
+      </div>
+      <div className="mt-2 text-sm uppercase tracking-widest text-mute">{label}</div>
     </div>
   );
 }
