@@ -1,3 +1,27 @@
+export const media = {
+  profile: 'instagram/profile.jpg',
+  hero: 'instagram/post-6.jpg',
+  studio: 'instagram/post-8.jpg',
+  brand: 'instagram/profile.jpg',
+  gallery: [
+    'instagram/post-1.jpg',
+    'instagram/post-2.jpg',
+    'instagram/post-3.jpg',
+    'instagram/post-4.jpg',
+    'instagram/post-5.jpg',
+    'instagram/post-6.jpg',
+    'instagram/post-7.jpg',
+    'instagram/post-8.jpg',
+    'instagram/post-9.jpg',
+    'instagram/post-10.jpg',
+    'instagram/post-11.jpg',
+    'instagram/post-12.jpg',
+    'instagram/post-13.jpg',
+    'instagram/post-14.jpg',
+    'instagram/post-15.jpg',
+  ],
+} as const
+
 export const site = {
   name: 'Octávio Pucci',
   fullName: 'Octávio Pucci Tattoo',
@@ -22,7 +46,8 @@ export const site = {
   city: 'Capão Bonito/SP',
   studio: 'Studio Privado · Capão Bonito/SP',
   years: 12,
-  followers: '6.8k',
+  followers: 6834,
+  followersLabel: '6.8k',
   nav: [
     { label: 'Credo', href: '#credo' },
     { label: 'Linguagens', href: '#linguagens' },
@@ -57,8 +82,8 @@ export const languages: Language[] = [
     title: 'Realismo preto & cinza',
     line: 'Volume, luz e pele que respira',
     detail:
-      'Retratos, simbolismos e grandes fechamentos com lavagem precisa — do primeiro preto sólido ao último branco de luz.',
-    image: 'duality-wolf-lion.jpg',
+      'Fechamentos de braço em sessão marathon, retratos e grandes composições — atenção máxima do primeiro ao último traço, como publicado no Instagram.',
+    image: media.gallery[4],
     accent: 'Black & Grey',
   },
   {
@@ -66,17 +91,17 @@ export const languages: Language[] = [
     title: 'Coberturas & reformas',
     line: 'O passado some. A arte aparece.',
     detail:
-      'Coberturas que não entregam o que estava embaixo. Reformas pensadas anatomia a anatomia — desafio técnico, resultado limpo.',
-    image: 'cover-lion.jpg',
+      'Composição 100% autoral sobre pele marcada — coberturas que não entregam o que estava embaixo, buscando naturalidade em vez de borrão preto.',
+    image: media.gallery[2],
     accent: 'Cover-up',
   },
   {
     id: 'fineline',
-    title: 'Fine line',
+    title: 'Fine line & homenagem',
     line: 'Traço fino, intenção pesada',
     detail:
-      'Linhas delicadas, tipografia e composições leves que pedem pulso firme — elegância sem abrir mão da presença.',
-    image: 'memento-vivere.jpg',
+      'Artes exclusivas com significado emocional — homenagens e projetos únicos para quem valoriza durabilidade e dedicação, como descrito nas publicações oficiais.',
+    image: media.gallery[1],
     accent: 'Fine Line',
   },
 ]
@@ -87,6 +112,7 @@ export type ArchivePiece = {
   meta: string
   image: string
   span?: 'tall' | 'wide' | 'square'
+  source?: string
 }
 
 export const archive: ArchivePiece[] = [
@@ -94,57 +120,65 @@ export const archive: ArchivePiece[] = [
     id: 'hannya',
     title: 'Hannya — fechamento de costas',
     meta: '2 sessões · Black & Grey',
-    image: 'back-hannya.jpg',
+    image: media.gallery[5],
     span: 'tall',
+    source: 'Instagram @octaviopuccitattoo',
   },
   {
-    id: 'duality',
-    title: 'Duality · Lobo & Leão',
-    meta: 'Composição vertical · Panturrilha',
-    image: 'duality-wolf-lion.jpg',
+    id: 'arm',
+    title: 'Fechamento de braço',
+    meta: '20 horas · Uma sessão',
+    image: media.gallery[4],
     span: 'tall',
+    source: 'Instagram @octaviopuccitattoo',
   },
   {
     id: 'cover',
-    title: 'Cobertura · Leão',
-    meta: 'Antes → Depois · Braço',
-    image: 'cover-lion.jpg',
-    span: 'square',
-  },
-  {
-    id: 'memento',
-    title: 'Memento Vivere',
-    meta: 'Fine line · Antebraço',
-    image: 'memento-vivere.jpg',
-    span: 'square',
-  },
-  {
-    id: 'wings',
-    title: 'Cruz & asas',
-    meta: 'Peitoral · Realismo',
-    image: 'chest-wings.jpg',
-    span: 'square',
-  },
-  {
-    id: 'eye',
     title: 'Cobertura autoral',
     meta: '3 sessões · Composição narrativa',
-    image: 'cover-eye.jpg',
-    span: 'tall',
+    image: media.gallery[2],
+    span: 'square',
+    source: 'Instagram @octaviopuccitattoo',
   },
   {
-    id: 'ouroboros',
-    title: 'Ouroboros',
-    meta: 'Ciclo · Renovação',
-    image: 'ouroboros.jpg',
-    span: 'tall',
+    id: 'tribute',
+    title: 'Homenagem · Filhos',
+    meta: 'Arte exclusiva · Realismo',
+    image: media.gallery[1],
+    span: 'square',
+    source: 'Instagram @octaviopuccitattoo',
   },
   {
-    id: 'session',
+    id: 'knee',
+    title: 'Complemento · Joelho',
+    meta: 'Sessão em andamento · Detalhes',
+    image: media.gallery[3],
+    span: 'square',
+    source: 'Instagram @octaviopuccitattoo',
+  },
+  {
+    id: 'piece-7',
+    title: 'Arquivo vivo',
+    meta: 'Studio · Black & Grey',
+    image: media.gallery[6],
+    span: 'tall',
+    source: 'Instagram @octaviopuccitattoo',
+  },
+  {
+    id: 'piece-11',
     title: 'Sessão em foco',
-    meta: 'Studio privado',
-    image: 'session-focus.jpg',
+    meta: 'Realismo · Pele',
+    image: media.gallery[10],
     span: 'tall',
+    source: 'Instagram @octaviopuccitattoo',
+  },
+  {
+    id: 'piece-15',
+    title: 'Composição recente',
+    meta: 'Instagram · 2025',
+    image: media.gallery[14],
+    span: 'tall',
+    source: 'Instagram @octaviopuccitattoo',
   },
 ]
 
@@ -178,15 +212,18 @@ export const ritual = [
 export const proofs = [
   {
     text: 'Fechamento de braço em uma única sessão de 20 horas — atenção máxima do primeiro ao último traço.',
-    who: 'Sessão marathon',
+    who: 'Publicação oficial · Instagram',
+    source: 'Instagram @octaviopuccitattoo',
   },
   {
     text: 'Cobertura em 3 sessões com mais de 80% cicatrizado — sem “cara de cobertura”.',
     who: 'Projeto de reforma',
+    source: 'Instagram @octaviopuccitattoo',
   },
   {
     text: 'Hannya em fechamento de costas completo em apenas 2 sessões.',
     who: 'Grande composição',
+    source: 'Instagram @octaviopuccitattoo',
   },
 ] as const
 

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import gsap from 'gsap'
 import { ArrowUpRight } from 'lucide-react'
-import { asset, site, whatsappUrl } from '../data/site'
+import { asset, media, site, whatsappUrl } from '../data/site'
 import { BrandMark } from './BrandMark'
 import { InstagramIcon } from './InstagramIcon'
 
@@ -57,7 +57,7 @@ export function Hero() {
     >
       <motion.div style={{ y, opacity }} className="absolute inset-0">
         <img
-          src={asset('back-hannya.jpg')}
+          src={asset(media.hero)}
           alt="Fechamento de costas Hannya em realismo preto e cinza — Octávio Pucci"
           className="h-full w-full object-cover object-[50%_20%] sm:object-[55%_25%]"
           fetchPriority="high"
