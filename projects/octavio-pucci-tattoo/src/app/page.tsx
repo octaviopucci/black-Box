@@ -1,23 +1,17 @@
-import { Navbar } from "@/components/sections/navbar";
-import { Hero } from "@/components/sections/hero";
-import { Specialties } from "@/components/sections/specialties";
-import { Portfolio } from "@/components/sections/portfolio";
-import { Process } from "@/components/sections/process";
-import { Cta } from "@/components/sections/cta";
-import { Footer } from "@/components/sections/footer";
+import { Opening, Manifesto } from "@/components/opening";
+import { Works } from "@/components/works";
+import { Reserve, Colophon } from "@/components/reserve";
 
 export default function Home() {
   return (
-    <>
-      <Navbar />
+    <div className="min-h-screen bg-[var(--paper)]">
+      <Opening />
       <main>
-        <Hero />
-        <Specialties />
-        <Portfolio />
-        <Process />
-        <Cta />
+        <Manifesto />
+        <Works />
+        <Reserve />
       </main>
-      <Footer />
-    </>
+      <Colophon />
+    </div>
   );
 }

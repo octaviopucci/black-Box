@@ -1,180 +1,87 @@
+/**
+ * Conteúdo derivado exclusivamente de public/instagram/meta.json
+ * (@octaviopuccitattoo). Nenhum dado importado de outros apps do monorepo.
+ */
+
 export const site = {
-  brand: "Octávio Pucci",
-  tagline: "Tatuagem",
+  name: "Octávio Pucci",
   handle: "octaviopuccitattoo",
   followers: 6834,
-  promise:
-    "Projetos autorais em realismo preto e cinza — coberturas, reformas e peças que carregam significado.",
   instagram: "https://www.instagram.com/octaviopuccitattoo/",
-  whatsapp:
+  contact:
     process.env.NEXT_PUBLIC_WHATSAPP_URL ??
     "https://www.instagram.com/octaviopuccitattoo/",
-  location: "São Paulo, Brasil",
 } as const;
 
-export const specialties = [
-  {
-    id: "realismo",
-    title: "Realismo",
-    description:
-      "Retratos, homenagens e composições autorais com atenção máxima do primeiro ao último traço.",
-    source: "Instagram @octaviopuccitattoo",
-  },
-  {
-    id: "cobertura",
-    title: "Cobertura",
-    description:
-      "Reformas que buscam naturalidade — sem aquele borrão preto, parecendo pele limpa.",
-    source: "Instagram @octaviopuccitattoo",
-  },
-  {
-    id: "fine-line",
-    title: "Fine Line",
-    description:
-      "Linhas precisas e projetos delicados para quem valoriza arte bem feita e durável.",
-    source: "Instagram @octaviopuccitattoo",
-  },
-  {
-    id: "reforma",
-    title: "Reforma",
-    description:
-      "Retoque e revitalização de tatuagens antigas com técnica e dedicação.",
-    source: "Instagram @octaviopuccitattoo",
-  },
-] as const;
+/** Post 1 — guest flyer caption, especialidades explícitas */
+export const focusLine =
+  "Fine Line, Realismo, Reforma e Cobertura — projetos autorais em preto e cinza.";
 
-export const processSteps = [
-  {
-    step: "01",
-    title: "Conversa",
-    text: "Me chama no WhatsApp (link na bio) para um projeto único e exclusivo.",
-  },
-  {
-    step: "02",
-    title: "Projeto autoral",
-    text: "Arte 100% autoral — composição que conta história, sonhos e objetivos.",
-  },
-  {
-    step: "03",
-    title: "Sessão",
-    text: "Atenção intacta em cada centímetro — técnica, paciência e resistência.",
-  },
-  {
-    step: "04",
-    title: "Cicatrização",
-    text: "Trabalhos pensados para durar — partes em preto já cicatrizadas nos vídeos do feed.",
-  },
-] as const;
-
-export type PortfolioItem = {
+export type WorkEntry = {
   id: number;
   image: string;
-  alt: string;
-  caption?: string;
   permalink: string;
-  featured?: boolean;
+  /** Trecho literal ou parafraseado mínimo da caption do post */
+  note?: string;
+  label?: string;
 };
 
-export const portfolio: PortfolioItem[] = [
+/** Posts com caption no embed — ordem editorial, não cronológica */
+export const works: WorkEntry[] = [
   {
     id: 5,
     image: "/instagram/post-5.jpg",
-    alt: "Fechamento de braço em realismo preto e cinza",
-    caption:
-      "Fechamento de braço lado externo — 20 horas em sessão única. Tigre e coruja em realismo.",
     permalink: "https://www.instagram.com/p/DZ-gnyRxnG-/",
-    featured: true,
+    label: "Fechamento de braço",
+    note: "Lado externo em sessão única de 20 horas. Atenção máxima do primeiro ao último traço — cada centímetro carrega técnica, paciência e resistência.",
   },
   {
     id: 6,
     image: "/instagram/post-6.jpg",
-    alt: "Fechamento de costas Hannya",
-    caption:
-      "Hannya — fechamento de costas completo em 2 sessões.",
     permalink: "https://www.instagram.com/p/DZ-gosFEfpm/",
-    featured: true,
+    label: "Hannya · costas",
+    note: "Fechamento de costas completo em 2 sessões.",
   },
   {
     id: 3,
     image: "/instagram/post-3.jpg",
-    alt: "Cobertura realista autoral",
-    caption:
-      "Composição autoral de cobertura — mais de 80% já cicatrizado em 3 sessões.",
     permalink: "https://www.instagram.com/p/DZ-gnu9RvGA/",
-    featured: true,
+    label: "Cobertura autoral",
+    note: "Composição 100% autoral — mais de 80% cicatrizado em 3 sessões. Coberturas que parecem pele limpa, sem borrão preto.",
   },
   {
     id: 2,
     image: "/instagram/post-2.jpg",
-    alt: "Homenagem realista aos filhos",
-    caption:
-      "Arte exclusiva em homenagem — realismo com significado e laço emocional.",
     permalink: "https://www.instagram.com/p/DZ-gn8yR21c/",
+    label: "Homenagem",
+    note: "Arte exclusiva em homenagem — vai além da estética, carrega significado e laço emocional.",
   },
   {
     id: 4,
     image: "/instagram/post-4.jpg",
-    alt: "Complemento no joelho",
-    caption: "Complemento no joelho — detalhes e brancos.",
     permalink: "https://www.instagram.com/p/DZ-gnwvxTBp/",
-  },
-  {
-    id: 7,
-    image: "/instagram/post-7.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DZ-gn6pxAHv/",
-  },
-  {
-    id: 8,
-    image: "/instagram/post-8.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DZ-goAkxk7P/",
-  },
-  {
-    id: 9,
-    image: "/instagram/post-9.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DZ-goMFxZOU/",
-  },
-  {
-    id: 10,
-    image: "/instagram/post-10.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DZ-goRjxWt7/",
-  },
-  {
-    id: 11,
-    image: "/instagram/post-11.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DUJlf-ejhwM/",
-  },
-  {
-    id: 12,
-    image: "/instagram/post-12.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DT3ffAtDqBE/",
-  },
-  {
-    id: 13,
-    image: "/instagram/post-13.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DTxj8LQjvo2/",
-  },
-  {
-    id: 14,
-    image: "/instagram/post-14.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DQunYGZkrrN/",
-  },
-  {
-    id: 15,
-    image: "/instagram/post-15.jpg",
-    alt: "Trabalho de realismo",
-    permalink: "https://www.instagram.com/p/DQCt4OtDuf6/",
+    label: "Joelho",
+    note: "Complemento — detalhes e brancos em sessão final.",
   },
 ];
 
+/** Demais posts do feed — só imagem + link */
+export const feedStrip: WorkEntry[] = [
+  { id: 7, image: "/instagram/post-7.jpg", permalink: "https://www.instagram.com/p/DZ-gn6pxAHv/" },
+  { id: 8, image: "/instagram/post-8.jpg", permalink: "https://www.instagram.com/p/DZ-goAkxk7P/" },
+  { id: 9, image: "/instagram/post-9.jpg", permalink: "https://www.instagram.com/p/DZ-goMFxZOU/" },
+  { id: 10, image: "/instagram/post-10.jpg", permalink: "https://www.instagram.com/p/DZ-goRjxWt7/" },
+  { id: 11, image: "/instagram/post-11.jpg", permalink: "https://www.instagram.com/p/DUJlf-ejhwM/" },
+  { id: 12, image: "/instagram/post-12.jpg", permalink: "https://www.instagram.com/p/DT3ffAtDqBE/" },
+  { id: 13, image: "/instagram/post-13.jpg", permalink: "https://www.instagram.com/p/DTxj8LQjvo2/" },
+  { id: 14, image: "/instagram/post-14.jpg", permalink: "https://www.instagram.com/p/DQunYGZkrrN/" },
+  { id: 15, image: "/instagram/post-15.jpg", permalink: "https://www.instagram.com/p/DQCt4OtDuf6/" },
+];
+
+/** Post 2 — frase de abertura */
+export const leadQuote =
+  "Se você valoriza artes bem feitas e duráveis, com um alto nível de dedicação, me chama no WhatsApp que está no link da bio.";
+
 export const media = {
   profile: "/instagram/profile.jpg",
-  hero: "/instagram/post-5.jpg",
 } as const;

@@ -1,36 +1,35 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Source_Sans_3 } from "next/font/google";
+import { Fraunces, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const bebas = Bebas_Neue({
-  weight: "400",
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-serif",
   display: "swap",
 });
 
-const sourceSans = Source_Sans_3({
+const plexMono = IBM_Plex_Mono({
+  weight: ["400", "500"],
   subsets: ["latin"],
-  variable: "--font-body",
+  variable: "--font-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Octávio Pucci Tattoo — Realismo, Cobertura & Fine Line",
+  title: "Octávio Pucci — Tatuagem",
   description:
-    "Tatuador especialista em realismo preto e cinza, coberturas, reformas e fine line. Projetos autorais com dedicação do primeiro ao último traço. São Paulo.",
+    "Fine Line, Realismo, Reforma e Cobertura. Projetos autorais — @octaviopuccitattoo.",
   openGraph: {
     title: "Octávio Pucci Tattoo",
-    description:
-      "Realismo, cobertura e projetos autorais — @octaviopuccitattoo",
-    images: ["/instagram/post-5.jpg"],
+    description: "Trabalhos reais do Instagram @octaviopuccitattoo",
+    images: ["/instagram/profile.jpg"],
   },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${bebas.variable} ${sourceSans.variable} h-full`}>
-      <body className="min-h-full bg-[var(--paper)] font-[family-name:var(--font-body)] text-[var(--ink)] antialiased">
+    <html lang="pt-BR" className={`${fraunces.variable} ${plexMono.variable} h-full`}>
+      <body className="min-h-full font-[family-name:var(--font-mono)] text-[var(--ink)] antialiased">
         {children}
       </body>
     </html>
