@@ -145,6 +145,34 @@
       transparent
     );
   }
+
+  .vignette {
+    background: radial-gradient(
+      ellipse at center,
+      transparent 35%,
+      color-mix(in oklab, var(--paper) 55%, transparent) 100%
+    );
+  }
+
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      color-mix(in oklab, var(--ink) 6%, transparent) 2px,
+      color-mix(in oklab, var(--ink) 6%, transparent) 3px
+    );
+    mix-blend-mode: overlay;
+  }
+
+  .glass-panel {
+    border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
+    background: color-mix(in oklab, var(--surface) 72%, transparent);
+    backdrop-filter: blur(18px);
+    box-shadow:
+      0 24px 80px color-mix(in oklab, var(--paper) 65%, transparent),
+      inset 0 1px 0 color-mix(in oklab, var(--ink) 8%, transparent);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

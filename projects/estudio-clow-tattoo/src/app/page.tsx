@@ -1,3 +1,4 @@
+import { AmbientOrbs } from "@/components/artifacts/ambient-orbs";
 import { About } from "@/components/sections/about";
 import { Artist } from "@/components/sections/artist";
 import { CtaBand } from "@/components/sections/cta-band";
@@ -16,8 +17,9 @@ import { WhatsAppFab } from "@/components/sections/whatsapp-fab";
 export default function Home() {
   return (
     <>
+      <AmbientOrbs />
       <Navbar />
-      <main>
+      <main className="relative z-[1]">
         <Hero />
         <About />
         <Gallery />

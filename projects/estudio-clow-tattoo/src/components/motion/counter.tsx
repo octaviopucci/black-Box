@@ -7,9 +7,10 @@ type CounterProps = {
   value: number;
   suffix?: string;
   label: string;
+  align?: "center" | "left";
 };
 
-export function Counter({ value, suffix = "", label }: CounterProps) {
+export function Counter({ value, suffix = "", label, align = "center" }: CounterProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const [display, setDisplay] = useState(0);
@@ -31,7 +32,7 @@ export function Counter({ value, suffix = "", label }: CounterProps) {
   }, [inView, value]);
 
   return (
-    <div ref={ref} className="text-center">
+    <div ref={ref} className={align === "left" ? "text-left" : "text-center"}>
       <div className="font-display text-5xl font-light text-ink sm:text-6xl">
         +{display.toLocaleString("pt-BR")}
         {suffix}
