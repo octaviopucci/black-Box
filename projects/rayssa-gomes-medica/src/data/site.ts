@@ -34,6 +34,7 @@ export const site = {
 
 export const media = {
   profile: '/instagram/profile.jpg',
+  essence: '/essence-rayssa.jpg',
   hero: '/carousel/slide-01.jpg',
   heroVideo: {
     src: '/video/hero.mp4',

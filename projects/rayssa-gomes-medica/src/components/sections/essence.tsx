@@ -18,10 +18,10 @@ export function Essence() {
           className="relative aspect-[4/5] overflow-hidden"
         >
           <Image
-            src={media.profile}
+            src={media.essence}
             alt={site.shortName}
             fill
-            className="object-cover"
+            className="object-cover object-[center_15%]"
             sizes="(max-width: 768px) 100vw, 45vw"
           />
           <div className="absolute inset-0 ring-1 ring-inset ring-ink/10" />
