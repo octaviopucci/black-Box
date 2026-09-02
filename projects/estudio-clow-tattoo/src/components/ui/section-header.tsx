@@ -12,31 +12,31 @@ export function SectionHeader({
   label,
   title,
   description,
-  align = "center",
+  align = "left",
   className = "",
 }: SectionHeaderProps) {
-  const alignClass = align === "center" ? "text-center mx-auto" : "text-left";
+  const alignClass =
+    align === "center" ? "mx-auto max-w-3xl text-center items-center" : "max-w-3xl text-left";
 
   return (
-    <div className={`max-w-3xl ${alignClass} ${className}`}>
+    <div className={`${alignClass} ${className}`}>
       <div
-        className={`flex items-center gap-4 ${align === "center" ? "justify-center" : ""}`}
+        className={`flex items-center gap-3 ${align === "center" ? "justify-center" : ""}`}
       >
+        <span className="h-px w-10 bg-accent" aria-hidden />
         {index ? (
-          <span className="font-mono text-[11px] tracking-[0.2em] text-ink/40">{index}</span>
+          <span className="font-mono text-[11px] tracking-[0.2em] text-mute">{index}</span>
         ) : null}
-        <span className="h-px w-8 bg-line" aria-hidden />
-        <span className="text-xs uppercase tracking-[0.4em] text-mute">{label}</span>
-        <span className="h-px w-8 bg-line" aria-hidden />
+        <span className="editorial-label">{label}</span>
       </div>
 
-      <h2 className="mt-5 font-display text-4xl font-light italic leading-tight text-ink sm:text-5xl md:text-6xl">
+      <h2 className="mt-4 font-display text-[clamp(2rem,5vw,3.75rem)] font-light leading-[1.05] text-ink">
         {title}
       </h2>
 
       {description ? (
         <p
-          className={`mt-4 max-w-xl font-light leading-relaxed text-mute ${align === "center" ? "mx-auto" : ""}`}
+          className={`mt-4 max-w-xl text-base font-light leading-relaxed text-mute ${align === "center" ? "mx-auto" : ""}`}
         >
           {description}
         </p>

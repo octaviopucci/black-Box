@@ -7,41 +7,39 @@ import { Reveal } from "@/components/motion/reveal";
 
 export function InstagramSection() {
   return (
-    <section className="relative overflow-hidden py-24 md:py-32">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 lg:grid-cols-[1fr_1.1fr]">
+    <section className="bg-surface py-20 md:py-24">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 lg:grid-cols-2">
         <Reveal>
-          <p className="text-[11px] uppercase tracking-[0.4em] text-mute">
-            {site.instagram.handle}
-          </p>
-          <h2 className="mt-5 font-display text-[clamp(2rem,4vw,3.5rem)] italic leading-[1.05] text-ink">
-            Siga nosso trabalho em {site.instagram.handle}
+          <p className="editorial-label">{site.instagram.handle}</p>
+          <h2 className="mt-4 font-display text-[clamp(1.75rem,4vw,2.75rem)] leading-tight text-ink">
+            Acompanhe os bastidores e lançamentos no Instagram
           </h2>
           <a
             href={site.instagram.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-ink transition-opacity hover:opacity-70"
+            className="mt-6 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-accent-soft transition-colors hover:text-accent"
           >
-            Ver Instagram
+            Ver perfil
             <ArrowUpRight className="h-4 w-4" />
           </a>
         </Reveal>
 
-        <Reveal delay={0.1}>
+        <Reveal delay={0.08}>
           <a
             href={site.instagram.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative block aspect-[4/5] overflow-hidden md:aspect-[5/4]"
+            className="portfolio-frame relative block aspect-[3/4] max-h-[520px] w-full max-w-md lg:ml-auto"
           >
             <Image
               src={site.assets.instagram}
               alt="Instagram StudioClownTattoo"
               fill
-              sizes="(max-width: 1024px) 100vw, 600px"
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              loading="lazy"
+              sizes="(max-width: 1024px) 100vw, 420px"
+              className="portfolio-img"
             />
-            <div className="absolute inset-0 bg-paper/0 transition-colors duration-500 group-hover:bg-paper/10" />
           </a>
         </Reveal>
       </div>

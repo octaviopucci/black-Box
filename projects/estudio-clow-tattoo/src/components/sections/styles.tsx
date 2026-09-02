@@ -5,68 +5,42 @@ import { site } from "@/data/site";
 import { scrollToHash } from "@/lib/whatsapp";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
-import { TiltCard } from "@/components/artifacts/tilt-card";
-
-const layoutClasses = [
-  "md:col-span-2 md:row-span-2",
-  "md:col-span-1 md:row-span-1 md:mt-16",
-  "md:col-span-1 md:row-span-1 md:-mt-8",
-];
 
 export function Styles() {
   return (
-    <section id="estilos" className="relative overflow-hidden bg-paper py-24">
-      <div className="relative mx-auto max-w-7xl px-6">
+    <section id="estilos" className="bg-paper py-20 md:py-24">
+      <div className="mx-auto max-w-7xl px-6">
         <Reveal>
           <SectionHeader index="03" label="Especialidades" title="Estilos de tatuagem" />
         </Reveal>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3 md:grid-rows-2 md:gap-6">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {site.styles.map((style, index) => (
-            <Reveal
-              key={style.title}
-              delay={index * 0.1}
-              className={layoutClasses[index] ?? ""}
-            >
-              <TiltCard className="h-full">
-                <article className="group relative h-full cursor-pointer overflow-hidden border border-line/60 bg-elevated">
-                  <div
-                    className={`relative overflow-hidden ${index === 0 ? "aspect-[4/5] md:aspect-auto md:h-full md:min-h-[520px]" : "aspect-[3/4]"}`}
+            <Reveal key={style.title} delay={index * 0.06}>
+              <article className="group flex h-full flex-col border border-line/70 bg-surface">
+                <div className="portfolio-frame relative aspect-[3/4] w-full">
+                  <Image
+                    src={style.image}
+                    alt={style.title}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="portfolio-img"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <p className="editorial-label mb-2">{style.tagline}</p>
+                  <h3 className="font-display text-2xl text-ink">{style.title}</h3>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-mute">{style.desc}</p>
+                  <button
+                    type="button"
+                    onClick={() => scrollToHash("#trabalhos")}
+                    className="mt-5 self-start text-xs uppercase tracking-widest text-accent-soft transition-colors hover:text-accent"
                   >
-                    <Image
-                      src={style.image}
-                      alt={style.title}
-                      fill
-                      loading="lazy"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/20 to-transparent" />
-                    <span className="absolute left-5 top-5 font-mono text-[10px] tracking-[0.25em] text-ink/50">
-                      0{index + 1}
-                    </span>
-                  </div>
-
-                  <div className="glass-panel absolute inset-x-0 bottom-0 m-4 p-6 md:m-5">
-                    <p className="mb-2 text-[10px] uppercase tracking-[0.35em] text-mute">
-                      {style.tagline}
-                    </p>
-                    <h3 className="mb-3 font-display text-2xl italic text-ink md:text-3xl">
-                      {style.title}
-                    </h3>
-                    <p className="text-sm font-light leading-relaxed text-mute/90">
-                      {style.desc}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => scrollToHash("#trabalhos")}
-                      className="mt-5 border-b border-ink/30 pb-1 text-xs uppercase tracking-widest text-ink transition-colors hover:border-ink"
-                    >
-                      Ver trabalhos
-                    </button>
-                  </div>
-                </article>
-              </TiltCard>
+                    Ver trabalhos →
+                  </button>
+                </div>
+              </article>
             </Reveal>
           ))}
         </div>

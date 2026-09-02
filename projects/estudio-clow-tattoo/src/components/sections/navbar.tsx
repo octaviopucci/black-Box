@@ -15,7 +15,7 @@ export function Navbar() {
     let frame = 0;
     const onScroll = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => setScrolled(window.scrollY > 48));
+      frame = requestAnimationFrame(() => setScrolled(window.scrollY > 32));
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -42,10 +42,10 @@ export function Navbar() {
       <header
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
-          scrolled ? "border-b border-line/80 bg-paper/95" : "bg-transparent",
+          scrolled ? "border-b border-line/80 bg-paper/95" : "bg-paper/80 lg:bg-transparent",
         )}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:py-5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <button
             type="button"
             onClick={() => navigate("#inicio")}
@@ -55,39 +55,37 @@ export function Navbar() {
             <Image
               src={site.assets.logo}
               alt={site.name}
-              width={160}
-              height={64}
+              width={140}
+              height={56}
               priority
-              sizes="160px"
+              sizes="140px"
               className={cn(
-                "w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-300",
-                scrolled ? "h-12" : "h-16 md:h-20",
+                "w-auto transition-all duration-300",
+                scrolled ? "h-10" : "h-12 md:h-14",
               )}
             />
           </button>
 
-          <nav className="hidden items-center gap-8 lg:flex">
+          <nav className="hidden items-center gap-7 lg:flex">
             {site.nav.map((item) => (
               <button
                 key={item.href}
                 type="button"
                 onClick={() => navigate(item.href)}
-                className="text-xs uppercase tracking-[0.32em] text-mute transition-colors hover:text-ink"
+                className="text-[11px] uppercase tracking-[0.28em] text-mute transition-colors hover:text-accent-soft"
               >
                 {item.label}
               </button>
             ))}
           </nav>
 
-          <div className="hidden lg:block">
-            <button
-              type="button"
-              onClick={() => navigate("#orcamento")}
-              className="border border-ink/25 px-6 py-2.5 text-xs uppercase tracking-[0.28em] text-ink transition-colors hover:bg-ink/10"
-            >
-              Orçamento
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => navigate("#orcamento")}
+            className="btn-primary hidden lg:inline-flex"
+          >
+            Orçamento
+          </button>
 
           <button
             type="button"
@@ -101,18 +99,21 @@ export function Navbar() {
       </header>
 
       {open && (
-        <div className="fixed inset-0 z-40 bg-paper lg:hidden">
-          <div className="flex h-full flex-col items-center justify-center gap-8 px-6">
+        <div className="fixed inset-0 z-40 bg-paper pt-24 lg:hidden">
+          <div className="flex flex-col gap-6 px-8">
             {site.nav.map((item) => (
               <button
                 key={item.href}
                 type="button"
                 onClick={() => navigate(item.href)}
-                className="font-display text-3xl italic text-ink"
+                className="text-left font-display text-2xl text-ink"
               >
                 {item.label}
               </button>
             ))}
+            <button type="button" className="btn-primary mt-4 w-fit" onClick={() => navigate("#orcamento")}>
+              Orçamento
+            </button>
           </div>
         </div>
       )}

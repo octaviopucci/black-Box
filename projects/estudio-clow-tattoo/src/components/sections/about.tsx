@@ -5,14 +5,11 @@ import { site } from "@/data/site";
 import { Counter } from "@/components/motion/counter";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
-import { InkFrame } from "@/components/artifacts/ink-frame";
 
 export function About() {
   return (
-    <section id="sobre" className="relative overflow-hidden bg-paper py-24">
-      <div className="absolute left-1/2 top-0 h-20 w-px -translate-x-1/2 section-divider" />
-
-      <div className="relative mx-auto max-w-6xl px-6">
+    <section id="sobre" className="bg-paper py-20 md:py-24">
+      <div className="mx-auto max-w-6xl px-6">
         <Reveal>
           <SectionHeader
             index="01"
@@ -21,54 +18,45 @@ export function About() {
           />
         </Reveal>
 
-        <div className="relative mt-16 grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-6">
-          <Reveal className="relative z-10 space-y-5 pr-0 lg:pr-8">
-            <p className="text-lg font-light leading-relaxed text-mute">
+        <div className="mt-12 grid items-start gap-10 lg:grid-cols-2 lg:gap-14">
+          <Reveal className="space-y-5">
+            <p className="text-base leading-relaxed text-mute md:text-lg">
               O StudioClownTattoo nasceu da paixão por transformar ideias em arte
               permanente. Com anos de dedicação ao aprimoramento técnico e artístico,
               nosso estúdio se tornou referência em tatuagens de alta qualidade.
             </p>
-            <p className="text-lg font-light leading-relaxed text-mute">
+            <p className="text-base leading-relaxed text-mute md:text-lg">
               Cada projeto é tratado como uma obra única. Trabalhamos com os mais
-              altos padrões de higiene, utilizamos materiais 100% descartáveis, e
-              seguimos rigorosos protocolos de biossegurança para garantir a
-              segurança de cada cliente.
+              altos padrões de higiene, materiais 100% descartáveis e protocolos
+              rigorosos de biossegurança.
             </p>
-            <p className="text-lg font-light leading-relaxed text-mute">
-              Nosso diferencial está no atendimento personalizado: ouvimos sua
-              história, entendemos seu estilo e criamos um projeto exclusivo que
-              reflete a sua essência.
+            <p className="text-base leading-relaxed text-mute md:text-lg">
+              Ouvimos sua história, entendemos seu estilo e criamos um projeto
+              exclusivo que reflete a sua essência.
             </p>
           </Reveal>
 
-          <Reveal delay={0.12} className="relative lg:-ml-12 lg:mt-8">
-            <div className="relative aspect-[4/5] overflow-hidden bg-elevated">
+          <Reveal delay={0.08}>
+            <div className="portfolio-frame relative aspect-[3/4] max-h-[560px] w-full">
               <Image
                 src={site.assets.artist}
                 alt="Ambiente do StudioClownTattoo"
                 fill
-                sizes="(max-width: 1024px) 100vw, 45vw"
-                className="object-cover brightness-[0.72] contrast-[1.05]"
+                sizes="(max-width: 1024px) 100vw, 480px"
+                className="portfolio-img"
               />
-              <div className="vignette absolute inset-0" />
-              <InkFrame className="inset-4 sm:inset-6" />
             </div>
 
-            <div className="glass-panel absolute -bottom-8 -right-2 z-20 w-[min(100%,340px)] p-6 sm:-right-6 sm:p-8 lg:-bottom-10">
-              <p className="mb-5 text-[10px] uppercase tracking-[0.35em] text-mute">
-                Números do atelier
-              </p>
-              <div className="grid grid-cols-2 gap-6">
-                {site.stats.map((stat) => (
-                  <Counter
-                    key={stat.label}
-                    value={stat.value}
-                    suffix={"suffix" in stat ? stat.suffix : undefined}
-                    label={stat.label}
-                    align="left"
-                  />
-                ))}
-              </div>
+            <div className="mt-8 grid grid-cols-2 gap-6 border-t border-line pt-8">
+              {site.stats.map((stat) => (
+                <Counter
+                  key={stat.label}
+                  value={stat.value}
+                  suffix={"suffix" in stat ? stat.suffix : undefined}
+                  label={stat.label}
+                  align="left"
+                />
+              ))}
             </div>
           </Reveal>
         </div>
