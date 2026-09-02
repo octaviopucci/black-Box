@@ -7,6 +7,8 @@ node_modules
 !/public/heitor-da-gelsa/**
 !/public/estudio-clow/
 !/public/estudio-clow/**
+!/public/dra-laila-correa/
+!/public/dra-laila-correa/**
 .DS_Store
 *.local
 .env

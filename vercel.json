@@ -78,7 +78,8 @@
     { "source": "/instagram/(.*)", "destination": "/heitor-da-gelsa/instagram/$1" },
     { "source": "/heitor-da-gelsa/(.*)", "destination": "/heitor-da-gelsa/index.html" },
     { "source": "/estudio-clow/(.*)", "destination": "/estudio-clow/index.html" },
-    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|lais-felicia|dra-nathalia-rigo|protocolo-pav|rian|chama|traco|heitor-da-gelsa|estudio-clow|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/dra-laila-correa/(.*)", "destination": "/dra-laila-correa/index.html" },
+    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|lais-felicia|dra-nathalia-rigo|protocolo-pav|rian|chama|traco|heitor-da-gelsa|estudio-clow|dra-laila-correa|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
