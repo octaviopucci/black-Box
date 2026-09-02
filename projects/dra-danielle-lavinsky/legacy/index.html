@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dra. Danielle Lavinsky — DTM, bruxismo e dor orofacial em Porto Alegre. Agende pelo WhatsApp.">
+  <title>Dra. Danielle Lavinsky | DTM e Dor Orofacial — Porto Alegre</title>
+  <style>
+    :root {
+      --ink: #14212b;
+      --paper: #f7f4ef;
+      --card: #ffffff;
+      --mute: #5c6670;
+      --accent: #1f6b5c;
+      --accent-dark: #175247;
+      --line: #e4ddd3;
+      --wa: #25d366;
+      --wa-dark: #1da851;
+      --max: 42rem;
+      --pad: clamp(1rem, 4vw, 1.5rem);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    html, body { overflow-x: clip; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 1.0625rem;
+      line-height: 1.55;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; }
+
+    .wrap {
+      width: min(100% - var(--pad) * 2, var(--max));
+      margin-inline: auto;
+    }
+
+    .wrap--wide {
+      width: min(100% - var(--pad) * 2, 56rem);
+      margin-inline: auto;
+    }
+
+    /* Hero */
+    .hero {
+      padding: calc(var(--pad) + 0.5rem) 0 2.5rem;
+      background: linear-gradient(180deg, #fff 0%, var(--paper) 100%);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: clamp(1.85rem, 6vw, 2.65rem);
+      line-height: 1.12;
+      font-weight: 700;
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .lead {
+      font-size: 1.125rem;
+      color: var(--mute);
+      margin: 0 0 1.5rem;
+      max-width: 34ch;
+    }
+
+    .btn-wa {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 22rem;
+      padding: 1rem 1.25rem;
+      border: 0;
+      border-radius: 999px;
+      background: var(--wa);
+      color: #fff;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-wa:hover, .btn-wa:focus-visible {
+      background: var(--wa-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-wa svg { flex-shrink: 0; }
+
+    .btn-wa--sm {
+      width: auto;
+      padding: 0.65rem 1.1rem;
+      font-size: 0.9375rem;
+      max-width: none;
+    }
+
+    .hero__photo {
+      margin-top: 1.75rem;
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .hero__meta {
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--mute);
+    }
+
+    /* Sections */
+    section {
+      padding: 2.75rem 0;
+      border-top: 1px solid var(--line);
+    }
+
+    h2 {
+      font-size: clamp(1.35rem, 4.5vw, 1.65rem);
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .section-note {
+      color: var(--mute);
+      margin: 0 0 1.5rem;
+      font-size: 0.98rem;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      padding: 1rem 0.75rem;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: clamp(1.25rem, 4vw, 1.6rem);
+      color: var(--accent);
+      line-height: 1.1;
+    }
+
+    .stat span {
+      font-size: 0.84rem;
+      color: var(--mute);
+      line-height: 1.3;
+      display: block;
+      margin-top: 0.35rem;
+    }
+
+    /* Services */
+    .services { list-style: none; padding: 0; margin: 0; }
+
+    .service {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      padding: 1.1rem 1.15rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .service:last-child { margin-bottom: 0; }
+
+    .service-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.35rem 0.75rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .service h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .service .price {
+      font-size: 0.84rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .service p {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      color: var(--mute);
+    }
+
+    .service a {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .service a:hover { text-decoration: underline; }
+
+    /* Steps */
+    .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+
+    .step {
+      position: relative;
+      padding-left: 2.75rem;
+      margin-bottom: 1.35rem;
+    }
+
+    .step:last-child { margin-bottom: 0; }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .step h3 {
+      margin: 0 0 0.25rem;
+      font-size: 1.02rem;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--mute);
+      font-size: 0.95rem;
+    }
+
+    /* Reviews */
+    .reviews { display: grid; gap: 0.75rem; }
+
+    .review {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      padding: 1.1rem;
+      margin: 0;
+    }
+
+    .review p {
+      margin: 0 0 0.5rem;
+      font-size: 0.98rem;
+    }
+
+    .review footer {
+      font-size: 0.82rem;
+      color: var(--mute);
+    }
+
+    .placeholder-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #fff3cd;
+      color: #856404;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Location */
+    .location p { margin: 0 0 0.5rem; }
+    .location a { color: var(--accent); }
+
+    .map {
+      margin-top: 1.25rem;
+      border-radius: 0.85rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #e8e4de;
+      min-height: 14rem;
+    }
+
+    .map iframe {
+      width: 100%;
+      height: 14rem;
+      border: 0;
+      display: block;
+    }
+
+    /* Close */
+    .close {
+      text-align: center;
+      padding-bottom: 5rem;
+    }
+
+    .close h2 { margin-bottom: 0.75rem; }
+
+    .close .btn-wa { margin-inline: auto; }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 100;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      background: var(--wa);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+      text-decoration: none;
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .fab:hover, .fab:focus-visible {
+      background: var(--wa-dark);
+      transform: scale(1.05);
+    }
+
+    .fab svg { width: 1.65rem; height: 1.65rem; }
+
+    footer.site-foot {
+      text-align: center;
+      padding: 1.5rem var(--pad) 1rem;
+      font-size: 0.8rem;
+      color: var(--mute);
+      border-top: 1px solid var(--line);
+    }
+
+    @media (min-width: 480px) {
+      .stats { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (min-width: 640px) {
+      .hero { padding-top: 2.5rem; }
+      .hero__grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 2rem;
+        align-items: center;
+      }
+      .hero__photo { margin-top: 0; }
+      .reviews { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .btn-wa, .fab { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap hero__grid">
+      <div>
+        <p class="badge">DTM · Bruxismo · Porto Alegre</p>
+        <h1>Mastigar sem dor. Dormir sem ranger os dentes.</h1>
+        <p class="lead">Sou a Dra. Danielle Lavinsky. Trato mandíbula, músculos da face, bruxismo e distúrbios do sono. A gente entende o que está acontecendo e monta um plano que faça sentido pra você.</p>
+        <a class="btn-wa" id="wa-hero" href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20agendar%20uma%20consulta." data-action="agendar uma consulta">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Chamar no WhatsApp agora
+        </a>
+        <p class="hero__meta">CRO/RS 15888 · Clínica Lavinsky · Moinhos de Vento</p>
+      </div>
+      <div class="hero__photo">
+        <img src="img/hero.webp" alt="Dra. Danielle Lavinsky no consultório" width="720" height="900" fetchpriority="high" decoding="async">
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="prova" aria-labelledby="prova-title">
+      <div class="wrap">
+        <h2 id="prova-title">Números que importam</h2>
+        <p class="section-note">Dados públicos do perfil e da clínica.</p>
+        <div class="stats">
+          <div class="stat">
+            <strong>20+</strong>
+            <span>anos como cirurgiã-dentista</span>
+          </div>
+          <div class="stat">
+            <strong>CRO/RS<br>15888</strong>
+            <span>registro profissional</span>
+          </div>
+          <div class="stat">
+            <strong>POA</strong>
+            <span>Clínica Lavinsky, Moinhos de Vento</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="servicos" aria-labelledby="servicos-title">
+      <div class="wrap">
+        <h2 id="servicos-title">O que faço no consultório</h2>
+        <p class="section-note">Toque no serviço e já abre o WhatsApp com a mensagem certa.</p>
+        <ul class="services">
+          <li class="service">
+            <div class="service-head">
+              <h3>Consulta DTM e dor orofacial</h3>
+              <span class="price">valor na consulta</span>
+            </div>
+            <p>Avaliação da mandíbula, músculos, hábitos, sono e história da dor. Sem atalho.</p>
+            <a href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20saber%20mais%20sobre%3A%20Consulta%20DTM%20e%20dor%20orofacial." class="wa-service" data-service="Consulta DTM e dor orofacial">Chamar sobre esta consulta</a>
+          </li>
+          <li class="service">
+            <div class="service-head">
+              <h3>Placa para bruxismo e sono</h3>
+              <span class="price">valor na consulta</span>
+            </div>
+            <p>Placa feita pro seu caso — não é molde genérico de shopping.</p>
+            <a href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20saber%20mais%20sobre%3A%20Placa%20para%20bruxismo%20e%20sono." class="wa-service" data-service="Placa para bruxismo e sono">Chamar sobre placa</a>
+          </li>
+          <li class="service">
+            <div class="service-head">
+              <h3>Infiltração para dor orofacial</h3>
+              <span class="price">valor na consulta</span>
+            </div>
+            <p>Quando indicado, entra no plano de tratamento com critério clínico.</p>
+            <a href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20saber%20mais%20sobre%3A%20Infiltra%C3%A7%C3%A3o%20para%20dor%20orofacial." class="wa-service" data-service="Infiltração para dor orofacial">Chamar sobre infiltração</a>
+          </li>
+          <li class="service">
+            <div class="service-head">
+              <h3>Escaneamento 3D</h3>
+              <span class="price">valor na consulta</span>
+            </div>
+            <p>Registro preciso pra acompanhar evolução e montar o tratamento.</p>
+            <a href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20saber%20mais%20sobre%3A%20Escaneamento%203D." class="wa-service" data-service="Escaneamento 3D">Chamar sobre escaneamento</a>
+          </li>
+          <li class="service">
+            <div class="service-head">
+              <h3>Clareamento dental</h3>
+              <span class="price">valor na consulta</span>
+            </div>
+            <p>Quando faz sentido pro seu caso, depois da avaliação.</p>
+            <a href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20saber%20mais%20sobre%3A%20Clareamento%20dental." class="wa-service" data-service="Clareamento dental">Chamar sobre clareamento</a>
+          </li>
+          <li class="service">
+            <div class="service-head">
+              <h3>Profilaxia e revisão</h3>
+              <span class="price">valor na consulta</span>
+            </div>
+            <p>Limpeza e revisão semestral pra manter a saúde bucal em dia.</p>
+            <a href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20saber%20mais%20sobre%3A%20Profilaxia%20e%20revis%C3%A3o." class="wa-service" data-service="Profilaxia e revisão">Chamar sobre profilaxia</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="como" aria-labelledby="como-title">
+      <div class="wrap">
+        <h2 id="como-title">Como funciona</h2>
+        <p class="section-note">Do jeito que explico no Instagram — sem mistério.</p>
+        <ol class="steps">
+          <li class="step">
+            <h3>Você manda mensagem</h3>
+            <p>A gente combina dia e horário. Sem formulário complicado.</p>
+          </li>
+          <li class="step">
+            <h3>Consulta com calma</h3>
+            <p>História clínica, exame detalhado e exames de apoio, se precisar.</p>
+          </li>
+          <li class="step">
+            <h3>Plano na mesa</h3>
+            <p>Te explico o que encontrei e os próximos passos. Você decide com informação.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="avaliacoes" aria-labelledby="avaliacoes-title">
+      <div class="wrap--wide">
+        <h2 id="avaliacoes-title">Quem já passou por aqui</h2>
+        <p class="section-note">Relatos de pacientes — exemplos para você substituir pelos reais.</p>
+        <div class="reviews">
+          <blockquote class="review">
+            <span class="placeholder-tag">Exemplo</span>
+            <p>“Cheguei com dor na mandíbula há meses. Na primeira consulta entendi o que era. Hoje durmo melhor.”</p>
+            <footer>— Paciente, 38 anos · Moinhos de Vento</footer>
+          </blockquote>
+          <blockquote class="review">
+            <span class="placeholder-tag">Exemplo</span>
+            <p>“Rangia os dentes à noite e acordava com a face cansada. A placa fez diferença em poucas semanas.”</p>
+            <footer>— Paciente, 45 anos · Porto Alegre</footer>
+          </blockquote>
+          <blockquote class="review">
+            <span class="placeholder-tag">Exemplo</span>
+            <p>“Gosto porque ela explica sem pressa. Não empurra procedimento que não precisa.”</p>
+            <footer>— Paciente, 52 anos · Bela Vista</footer>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section id="local" class="location" aria-labelledby="local-title">
+      <div class="wrap">
+        <h2 id="local-title">Onde me encontrar</h2>
+        <p><strong>Clínica Lavinsky</strong><br>
+        Rua Quintino Bocaiúva, 673 — Moinhos de Vento<br>
+        Porto Alegre/RS · CEP 90440-051</p>
+        <p><strong>Horário da clínica:</strong> segunda a sexta, 8h às 19h</p>
+        <p>Estacionamento conveniado: Indigo Quintino, nº 710 (mesma rua).</p>
+        <p>Telefone: <a href="tel:+555133320032">(51) 3332-0032</a> · <a href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20agendar%20uma%20consulta.">WhatsApp</a></p>
+        <div class="map">
+          <iframe
+            title="Mapa — Clínica Lavinsky"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://maps.google.com/maps?q=Rua+Quintino+Bocai%C3%BAva,+673,+Porto+Alegre,+RS&amp;output=embed"
+            allow="fullscreen">
+          </iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="close" aria-labelledby="fecho-title">
+      <div class="wrap">
+        <h2 id="fecho-title">Dor na mandíbula não precisa virar rotina</h2>
+        <p class="section-note">Manda um oi. A gente marca sua avaliação.</p>
+        <a class="btn-wa" id="wa-close" href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20agendar%20uma%20consulta." data-action="agendar uma consulta">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Chamar no WhatsApp agora
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <a class="fab" id="wa-fab" href="https://wa.me/555133320032?text=Ol%C3%A1%21%20Vi%20o%20site%20da%20Dra.%20Danielle%20Lavinsky%20e%20quero%20agendar%20uma%20consulta." aria-label="Chamar no WhatsApp" data-action="agendar uma consulta">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <footer class="site-foot">
+    <p>Dra. Danielle Lavinsky · CRO/RS 15888 · <a href="https://www.instagram.com/dra.daniellelavinsky/" target="_blank" rel="noopener noreferrer">@dra.daniellelavinsky</a></p>
+  </footer>
+
+  <script>
+    /* Reforça mensagem por serviço se o href for sobrescrito pelo navegador */
+    document.querySelectorAll('.wa-service').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var service = el.getAttribute('data-service');
+        if (!service) return;
+        var text = 'Olá! Vi o site da Dra. Danielle Lavinsky e quero saber mais sobre: ' + service + '.';
+        el.href = 'https://wa.me/555133320032?text=' + encodeURIComponent(text);
+      });
+    });
+  </script>
+</body>
+</html>
