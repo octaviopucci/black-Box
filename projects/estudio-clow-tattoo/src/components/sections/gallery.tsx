@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { site, type GalleryCategory } from "@/data/site";
 import { Reveal } from "@/components/motion/reveal";
@@ -15,15 +14,41 @@ const filters: { id: GalleryCategory; label: string }[] = [
   { id: "colorido", label: "Colorido" },
 ];
 
+const INITIAL_VISIBLE = 10;
+const LOAD_BATCH = 8;
+
 export function Gallery() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<GalleryCategory>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
   const items = useMemo(() => {
     if (filter === "all") return site.gallery;
     return site.gallery.filter((item) => item.category === filter);
   }, [filter]);
+
+  const visibleItems = items.slice(0, visibleCount);
+
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE);
+  }, [filter]);
+
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node) return;
+
+    const onScroll = () => {
+      if (visibleCount >= items.length) return;
+      const { scrollLeft, scrollWidth, clientWidth } = node;
+      if (scrollLeft + clientWidth >= scrollWidth - 120) {
+        setVisibleCount((count) => Math.min(count + LOAD_BATCH, items.length));
+      }
+    };
+
+    node.addEventListener("scroll", onScroll, { passive: true });
+    return () => node.removeEventListener("scroll", onScroll);
+  }, [items.length, visibleCount]);
 
   const scrollBy = (direction: -1 | 1) => {
     scrollRef.current?.scrollBy({ left: direction * 320, behavior: "smooth" });
@@ -104,9 +129,9 @@ export function Gallery() {
 
           <div
             ref={scrollRef}
-            className="scrollbar-hide flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth px-1 md:gap-3"
+            className="scrollbar-hide flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 md:gap-3"
           >
-            {items.map((item, index) => (
+            {visibleItems.map((item, index) => (
               <button
                 key={item.src}
                 type="button"
@@ -117,11 +142,11 @@ export function Gallery() {
                   src={item.src}
                   alt={`Trabalho ${index + 1}`}
                   fill
-                  loading={index < 6 ? "eager" : "lazy"}
+                  loading="lazy"
                   sizes="(max-width: 768px) 176px, 224px"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover:bg-black/40">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-200 group-hover:bg-black/35">
                   <Search
                     className="h-6 w-6 text-ink opacity-0 transition-opacity group-hover:opacity-100"
                     strokeWidth={1.5}
@@ -142,60 +167,56 @@ export function Gallery() {
         )}
       </div>
 
-      <AnimatePresence>
-        {lightboxIndex !== null && items[lightboxIndex] && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-paper/95 p-4"
+      {lightboxIndex !== null && items[lightboxIndex] && (
+        <div
+          className="lightbox-open fixed inset-0 z-[70] flex items-center justify-center bg-paper/95 p-4"
+          onClick={closeLightbox}
+        >
+          <button
+            type="button"
+            className="absolute right-6 top-6 text-ink"
             onClick={closeLightbox}
+            aria-label="Fechar"
           >
-            <button
-              type="button"
-              className="absolute right-6 top-6 text-ink"
-              onClick={closeLightbox}
-              aria-label="Fechar"
-            >
-              <X className="h-6 w-6" />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                goLightbox(-1);
-              }}
-              className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-line bg-paper/80"
-              aria-label="Anterior"
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                goLightbox(1);
-              }}
-              className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-line bg-paper/80"
-              aria-label="Próxima"
-            >
-              <ChevronRight />
-            </button>
-            <div
-              className="relative h-[80vh] w-full max-w-5xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Image
-                src={items[lightboxIndex].src}
-                alt="Trabalho ampliado"
-                fill
-                sizes="100vw"
-                className="object-contain"
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <X className="h-6 w-6" />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goLightbox(-1);
+            }}
+            className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-line bg-paper/80"
+            aria-label="Anterior"
+          >
+            <ChevronLeft />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goLightbox(1);
+            }}
+            className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-line bg-paper/80"
+            aria-label="Próxima"
+          >
+            <ChevronRight />
+          </button>
+          <div
+            className="relative h-[80vh] w-full max-w-5xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={items[lightboxIndex].src}
+              alt="Trabalho ampliado"
+              fill
+              sizes="100vw"
+              loading="eager"
+              className="object-contain"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 }

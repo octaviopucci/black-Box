@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
 
 type CounterProps = {
   value: number;
@@ -12,24 +11,42 @@ type CounterProps = {
 
 export function Counter({ value, suffix = "", label, align = "center" }: CounterProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
+    const el = ref.current;
+    if (!el) return;
 
-    let frame = 0;
-    const totalFrames = 48;
-    const timer = window.setInterval(() => {
-      frame += 1;
-      const progress = frame / totalFrames;
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplay(Math.round(value * eased));
-      if (frame >= totalFrames) window.clearInterval(timer);
-    }, 1000 / 60);
+    const show = () => setDisplay(value);
 
-    return () => window.clearInterval(timer);
-  }, [inView, value]);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      show();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+
+        const start = performance.now();
+        const duration = 600;
+
+        const tick = (now: number) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          setDisplay(Math.round(value * eased));
+          if (progress < 1) requestAnimationFrame(tick);
+        };
+
+        requestAnimationFrame(tick);
+        observer.disconnect();
+      },
+      { rootMargin: "-80px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value]);
 
   return (
     <div ref={ref} className={align === "left" ? "text-left" : "text-center"}>

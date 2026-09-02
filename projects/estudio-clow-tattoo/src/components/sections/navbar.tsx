@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { site } from "@/data/site";
 import { scrollToHash } from "@/lib/whatsapp";
@@ -13,11 +12,25 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 48);
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setScrolled(window.scrollY > 48));
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   const navigate = (href: string) => {
     setOpen(false);
@@ -28,10 +41,8 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-          scrolled
-            ? "border-b border-line/80 bg-paper/90 backdrop-blur-xl"
-            : "bg-transparent",
+          "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
+          scrolled ? "border-b border-line/80 bg-paper/95" : "bg-transparent",
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:py-5">
@@ -46,8 +57,10 @@ export function Navbar() {
               alt={site.name}
               width={160}
               height={64}
+              priority
+              sizes="160px"
               className={cn(
-                "w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-500",
+                "w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-300",
                 scrolled ? "h-12" : "h-16 md:h-20",
               )}
             />
@@ -87,32 +100,22 @@ export function Navbar() {
         </div>
       </header>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-paper/95 backdrop-blur-xl lg:hidden"
-          >
-            <div className="flex h-full flex-col items-center justify-center gap-8 px-6">
-              {site.nav.map((item, index) => (
-                <motion.button
-                  key={item.href}
-                  type="button"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => navigate(item.href)}
-                  className="font-display text-3xl italic text-ink"
-                >
-                  {item.label}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-40 bg-paper lg:hidden">
+          <div className="flex h-full flex-col items-center justify-center gap-8 px-6">
+            {site.nav.map((item) => (
+              <button
+                key={item.href}
+                type="button"
+                onClick={() => navigate(item.href)}
+                className="font-display text-3xl italic text-ink"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 }

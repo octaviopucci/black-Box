@@ -16,6 +16,8 @@ export function Artist() {
                 alt="Artista do StudioClownTattoo"
                 width={900}
                 height={1100}
+                loading="lazy"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="h-auto w-full object-cover contrast-[1.05] brightness-95"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-paper/60 to-transparent" />

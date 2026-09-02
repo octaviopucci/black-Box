@@ -5,14 +5,16 @@ import "./globals.css";
 const display = Cormorant_Garamond({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400"],
   style: ["normal", "italic"],
+  display: "swap",
 });
 
 const sans = DM_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -33,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${display.variable} ${sans.variable} scroll-smooth`}
+      className={`${display.variable} ${sans.variable}`}
     >
       <body className="min-h-screen bg-paper font-sans text-ink antialiased">
         {children}

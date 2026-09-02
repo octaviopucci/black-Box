@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { site } from "@/data/site";
 import { Reveal } from "@/components/motion/reveal";
@@ -32,22 +31,14 @@ export function Testimonials() {
         <Reveal delay={0.1} className="relative mt-14">
           <Quote className="mx-auto mb-8 h-8 w-8 text-ink/20" />
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={current.name}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.45 }}
-            >
-              <p className="text-xl font-light leading-relaxed text-ink md:text-2xl">
-                “{current.text}”
-              </p>
-              <p className="mt-8 text-sm uppercase tracking-[0.28em] text-mute">
-                {current.name}
-              </p>
-            </motion.div>
-          </AnimatePresence>
+          <div key={current.name} className="testimonial-slide">
+            <p className="text-xl font-light leading-relaxed text-ink md:text-2xl">
+              “{current.text}”
+            </p>
+            <p className="mt-8 text-sm uppercase tracking-[0.28em] text-mute">
+              {current.name}
+            </p>
+          </div>
 
           <div className="mt-10 flex items-center justify-center gap-4">
             <button
