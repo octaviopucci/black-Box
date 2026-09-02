@@ -9,6 +9,8 @@ node_modules
 !/public/estudio-clow/**
 !/public/dra-laila-correa/
 !/public/dra-laila-correa/**
+!/public/dra-barbara-alencar/
+!/public/dra-barbara-alencar/**
 .DS_Store
 *.local
 .env

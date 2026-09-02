@@ -3,6 +3,7 @@
  * CRM, endereço e WhatsApp: [CONFIRMAR] — não publicados nas captions
  */
 import meta from "./instagram-meta.json";
+import { asset } from "@/lib/assets";
 
 type FeedItem = (typeof meta.feed)[number];
 
@@ -20,13 +21,13 @@ const feed = meta.feed.map((item) => ({
 }));
 
 export const media = {
-  profile: "/instagram/profile.jpg",
-  hero: "/instagram/hero-carousel.jpg",
-  portrait: "/instagram/about-portrait.jpg",
+  profile: asset("/instagram/profile.jpg"),
+  hero: asset("/instagram/hero-carousel.jpg"),
+  portrait: asset("/instagram/about-portrait.jpg"),
   gallery: feed
     .filter((item): item is FeedItem & { file: string } => Boolean(item.file))
     .map((item) => ({
-      src: item.file,
+      src: asset(item.file),
       caption: item.caption,
       permalink: item.permalink,
       isVideo: item.is_video,
@@ -34,21 +35,21 @@ export const media = {
   /** Curated — só conteúdo profissional (sem fotos pessoais do feed embed) */
   professionalGallery: [
     {
-      src: "/instagram/pro/feed-1.jpg",
+      src: asset("/instagram/pro/feed-1.jpg"),
       caption:
         "O estetoscópio me ajuda a ouvir o coração. Mas a medicina vai muito além disso — acolhimento, responsabilidade e compromisso com a sua saúde.",
       permalink: "https://www.instagram.com/p/DVHOFKEkSA-/",
       isVideo: false,
     },
     {
-      src: "/instagram/hero-carousel.jpg",
+      src: asset("/instagram/hero-carousel.jpg"),
       caption:
         "Atendimento com naturalidade — cuidar, prevenir e suavizar sem perder quem você é.",
       permalink: "https://www.instagram.com/dra.lailacorrea/",
       isVideo: false,
     },
     {
-      src: "/instagram/profile.jpg",
+      src: asset("/instagram/profile.jpg"),
       caption: "Dra. Laila Correa — medicina com acolhimento e naturalidade.",
       permalink: "https://www.instagram.com/dra.lailacorrea/",
       isVideo: false,
