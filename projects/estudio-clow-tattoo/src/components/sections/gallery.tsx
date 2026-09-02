@@ -74,25 +74,33 @@ export function Gallery() {
     <section id="trabalhos" className="bg-surface py-20 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <SectionHeader index="02" label="Portfólio" title="Nossos trabalhos" />
+          <SectionHeader align="center" index="02" label="Portfólio" title="Nossos trabalhos" />
         </Reveal>
 
-        <Reveal delay={0.06} className="mt-8 flex flex-wrap gap-2">
-          {filters.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setFilter(item.id)}
-              className={cn(
-                "px-4 py-2 text-xs uppercase tracking-widest transition-colors",
-                filter === item.id
-                  ? "bg-accent text-paper"
-                  : "border border-line text-mute hover:border-accent-soft hover:text-ink",
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
+        <Reveal delay={0.06} className="mt-8 flex flex-wrap justify-center gap-2">
+          {filters.map((item) => {
+            const count =
+              item.id === "all"
+                ? site.gallery.length
+                : site.gallery.filter((g) => g.category === item.id).length;
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setFilter(item.id)}
+                className={cn(
+                  "px-4 py-2 text-xs uppercase tracking-widest transition-colors",
+                  filter === item.id
+                    ? "bg-accent text-paper"
+                    : "border border-line text-mute hover:border-accent-soft hover:text-ink",
+                )}
+              >
+                {item.label}
+                {filter === item.id ? ` (${count})` : ""}
+              </button>
+            );
+          })}
         </Reveal>
 
         <Reveal delay={0.08} className="group/row relative mt-10">
@@ -191,7 +199,7 @@ export function Gallery() {
             />
           </div>
           <p className="absolute bottom-5 text-xs tracking-widest text-mute">
-            {lightboxIndex + 1} / {items.length}
+            {lightboxIndex + 1} de {items.length}
           </p>
         </div>
       )}

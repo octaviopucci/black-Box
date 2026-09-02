@@ -6,20 +6,24 @@ import { Reveal } from "@/components/motion/reveal";
 
 export function Artist() {
   return (
-    <section className="bg-surface py-20 md:py-24">
+    <section className="bg-paper py-20 md:py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
-          <Reveal>
-            <div className="portfolio-frame relative aspect-[3/4] max-h-[620px] w-full">
+          <Reveal className="relative">
+            <div className="relative overflow-hidden">
               <Image
-                src={site.assets.artist}
+                src={site.assets.hero}
                 alt="Artista do StudioClownTattoo"
-                fill
+                width={900}
+                height={1100}
                 loading="lazy"
                 sizes="(max-width: 1024px) 100vw, 480px"
-                className="portfolio-img"
+                className="h-auto w-full object-cover contrast-[1.05] brightness-95"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-paper/60 to-transparent" />
             </div>
+            <div className="absolute -left-4 -top-4 h-24 w-24 border-l border-t border-line" />
+            <div className="absolute -bottom-4 -right-4 h-24 w-24 border-b border-r border-line" />
           </Reveal>
 
           <Reveal delay={0.08} className="space-y-5">
@@ -29,12 +33,16 @@ export function Artist() {
             </h2>
             <div className="h-px w-14 bg-accent" />
             <p className="text-base leading-relaxed text-mute md:text-lg">
-              Nosso trabalho vai além de tatuar. É sobre transformar sua história
-              em arte — do conceito ao último detalhe na pele.
+              Nosso trabalho vai além de tatuar — é sobre transformar sua história
+              em arte. Com domínio em preto e cinza e trabalhos coloridos de alto
+              nível, cada projeto recebe atenção total: desde o conceito até o
+              último detalhe na pele.
             </p>
             <p className="text-base leading-relaxed text-mute md:text-lg">
-              Domínio em preto e cinza e colorido de alto nível, com higiene
-              impecável e projetos exclusivos para cada cliente.
+              A criatividade é o ponto de partida, mas é a técnica refinada, a
+              higiene impecável e o compromisso com a excelência que definem o
+              StudioClownTattoo. Aqui, não copiamos. Criamos projetos exclusivos
+              para cada cliente.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               {site.artistTags.map((tag) => (

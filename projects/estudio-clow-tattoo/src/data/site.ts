@@ -60,6 +60,19 @@ Domingo: Fechado`,
     },
   ],
   artistTags: ["Black & Grey", "Realismo", "Colorido", "Personalizado"],
+  artistStory: {
+    title: "Rafael Mactura — Arte que Marca Histórias",
+    paragraphs: [
+      "Minha trajetória na arte começou muito antes da tatuagem. Desde criança, eu passava horas reproduzindo desenhos inspirados por figurinhas, animações e personagens que despertavam minha criatividade. Foi nesse período que nasceu não apenas minha paixão pelo desenho, mas também o desejo de transformar a arte em profissão.",
+      "Anos mais tarde, encontrei no grafite uma nova forma de expressão. Durante cerca de dois anos, participei de projetos artísticos em comércios, escolas, ações sociais e espaços públicos, levando cor, identidade e personalidade para diferentes ambientes através da arte urbana.",
+      "Em 2019, tive meu primeiro contato com a tatuagem — um momento que mudou completamente minha visão sobre a arte. Descobri um universo onde cada trabalho carrega significado, memória e emoção. Mais do que criar desenhos, passei a eternizar histórias na pele das pessoas.",
+      "O que mais me fascinou foi a responsabilidade e a precisão que a tatuagem exige. A ideia de transformar uma obra em algo permanente, sem espaço para erros, despertou em mim um respeito ainda maior pela profissão e me motivou a buscar evolução constante.",
+      "Essa dedicação me proporcionou importantes conquistas ao longo da minha carreira. Fui patrocinado pela Tribo do Sol, uma das maiores marcas de tatuagem do Brasil, além de receber premiações em diversos eventos e convenções de tatuagem pelo país. Minha arte também ultrapassou fronteiras, levando meu trabalho até Paris, na França, onde tive a oportunidade de compartilhar minha visão artística com novos públicos.",
+      "Além da tatuagem, continuo explorando outras formas de arte, produzindo quadros e desenhos tradicionais. No entanto, meu verdadeiro propósito está na arte permanente: aquela que acompanha uma pessoa por toda a vida e atravessa gerações carregando histórias, sentimentos e significados.",
+      "Cada tatuagem que realizo é desenvolvida com dedicação, técnica e atenção aos detalhes, buscando criar algo único para cada cliente.",
+      "Se você valoriza exclusividade, qualidade e uma experiência artística autêntica, convido você a conhecer meu trabalho de perto e descobrir como podemos transformar sua ideia em uma obra de arte para a vida toda.",
+    ],
+  },
   process: [
     {
       step: "01",
@@ -85,19 +98,28 @@ Domingo: Fechado`,
   testimonials: [
     {
       name: "Lucas M.",
+      style: "Black & Grey",
       text: "Trabalho impecável! O artista entendeu exatamente o que eu queria e superou todas as minhas expectativas. A atenção aos detalhes é absurda.",
     },
     {
       name: "Amanda R.",
+      style: "Colorido",
       text: "Minha primeira tatuagem colorida e não poderia ter escolhido lugar melhor. As cores ficaram incríveis e o atendimento foi perfeito do início ao fim.",
     },
     {
       name: "Gabriel S.",
+      style: "Realismo",
       text: "Já é a terceira tatuagem que faço no StudioClownTattoo. A qualidade é consistente e cada projeto é tratado como único. Recomendo de olhos fechados.",
     },
     {
       name: "Beatriz L.",
+      style: "Fine Line",
       text: "O ambiente é muito profissional e acolhedor. Me senti segura durante todo o processo. O resultado ficou ainda melhor do que eu imaginava.",
+    },
+    {
+      name: "Rafael C.",
+      style: "Realismo",
+      text: "Arte de verdade na pele. O nível de realismo é impressionante. Melhor estúdio que já conheci, sem dúvidas.",
     },
   ],
   gallery: [

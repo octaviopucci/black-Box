@@ -11,7 +11,7 @@ export function Styles() {
     <section id="estilos" className="bg-paper py-20 md:py-24">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal>
-          <SectionHeader index="03" label="Especialidades" title="Estilos de tatuagem" />
+          <SectionHeader align="center" index="03" label="Especialidades" title="Estilos de tatuagem" />
         </Reveal>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">

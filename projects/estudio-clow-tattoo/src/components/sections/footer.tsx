@@ -29,7 +29,7 @@ export function Footer() {
               Links rápidos
             </h4>
             <nav className="mt-6 space-y-3">
-              {site.nav.map((item) => (
+              {site.nav.filter((item) => item.href !== "#processo").map((item) => (
                 <button
                   key={item.href}
                   type="button"

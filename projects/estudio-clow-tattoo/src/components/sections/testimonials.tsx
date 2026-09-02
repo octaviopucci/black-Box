@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
 import { site } from "@/data/site";
 import { Reveal } from "@/components/motion/reveal";
+
+function Stars() {
+  return (
+    <div className="flex justify-center gap-1">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} className="h-4 w-4 fill-accent text-accent" />
+      ))}
+    </div>
+  );
+}
 
 export function Testimonials() {
   const [index, setIndex] = useState(0);
@@ -15,6 +25,13 @@ export function Testimonials() {
         (prev + direction + site.testimonials.length) % site.testimonials.length,
     );
   };
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setIndex((prev) => (prev + 1) % site.testimonials.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
     <section className="relative bg-surface py-20">
@@ -29,14 +46,18 @@ export function Testimonials() {
         </Reveal>
 
         <Reveal delay={0.1} className="relative mt-14">
-          <Quote className="mx-auto mb-8 h-8 w-8 text-ink/20" />
+          <Quote className="mx-auto mb-6 h-8 w-8 text-ink/20" />
 
           <div key={current.name} className="testimonial-slide">
-            <p className="text-xl font-light leading-relaxed text-ink md:text-2xl">
+            <Stars />
+            <p className="mt-6 text-xl font-light leading-relaxed text-ink md:text-2xl">
               “{current.text}”
             </p>
-            <p className="mt-8 text-sm uppercase tracking-[0.28em] text-mute">
+            <p className="mt-8 text-sm uppercase tracking-[0.28em] text-ink">
               {current.name}
+            </p>
+            <p className="mt-2 text-xs uppercase tracking-widest text-mute">
+              {current.style}
             </p>
           </div>
 

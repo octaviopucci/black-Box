@@ -1,5 +1,6 @@
 import { About } from "@/components/sections/about";
 import { Artist } from "@/components/sections/artist";
+import { ArtistStory } from "@/components/sections/artist-story";
 import { CtaBand } from "@/components/sections/cta-band";
 import { Footer } from "@/components/sections/footer";
 import { Gallery } from "@/components/sections/gallery";
@@ -25,6 +26,7 @@ export default function Home() {
         <Process />
         <Artist />
         <Testimonials />
+        <ArtistStory />
         <QuoteForm />
         <InstagramSection />
         <Location />
