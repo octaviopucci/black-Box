@@ -16,7 +16,7 @@ export function InstagramFeed() {
   });
   const x = useTransform(scrollYProgress, [0, 1], ["2%", "-8%"]);
 
-  const posts = media.gallery.filter((p) => p.caption.length > 0 || p.src);
+  const posts = media.professionalGallery;
 
   return (
     <section id="feed" className="overflow-hidden border-t border-line/60 bg-surface py-24 md:py-32">
@@ -24,8 +24,8 @@ export function InstagramFeed() {
         <Reveal>
           <SectionHeader
             eyebrow={`Instagram · ${site.instagram.followers.toLocaleString("pt-BR")} seguidores`}
-            title="Conteúdo do consultório"
-            description="Momentos, cuidado e naturalidade — direto do feed da Dra. Laila."
+            title="Conteúdo profissional"
+            description="Acolhimento, naturalidade e cuidado — direto do consultório da Dra. Laila."
           />
         </Reveal>
       </div>
@@ -33,21 +33,21 @@ export function InstagramFeed() {
       <motion.div
         ref={trackRef}
         style={reduceMotion ? undefined : { x }}
-        className="mt-14 flex gap-4 px-6 md:gap-5 md:px-10"
+        className="mt-14 flex justify-start gap-4 px-6 md:gap-6 md:px-10"
       >
-        {posts.slice(0, 8).map((post) => (
+        {posts.map((post) => (
           <a
             key={post.src}
             href={post.permalink}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative aspect-[4/5] w-[min(72vw,280px)] shrink-0 overflow-hidden bg-ink/5"
+            className="group relative aspect-[4/5] w-[min(72vw,320px)] shrink-0 overflow-hidden bg-ink/5 md:w-[min(28vw,320px)]"
           >
             <Image
               src={post.src}
               alt={post.caption.slice(0, 80) || "Post do Instagram"}
               fill
-              sizes="280px"
+              sizes="320px"
               className="object-cover transition duration-700 group-hover:scale-105"
             />
             {post.caption ? (

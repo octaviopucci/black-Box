@@ -22,7 +22,7 @@ const feed = meta.feed.map((item) => ({
 export const media = {
   profile: "/instagram/profile.jpg",
   hero: "/instagram/hero-carousel.jpg",
-  portrait: "/instagram/post-5.jpg",
+  portrait: "/instagram/about-portrait.jpg",
   gallery: feed
     .filter((item): item is FeedItem & { file: string } => Boolean(item.file))
     .map((item) => ({
@@ -31,6 +31,29 @@ export const media = {
       permalink: item.permalink,
       isVideo: item.is_video,
     })),
+  /** Curated — só conteúdo profissional (sem fotos pessoais do feed embed) */
+  professionalGallery: [
+    {
+      src: "/instagram/pro/feed-1.jpg",
+      caption:
+        "O estetoscópio me ajuda a ouvir o coração. Mas a medicina vai muito além disso — acolhimento, responsabilidade e compromisso com a sua saúde.",
+      permalink: "https://www.instagram.com/p/DVHOFKEkSA-/",
+      isVideo: false,
+    },
+    {
+      src: "/instagram/hero-carousel.jpg",
+      caption:
+        "Atendimento com naturalidade — cuidar, prevenir e suavizar sem perder quem você é.",
+      permalink: "https://www.instagram.com/dra.lailacorrea/",
+      isVideo: false,
+    },
+    {
+      src: "/instagram/profile.jpg",
+      caption: "Dra. Laila Correa — medicina com acolhimento e naturalidade.",
+      permalink: "https://www.instagram.com/dra.lailacorrea/",
+      isVideo: false,
+    },
+  ],
 } as const;
 
 export const site = {
@@ -181,7 +204,7 @@ export const site = {
   clinicSpace: {
     title: "Aos cuidados da Dra. Laila",
     description:
-      "Um atendimento pensado para quem quer se cuidar com naturalidade — conversando com calma antes de qualquer decisão.",
+      "Um atendimento pensado para quem quer se guiar com naturalidade — conversando com calma antes de qualquer decisão.",
     source: "Instagram @dra.lailacorrea",
   },
   editorial: {
