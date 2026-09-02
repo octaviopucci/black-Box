@@ -1,35 +1,35 @@
-# Dra. Danielle Lavinsky — landing 1 página
+# Dra. Danielle Lavinsky — Landing Premium
 
-Landing HTML estática focada em conversão WhatsApp.
+Site institucional premium em Next.js para a Dra. Danielle Lavinsky (DTM, dor orofacial, bruxismo).
 
-## Dados (fontes)
+## Stack
 
-- Instagram: [@dra.daniellelavinsky](https://www.instagram.com/dra.daniellelavinsky/)
-- Clínica Lavinsky — Rua Quintino Bocaiúva, 673, Porto Alegre/RS
-- Telefone/WhatsApp: (51) 3332-0032 → `wa.me/555133320032`
-- CRO/RS 15888
+- Next.js 16 (static export)
+- Tailwind CSS 4
+- GSAP ScrollTrigger (hero scroll scrub)
+- Lenis (smooth scroll)
+- Framer Motion (reveals)
 
-## Ver local
-
-Abra `index.html` no navegador ou sirva a pasta:
-
-```bash
-cd projects/dra-danielle-lavinsky
-python3 -m http.server 8080
-```
-
-## Re-extrair Instagram
+## Desenvolvimento
 
 ```bash
-python3 .cursor/skills/frontend/instagram-extract/references/extract.py \
-  dra.daniellelavinsky \
-  --out projects/dra-danielle-lavinsky/public
+npm ci --include=dev
+npm run dev
 ```
 
-Depois reconverter WebP em `img/` se trocar fotos.
+## Build
 
-## Pendente
+```bash
+npm run build
+# saída em out/
+```
 
-- Confirmar se WhatsApp é o mesmo número da clínica
-- Substituir depoimentos placeholder
-- Incluir preços reais quando disponíveis
+## Conteúdo
+
+- Instagram: `@dra.daniellelavinsky` (extract em `public/instagram/`)
+- WhatsApp: (51) 3332-0032
+- Clínica Lavinsky — Rua Quintino Bocaiúva, 673, Porto Alegre
+
+## Legado
+
+HTML single-page anterior em `legacy/index.html`.
