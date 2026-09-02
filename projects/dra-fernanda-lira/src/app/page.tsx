@@ -4,6 +4,7 @@ import { Experience } from "@/components/sections/experience";
 import { Faq } from "@/components/sections/faq";
 import { Footer } from "@/components/sections/footer";
 import { Hero } from "@/components/sections/hero";
+import { InstagramFeed } from "@/components/sections/instagram-feed";
 import { Navbar } from "@/components/sections/navbar";
 import { Process } from "@/components/sections/process";
 import { Services } from "@/components/sections/services";
@@ -21,6 +22,7 @@ export default function Home() {
         <Services />
         <Process />
         <Experience />
+        <InstagramFeed />
         <Faq />
         <CtaBand />
       </main>

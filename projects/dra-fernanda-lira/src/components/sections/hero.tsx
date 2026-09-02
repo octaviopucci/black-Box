@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { site } from "@/data/site";
+import { media, site } from "@/data/site";
 import { scrollToHash, whatsappUrl } from "@/lib/whatsapp";
 import { easePremium } from "@/lib/motion";
 import { MagneticButton } from "@/components/ui/magnetic-button";
@@ -113,9 +114,9 @@ export function Hero() {
             </MagneticButton>
             <MagneticButton
               variant="ghost"
-              onClick={() => scrollToHash("#protocolos")}
+              onClick={() => scrollToHash("#feed")}
             >
-              Ver protocolos
+              Ver no feed
             </MagneticButton>
           </motion.div>
         </div>
@@ -127,17 +128,31 @@ export function Hero() {
           className="mt-14 md:col-span-5 md:mt-0"
         >
           <div className="bezel-outer">
-            <div className="bezel-inner relative aspect-[4/5] overflow-hidden p-8">
-              <div className="absolute inset-0 bg-gradient-to-br from-champagne/40 via-elevated to-surface" />
-              <div className="relative flex h-full flex-col justify-between">
-                <p className="text-[10px] uppercase tracking-[0.22em] text-mute">
-                  {site.tagline}
-                </p>
+            <div className="bezel-inner relative aspect-[4/5] overflow-hidden">
+              <Image
+                src={media.hero}
+                alt="Dra. Fernanda Lira — conteúdo do Instagram"
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 flex items-end gap-4 p-6">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-elevated/80">
+                  <Image
+                    src={media.profile}
+                    alt="Fernanda Lira"
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
                 <div>
-                  <p className="font-display text-3xl leading-tight text-ink md:text-4xl">
-                    Protocolos que respeitam a sua pele.
+                  <p className="font-display text-xl text-elevated">
+                    {site.name}
                   </p>
-                  <p className="mt-4 text-sm text-mute">
+                  <p className="text-xs text-elevated/80">
                     {site.instagram.handle}
                   </p>
                 </div>

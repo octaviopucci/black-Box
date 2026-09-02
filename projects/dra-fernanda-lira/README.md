@@ -27,8 +27,16 @@ Edite `src/data/site.ts` e confirme:
 - WhatsApp (número + mensagem padrão)
 - Cidade e endereço do consultório
 - CRM / registro profissional
-- Fotos reais (substituir o bloco visual do hero)
-- Serviços e preços, se quiser listar
+
+Para atualizar fotos e captions do Instagram:
+
+```bash
+python3 .cursor/skills/frontend/instagram-extract/references/extract.py \
+  drafernandaliraaa \
+  --out projects/dra-fernanda-lira/public
+cp projects/dra-fernanda-lira/public/instagram/meta.json \
+  projects/dra-fernanda-lira/src/data/instagram-meta.json
+```
 
 ## Deploy
 

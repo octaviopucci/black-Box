@@ -9,12 +9,12 @@ export function Services() {
         <Reveal>
           <SectionHeader
             eyebrow="Protocolos"
-            title="Tratamentos pensados para cada tipo de pele"
-            description="Seleção de protocolos faciais com foco em limpeza profunda, equilíbrio e luminosidade."
+            title="Temas do feed, aplicados no atendimento"
+            description="Conteúdos extraídos das publicações oficiais no Instagram — sem inventar procedimentos ou resultados."
           />
         </Reveal>
 
-        <div className="mt-16 grid gap-5 md:grid-cols-2">
+        <div className="mt-16 grid gap-5 md:grid-cols-3">
           {site.services.map((service, i) => (
             <Reveal key={service.title} delay={i * 0.08}>
               <article className="bezel-outer h-full">
@@ -27,8 +27,11 @@ export function Services() {
                       {service.tag}
                     </span>
                   </div>
-                  <p className="text-sm leading-relaxed text-mute md:text-base">
+                  <p className="flex-1 text-sm leading-relaxed text-mute md:text-base">
                     {service.description}
+                  </p>
+                  <p className="mt-6 text-[10px] uppercase tracking-[0.14em] text-mute/80">
+                    {service.source}
                   </p>
                 </div>
               </article>

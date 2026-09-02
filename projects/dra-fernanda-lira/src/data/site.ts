@@ -1,14 +1,50 @@
 /**
- * Dados verificados: nome, especialidade e Instagram (fonte pública).
- * Campos marcados com [CONFIRMAR] precisam ser preenchidos pela Dra. Fernanda.
+ * Fonte primária: public/instagram/meta.json (instagram-extract @drafernandaliraaa)
+ * Não inventar CRM, endereço, WhatsApp ou especialidades fora das captions.
  */
+import meta from "./instagram-meta.json";
+
+type FeedItem = (typeof meta.feed)[number];
+
+function decodeCaption(raw: string) {
+  return raw
+    .replace(/\\n/g, "\n")
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16)),
+    );
+}
+
+const feed = meta.feed.map((item) => ({
+  ...item,
+  caption: item.caption ? decodeCaption(item.caption) : "",
+}));
+
+const galleryPosts = feed.filter(
+  (item) => item.file && item.caption.length > 0,
+);
+
+export const media = {
+  profile: "/instagram/profile.jpg",
+  hero: galleryPosts[0]?.file ?? "/instagram/post-2.jpg",
+  gallery: feed
+    .filter((item): item is FeedItem & { file: string } => Boolean(item.file))
+    .map((item) => ({
+      src: item.file,
+      caption: item.caption,
+      permalink: item.permalink,
+      isVideo: item.is_video,
+    })),
+} as const;
+
 export const site = {
   name: "Dra. Fernanda Lira",
-  tagline: "Especialista em Limpeza de Pele",
-  specialty: "Limpeza de pele profunda e protocolos faciais personalizados",
+  tagline: "Estética & cuidados com a pele",
+  specialty:
+    "Conteúdo e protocolos em bronzeamento artificial, proteção solar e rotina facial",
   instagram: {
-    handle: "@drafernandaliraaa",
-    url: "https://www.instagram.com/drafernandaliraaa",
+    handle: `@${meta.username}`,
+    url: `https://www.instagram.com/${meta.username}/`,
+    followers: meta.followers,
   },
   whatsapp: null as null | {
     number: string;
@@ -22,99 +58,108 @@ export const site = {
     { label: "Início", href: "#inicio" },
     { label: "Sobre", href: "#sobre" },
     { label: "Protocolos", href: "#protocolos" },
-    { label: "Experiência", href: "#experiencia" },
+    { label: "Feed", href: "#feed" },
     { label: "Contato", href: "#contato" },
   ],
   hero: {
-    eyebrow: "Estética facial · Protocolos premium",
-    headline: ["Pele limpa,", "luminosa e", "em equilíbrio."],
+    eyebrow: `Instagram · ${meta.followers?.toLocaleString("pt-BR") ?? ""} seguidores`,
+    headline: ["Pele cuidada,", "bronze natural,", "com técnica."],
     subheadline:
-      "Protocolos de limpeza de pele com técnica precisa, ambiente acolhedor e cuidado em cada etapa — do diagnóstico ao pós-procedimento.",
+      "Bronzeamento artificial, orientação em proteção solar e conteúdo prático sobre a saúde da sua pele — direto do feed da Dra. Fernanda.",
   },
   about: {
-    title: "Ciência e delicadeza na mesma sessão",
+    title: "Ciência aplicada com linguagem clara",
     paragraphs: [
-      "A Dra. Fernanda Lira atua com foco em limpeza de pele profunda, unindo avaliação criteriosa, produtos selecionados e movimentos que respeitam a barreira cutânea.",
-      "Cada protocolo é pensado para o seu tipo de pele — oleosa, sensível, mista ou madura — com orientação clara para manutenção em casa.",
+      "Fernanda Lira compartilha no Instagram orientações práticas sobre pele — de emergências como espinhas até a escolha do protetor solar ideal para o seu tipo de pele.",
+      "O conteúdo une educação e estética: bronzeamento artificial com acompanhamento, dicas de home care e explicações que você pode salvar e consultar quando precisar.",
     ],
     highlights: [
-      "Avaliação facial individualizada",
-      "Extração técnica e segura",
-      "Finalização calmante e protetora",
+      "Bronzeamento artificial com protocolo em etapas",
+      "Educação em proteção solar (físico vs. químico)",
+      "Orientações para espinhas sem piorar a lesão",
     ],
+    source: `Instagram @${meta.username}`,
   },
   services: [
     {
-      title: "Limpeza de Pele Profunda",
+      title: "Bronzeamento Artificial",
       description:
-        "Remoção de impurezas, desobstrução de poros e revitalização com etapas de emoliência, extração e máscara específica.",
-      tag: "Assinatura",
+        galleryPosts.find((p) =>
+          p.caption.toLowerCase().includes("bronzeamento"),
+        )?.caption.split("\n")[0] ??
+        "Protocolo de bronzeamento artificial com acompanhamento.",
+      tag: "Destaque",
+      source: "Instagram @drafernandaliraaa",
     },
     {
-      title: "Limpeza + Alta Frequência",
+      title: "Proteção Solar",
       description:
-        "Protocolo completo com ação antisséptica e calmante, indicado para peles com tendência a inflamações.",
-      tag: "Protocolo",
+        "Protetor físico ou químico: os dois protegem contra a radiação UV, mas possuem filtros e características diferentes. O melhor é aquele adequado à sua pele e que você consegue usar todos os dias.",
+      tag: "Educação",
+      source: "Instagram @drafernandaliraaa",
     },
     {
-      title: "Peeling de Diamante",
+      title: "Espinhas & Emergências",
       description:
-        "Esfoliação mecânica controlada para renovação da superfície, luminosidade e melhor absorção de ativos.",
-      tag: "Renovação",
-    },
-    {
-      title: "Hidratação & Revitalização",
-      description:
-        "Reposição de água e lipídios com máscaras e séruns direcionados ao seu diagnóstico cutâneo.",
-      tag: "Cuidado",
+        "Existem produtos que podem ajudar a controlar a inflamação, proteger a região e evitar aquela mania de ficar mexendo — que muitas vezes só piora a lesão e ainda pode deixar mancha.",
+      tag: "Rotina",
+      source: "Instagram @drafernandaliraaa",
     },
   ],
   process: [
     {
       step: "01",
-      title: "Diagnóstico",
-      description: "Análise da pele, histórico e objetivos antes de qualquer procedimento.",
+      title: "Avaliação",
+      description:
+        "Entendimento do seu tipo de pele, rotina e objetivo — bronzeamento, proteção ou tratamento pontual.",
     },
     {
       step: "02",
-      title: "Preparação",
-      description: "Higienização, emoliência e abertura controlada dos poros.",
+      title: "Protocolo",
+      description:
+        "Definição do procedimento ou orientação com base no conteúdo e técnica compartilhados no atendimento.",
     },
     {
       step: "03",
-      title: "Tratamento",
-      description: "Extração técnica, ativos e tecnologias conforme o protocolo escolhido.",
+      title: "Aplicação",
+      description:
+        "Execução com produtos selecionados e cuidado em cada etapa do processo.",
     },
     {
       step: "04",
-      title: "Finalização",
-      description: "Máscara calmante, proteção solar e orientações de home care.",
+      title: "Manutenção",
+      description:
+        "Orientações para casa — como nos posts educativos do Instagram, para você consultar quando precisar.",
     },
   ],
   experience: {
-    title: "Uma jornada sensorial",
+    title: "Do feed para o espelho",
     lines: [
-      "Ambiente silencioso.",
-      "Toque preciso.",
-      "Resultado que você sente ao se olhar no espelho.",
+      "Conteúdo que educa.",
+      "Técnica que transforma.",
+      "Resultado que você vê na pele.",
     ],
   },
   faq: [
     {
-      q: "Com que frequência devo fazer limpeza de pele?",
-      a: "Em média, a cada 30 a 45 dias — variando conforme tipo de pele e rotina. A Dra. Fernanda indica o intervalo ideal na avaliação.",
+      q: "Qual protetor solar escolher — físico ou químico?",
+      a: "Os dois protegem contra a radiação UV. O químico costuma ter textura mais leve; o físico/mineral é uma ótima alternativa para peles sensíveis. O ideal é o que você consegue usar todos os dias.",
+      source: "Caption Instagram — protetor solar",
     },
     {
-      q: "A limpeza dói?",
-      a: "A extração é feita com técnica e ritmo que respeitam seu conforto. Peles sensíveis recebem adaptações no protocolo.",
+      q: "Posso espremer espinhas em casa?",
+      a: "Calma: não precisa espremer. Existem produtos que ajudam a controlar a inflamação e evitar manchas — mas mexer na lesão muitas vezes só piora o quadro.",
+      source: "Caption Instagram — espinhas",
     },
     {
-      q: "Posso usar maquiagem depois?",
-      a: "Recomenda-se evitar maquiagem nas primeiras 12–24 horas, conforme orientação pós-sessão.",
+      q: "Como funciona o bronzeamento artificial?",
+      a: "O protocolo é feito em etapas, com acompanhamento e orientação de manutenção em casa — como no conteúdo “Parte 02 - bronzeamento artificial” publicado no Instagram.",
+      source: "Caption Instagram — bronzeamento",
     },
   ],
   legal: {
     note: "Procedimentos estéticos. Resultados variam conforme tipo de pele e hábitos individuais.",
     crm: "[CONFIRMAR — CRM/registro profissional, se aplicável]",
   },
+  feed,
 } as const;

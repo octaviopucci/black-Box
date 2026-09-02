@@ -9,7 +9,7 @@ export function About() {
         <Reveal>
           <SectionHeader
             eyebrow="Sobre"
-            title="Cuidado facial com precisão e acolhimento"
+            title={site.about.title}
           />
         </Reveal>
 
@@ -34,6 +34,9 @@ export function About() {
                 </li>
               ))}
             </ul>
+            <p className="mt-6 text-xs text-mute">
+              Fonte: {site.about.source}
+            </p>
           </Reveal>
         </div>
       </div>
