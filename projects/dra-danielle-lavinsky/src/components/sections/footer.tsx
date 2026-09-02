@@ -14,6 +14,10 @@ export function Footer() {
           >
             {site.instagram.handle}
           </a>
+          {" · "}
+          <a href="/bio" className="text-accent hover:underline">
+            Links
+          </a>
         </p>
         <p className="text-xs">{site.legal.note}</p>
       </div>
