@@ -11,6 +11,8 @@ node_modules
 !/public/dra-laila-correa/**
 !/public/dra-barbara-alencar/
 !/public/dra-barbara-alencar/**
+!/public/nutri-luiza-rimoli/
+!/public/nutri-luiza-rimoli/**
 .DS_Store
 *.local
 .env
