@@ -21,7 +21,7 @@ const feed = meta.feed.map((item) => ({
 
 export const media = {
   profile: "/instagram/profile.jpg",
-  hero: "/instagram/post-6.jpg",
+  hero: "/instagram/hero-carousel.jpg",
   portrait: "/instagram/post-2.jpg",
   gallery: feed
     .filter((item): item is FeedItem & { file: string } => Boolean(item.file))
