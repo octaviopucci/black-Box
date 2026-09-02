@@ -1,0 +1,22 @@
+headersOrigin = "inline"
+redirectsOrigin = "inline"
+
+[build]
+publish = "out"
+command = "npm ci && npm run build"
+base = "."
+
+[build.environment]
+NODE_VERSION = "22"
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+Basic-Auth = "site:Site"
+
+[[headers]]
+for = "/_next/static/*"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
