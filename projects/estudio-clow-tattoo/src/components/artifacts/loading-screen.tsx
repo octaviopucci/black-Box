@@ -88,7 +88,7 @@ export function LoadingScreen() {
           />
         </svg>
 
-        <div className="relative z-10 flex h-[4.75rem] w-[4.75rem] items-center justify-center bg-[#0d0d0d] ring-1 ring-white/10">
+        <div className="relative z-10 flex h-[4.75rem] w-[4.75rem] items-center justify-center rounded-full bg-[#0d0d0d] ring-1 ring-white/10">
           <Image
             src={site.assets.logo}
             alt="Studio Clown Tattoo"
