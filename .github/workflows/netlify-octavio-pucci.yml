@@ -1,0 +1,43 @@
+name: Deploy Octávio Pucci Tattoo (Netlify)
+
+on:
+  push:
+    branches:
+      - main
+      - cursor/octavio-pucci-tattoo-192e
+    paths:
+      - "projects/octavio-pucci-tattoo/**"
+      - ".github/workflows/netlify-octavio-pucci.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: projects/octavio-pucci-tattoo/package-lock.json
+
+      - name: Install and build
+        working-directory: projects/octavio-pucci-tattoo
+        run: |
+          npm ci
+          NEXT_BASE_PATH= npm run build
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
+            echo "::error::NETLIFY_AUTH_TOKEN secret is missing."
+            exit 1
+          fi
+          npx netlify-cli@27.1.2 deploy \
+            --prod \
+            --dir=projects/octavio-pucci-tattoo/out \
+            --site=62929e0a-0783-4675-b1d6-f05ac6a3ad0a \
+            --message "CI deploy ${GITHUB_SHA}"
