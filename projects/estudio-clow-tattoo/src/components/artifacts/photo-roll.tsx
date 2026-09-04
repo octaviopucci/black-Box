@@ -9,90 +9,97 @@ function dedupe(urls: readonly string[]): string[] {
   return [...new Set(urls)];
 }
 
-function interleave(rafael: string[], works: string[]): string[] {
-  const out: string[] = [];
-  let r = 0;
-  let w = 0;
-
-  while (r < rafael.length || w < works.length) {
-    if (r < rafael.length) {
-      const next = rafael[r++];
-      if (out.at(-1) !== next) out.push(next);
-    }
-    if (w < works.length) {
-      const next = works[w++];
-      if (out.at(-1) !== next) out.push(next);
-    }
-  }
-
-  return out;
-}
-
-function fixConsecutive(seq: string[]): string[] {
-  if (seq.length < 2) return seq;
-
-  const result = [...seq];
-
-  for (let i = 1; i < result.length; i++) {
-    if (result[i] === result[i - 1]) {
-      const swap = result.findIndex(
-        (url, j) => j > i && url !== result[i - 1] && url !== result[i + 1],
-      );
-      if (swap !== -1) [result[i], result[swap]] = [result[swap], result[i]];
-    }
-  }
-
-  if (result[0] === result.at(-1)) {
-    const last = result.length - 1;
-    const swap = result.findIndex(
-      (url, j) => j > 0 && j < last && url !== result[0] && url !== result[last - 1],
-    );
-    if (swap !== -1) {
-      const tmp = result[swap];
-      result[swap] = result[last];
-      result[last] = tmp;
-    }
-  }
-
-  return result;
-}
-
-function buildMasterSequence(): string[] {
+function buildPools() {
   const rafael = dedupe(site.heroRoll);
   const works = dedupe(site.gallery.map((g) => g.src)).filter((src) => !rafael.includes(src));
+  return { rafael, works, all: dedupe([...rafael, ...works]) };
+}
 
-  let sequence = interleave(rafael, works);
+/** Each column: unique URLs only, no consecutive duplicates, Rafael/work alternation. */
+function buildColumn(
+  rafael: string[],
+  works: string[],
+  all: string[],
+  minItems: number,
+): string[] {
+  const col: string[] = [];
+  let ri = 0;
+  let wi = 0;
 
-  const target = Math.max(14, Math.min(20, rafael.length + Math.min(works.length, 12)));
-  let cursor = 0;
-  const pool = [...sequence];
+  const takeRafael = () => {
+    while (ri < rafael.length) {
+      const next = rafael[ri++];
+      if (!col.includes(next) && col.at(-1) !== next) return next;
+    }
+    return null;
+  };
 
-  while (sequence.length < target && pool.length > 0) {
-    const next = pool[cursor % pool.length];
-    cursor++;
-    if (sequence.at(-1) !== next) sequence.push(next);
-    if (cursor > pool.length * 4) break;
+  const takeWork = () => {
+    while (wi < works.length) {
+      const next = works[wi++];
+      if (!col.includes(next) && col.at(-1) !== next) return next;
+    }
+    return null;
+  };
+
+  const takeAny = () => {
+    for (const next of all) {
+      if (!col.includes(next) && col.at(-1) !== next) return next;
+    }
+    return null;
+  };
+
+  while (col.length < minItems) {
+    const last = col.at(-1);
+    const lastIsRafael = last !== undefined && rafael.includes(last);
+
+    let next = lastIsRafael || last === undefined ? takeWork() : takeRafael();
+    if (!next) next = lastIsRafael ? takeRafael() : takeWork();
+    if (!next) next = takeAny();
+    if (!next) break;
+    col.push(next);
   }
 
-  return fixConsecutive(sequence);
+  return col;
 }
 
-function splitColumns(sequence: string[]): [string[], string[]] {
-  const col0: string[] = [];
-  const col1: string[] = [];
-
-  sequence.forEach((src, i) => {
-    (i % 2 === 0 ? col0 : col1).push(src);
-  });
-
-  return [fixConsecutive(col0), fixConsecutive(col1)];
+function fixLoopBoundary(track: string[]): string[] {
+  if (track.length < 2) return track;
+  if (track[0] === track.at(-1)) {
+    for (let i = 1; i < track.length - 1; i++) {
+      if (track[i] !== track[0] && track[i] !== track.at(-2)) {
+        const last = track.length - 1;
+        const tmp = track[i];
+        track[i] = track[last];
+        track[last] = tmp;
+        break;
+      }
+    }
+  }
+  return track;
 }
 
+/** Duplicate cycle for infinite scroll — seam is invisible when first ≠ last. */
 function loopTrack(column: string[]): string[] {
-  const track = fixConsecutive(column);
+  const track = fixLoopBoundary([...column]);
   if (track.length === 0) return track;
-  if (track.length === 1) return [...track, ...track];
+  if (track.length === 1) return track;
   return [...track, ...track];
+}
+
+function buildColumns(): [string[], string[]] {
+  const { rafael, works, all } = buildPools();
+  const minPerColumn = 7;
+
+  const col0 = buildColumn([...rafael], [...works], all, minPerColumn);
+  const col1 = buildColumn(
+    [...rafael].reverse(),
+    [...works].reverse(),
+    [...all].reverse(),
+    minPerColumn,
+  );
+
+  return [loopTrack(col0), loopTrack(col1)];
 }
 
 type PhotoRollProps = {
@@ -101,11 +108,7 @@ type PhotoRollProps = {
 };
 
 export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps) {
-  const columns = useMemo(() => {
-    const master = buildMasterSequence();
-    const [col0, col1] = splitColumns(master);
-    return [loopTrack(col0), loopTrack(col1)];
-  }, []);
+  const columns = useMemo(() => buildColumns(), []);
 
   const parallaxY = scrollProgress * -160;
   const scale = 1 - scrollProgress * 0.07;
