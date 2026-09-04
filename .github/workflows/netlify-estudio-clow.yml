@@ -32,8 +32,12 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
+            echo "::error::NETLIFY_AUTH_TOKEN secret is missing. Add it in GitHub → Settings → Secrets → Actions."
+            exit 1
+          fi
           npx netlify-cli@27.1.2 deploy \
             --prod \
             --dir=projects/estudio-clow-tattoo/out \
-            --site-name estudio-clow-tattoo \
+            --site=a9fa2fe9-6450-4569-bbc4-bc6c449f7d72 \
             --message "CI deploy ${GITHUB_SHA}"
