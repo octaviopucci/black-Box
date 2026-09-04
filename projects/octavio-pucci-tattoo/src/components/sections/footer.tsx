@@ -4,7 +4,7 @@ import Image from "next/image";
 import { site } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
-import { openInstagram, scrollToHash } from "@/lib/navigation";
+import { openWhatsApp, scrollToHash } from "@/lib/whatsapp";
 
 export function Footer() {
   const { t } = useLocale();
@@ -51,13 +51,21 @@ export function Footer() {
             </h4>
             <div className="mt-6 space-y-4 text-sm text-mute">
               <a
-                href={site.instagram.url}
+                href={`https://wa.me/${site.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => {
                   e.preventDefault();
-                  openInstagram(site.instagram.url);
+                  openWhatsApp(t.whatsapp.fabMessage);
                 }}
+                className="block transition-colors hover:text-ink"
+              >
+                WhatsApp · (15) 99749-9178
+              </a>
+              <a
+                href={site.instagram.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2 transition-colors hover:text-ink"
               >
                 <svg

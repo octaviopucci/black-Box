@@ -14,9 +14,13 @@ function dedupe(urls: readonly string[]): string[] {
 }
 
 function buildPools() {
-  const rafael = dedupe(site.heroRoll);
-  const works = dedupe(site.gallery.map((g) => g.src)).filter((src) => !rafael.includes(src));
-  return { rafael, works, all: dedupe([...rafael, ...works]) };
+  const all = dedupe([...site.heroRoll, ...site.gallery.map((g) => g.src)]);
+  const half = Math.ceil(all.length / 2);
+  return {
+    rafael: all.slice(0, half),
+    works: all.slice(half),
+    all,
+  };
 }
 
 function buildColumn(

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
-import { scrollToHash } from "@/lib/navigation";
+import { scrollToHash } from "@/lib/whatsapp";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 

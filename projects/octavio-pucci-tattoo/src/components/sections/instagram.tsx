@@ -5,13 +5,12 @@ import { site } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { Reveal } from "@/components/motion/reveal";
 
-const gridImages = site.gallery.slice(0, 9);
-
 export function InstagramSection() {
   const { t } = useLocale();
+  const gridImages = site.instagramGrid;
 
   return (
-    <section className="bg-paper py-20 md:py-24">
+    <section id="instagram" className="bg-paper py-20 md:py-24">
       <div className="mx-auto max-w-5xl px-6">
         <Reveal>
           <h2 className="text-center font-display text-[clamp(1.75rem,4vw,2.75rem)] leading-tight text-ink">
@@ -21,9 +20,9 @@ export function InstagramSection() {
 
         <Reveal delay={0.08} className="mt-10">
           <div className="grid grid-cols-3 gap-2 md:gap-3">
-            {gridImages.map((item, index) => (
+            {gridImages.map((src, index) => (
               <a
-                key={item.src}
+                key={src}
                 href={site.instagram.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -34,7 +33,7 @@ export function InstagramSection() {
                 }`}
               >
                 <Image
-                  src={item.src}
+                  src={src}
                   alt={`${t.instagram.imageAlt} ${index + 1}`}
                   fill
                   loading="lazy"

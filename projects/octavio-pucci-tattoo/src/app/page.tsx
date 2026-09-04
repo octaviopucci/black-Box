@@ -7,13 +7,13 @@ import { CtaBand } from "@/components/sections/cta-band";
 import { Footer } from "@/components/sections/footer";
 import { Gallery } from "@/components/sections/gallery";
 import { Hero } from "@/components/sections/hero";
-import { InstagramCta } from "@/components/sections/instagram-cta";
 import { InstagramSection } from "@/components/sections/instagram";
-import { InstagramFab } from "@/components/sections/instagram-fab";
 import { Navbar } from "@/components/sections/navbar";
 import { Process } from "@/components/sections/process";
+import { QuoteForm } from "@/components/sections/quote-form";
 import { Styles } from "@/components/sections/styles";
 import { Testimonials } from "@/components/sections/testimonials";
+import { WhatsAppFab } from "@/components/sections/whatsapp-fab";
 import { PrinciplesMarquee } from "@/components/home-marquees";
 import { LoadingScreen } from "@/components/artifacts/loading-screen";
 
@@ -34,12 +34,12 @@ export default function Home() {
         <Artist />
         <Testimonials />
         <ArtistStory />
-        <InstagramCta />
+        <QuoteForm />
         <InstagramSection />
         <CtaBand />
       </main>
       <Footer />
-      <InstagramFab />
+      <WhatsAppFab />
     </>
   );
 }

@@ -1,9 +1,8 @@
 "use client";
 
-import { site } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { useHeroScrub } from "@/lib/use-hero-scrub";
-import { openInstagram, scrollToHash } from "@/lib/navigation";
+import { scrollToHash } from "@/lib/whatsapp";
 import { PhotoRoll } from "@/components/artifacts/photo-roll";
 import { ParticleField } from "@/components/artifacts/particle-field";
 import { DiagonalLines, ScrollIndicator } from "@/components/artifacts/kintaro-decor";
@@ -88,7 +87,7 @@ export function Hero() {
                 <button
                   type="button"
                   className="btn-pill-primary"
-                  onClick={() => openInstagram(site.instagram.url)}
+                  onClick={() => scrollToHash("#orcamento")}
                 >
                   {t.hero.ctaQuote}
                 </button>

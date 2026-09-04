@@ -3,7 +3,7 @@
 import { site } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { Reveal } from "@/components/motion/reveal";
-import { openInstagram } from "@/lib/navigation";
+import { scrollToHash } from "@/lib/whatsapp";
 
 export function CtaBand() {
   const { t } = useLocale();
@@ -25,7 +25,7 @@ export function CtaBand() {
           </p>
           <button
             type="button"
-            onClick={() => openInstagram(site.instagram.url)}
+            onClick={() => scrollToHash("#orcamento")}
             className="btn-pill-primary mt-10"
           >
             {t.ctaBand.button}

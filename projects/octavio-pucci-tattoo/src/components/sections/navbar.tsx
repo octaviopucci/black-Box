@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { site } from "@/data/site";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
-import { openInstagram, scrollToHash } from "@/lib/navigation";
+import { scrollToHash } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -78,10 +77,10 @@ export function Navbar() {
             <LanguageSwitcher />
             <button
               type="button"
-              onClick={() => openInstagram(site.instagram.url)}
+              onClick={() => navigate("#orcamento")}
               className="btn-pill-primary !px-5 !py-2.5 !text-[10px]"
             >
-              {t.navbar.instagram}
+              {t.navbar.quote}
             </button>
           </div>
 
@@ -115,9 +114,9 @@ export function Navbar() {
             <button
               type="button"
               className="btn-pill-primary mt-4 w-fit"
-              onClick={() => openInstagram(site.instagram.url)}
+              onClick={() => navigate("#orcamento")}
             >
-              {t.navbar.instagram}
+              {t.navbar.quote}
             </button>
           </div>
         </div>
