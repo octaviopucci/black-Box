@@ -3,9 +3,14 @@
 import Image from "next/image";
 import { MapPin } from "lucide-react";
 import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { scrollToHash } from "@/lib/whatsapp";
 
 export function Footer() {
+  const { t } = useLocale();
+  const siteData = useSite();
+
   return (
     <footer className="border-t border-ink/10 bg-paper">
       <div className="mx-auto max-w-7xl px-6 py-14">
@@ -19,17 +24,16 @@ export function Footer() {
               className="h-11 w-auto brightness-0 invert"
             />
             <p className="mt-6 max-w-xs text-sm font-light leading-relaxed text-mute">
-              Arte que fica marcada para sempre. Tatuagens exclusivas com
-              técnica, personalidade e dedicação em cada detalhe.
+              {t.footer.tagline}
             </p>
           </div>
 
           <div>
             <h4 className="text-[11px] uppercase tracking-[0.3em] text-mute">
-              Links rápidos
+              {t.footer.quickLinks}
             </h4>
             <nav className="mt-6 space-y-3">
-              {site.nav.filter((item) => item.href !== "#processo").map((item) => (
+              {siteData.nav.filter((item) => item.href !== "#processo").map((item) => (
                 <button
                   key={item.href}
                   type="button"
@@ -44,7 +48,7 @@ export function Footer() {
 
           <div>
             <h4 className="text-[11px] uppercase tracking-[0.3em] text-mute">
-              Contato
+              {t.footer.contact}
             </h4>
             <div className="mt-6 space-y-4 text-sm text-mute">
               <a
@@ -85,7 +89,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-ink/10 pt-8 text-center text-xs tracking-wider text-mute/80">
-          © {new Date().getFullYear()} {site.name}. Todos os direitos reservados.
+          © {new Date().getFullYear()} {site.name}. {t.footer.rights}
         </div>
       </div>
     </footer>

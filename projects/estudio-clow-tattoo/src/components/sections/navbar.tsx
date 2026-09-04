@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { site } from "@/data/site";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { scrollToHash } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
+  const { t } = useLocale();
+  const site = useSite();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -51,9 +55,9 @@ export function Navbar() {
             type="button"
             onClick={() => navigate("#inicio")}
             className="relative z-10 text-sm font-bold uppercase tracking-tighter text-white md:text-base"
-            aria-label="Studio Clown Tattoo início"
+            aria-label={t.navbar.brandAria}
           >
-            Clown Tattoo
+            {t.navbar.brand}
           </button>
 
           <nav className="hidden items-center gap-7 lg:flex">
@@ -69,22 +73,28 @@ export function Navbar() {
             ))}
           </nav>
 
-          <button
-            type="button"
-            onClick={() => navigate("#orcamento")}
-            className="btn-pill-primary hidden !px-5 !py-2.5 !text-[10px] lg:inline-flex"
-          >
-            Orçamento →
-          </button>
+          <div className="relative z-10 hidden items-center gap-4 lg:flex">
+            <LanguageSwitcher />
+            <button
+              type="button"
+              onClick={() => navigate("#orcamento")}
+              className="btn-pill-primary !px-5 !py-2.5 !text-[10px]"
+            >
+              {t.navbar.quote}
+            </button>
+          </div>
 
-          <button
-            type="button"
-            className="relative z-10 text-white lg:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Fechar menu" : "Abrir menu"}
-          >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="relative z-10 flex items-center gap-3 lg:hidden">
+            <LanguageSwitcher />
+            <button
+              type="button"
+              className="text-white"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? t.navbar.closeMenu : t.navbar.openMenu}
+            >
+              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -106,7 +116,7 @@ export function Navbar() {
               className="btn-pill-primary mt-4 w-fit"
               onClick={() => navigate("#orcamento")}
             >
-              Orçamento →
+              {t.navbar.quote}
             </button>
           </div>
         </div>

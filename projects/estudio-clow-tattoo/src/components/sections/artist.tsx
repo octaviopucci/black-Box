@@ -2,9 +2,14 @@
 
 import Image from "next/image";
 import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
 
 export function Artist() {
+  const { t } = useLocale();
+  const siteData = useSite();
+
   return (
     <section className="bg-paper py-24 md:py-32">
       <div className="mx-auto max-w-6xl px-6">
@@ -13,7 +18,7 @@ export function Artist() {
             <div className="relative overflow-hidden ring-1 ring-white/10">
               <Image
                 src={site.assets.hero}
-                alt="Artista do StudioClownTattoo"
+                alt={t.artist.imageAlt}
                 width={900}
                 height={1100}
                 loading="lazy"
@@ -27,25 +32,18 @@ export function Artist() {
           </Reveal>
 
           <Reveal delay={0.08} className="space-y-5">
-            <p className="editorial-label">O Artista</p>
+            <p className="editorial-label">{t.artist.label}</p>
             <h2 className="text-3xl font-bold uppercase leading-tight tracking-tight text-ink sm:text-4xl">
-              Cada tatuagem carrega uma história.
+              {t.artist.title}
             </h2>
             <div className="h-px w-14 bg-white/20" />
-            <p className="text-base leading-relaxed text-mute md:text-lg">
-              Nosso trabalho vai além de tatuar — é sobre transformar sua história
-              em arte. Com domínio em preto e cinza e trabalhos coloridos de alto
-              nível, cada projeto recebe atenção total: desde o conceito até o
-              último detalhe na pele.
-            </p>
-            <p className="text-base leading-relaxed text-mute md:text-lg">
-              A criatividade é o ponto de partida, mas é a técnica refinada, a
-              higiene impecável e o compromisso com a excelência que definem o
-              StudioClownTattoo. Aqui, não copiamos. Criamos projetos exclusivos
-              para cada cliente.
-            </p>
+            {t.artist.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 40)} className="text-base leading-relaxed text-mute md:text-lg">
+                {paragraph}
+              </p>
+            ))}
             <div className="flex flex-wrap gap-3 pt-2">
-              {site.artistTags.map((tag) => (
+              {siteData.artistTags.map((tag) => (
                 <span
                   key={tag}
                   className="border border-line px-3 py-1.5 text-[11px] uppercase tracking-widest text-mute"

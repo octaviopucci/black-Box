@@ -26,9 +26,11 @@ export function DiagonalLines({
 export function ScrollIndicator({
   className = "",
   style,
+  label = "Scroll",
 }: {
   className?: string;
   style?: CSSProperties;
+  label?: string;
 }) {
   return (
     <div
@@ -41,7 +43,7 @@ export function ScrollIndicator({
         className="font-mono text-[9px] uppercase tracking-[0.4em] text-white/40"
         style={{ writingMode: "vertical-rl" }}
       >
-        Scroll
+        {label}
       </span>
     </div>
   );

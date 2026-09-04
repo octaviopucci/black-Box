@@ -1,17 +1,26 @@
 "use client";
 
-import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 
 export function Process() {
+  const { t } = useLocale();
+  const siteData = useSite();
+
   return (
     <section id="processo" className="relative bg-surface py-24 md:py-32">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px hairline-x" />
 
       <div className="mx-auto max-w-5xl px-6">
         <Reveal>
-          <SectionHeader index="004" label="Processo" title="Nosso processo" align="center" />
+          <SectionHeader
+            index="004"
+            label={t.processSection.label}
+            title={t.processSection.title}
+            align="center"
+          />
         </Reveal>
 
         <div className="relative mt-16">
@@ -21,7 +30,7 @@ export function Process() {
           />
 
           <div className="space-y-12 sm:space-y-16">
-            {site.process.map((step, index) => {
+            {siteData.process.map((step, index) => {
               const isLeft = index % 2 === 0;
 
               return (

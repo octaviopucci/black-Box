@@ -2,11 +2,13 @@
 
 import { scrollToHash } from "@/lib/whatsapp";
 import { useHeroScrub } from "@/lib/use-hero-scrub";
+import { useLocale } from "@/i18n/locale-provider";
 import { PhotoRoll } from "@/components/artifacts/photo-roll";
 import { ParticleField } from "@/components/artifacts/particle-field";
 import { DiagonalLines, ScrollIndicator } from "@/components/artifacts/kintaro-decor";
 
 export function Hero() {
+  const { t } = useLocale();
   const { sectionRef, progress } = useHeroScrub();
 
   const contentY = progress * 88;
@@ -45,6 +47,7 @@ export function Hero() {
           style={{ opacity: 1 - progress * 0.8 }}
         />
         <ScrollIndicator
+          label={t.scroll}
           className="z-[5] transition-opacity duration-300"
           style={{ opacity: 1 - progress * 1.2 }}
         />
@@ -64,20 +67,20 @@ export function Hero() {
 
               <h1 className="hero-enter-item mt-5 text-[clamp(2.4rem,7.5vw,4.75rem)] font-bold uppercase leading-[0.9] tracking-tighter text-white [animation-delay:0.08s]">
                 <span className="headline-line block overflow-hidden">
-                  <span className="headline-line-inner inline-block">Studio Clown</span>
+                  <span className="headline-line-inner inline-block">{t.hero.titleLine1}</span>
                 </span>
                 <span className="headline-line block overflow-hidden">
                   <span
                     className="headline-line-inner inline-block"
                     style={{ animationDelay: "0.2s" }}
                   >
-                    Tattoo
+                    {t.hero.titleLine2}
                   </span>
                 </span>
               </h1>
 
               <p className="hero-enter-item mt-5 max-w-md text-sm leading-relaxed text-white/55 md:text-base [animation-delay:0.28s]">
-                Arte que fica marcada para sempre.
+                {t.hero.subtitle}
               </p>
 
               <div className="hero-enter-item mt-9 flex flex-wrap gap-3 [animation-delay:0.38s]">
@@ -86,14 +89,14 @@ export function Hero() {
                   className="btn-pill-primary"
                   onClick={() => scrollToHash("#orcamento")}
                 >
-                  Solicitar orçamento →
+                  {t.hero.ctaQuote}
                 </button>
                 <button
                   type="button"
                   className="btn-pill-ghost"
                   onClick={() => scrollToHash("#trabalhos")}
                 >
-                  Ver trabalhos
+                  {t.hero.ctaWorks}
                 </button>
               </div>
             </div>

@@ -13,9 +13,8 @@ import { QuoteForm } from "@/components/sections/quote-form";
 import { Styles } from "@/components/sections/styles";
 import { Testimonials } from "@/components/sections/testimonials";
 import { WhatsAppFab } from "@/components/sections/whatsapp-fab";
+import { PrinciplesMarquee } from "@/components/home-marquees";
 import { LoadingScreen } from "@/components/artifacts/loading-screen";
-import { Marquee } from "@/components/ui/marquee";
-import { site } from "@/data/site";
 
 export default function Home() {
   return (
@@ -25,11 +24,11 @@ export default function Home() {
       <main>
         <Hero />
         <About />
-        <Marquee items={site.principles} />
+        <PrinciplesMarquee />
         <Gallery />
-        <Marquee items={site.principles} />
+        <PrinciplesMarquee />
         <Styles />
-        <Marquee items={site.principles} />
+        <PrinciplesMarquee />
         <Process />
         <Artist />
         <Testimonials />

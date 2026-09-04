@@ -4,24 +4,26 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { site, type GalleryCategory } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/utils";
-
-const filters: { id: GalleryCategory; label: string }[] = [
-  { id: "all", label: "Todos" },
-  { id: "blackgrey", label: "Preto & Cinza" },
-  { id: "colorido", label: "Colorido" },
-];
 
 const INITIAL_VISIBLE = 8;
 const LOAD_BATCH = 6;
 
 export function Gallery() {
+  const { t } = useLocale();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<GalleryCategory>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+
+  const filters: { id: GalleryCategory; label: string }[] = [
+    { id: "all", label: t.gallery.filters.all },
+    { id: "blackgrey", label: t.gallery.filters.blackgrey },
+    { id: "colorido", label: t.gallery.filters.colorido },
+  ];
 
   const items = useMemo(() => {
     if (filter === "all") return site.gallery;
@@ -74,7 +76,12 @@ export function Gallery() {
     <section id="trabalhos" className="bg-paper py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <SectionHeader align="center" index="002" label="Trabalhos" title="Nossos trabalhos" />
+          <SectionHeader
+            align="center"
+            index="002"
+            label={t.gallery.label}
+            title={t.gallery.title}
+          />
         </Reveal>
 
         <Reveal delay={0.06} className="mt-8 flex flex-wrap justify-center gap-2">
@@ -108,7 +115,7 @@ export function Gallery() {
             type="button"
             onClick={() => scrollBy(-1)}
             className="absolute left-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center border border-line bg-paper text-ink opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
-            aria-label="Rolar para esquerda"
+            aria-label={t.gallery.scrollLeft}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -116,7 +123,7 @@ export function Gallery() {
             type="button"
             onClick={() => scrollBy(1)}
             className="absolute right-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center border border-line bg-paper text-ink opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
-            aria-label="Rolar para direita"
+            aria-label={t.gallery.scrollRight}
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -134,7 +141,7 @@ export function Gallery() {
               >
                 <Image
                   src={item.src}
-                  alt={`Trabalho ${index + 1}`}
+                  alt={`${t.gallery.workAlt} ${index + 1}`}
                   fill
                   loading="lazy"
                   sizes="(max-width: 768px) 210px, 264px"
@@ -148,7 +155,7 @@ export function Gallery() {
           </div>
         </Reveal>
 
-        <p className="mt-4 text-xs text-mute">Deslize para ver mais trabalhos</p>
+        <p className="mt-4 text-xs text-mute">{t.gallery.swipeHint}</p>
       </div>
 
       {lightboxIndex !== null && items[lightboxIndex] && (
@@ -160,7 +167,7 @@ export function Gallery() {
             type="button"
             className="absolute right-5 top-5 text-ink"
             onClick={() => setLightboxIndex(null)}
-            aria-label="Fechar"
+            aria-label={t.gallery.close}
           >
             <X className="h-6 w-6" />
           </button>
@@ -171,7 +178,7 @@ export function Gallery() {
               goLightbox(-1);
             }}
             className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center border border-line bg-surface"
-            aria-label="Anterior"
+            aria-label={t.gallery.prev}
           >
             <ChevronLeft />
           </button>
@@ -182,7 +189,7 @@ export function Gallery() {
               goLightbox(1);
             }}
             className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center border border-line bg-surface"
-            aria-label="Próxima"
+            aria-label={t.gallery.next}
           >
             <ChevronRight />
           </button>
@@ -192,14 +199,14 @@ export function Gallery() {
           >
             <Image
               src={items[lightboxIndex].src}
-              alt="Trabalho ampliado"
+              alt={t.gallery.workEnlarged}
               fill
               sizes="(max-width: 1024px) 100vw, 896px"
               className="object-contain"
             />
           </div>
           <p className="absolute bottom-5 text-xs tracking-widest text-mute">
-            {lightboxIndex + 1} de {items.length}
+            {lightboxIndex + 1} {t.gallery.of} {items.length}
           </p>
         </div>
       )}

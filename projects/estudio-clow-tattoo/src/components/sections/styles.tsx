@@ -1,12 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { scrollToHash } from "@/lib/whatsapp";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 
 export function Styles() {
+  const { t } = useLocale();
+  const siteData = useSite();
+
   return (
     <section id="estilos" className="bg-surface py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
@@ -14,13 +18,13 @@ export function Styles() {
           <SectionHeader
             index="003"
             align="center"
-            label="Estilos"
-            title="Estilos de tatuagem"
+            label={t.stylesSection.label}
+            title={t.stylesSection.title}
           />
         </Reveal>
 
         <div className="mt-16 space-y-0">
-          {site.styles.map((style, index) => (
+          {siteData.styles.map((style, index) => (
             <Reveal key={style.title} delay={index * 0.06}>
               <article className="group grid gap-8 border-t border-white/10 py-12 md:grid-cols-[72px_1fr_180px] md:items-start">
                 <span className="font-mono text-4xl font-light leading-none text-white/15 md:text-5xl">
@@ -42,7 +46,7 @@ export function Styles() {
                     onClick={() => scrollToHash("#trabalhos")}
                     className="mt-5 font-mono text-[10px] uppercase tracking-[0.22em] text-white/50 transition-colors duration-300 hover:text-white"
                   >
-                    Ver trabalhos →
+                    {t.stylesSection.seeWorks}
                   </button>
                 </div>
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
+import { Providers } from "./providers";
 import "./globals.css";
 
 const sans = Space_Grotesk({
@@ -41,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <body className="min-h-screen bg-paper font-sans text-ink antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

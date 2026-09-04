@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
-import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
 
 function Stars() {
@@ -16,32 +17,36 @@ function Stars() {
 }
 
 export function Testimonials() {
+  const { t } = useLocale();
+  const siteData = useSite();
   const [index, setIndex] = useState(0);
-  const current = site.testimonials[index];
+  const current = siteData.testimonials[index];
 
   const go = (direction: -1 | 1) => {
     setIndex(
       (prev) =>
-        (prev + direction + site.testimonials.length) % site.testimonials.length,
+        (prev + direction + siteData.testimonials.length) % siteData.testimonials.length,
     );
   };
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setIndex((prev) => (prev + 1) % site.testimonials.length);
+      setIndex((prev) => (prev + 1) % siteData.testimonials.length);
     }, 5000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [siteData.testimonials.length]);
+
+  if (!current) return null;
 
   return (
     <section className="relative bg-surface py-20">
       <div className="mx-auto max-w-4xl px-6 text-center">
         <Reveal>
           <p className="text-[11px] uppercase tracking-[0.4em] text-mute">
-            Depoimentos
+            {t.testimonialsSection.label}
           </p>
           <h2 className="mt-5 font-display text-[clamp(2.2rem,5vw,4rem)] italic leading-[1.02] text-ink">
-            O que dizem nossos clientes
+            {t.testimonialsSection.title}
           </h2>
         </Reveal>
 
@@ -66,7 +71,7 @@ export function Testimonials() {
               type="button"
               onClick={() => go(-1)}
               className="flex h-10 w-10 items-center justify-center border border-ink/15 transition-colors hover:bg-ink hover:text-paper"
-              aria-label="Depoimento anterior"
+              aria-label={t.testimonialsSection.prev}
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -74,7 +79,7 @@ export function Testimonials() {
               type="button"
               onClick={() => go(1)}
               className="flex h-10 w-10 items-center justify-center border border-ink/15 transition-colors hover:bg-ink hover:text-paper"
-              aria-label="Próximo depoimento"
+              aria-label={t.testimonialsSection.next}
             >
               <ChevronRight className="h-4 w-4" />
             </button>
