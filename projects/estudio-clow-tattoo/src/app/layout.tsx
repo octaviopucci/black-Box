@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const display = Cormorant_Garamond({
-  variable: "--font-display",
+const sans = Space_Grotesk({
+  variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400"],
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const sans = DM_Sans({
-  variable: "--font-sans",
+const mono = IBM_Plex_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
   weight: ["400", "500"],
   display: "swap",
@@ -33,10 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${display.variable} ${sans.variable}`}
-    >
+    <html lang="pt-BR" className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-screen bg-paper font-sans text-ink antialiased">
         {children}
       </body>

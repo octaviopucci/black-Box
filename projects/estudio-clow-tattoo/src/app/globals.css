@@ -11,23 +11,23 @@
   --color-mute: var(--mute);
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono: var(--font-mono);
 }
 
 :root {
-  --paper: #0c0a09;
-  --surface: #141110;
-  --elevated: #1f1b18;
-  --line: #3a3430;
-  --ink: #f7f2ec;
+  --paper: #050505;
+  --surface: #0a0a0a;
+  --elevated: #111111;
+  --line: #222222;
+  --ink: #f5f5f5;
   --accent: #c96d3a;
   --accent-soft: #e8a07a;
-  --mute: #a89f96;
+  --mute: #888888;
 }
 
 @layer base {
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
   }
 
   body {
@@ -42,7 +42,11 @@
 
 @layer utilities {
   .font-display {
-    font-family: var(--font-display), serif;
+    font-family: var(--font-display), sans-serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
   }
 
   .scrollbar-hide {
@@ -52,23 +56,6 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-  }
-
-  .section-divider {
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      color-mix(in oklab, var(--line) 100%, transparent)
-    );
-  }
-
-  .hairline-x {
-    background: linear-gradient(
-      to right,
-      transparent,
-      color-mix(in oklab, var(--line) 100%, transparent),
-      transparent
-    );
   }
 
   .reveal {
@@ -89,13 +76,24 @@
     opacity: 0;
   }
 
-  .headline-line-inner {
-    animation: headline-up 0.7s ease-out forwards;
-    opacity: 0;
+  .btn-primary {
+    @apply border border-ink bg-ink px-6 py-3 text-[11px] font-medium uppercase tracking-[0.25em] text-paper transition-colors hover:bg-transparent hover:text-ink;
   }
 
-  .lightbox-open {
-    animation: fade-in 0.18s ease-out forwards;
+  .btn-ghost {
+    @apply border border-line px-6 py-3 text-[11px] uppercase tracking-[0.25em] text-mute transition-colors hover:border-ink hover:text-ink;
+  }
+
+  .portfolio-frame {
+    @apply overflow-hidden bg-elevated ring-1 ring-line/40;
+  }
+
+  .portfolio-img {
+    @apply object-cover object-center transition-transform duration-500 group-hover:scale-[1.03];
+  }
+
+  .marquee-track {
+    animation: marquee-scroll 40s linear infinite;
   }
 
   .whatsapp-fab {
@@ -103,33 +101,11 @@
     opacity: 0;
   }
 
-  .testimonial-slide {
-    animation: fade-in 0.2s ease-out;
-  }
-
-  .editorial-label {
-    @apply text-[11px] uppercase tracking-[0.38em] text-accent-soft;
-  }
-
-  .btn-primary {
-    @apply bg-accent px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-accent-soft;
-  }
-
-  .btn-ghost {
-    @apply border border-line px-8 py-3.5 text-xs uppercase tracking-[0.22em] text-ink transition-colors hover:border-accent-soft hover:text-accent-soft;
-  }
-
-  .portfolio-frame {
-    @apply overflow-hidden bg-elevated ring-1 ring-line/60;
-  }
-
-  .portfolio-img {
-    @apply object-cover object-center;
-  }
-
-  .hero-photo {
-    object-fit: cover;
-    object-position: top center;
+  .kintaro-grid-bg {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--line) 40%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--line) 40%, transparent) 1px, transparent 1px);
+    background-size: 80px 80px;
   }
 }
 
@@ -144,23 +120,12 @@
   }
 }
 
-@keyframes headline-up {
+@keyframes marquee-scroll {
   from {
-    opacity: 0;
-    transform: translateY(100%);
+    transform: translateX(0);
   }
   to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+    transform: translateX(-50%);
   }
 }
 
@@ -178,7 +143,7 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .hero-enter-item,
-  .headline-line-inner,
+  .marquee-track,
   .whatsapp-fab {
     opacity: 1 !important;
     transform: none !important;

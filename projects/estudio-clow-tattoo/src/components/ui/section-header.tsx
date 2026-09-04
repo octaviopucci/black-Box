@@ -1,5 +1,5 @@
 type SectionHeaderProps = {
-  index?: string;
+  index: string;
   label: string;
   title: string;
   description?: string;
@@ -16,27 +16,22 @@ export function SectionHeader({
   className = "",
 }: SectionHeaderProps) {
   const alignClass =
-    align === "center" ? "mx-auto max-w-3xl text-center items-center" : "max-w-3xl text-left";
+    align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl text-left";
 
   return (
     <div className={`${alignClass} ${className}`}>
-      <div
-        className={`flex items-center gap-3 ${align === "center" ? "justify-center" : ""}`}
-      >
-        <span className="h-px w-10 bg-accent" aria-hidden />
-        {index ? (
-          <span className="font-mono text-[11px] tracking-[0.2em] text-mute">{index}</span>
-        ) : null}
-        <span className="editorial-label">{label}</span>
-      </div>
-
-      <h2 className="mt-4 font-display text-[clamp(2rem,5vw,3.75rem)] font-light leading-[1.05] text-ink">
-        {title}
+      <p className="font-mono text-xs tracking-[0.2em] text-mute/60">[{index}]</p>
+      <h2 className="mt-3 text-[clamp(2rem,5vw,3.5rem)] font-medium uppercase leading-[0.95] tracking-tight text-ink">
+        {label}
       </h2>
-
+      {title ? (
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-mute md:text-lg">
+          {title}
+        </p>
+      ) : null}
       {description ? (
         <p
-          className={`mt-4 max-w-xl text-base font-light leading-relaxed text-mute ${align === "center" ? "mx-auto" : ""}`}
+          className={`mt-3 max-w-xl text-sm leading-relaxed text-mute/80 ${align === "center" ? "mx-auto" : ""}`}
         >
           {description}
         </p>

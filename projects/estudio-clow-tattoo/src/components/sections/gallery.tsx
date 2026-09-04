@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { site, type GalleryCategory } from "@/data/site";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -14,45 +14,19 @@ const filters: { id: GalleryCategory; label: string }[] = [
   { id: "colorido", label: "Colorido" },
 ];
 
-const INITIAL_VISIBLE = 8;
-const LOAD_BATCH = 6;
+const categoryLabel: Record<string, string> = {
+  blackgrey: "Preto & Cinza",
+  colorido: "Colorido",
+};
 
 export function Gallery() {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<GalleryCategory>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
   const items = useMemo(() => {
-    if (filter === "all") return site.gallery;
-    return site.gallery.filter((item) => item.category === filter);
+    if (filter === "all") return site.gallery.slice(0, 9);
+    return site.gallery.filter((item) => item.category === filter).slice(0, 9);
   }, [filter]);
-
-  const visibleItems = items.slice(0, visibleCount);
-
-  useEffect(() => {
-    setVisibleCount(INITIAL_VISIBLE);
-  }, [filter]);
-
-  useEffect(() => {
-    const node = scrollRef.current;
-    if (!node) return;
-
-    const onScroll = () => {
-      if (visibleCount >= items.length) return;
-      const { scrollLeft, scrollWidth, clientWidth } = node;
-      if (scrollLeft + clientWidth >= scrollWidth - 160) {
-        setVisibleCount((count) => Math.min(count + LOAD_BATCH, items.length));
-      }
-    };
-
-    node.addEventListener("scroll", onScroll, { passive: true });
-    return () => node.removeEventListener("scroll", onScroll);
-  }, [items.length, visibleCount]);
-
-  const scrollBy = (direction: -1 | 1) => {
-    scrollRef.current?.scrollBy({ left: direction * 280, behavior: "auto" });
-  };
 
   const goLightbox = (direction: -1 | 1) => {
     if (lightboxIndex === null) return;
@@ -71,89 +45,71 @@ export function Gallery() {
   }, [lightboxIndex, items.length]);
 
   return (
-    <section id="trabalhos" className="bg-surface py-20 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section id="trabalhos" className="bg-paper py-24 md:py-32">
+      <div className="mx-auto max-w-7xl px-6">
         <Reveal>
-          <SectionHeader align="center" index="02" label="Portfólio" title="Nossos trabalhos" />
+          <SectionHeader
+            index="003"
+            label="Trabalhos"
+            title="Uma coleção de projetos, estilos e histórias eternizadas na pele."
+          />
         </Reveal>
 
-        <Reveal delay={0.06} className="mt-8 flex flex-wrap justify-center gap-2">
-          {filters.map((item) => {
-            const count =
-              item.id === "all"
-                ? site.gallery.length
-                : site.gallery.filter((g) => g.category === item.id).length;
-
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setFilter(item.id)}
-                className={cn(
-                  "px-4 py-2 text-xs uppercase tracking-widest transition-colors",
-                  filter === item.id
-                    ? "bg-accent text-paper"
-                    : "border border-line text-mute hover:border-accent-soft hover:text-ink",
-                )}
-              >
-                {item.label}
-                {filter === item.id ? ` (${count})` : ""}
-              </button>
-            );
-          })}
+        <Reveal delay={0.06} className="mt-10 flex flex-wrap gap-2">
+          {filters.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setFilter(item.id)}
+              className={cn(
+                "px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors",
+                filter === item.id
+                  ? "bg-ink text-paper"
+                  : "border border-line text-mute hover:border-ink hover:text-ink",
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
         </Reveal>
 
-        <Reveal delay={0.08} className="group/row relative mt-10">
-          <button
-            type="button"
-            onClick={() => scrollBy(-1)}
-            className="absolute left-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center border border-line bg-paper text-ink opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
-            aria-label="Rolar para esquerda"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollBy(1)}
-            className="absolute right-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center border border-line bg-paper text-ink opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
-            aria-label="Rolar para direita"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-
-          <div
-            ref={scrollRef}
-            className="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 md:gap-4"
-          >
-            {visibleItems.map((item, index) => (
+        <div className="mt-12 grid gap-px bg-line/30 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, index) => (
+            <Reveal key={item.src} delay={index * 0.04}>
               <button
-                key={item.src}
                 type="button"
                 onClick={() => setLightboxIndex(index)}
-                className="portfolio-frame group relative h-[17.5rem] w-[13.125rem] shrink-0 snap-start sm:h-[20rem] sm:w-[15rem] md:h-[22rem] md:w-[16.5rem]"
+                className="group relative flex aspect-[4/5] flex-col justify-end bg-surface p-6 text-left transition-colors hover:bg-elevated"
               >
-                <Image
-                  src={item.src}
-                  alt={`Trabalho ${index + 1}`}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 768px) 210px, 264px"
-                  className="portfolio-img"
-                />
-                <div className="absolute inset-0 flex items-end justify-start bg-gradient-to-t from-paper/80 via-transparent to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Search className="h-5 w-5 text-ink" strokeWidth={1.5} />
+                <div className="absolute inset-0 overflow-hidden">
+                  <Image
+                    src={item.src}
+                    alt={`Trabalho ${index + 1}`}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover opacity-40 transition-opacity duration-500 group-hover:opacity-60"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/60 to-transparent" />
+                </div>
+
+                <div className="relative z-10">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-mute">
+                    {categoryLabel[item.category] ?? item.category}
+                  </p>
+                  <h3 className="mt-2 text-lg font-medium text-ink">
+                    Projeto {String(index + 1).padStart(2, "0")}
+                  </h3>
                 </div>
               </button>
-            ))}
-          </div>
-        </Reveal>
-
-        <p className="mt-4 text-xs text-mute">Deslize para ver mais trabalhos</p>
+            </Reveal>
+          ))}
+        </div>
       </div>
 
       {lightboxIndex !== null && items[lightboxIndex] && (
         <div
-          className="lightbox-open fixed inset-0 z-[70] flex items-center justify-center bg-paper/96 p-4"
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-paper/96 p-4"
           onClick={() => setLightboxIndex(null)}
         >
           <button
@@ -198,8 +154,8 @@ export function Gallery() {
               className="object-contain"
             />
           </div>
-          <p className="absolute bottom-5 text-xs tracking-widest text-mute">
-            {lightboxIndex + 1} de {items.length}
+          <p className="absolute bottom-5 font-mono text-xs tracking-widest text-mute">
+            {lightboxIndex + 1} / {items.length}
           </p>
         </div>
       )}

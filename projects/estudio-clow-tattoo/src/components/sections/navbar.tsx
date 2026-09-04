@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { site } from "@/data/site";
@@ -42,37 +41,26 @@ export function Navbar() {
       <header
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
-          scrolled ? "border-b border-line/80 bg-paper/95" : "bg-paper/80 lg:bg-transparent",
+          scrolled ? "border-b border-line/60 bg-paper/95 backdrop-blur-sm" : "bg-transparent",
         )}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <button
             type="button"
             onClick={() => navigate("#inicio")}
-            className="relative z-10 shrink-0"
+            className="relative z-10 font-mono text-xs uppercase tracking-[0.25em] text-ink"
             aria-label="StudioClownTattoo início"
           >
-            <Image
-              src={site.assets.logo}
-              alt={site.name}
-              width={140}
-              height={56}
-              priority
-              sizes="140px"
-              className={cn(
-                "w-auto transition-all duration-300",
-                scrolled ? "h-10" : "h-12 md:h-14",
-              )}
-            />
+            {site.name}
           </button>
 
-          <nav className="hidden items-center gap-7 lg:flex">
-            {site.nav.map((item) => (
+          <nav className="hidden items-center gap-8 lg:flex">
+            {site.nav.slice(1).map((item) => (
               <button
                 key={item.href}
                 type="button"
                 onClick={() => navigate(item.href)}
-                className="text-[11px] uppercase tracking-[0.28em] text-mute transition-colors hover:text-accent-soft"
+                className="font-mono text-[10px] uppercase tracking-[0.28em] text-mute transition-colors hover:text-ink"
               >
                 {item.label}
               </button>
@@ -81,10 +69,10 @@ export function Navbar() {
 
           <button
             type="button"
-            onClick={() => navigate("#orcamento")}
-            className="btn-primary hidden lg:inline-flex"
+            onClick={() => navigate("#contato")}
+            className="btn-primary hidden text-[10px] lg:inline-flex"
           >
-            Orçamento
+            Contato
           </button>
 
           <button
@@ -93,7 +81,7 @@ export function Navbar() {
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Fechar menu" : "Abrir menu"}
           >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </header>
@@ -106,13 +94,17 @@ export function Navbar() {
                 key={item.href}
                 type="button"
                 onClick={() => navigate(item.href)}
-                className="text-left font-display text-2xl text-ink"
+                className="text-left font-mono text-sm uppercase tracking-[0.2em] text-ink"
               >
                 {item.label}
               </button>
             ))}
-            <button type="button" className="btn-primary mt-4 w-fit" onClick={() => navigate("#orcamento")}>
-              Orçamento
+            <button
+              type="button"
+              className="btn-primary mt-4 w-fit"
+              onClick={() => navigate("#contato")}
+            >
+              Contato
             </button>
           </div>
         </div>

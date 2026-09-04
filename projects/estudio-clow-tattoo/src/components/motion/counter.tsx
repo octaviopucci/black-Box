@@ -50,11 +50,11 @@ export function Counter({ value, suffix = "", label, align = "center" }: Counter
 
   return (
     <div ref={ref} className={align === "left" ? "text-left" : "text-center"}>
-      <div className="font-display text-5xl font-light text-ink sm:text-6xl">
+      <div className="text-4xl font-bold tabular-nums text-ink sm:text-5xl">
         +{display.toLocaleString("pt-BR")}
         {suffix}
       </div>
-      <div className="mt-2 text-sm uppercase tracking-widest text-mute">{label}</div>
+      <div className="mt-2 font-mono text-[10px] uppercase tracking-widest text-mute">{label}</div>
     </div>
   );
 }
