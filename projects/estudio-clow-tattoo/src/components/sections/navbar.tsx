@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { site } from "@/data/site";
@@ -41,7 +40,7 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+          "fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           scrolled
             ? "border-b border-white/10 bg-black/90 backdrop-blur-md"
             : "bg-transparent",
@@ -51,21 +50,10 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => navigate("#inicio")}
-            className="relative z-10 shrink-0"
-            aria-label="StudioClownTattoo início"
+            className="relative z-10 text-sm font-bold uppercase tracking-tighter text-white md:text-base"
+            aria-label="Studio Clown Tattoo início"
           >
-            <Image
-              src={site.assets.logo}
-              alt={site.name}
-              width={140}
-              height={56}
-              priority
-              sizes="140px"
-              className={cn(
-                "w-auto brightness-0 invert transition-all duration-300",
-                scrolled ? "h-9" : "h-11 md:h-12",
-              )}
-            />
+            Clown Tattoo
           </button>
 
           <nav className="hidden items-center gap-7 lg:flex">
@@ -74,7 +62,7 @@ export function Navbar() {
                 key={item.href}
                 type="button"
                 onClick={() => navigate(item.href)}
-                className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/50 transition-colors hover:text-white"
+                className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/45 transition-colors duration-300 hover:text-white"
               >
                 {item.label}
               </button>

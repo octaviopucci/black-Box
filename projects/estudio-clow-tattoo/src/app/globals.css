@@ -12,22 +12,23 @@
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
   --font-mono: var(--font-mono);
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
   --paper: #000000;
-  --surface: #0a0a0a;
-  --elevated: #141414;
-  --line: #222222;
+  --surface: #070707;
+  --elevated: #111111;
+  --line: #1f1f1f;
   --ink: #ffffff;
   --accent: #ffffff;
   --accent-soft: #cccccc;
-  --mute: #888888;
+  --mute: #8a8a8a;
 }
 
 @layer base {
   html {
-    @apply font-sans scroll-smooth;
+    @apply scroll-smooth font-sans;
   }
 
   body {
@@ -35,7 +36,7 @@
   }
 
   ::selection {
-    background: color-mix(in oklab, white 30%, transparent);
+    background: color-mix(in oklab, white 28%, transparent);
     color: var(--ink);
   }
 }
@@ -77,10 +78,10 @@
 
   .reveal {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(28px);
     transition:
-      opacity 0.5s ease-out,
-      transform 0.5s ease-out;
+      opacity 0.85s var(--ease-premium),
+      transform 0.85s var(--ease-premium);
   }
 
   .reveal-visible {
@@ -89,54 +90,54 @@
   }
 
   .hero-enter-item {
-    animation: hero-fade-up 0.65s ease-out forwards;
+    animation: hero-fade-up 0.8s var(--ease-premium) forwards;
     opacity: 0;
   }
 
   .headline-line-inner {
-    animation: headline-up 0.7s ease-out forwards;
+    animation: headline-up 0.85s var(--ease-premium) forwards;
     opacity: 0;
   }
 
   .lightbox-open {
-    animation: fade-in 0.18s ease-out forwards;
+    animation: fade-in 0.22s ease-out forwards;
   }
 
   .whatsapp-fab {
-    animation: fab-in 0.35s ease-out 0.6s forwards;
+    animation: fab-in 0.45s var(--ease-premium) 0.6s forwards;
     opacity: 0;
   }
 
   .testimonial-slide {
-    animation: fade-in 0.2s ease-out;
+    animation: fade-in 0.25s ease-out;
   }
 
   .editorial-label {
-    @apply font-mono text-[10px] uppercase tracking-[0.38em] text-white/45;
+    @apply font-mono text-[10px] uppercase tracking-[0.38em] text-white/40;
   }
 
   .btn-primary {
-    @apply border border-white bg-white px-8 py-3.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-black transition-colors hover:bg-transparent hover:text-white;
+    @apply border border-white bg-white px-8 py-3.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-black transition-all duration-300 hover:bg-transparent hover:text-white;
   }
 
   .btn-ghost {
-    @apply border border-line px-8 py-3.5 text-[11px] uppercase tracking-[0.22em] text-mute transition-colors hover:border-white hover:text-white;
+    @apply border border-line px-8 py-3.5 text-[11px] uppercase tracking-[0.22em] text-mute transition-all duration-300 hover:border-white hover:text-white;
   }
 
   .btn-pill-primary {
-    @apply rounded-full bg-white px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black transition-all hover:bg-white/90 active:scale-[0.98];
+    @apply rounded-full bg-white px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/92 hover:scale-[1.02] active:scale-[0.98];
   }
 
   .btn-pill-ghost {
-    @apply rounded-full border border-white/25 px-7 py-3.5 text-[11px] uppercase tracking-[0.18em] text-white/70 transition-all hover:border-white hover:text-white active:scale-[0.98];
+    @apply rounded-full border border-white/20 px-7 py-3.5 text-[11px] uppercase tracking-[0.18em] text-white/60 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/50 hover:text-white active:scale-[0.98];
   }
 
   .portfolio-frame {
-    @apply overflow-hidden bg-elevated ring-1 ring-line/60;
+    @apply overflow-hidden bg-elevated ring-1 ring-white/10;
   }
 
   .portfolio-img {
-    @apply object-cover object-center;
+    @apply object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03];
   }
 
   .hero-photo {
@@ -144,23 +145,36 @@
     object-position: top center;
   }
 
-  .particle-dot {
-    animation: particle-twinkle ease-in-out infinite alternate;
+  .particle-drift {
+    animation: particle-drift linear infinite;
   }
 
-  .film-scroll-up {
-    animation: film-scroll-up 48s linear infinite;
+  .photo-roll-up {
+    animation: photo-roll-up 52s linear infinite;
   }
 
-  .film-scroll-down {
-    animation: film-scroll-down 56s linear infinite;
+  .photo-roll-down {
+    animation: photo-roll-down 58s linear infinite;
+  }
+
+  .marquee-track {
+    animation: marquee-scroll 42s linear infinite;
+  }
+
+  .loader-screen {
+    transition: opacity 0.65s var(--ease-premium);
+  }
+
+  .loader-exit {
+    opacity: 0;
+    pointer-events: none;
   }
 }
 
 @keyframes hero-fade-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -171,7 +185,7 @@
 @keyframes headline-up {
   from {
     opacity: 0;
-    transform: translateY(100%);
+    transform: translateY(110%);
   }
   to {
     opacity: 1;
@@ -199,18 +213,21 @@
   }
 }
 
-@keyframes particle-twinkle {
-  from {
-    opacity: 0.1;
-    transform: scale(0.8);
+@keyframes particle-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: var(--p-o-min);
   }
-  to {
-    opacity: 0.8;
-    transform: scale(1.2);
+  45% {
+    opacity: var(--p-o-max);
+  }
+  100% {
+    transform: translate3d(var(--p-dx), var(--p-dy), 0);
+    opacity: var(--p-o-min);
   }
 }
 
-@keyframes film-scroll-up {
+@keyframes photo-roll-up {
   from {
     transform: translateY(0);
   }
@@ -219,12 +236,21 @@
   }
 }
 
-@keyframes film-scroll-down {
+@keyframes photo-roll-down {
   from {
     transform: translateY(-50%);
   }
   to {
     transform: translateY(0);
+  }
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 
@@ -233,9 +259,10 @@
   .hero-enter-item,
   .headline-line-inner,
   .whatsapp-fab,
-  .particle-dot,
-  .film-scroll-up,
-  .film-scroll-down {
+  .particle-drift,
+  .photo-roll-up,
+  .photo-roll-down,
+  .marquee-track {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;

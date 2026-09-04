@@ -17,7 +17,7 @@ export function DiagonalLines({ className = "" }: { className?: string }) {
 export function ScrollIndicator({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`pointer-events-none absolute right-4 top-1/2 z-20 hidden -translate-y-1/2 flex-col items-center gap-3 md:right-8 lg:flex ${className}`}
+      className={`pointer-events-none absolute right-3 top-1/2 z-[6] hidden -translate-y-1/2 flex-col items-center gap-3 md:right-5 lg:flex ${className}`}
       aria-hidden
     >
       <span className="block h-16 w-px bg-white/20" />

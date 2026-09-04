@@ -71,10 +71,10 @@ export function Gallery() {
   }, [lightboxIndex, items.length]);
 
   return (
-    <section id="trabalhos" className="bg-surface py-20 md:py-24">
+    <section id="trabalhos" className="bg-paper py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <SectionHeader align="center" index="02" label="Portfólio" title="Nossos trabalhos" />
+          <SectionHeader align="center" index="002" label="Trabalhos" title="Nossos trabalhos" />
         </Reveal>
 
         <Reveal delay={0.06} className="mt-8 flex flex-wrap justify-center gap-2">
@@ -90,10 +90,10 @@ export function Gallery() {
                 type="button"
                 onClick={() => setFilter(item.id)}
                 className={cn(
-                  "px-4 py-2 text-xs uppercase tracking-widest transition-colors",
+                  "px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-all duration-300",
                   filter === item.id
-                    ? "bg-accent text-paper"
-                    : "border border-line text-mute hover:border-accent-soft hover:text-ink",
+                    ? "bg-white text-black"
+                    : "border border-white/15 text-mute hover:border-white/40 hover:text-white",
                 )}
               >
                 {item.label}
