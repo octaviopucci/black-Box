@@ -1,0 +1,39 @@
+name: Deploy Studio Clown Tattoo (Netlify)
+
+on:
+  push:
+    branches:
+      - main
+      - cursor/estudio-clow-perf-192e
+    paths:
+      - "projects/estudio-clow-tattoo/**"
+      - ".github/workflows/netlify-estudio-clow.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: projects/estudio-clow-tattoo/package-lock.json
+
+      - name: Install and build
+        working-directory: projects/estudio-clow-tattoo
+        run: |
+          npm ci
+          NEXT_BASE_PATH= npm run build
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          npx netlify-cli@27.1.2 deploy \
+            --prod \
+            --dir=projects/estudio-clow-tattoo/out \
+            --site-name estudio-clow-tattoo \
+            --message "CI deploy ${GITHUB_SHA}"
