@@ -5,6 +5,10 @@ import { useMemo } from "react";
 import { site } from "@/data/site";
 import { cn } from "@/lib/utils";
 
+function smoothstep(t: number) {
+  return t * t * (3 - 2 * t);
+}
+
 function dedupe(urls: readonly string[]): string[] {
   return [...new Set(urls)];
 }
@@ -15,7 +19,6 @@ function buildPools() {
   return { rafael, works, all: dedupe([...rafael, ...works]) };
 }
 
-/** Each column: unique URLs only, no consecutive duplicates, Rafael/work alternation. */
 function buildColumn(
   rafael: string[],
   works: string[],
@@ -79,7 +82,6 @@ function fixLoopBoundary(track: string[]): string[] {
   return track;
 }
 
-/** Duplicate cycle for infinite scroll — seam is invisible when first ≠ last. */
 function loopTrack(column: string[]): string[] {
   const track = fixLoopBoundary([...column]);
   if (track.length === 0) return track;
@@ -109,22 +111,41 @@ type PhotoRollProps = {
 
 export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps) {
   const columns = useMemo(() => buildColumns(), []);
+  const t = smoothstep(scrollProgress);
 
-  const parallaxY = scrollProgress * -160;
-  const scale = 1 - scrollProgress * 0.07;
-  const rollStyle = {
-    transform: `translate3d(0, ${parallaxY}px, 0) scale(${scale})`,
+  // 54% width on the right → full viewport; inner scale for cinematic fill
+  const leftPct = (1 - t) * 42;
+  const innerScale = 1 + t * 0.35;
+  const innerY = scrollProgress * -80;
+  const maskOpacity = 1 - t * 0.92;
+
+  const shellStyle = {
+    top: `${-t * 8}%`,
+    right: 0,
+    bottom: `${-t * 8}%`,
+    left: `${leftPct}%`,
+  };
+
+  const trackStyle = {
+    transform: `translate3d(${-t * 6}%, ${innerY}px, 0) scale(${innerScale})`,
     transformOrigin: "center right" as const,
   };
 
   return (
     <div
-      className={`pointer-events-none absolute inset-y-0 right-0 z-[1] w-[min(54vw,560px)] overflow-hidden ${className}`}
+      className={`pointer-events-none absolute z-[1] overflow-hidden ${className}`}
+      style={shellStyle}
       aria-hidden
     >
-      <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/80 via-black/25 to-transparent" />
+      <div
+        className="absolute inset-0 z-10 bg-gradient-to-r from-black/80 via-black/25 to-transparent transition-opacity duration-100"
+        style={{ opacity: maskOpacity }}
+      />
 
-      <div className="flex h-[120%] gap-2 px-2 pt-6 md:gap-3 md:px-4 md:pt-10" style={rollStyle}>
+      <div
+        className="flex h-[120%] gap-2 px-2 pt-6 will-change-transform md:gap-3 md:px-4 md:pt-10"
+        style={trackStyle}
+      >
         {columns.map((col, colIndex) => (
           <div
             key={colIndex}
@@ -133,7 +154,7 @@ export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps
               colIndex === 0 ? "photo-roll-up" : "photo-roll-down",
             )}
             style={{
-              transform: `translateY(${scrollProgress * (colIndex === 0 ? 48 : -48)}px)`,
+              transform: `translateY(${scrollProgress * (colIndex === 0 ? 32 : -32)}px)`,
             }}
           >
             {col.map((src, i) => (
@@ -148,8 +169,11 @@ export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps
                   src={src}
                   alt=""
                   fill
-                  sizes="(max-width: 768px) 27vw, 280px"
-                  className="object-cover grayscale-[0.35] contrast-[1.05]"
+                  sizes="(max-width: 768px) 50vw, 100vw"
+                  className="object-cover contrast-[1.05]"
+                  style={{
+                    filter: `grayscale(${0.35 * (1 - t * 0.6)}) contrast(1.05)`,
+                  }}
                   priority={colIndex === 0 && i < 2}
                 />
               </div>

@@ -12,6 +12,7 @@ export function Hero() {
   const contentY = progress * 88;
   const contentOpacity = 1 - progress * 0.92;
   const overlayBoost = progress * 0.35;
+  const sideOverlay = 1 - progress * 0.75;
 
   return (
     <section
@@ -23,9 +24,15 @@ export function Hero() {
       <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-black">
         <PhotoRoll scrollProgress={progress} />
 
-        <div className="absolute inset-0 z-[2] bg-black/28 md:bg-black/22" />
-        <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-black/10 to-black/5" />
-        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-black/10 to-transparent" />
+        <div className="absolute inset-0 z-[2] bg-black/28 md:bg-black/22" style={{ opacity: sideOverlay }} />
+        <div
+          className="absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-black/10 to-black/5"
+          style={{ opacity: sideOverlay }}
+        />
+        <div
+          className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-black/10 to-transparent"
+          style={{ opacity: sideOverlay }}
+        />
         <div
           className="absolute inset-0 z-[2] bg-black"
           style={{ opacity: overlayBoost * 0.55 }}
