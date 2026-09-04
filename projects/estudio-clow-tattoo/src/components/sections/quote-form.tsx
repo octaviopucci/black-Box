@@ -24,7 +24,7 @@ const initialState: QuoteFormData = {
 };
 
 const fieldClass =
-  "w-full border border-line bg-elevated px-4 py-3.5 text-sm text-ink outline-none transition-colors placeholder:text-mute/60 focus:border-mute";
+  "w-full border border-line bg-elevated px-4 py-3.5 text-sm text-ink outline-none transition-colors placeholder:text-mute/60 focus:border-accent-soft";
 
 export function QuoteForm() {
   const [form, setForm] = useState<QuoteFormData>(initialState);
@@ -182,7 +182,7 @@ export function QuoteForm() {
 
             <button
               type="submit"
-              className="w-full bg-accent px-6 py-4 text-sm font-semibold uppercase tracking-widest text-paper transition-colors hover:bg-accent/90"
+              className="btn-primary w-full"
             >
               Enviar orçamento pelo WhatsApp
             </button>

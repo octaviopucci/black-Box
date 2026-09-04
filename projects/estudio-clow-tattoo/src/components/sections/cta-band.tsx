@@ -22,7 +22,7 @@ export function CtaBand() {
           <button
             type="button"
             onClick={() => scrollToHash("#orcamento")}
-            className="mt-10 bg-accent px-12 py-4 text-sm font-semibold uppercase tracking-widest text-paper transition-colors hover:bg-accent/90"
+            className="mt-10 btn-primary px-12"
           >
             Fazer orçamento agora
           </button>

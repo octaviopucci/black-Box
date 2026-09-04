@@ -55,5 +55,8 @@ export function openWhatsApp(message: string) {
 
 export function scrollToHash(hash: string) {
   const target = document.querySelector(hash);
-  target?.scrollIntoView({ behavior: "smooth" });
+  const smooth =
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+    window.matchMedia("(pointer: fine)").matches;
+  target?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
 }

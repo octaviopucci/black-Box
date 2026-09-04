@@ -1,8 +1,7 @@
 "use client";
 
 import type { MouseEvent, ReactNode } from "react";
-import { useRef } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 type TiltCardProps = {
   children: ReactNode;
@@ -10,15 +9,21 @@ type TiltCardProps = {
 };
 
 export function TiltCard({ children, className = "" }: TiltCardProps) {
-  const reduceMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setEnabled(finePointer && !reduceMotion);
+  }, []);
 
   const onMove = (event: MouseEvent<HTMLDivElement>) => {
-    if (reduceMotion || !ref.current) return;
+    if (!enabled || !ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width - 0.5;
     const y = (event.clientY - rect.top) / rect.height - 0.5;
-    ref.current.style.transform = `perspective(900px) rotateX(${y * -4}deg) rotateY(${x * 5}deg)`;
+    ref.current.style.transform = `perspective(900px) rotateX(${y * -3}deg) rotateY(${x * 4}deg)`;
   };
 
   const reset = () => {
