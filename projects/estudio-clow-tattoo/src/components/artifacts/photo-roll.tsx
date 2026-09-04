@@ -95,12 +95,24 @@ function loopTrack(column: string[]): string[] {
   return [...track, ...track];
 }
 
-export function PhotoRoll({ className = "" }: { className?: string }) {
+type PhotoRollProps = {
+  className?: string;
+  scrollProgress?: number;
+};
+
+export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps) {
   const columns = useMemo(() => {
     const master = buildMasterSequence();
     const [col0, col1] = splitColumns(master);
     return [loopTrack(col0), loopTrack(col1)];
   }, []);
+
+  const parallaxY = scrollProgress * -160;
+  const scale = 1 - scrollProgress * 0.07;
+  const rollStyle = {
+    transform: `translate3d(0, ${parallaxY}px, 0) scale(${scale})`,
+    transformOrigin: "center right" as const,
+  };
 
   return (
     <div
@@ -109,7 +121,7 @@ export function PhotoRoll({ className = "" }: { className?: string }) {
     >
       <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/80 via-black/25 to-transparent" />
 
-      <div className="flex h-[120%] gap-2 px-2 pt-6 md:gap-3 md:px-4 md:pt-10">
+      <div className="flex h-[120%] gap-2 px-2 pt-6 md:gap-3 md:px-4 md:pt-10" style={rollStyle}>
         {columns.map((col, colIndex) => (
           <div
             key={colIndex}
@@ -117,6 +129,9 @@ export function PhotoRoll({ className = "" }: { className?: string }) {
               "flex min-w-0 flex-1 flex-col gap-2 md:gap-3",
               colIndex === 0 ? "photo-roll-up" : "photo-roll-down",
             )}
+            style={{
+              transform: `translateY(${scrollProgress * (colIndex === 0 ? 48 : -48)}px)`,
+            }}
           >
             {col.map((src, i) => (
               <div
