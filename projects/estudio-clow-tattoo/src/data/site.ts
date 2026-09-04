@@ -21,6 +21,13 @@ Domingo: Fechado`,
     artist: "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/d2b975259_f8f2f203-755c-4193-9fa7-d81509e76f03.jpg",
     instagram: "https://media.base44.com/images/public/6a2ec6a5abe80eb43c19249d/6ffcf53fc_e6e5a491-f051-4e1a-8e32-bf7cee84fb32.jpg",
   },
+  heroRoll: [
+    "/hero/rafael/rafael-estudio-branco.jpg",
+    "/hero/rafael/rafael-perfil-paris.jpg",
+    "/hero/rafael/rafael-estudio-apron.jpg",
+    "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/294ee25b1_79f8688f-9ae3-4d3a-9467-60bcf41f81c8.jpg",
+    "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/d2b975259_f8f2f203-755c-4193-9fa7-d81509e76f03.jpg",
+  ],
   nav: [
     { label: "Início", href: "#inicio" },
     { label: "Sobre", href: "#sobre" },

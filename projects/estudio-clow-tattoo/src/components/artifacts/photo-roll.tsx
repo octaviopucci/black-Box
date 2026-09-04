@@ -5,9 +5,25 @@ import { useMemo } from "react";
 import { site } from "@/data/site";
 import { cn } from "@/lib/utils";
 
+function buildRollImages() {
+  const rafael = [...site.heroRoll];
+  const works = site.gallery.map((g) => g.src);
+
+  const merged: string[] = [];
+  let r = 0;
+  let w = 0;
+
+  while (merged.length < 20) {
+    if (r < rafael.length) merged.push(rafael[r++]);
+    if (w < works.length && merged.length < 20) merged.push(works[w++]);
+  }
+
+  return merged;
+}
+
 export function PhotoRoll({ className = "" }: { className?: string }) {
   const columns = useMemo(() => {
-    const imgs = site.gallery.map((g) => g.src).slice(0, 16);
+    const imgs = buildRollImages();
     return [imgs.filter((_, i) => i % 2 === 0), imgs.filter((_, i) => i % 2 === 1)];
   }, []);
 
