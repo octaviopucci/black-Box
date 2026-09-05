@@ -7,12 +7,25 @@ import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
 
-function getDirectionsHref(): string {
+type SiteAddress = { line1: string; line2: string };
+
+function getAddress(): SiteAddress | null {
+  if (!("address" in site)) return null;
+  return site.address as SiteAddress;
+}
+
+function getMapsEmbed(): string | null {
+  if (!("mapsEmbed" in site)) return null;
+  const embed = site.mapsEmbed;
+  return typeof embed === "string" && embed.length > 0 ? embed : null;
+}
+
+function getDirectionsHref(address: SiteAddress | null): string {
   if ("mapsLink" in site && typeof site.mapsLink === "string") {
     return site.mapsLink;
   }
-  if ("address" in site) {
-    return `https://maps.google.com/?q=${encodeURIComponent(`${site.address.line1} ${site.address.line2}`)}`;
+  if (address) {
+    return `https://maps.google.com/?q=${encodeURIComponent(`${address.line1} ${address.line2}`)}`;
   }
   return "#";
 }
@@ -20,12 +33,12 @@ function getDirectionsHref(): string {
 export function Location() {
   const { t } = useLocale();
   const siteData = useSite();
+  const address = getAddress();
+  const mapsEmbed = getMapsEmbed();
   const studioPhotos =
     "studioPhotos" in site && site.studioPhotos.length > 0 ? site.studioPhotos : null;
-  const hasMap = "mapsEmbed" in site && Boolean(site.mapsEmbed);
-  const hasAddress = "address" in site;
 
-  if (!hasMap && !hasAddress && !studioPhotos) return null;
+  if (!mapsEmbed && !address && !studioPhotos) return null;
 
   return (
     <section id="contato" className="relative bg-surface py-20">
@@ -39,14 +52,14 @@ export function Location() {
           </h2>
         </Reveal>
 
-        {(hasMap || hasAddress) && (
+        {(mapsEmbed || address) && (
           <div className="mt-14 grid gap-8 lg:grid-cols-2">
-            {hasMap && (
+            {mapsEmbed && (
               <Reveal>
                 <div className="aspect-[4/3] overflow-hidden border border-ink/10 bg-ink/5">
                   <iframe
                     title={t.location.mapTitle}
-                    src={site.mapsEmbed}
+                    src={mapsEmbed}
                     className="h-full w-full border-0 grayscale contrast-[1.05] invert"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
@@ -56,7 +69,7 @@ export function Location() {
               </Reveal>
             )}
 
-            {hasAddress && (
+            {address && (
               <Reveal delay={0.1} className="space-y-8">
                 <div className="flex gap-5">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-ink/15">
@@ -67,9 +80,9 @@ export function Location() {
                       {t.location.address}
                     </h3>
                     <p className="mt-2 font-light leading-relaxed text-mute">
-                      {site.address.line1}
+                      {address.line1}
                       <br />
-                      {site.address.line2}
+                      {address.line2}
                     </p>
                   </div>
                 </div>
@@ -89,7 +102,7 @@ export function Location() {
                 </div>
 
                 <a
-                  href={getDirectionsHref()}
+                  href={getDirectionsHref(address)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 border border-ink/15 px-6 py-3 text-[11px] uppercase tracking-[0.24em] text-ink transition-colors hover:bg-ink hover:text-paper"
@@ -103,7 +116,7 @@ export function Location() {
         )}
 
         {studioPhotos && (
-          <Reveal delay={0.15} className={hasMap || hasAddress ? "mt-14" : "mt-14"}>
+          <Reveal delay={0.15} className="mt-14">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
               {studioPhotos.map((src, index) => (
                 <div
