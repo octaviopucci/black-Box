@@ -1,9 +1,11 @@
+const whatsappLabel = "(15) 99653-2750";
+
 export const site = {
   name: "NA Veículos",
   legalName: "N.A. Veiculos Ltda",
   cnpj: "49.138.934/0001-83",
   whatsapp: "5515996532750",
-  whatsappLabel: "(15) 99653-2750",
+  whatsappLabel,
   phone: {
     label: "(15) 3542-3229",
     href: "tel:+551535423229",
@@ -91,7 +93,7 @@ export const site = {
   ],
   warnings: [
     "A NA só anuncia no Instagram e no Facebook oficiais.",
-    "WhatsApp da loja: (15) 99653-2750 — qualquer outro número, desconfie.",
+    `WhatsApp da loja: ${whatsappLabel} — qualquer outro número, desconfie.`,
     "Prefere segurança? Venha até a Rua Altino Arantes, 635.",
   ],
   paymentOptions: [

@@ -97,6 +97,8 @@ export function Navbar() {
             className="relative z-10 lg:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={open}
+            aria-controls="menu-mobile"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -104,7 +106,7 @@ export function Navbar() {
       </header>
 
       {open && (
-        <div className="fixed inset-0 z-40 bg-paper pt-24 lg:hidden">
+        <div id="menu-mobile" className="fixed inset-0 z-40 bg-paper pt-24 lg:hidden">
           <div className="flex flex-col gap-6 px-8">
             {site.nav.map((item) => (
               <button

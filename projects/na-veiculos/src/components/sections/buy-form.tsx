@@ -6,7 +6,11 @@ import { ChevronDown } from "lucide-react";
 import { site } from "@/data/site";
 import { availableVehicles, formatPrice, getVehicle } from "@/data/vehicles";
 import { asset } from "@/lib/assets";
-import { buildBuyMessage, openWhatsApp, type BuyFormData } from "@/lib/whatsapp";
+import {
+  buildBuyMessage,
+  openWhatsApp,
+  type BuyFormData,
+} from "@/lib/whatsapp";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 import { useVehicleSelection } from "@/components/vehicle-selection";
@@ -36,7 +40,9 @@ export function BuyForm() {
   const vehicle = selectedId ? getVehicle(selectedId) : undefined;
 
   const update = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -91,6 +97,7 @@ export function BuyForm() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <input
                   name="nome"
+                  aria-label="Seu nome"
                   placeholder="Seu nome"
                   autoComplete="name"
                   value={form.nome}
@@ -100,6 +107,7 @@ export function BuyForm() {
                 />
                 <input
                   name="whatsapp"
+                  aria-label="Seu WhatsApp (com DDD)"
                   type="tel"
                   inputMode="tel"
                   placeholder="Seu WhatsApp (com DDD)"
@@ -114,6 +122,7 @@ export function BuyForm() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <input
                   name="cidade"
+                  aria-label="Cidade"
                   placeholder="Cidade"
                   autoComplete="address-level2"
                   value={form.cidade}
@@ -161,6 +170,7 @@ export function BuyForm() {
               {form.temTroca && (
                 <input
                   name="carroTroca"
+                  aria-label="Qual carro? (modelo, ano, km)"
                   placeholder="Qual carro? (modelo, ano, km)"
                   value={form.carroTroca}
                   onChange={update}
@@ -170,6 +180,7 @@ export function BuyForm() {
 
               <textarea
                 name="mensagem"
+                aria-label="Quer perguntar algo? Entrada, parcelas, visita na loja..."
                 placeholder="Quer perguntar algo? Entrada, parcelas, visita na loja..."
                 value={form.mensagem}
                 onChange={update}
@@ -182,8 +193,8 @@ export function BuyForm() {
               </button>
 
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute/60">
-                Abre o WhatsApp {site.whatsappLabel} com a mensagem pronta. Nada é
-                enviado sem você confirmar.
+                Abre o WhatsApp {site.whatsappLabel} com a mensagem pronta. Nada
+                é enviado sem você confirmar.
               </p>
             </form>
           </Reveal>
@@ -208,7 +219,12 @@ export function BuyForm() {
                     />
                   </div>
                   <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-mute">
-                    {[vehicle.brand, vehicle.year, vehicle.transmission, vehicle.fuel]
+                    {[
+                      vehicle.brand,
+                      vehicle.year,
+                      vehicle.transmission,
+                      vehicle.fuel,
+                    ]
                       .filter(Boolean)
                       .join(" · ")}
                   </p>

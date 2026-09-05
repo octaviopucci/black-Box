@@ -18,6 +18,7 @@ export function VehicleSelectionProvider({ children }: { children: ReactNode }) 
   const chooseAndGo = useCallback((id: string) => {
     setSelectedId(id);
     scrollToHash("#orcamento");
+    document.getElementById("carro")?.focus({ preventScroll: true });
   }, []);
 
   const value = useMemo(

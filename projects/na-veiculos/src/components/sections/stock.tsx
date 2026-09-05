@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { availableBrands, availableVehicles, formatPrice } from "@/data/vehicles";
 import { asset } from "@/lib/assets";
@@ -32,8 +32,15 @@ export function Stock() {
     setLightboxIndex((i) => (i === null ? i : (i + direction + total) % total));
 
   const lightboxOpen = lightboxIndex !== null;
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const skipRestoreRef = useRef(false);
   useEffect(() => {
     if (!lightboxOpen) return;
+    // Foco entra no diálogo e volta pro card que abriu ao fechar.
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    document.body.style.overflow = "hidden";
+
     const step = (direction: -1 | 1) =>
       setLightboxIndex((i) => (i === null ? i : (i + direction + total) % total));
     const onKey = (event: KeyboardEvent) => {
@@ -42,7 +49,12 @@ export function Stock() {
       if (event.key === "Escape") setLightboxIndex(null);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+      if (!skipRestoreRef.current) opener?.focus();
+      skipRestoreRef.current = false;
+    };
   }, [lightboxOpen, total]);
 
   const current = lightboxIndex !== null ? items[lightboxIndex] : null;
@@ -63,6 +75,7 @@ export function Stock() {
             <button
               key={brand}
               type="button"
+              aria-pressed={filter === brand}
               onClick={() => {
                 setFilter(brand);
                 setLightboxIndex(null);
@@ -123,6 +136,7 @@ export function Stock() {
           onClick={() => setLightboxIndex(null)}
         >
           <button
+            ref={closeRef}
             type="button"
             className="absolute right-5 top-5 z-10 text-ink"
             onClick={() => setLightboxIndex(null)}
@@ -197,6 +211,7 @@ export function Stock() {
                   type="button"
                   className="btn-primary"
                   onClick={() => {
+                    skipRestoreRef.current = true;
                     setLightboxIndex(null);
                     chooseAndGo(current.id);
                   }}
