@@ -64,11 +64,11 @@ export function Hero() {
         >
           <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_min(42%,480px)]">
             <div className="max-w-2xl">
-              <p className="hero-enter-item font-mono text-[10px] uppercase tracking-[0.42em] text-white/35">
-                ////
+              <p className="hero-enter-item font-mono text-[11px] uppercase tracking-[0.34em] text-white/50">
+                {t.hero.name}
               </p>
 
-              <h1 className="hero-enter-item mt-5 text-[clamp(2.4rem,7.5vw,4.75rem)] font-bold uppercase leading-[0.9] tracking-tighter text-white [animation-delay:0.08s]">
+              <h1 className="hero-enter-item mt-4 text-[clamp(2.4rem,7.5vw,4.75rem)] font-bold uppercase leading-[0.9] tracking-tighter text-white [animation-delay:0.08s]">
                 <span className="headline-line block overflow-hidden">
                   <span className="headline-line-inner inline-block">{t.hero.titleLine1}</span>
                 </span>

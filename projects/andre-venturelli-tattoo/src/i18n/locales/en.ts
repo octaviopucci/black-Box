@@ -152,6 +152,7 @@ export const en: Messages = {
 Saturday: 9 AM – 3 PM
 Sunday: Closed`,
   hero: {
+    name: "André Venturelli",
     titleLine1: "Your Perfect",
     titleLine2: "Tattoo Is Here",
     subtitle:

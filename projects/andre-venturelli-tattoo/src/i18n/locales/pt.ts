@@ -152,6 +152,7 @@ export const pt: Messages = {
 Sábado: 9h às 15h
 Domingo: Fechado`,
   hero: {
+    name: "André Venturelli",
     titleLine1: "Sua Tattoo",
     titleLine2: "Perfeita Está Aqui",
     subtitle:

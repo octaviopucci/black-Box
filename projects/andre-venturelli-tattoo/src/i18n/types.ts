@@ -45,6 +45,7 @@ export type Messages = {
   formOptions: FormOptions;
   hours: string;
   hero: {
+    name: "André Venturelli",
     titleLine1: string;
     titleLine2: string;
     subtitle: string;
