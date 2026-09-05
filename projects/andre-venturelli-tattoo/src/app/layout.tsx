@@ -25,16 +25,14 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StudioClownTattoo | Arte que fica marcada para sempre",
+  title: "André Ventureli Tattoo | Realismo e Coberturas em Sorocaba",
   description:
-    "Tatuagens exclusivas com técnica, personalidade e dedicação em cada detalhe. Solicite seu orçamento pelo WhatsApp.",
+    "Mais de 24 anos de experiência em realismo preto e cinza, coberturas, delicadas e old school. Estúdio exclusivo em Sorocaba/SP. Solicite seu orçamento.",
   openGraph: {
-    title: "StudioClownTattoo",
+    title: "André Ventureli Tattoo",
     description:
-      "Tatuagens exclusivas com técnica, personalidade e dedicação em cada detalhe.",
-    images: [
-      "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/294ee25b1_79f8688f-9ae3-4d3a-9467-60bcf41f81c8.jpg",
-    ],
+      "Sua tattoo perfeita está aqui — realismo, coberturas, fineline e estilos clássicos em Sorocaba.",
+    images: ["/hero/hero-bg.jpg"],
   },
 };
 

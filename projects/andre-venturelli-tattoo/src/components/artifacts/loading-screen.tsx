@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { site } from "@/data/site";
 
-const STORAGE_KEY = "clow-loaded";
+const STORAGE_KEY = "andre-venturelli-loaded";
 
 export function LoadingScreen() {
   const [visible, setVisible] = useState(true);
@@ -91,7 +91,7 @@ export function LoadingScreen() {
         <div className="relative z-10 flex h-[4.75rem] w-[4.75rem] items-center justify-center rounded-full bg-[#0d0d0d] ring-1 ring-white/10">
           <Image
             src={site.assets.logo}
-            alt="Studio Clown Tattoo"
+            alt="André Ventureli Tattoo"
             width={64}
             height={64}
             priority
