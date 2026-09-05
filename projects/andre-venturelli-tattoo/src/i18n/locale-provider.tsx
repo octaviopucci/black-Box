@@ -4,7 +4,7 @@ import { fr } from "./locales/fr";
 import { pt } from "./locales/pt";
 import { localeHtmlLang, type Locale, type Messages } from "./types";
 
-const STORAGE_KEY = "clow-locale";
+const STORAGE_KEY = "andre-venturelli-locale";
 
 const messagesMap: Record<Locale, Messages> = { pt, en, fr };
 
