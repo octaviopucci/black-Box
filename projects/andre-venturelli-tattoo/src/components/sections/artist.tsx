@@ -9,6 +9,8 @@ import { Reveal } from "@/components/motion/reveal";
 export function Artist() {
   const { t } = useLocale();
   const siteData = useSite();
+  const studioPhotos =
+    "studioPhotos" in site && site.studioPhotos.length > 0 ? site.studioPhotos : null;
 
   return (
     <section className="bg-paper py-24 md:py-32">
@@ -52,6 +54,25 @@ export function Artist() {
                 </span>
               ))}
             </div>
+
+            {studioPhotos && (
+              <div className="grid grid-cols-2 gap-2.5 pt-4 sm:gap-3">
+                {studioPhotos.map((src, index) => (
+                  <div
+                    key={src}
+                    className="relative aspect-[4/3] overflow-hidden ring-1 ring-white/10"
+                  >
+                    <Image
+                      src={src}
+                      alt={`${t.location.studioPhotoAlt} ${index + 1}`}
+                      fill
+                      sizes="(max-width: 1024px) 50vw, 240px"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </Reveal>
         </div>
       </div>
