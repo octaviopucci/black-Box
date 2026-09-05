@@ -1,22 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import { Clock, MapPin, Navigation } from "lucide-react";
 import { site } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
 
-const directionsHref =
-  "mapsLink" in site && typeof site.mapsLink === "string"
-    ? site.mapsLink
-    : `https://maps.google.com/?q=${encodeURIComponent(`${site.address.line1} ${site.address.line2}`)}`;
-
 export function Location() {
   const { t } = useLocale();
   const siteData = useSite();
-  const studioPhotos =
-    "studioPhotos" in site && site.studioPhotos.length > 0 ? site.studioPhotos : null;
 
   return (
     <section id="contato" className="relative bg-surface py-20">
@@ -76,7 +68,7 @@ export function Location() {
             </div>
 
             <a
-              href={directionsHref}
+              href="https://maps.google.com/?q=Rua+Olímpio+de+Campos+55+Jd+Vila+Formosa+São+Paulo"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 border border-ink/15 px-6 py-3 text-[11px] uppercase tracking-[0.24em] text-ink transition-colors hover:bg-ink hover:text-paper"
@@ -86,27 +78,6 @@ export function Location() {
             </a>
           </Reveal>
         </div>
-
-        {studioPhotos && (
-          <Reveal delay={0.15} className="mt-14">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-              {studioPhotos.map((src, index) => (
-                <div
-                  key={src}
-                  className="relative aspect-[4/3] overflow-hidden border border-ink/10 bg-ink/5"
-                >
-                  <Image
-                    src={src}
-                    alt={`${t.location.studioPhotoAlt} ${index + 1}`}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        )}
       </div>
     </section>
   );
