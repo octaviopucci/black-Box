@@ -1,0 +1,301 @@
+import type { Messages } from "../types";
+
+export const en: Messages = {
+  meta: {
+    title: "André Ventureli Tattoo | Realism & Cover-ups in Sorocaba",
+    description:
+      "Over 24 years of experience in black and grey realism, cover-ups, fine line, and old school. Exclusive studio in Sorocaba/SP. Request your quote.",
+    ogDescription:
+      "Your perfect tattoo is here — realism, cover-ups, fine line and classic styles in Sorocaba.",
+  },
+  nav: [
+    { label: "Home", href: "#inicio" },
+    { label: "Portfolio", href: "#trabalhos" },
+    { label: "About", href: "#sobre" },
+    { label: "Styles", href: "#estilos" },
+    { label: "Process", href: "#processo" },
+    { label: "Quote", href: "#orcamento" },
+    { label: "Contact", href: "#contato" },
+  ],
+  principles: [
+    "PRIVACY",
+    "PERSONALIZED SERVICE",
+    "PRE-TATTOO DESIGNS",
+    "PREMIUM MATERIALS",
+    "AIR-CONDITIONED STUDIO",
+    "ON-SITE PARKING",
+    "EASY ACCESS",
+  ],
+  stats: [
+    { value: 24, suffix: "+", label: "Years of experience" },
+    { value: 100, suffix: "%", label: "Exclusive service" },
+    { value: 100, suffix: "%", label: "Premium materials" },
+    { value: 100, suffix: "%", label: "Custom designs" },
+  ],
+  styles: [
+    {
+      title: "Black & Grey Realism",
+      tagline: "See my work",
+      desc: "Hyper-realistic portraits, deep shading and impressive detail — every piece built with technical precision and artistic vision.",
+    },
+    {
+      title: "Cover-ups",
+      tagline: "See my work",
+      desc: "Cover-ups and rework that restore confidence. Projects designed to transform old tattoos into new art.",
+    },
+    {
+      title: "Fine Line & Delicate",
+      tagline: "See my work",
+      desc: "Fine lines, minimalist and delicate compositions — elegance and subtlety on skin.",
+    },
+    {
+      title: "Oriental, Old School & More",
+      tagline: "See my work",
+      desc: "Classic and contemporary styles with strong identity — from oriental to old school, always impeccable finish.",
+    },
+  ],
+  artistTags: ["Realism", "Cover-ups", "Fine Line", "Old School"],
+  artistStory: {
+    title: "André Ventureli — Over 24 years in Sorocaba",
+    paragraphs: [
+      "For more than two decades I've dedicated my life to tattooing in Sorocaba. The studio was designed for an exclusive experience: personalized service, total privacy, and an air-conditioned environment so you feel comfortable from first contact to the final session.",
+      "Every project goes through prior planning — artwork creation, adjustments, and approval before the needle touches skin. My commitment is to deliver only the best: black and grey realism, cover-ups, fine line, oriental and old school with premium materials.",
+      "If you're looking for an experienced, calm, detail-oriented professional in a full studio 83 km from São Paulo, I'm ready to turn your idea into reality.",
+    ],
+  },
+  process: [
+    {
+      step: "01",
+      title: "Contact",
+      desc: "Send your idea via WhatsApp or the form. We discuss references, style, size, and expectations.",
+    },
+    {
+      step: "02",
+      title: "Design",
+      desc: "I develop exclusive artwork with improvement suggestions. We refine together until it's perfect.",
+    },
+    {
+      step: "03",
+      title: "Booking",
+      desc: "A time slot reserved just for you — no queue, no rush. Private, comfortable environment.",
+    },
+    {
+      step: "04",
+      title: "Session",
+      desc: "Tattoo done with technique, calm, and aftercare guidance for perfect healing.",
+    },
+  ],
+  testimonials: [
+    {
+      name: "Fernando",
+      style: "Google Reviews",
+      text: "Simply outstanding! André is a different level of professional! Congratulations!! As for my tattoo, no words needed! Top notch.",
+    },
+    {
+      name: "Vinicius",
+      style: "Google Reviews",
+      text: "By far the best professional I've ever met! Spectacular work, excellent service, exclusive and wonderful studio ready for you to get tattooed alone and in private!",
+    },
+    {
+      name: "Wagner",
+      style: "Google Reviews",
+      text: "For those who appreciate VIP service and quality, this is the guy — André Ventureli. Polite, punctual, and above all professional. Premium materials and top-quality work.",
+    },
+    {
+      name: "Natália",
+      style: "Google Reviews",
+      text: "Clean, cozy and VERY beautiful studio, premium materials. André is an artist! Light hand and perfect lines!! And definitely the best service I've ever had in a studio.",
+    },
+    {
+      name: "Luiz",
+      style: "Google Reviews",
+      text: "I got a realistic tattoo of my son and it turned out amazing! First-class service, super friendly, and a great studio — clean, organized, with excellent coffee!",
+    },
+    {
+      name: "Rosmari",
+      style: "Google Reviews",
+      text: "I got a cover-up that bothered me for years with André — it turned out perfect!!! He's a perfectionist and gives you confidence about the work to be done.",
+    },
+  ],
+  formOptions: {
+    bodyParts: [
+      "Arm",
+      "Forearm",
+      "Shoulder",
+      "Back",
+      "Chest",
+      "Leg",
+      "Thigh",
+      "Calf",
+      "Hand",
+      "Rib",
+      "Neck",
+      "Other",
+    ],
+    sizes: [
+      "Small (up to 10 cm)",
+      "Medium (10–20 cm)",
+      "Large (20–30 cm)",
+      "Extra large (30 cm+)",
+      "Full piece / Cover-up",
+    ],
+    styles: [
+      "Black & Grey Realism",
+      "Cover-up",
+      "Fine Line / Delicate",
+      "Oriental",
+      "Old School",
+      "Other",
+    ],
+  },
+  hours: `Monday–Friday: 9 AM – 6 PM
+Saturday: 9 AM – 3 PM
+Sunday: Closed`,
+  hero: {
+    titleLine1: "Your Perfect",
+    titleLine2: "Tattoo Is Here",
+    subtitle:
+      "Black and grey realism, cover-ups, fine line and classic styles — over 24 years turning ideas into permanent art in Sorocaba.",
+    ctaQuote: "Get a quote →",
+    ctaWorks: "View portfolio",
+  },
+  about: {
+    label: "The Artist",
+    title: "André Ventureli",
+    artistLabel: "Tattoo artist · Sorocaba/SP",
+    paragraphs: [
+      "I specialize in highly detailed tattoos focused on black and grey realism, cover-ups, fine line, oriental and old school. With over 24 years of experience, I've refined my skill to create some of the most impressive tattoos you'll ever see.",
+      "My passion for drawing led me to tirelessly develop my technique, always pushing the limits of what's possible. I take great pride in my creations and work tirelessly to deliver only the best for each of my clients.",
+      "Whether you're looking for a hyper-realistic portrait, a delicate piece, or a cover-up of a tattoo you no longer like — look no further. Request your quote now and get ready to turn your idea into reality.",
+    ],
+    imageAlt: "André Ventureli — tattoo artist in Sorocaba",
+  },
+  gallery: {
+    label: "Portfolio",
+    title: "See my work",
+    filters: {
+      all: "All",
+      realismo: "Realism",
+      cobertura: "Cover-ups",
+      delicadas: "Fine line",
+      estilos: "Styles",
+    },
+    swipeHint: "Swipe to see more work",
+    workAlt: "Tattoo work",
+    workEnlarged: "Enlarged tattoo work",
+    of: "of",
+    scrollLeft: "Scroll left",
+    scrollRight: "Scroll right",
+    close: "Close",
+    prev: "Previous",
+    next: "Next",
+  },
+  stylesSection: {
+    label: "Styles",
+    title: "Realism, cover-ups, fine line and classic styles",
+    seeWorks: "View portfolio →",
+  },
+  processSection: {
+    label: "Process",
+    title: "From quote to session",
+  },
+  artist: {
+    label: "Experience",
+    title: "Exclusive studio in Sorocaba",
+    paragraphs: [
+      "Located in Sorocaba, 83 km from São Paulo, the studio offers an immersive tattoo experience. Comfortable, air-conditioned, spacious — designed for art, good music, and a clean environment.",
+      "Personalized service, total privacy, and time slots reserved just for you. Premium materials and projects developed from scratch for each client.",
+    ],
+    imageAlt: "André Ventureli tattooing in the studio",
+  },
+  testimonialsSection: {
+    label: "Testimonials",
+    title: "Client reviews",
+    prev: "Previous testimonial",
+    next: "Next testimonial",
+  },
+  artistStorySection: {
+    label: "Journey",
+  },
+  quoteForm: {
+    label: "Quote",
+    title: "Get a Quote",
+    subtitle:
+      "Fill in the fields below and we'll send your request directly to André's WhatsApp.",
+    placeholders: {
+      name: "Full name",
+      whatsapp: "WhatsApp (with area code)",
+      email: "Email",
+      age: "Age",
+      city: "City",
+      bodyPart: "Body placement",
+      size: "Approximate size",
+      style: "Desired style",
+      description: "Describe your tattoo idea...",
+      availability: "Availability for your session",
+    },
+    hasReference: "I have a reference/image to send on WhatsApp",
+    submit: "Send quote request via WhatsApp",
+  },
+  instagram: {
+    title: "More portfolio work",
+    cta: "View full portfolio →",
+    imageAlt: "Portfolio",
+  },
+  location: {
+    label: "My Studio",
+    title: "The Studio — Sorocaba / SP",
+    mapTitle: "André Ventureli Tattoo location",
+    address: "Address",
+    hours: "Hours",
+    directions: "Get directions",
+    studioPhotoAlt: "Studio photo",
+  },
+  ctaBand: {
+    titleLine1: "Ready to turn",
+    titleLine2: "your idea into art?",
+    subtitle: "Request your quote and get ready for the perfect tattoo.",
+    button: "Get a quote now →",
+  },
+  footer: {
+    tagline:
+      "Over 24 years of experience in realism, cover-ups and fine line. Exclusive studio in Sorocaba/SP.",
+    quickLinks: "Quick links",
+    contact: "Contact",
+    rights: "All rights reserved.",
+  },
+  navbar: {
+    brand: "André Ventureli",
+    brandAria: "André Ventureli Tattoo home",
+    quote: "Quote →",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
+  },
+  scroll: "Scroll",
+  whatsapp: {
+    fabAria: "WhatsApp André Ventureli Tattoo",
+    fabMessage: "Hi André! I'd like to request a tattoo quote.",
+    quoteIntro: "Hello, André Ventureli Tattoo!",
+    quoteRequest: "I'd like to request a quote.",
+    fields: {
+      name: "Full name",
+      whatsapp: "WhatsApp",
+      email: "Email",
+      age: "Age",
+      city: "City",
+      bodyPart: "Body placement",
+      size: "Approximate size",
+      style: "Desired style",
+      description: "Describe your tattoo idea",
+      availability: "Availability for your session",
+      reference: "Send a reference/image (optional)",
+      referenceNote: "I have a reference to send in the chat.",
+    },
+  },
+  language: {
+    pt: "Português",
+    en: "English",
+    fr: "Français",
+    switchTo: "Switch language to",
+  },
+};

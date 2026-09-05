@@ -2,18 +2,23 @@
 
 import { Clock, MapPin, Navigation } from "lucide-react";
 import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
 
 export function Location() {
+  const { t } = useLocale();
+  const siteData = useSite();
+
   return (
     <section id="contato" className="relative bg-surface py-20">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal className="text-center">
           <p className="text-[11px] uppercase tracking-[0.4em] text-mute">
-            Localização
+            {t.location.label}
           </p>
           <h2 className="mt-5 font-display text-[clamp(2.2rem,5vw,4.5rem)] italic leading-[1.02] text-ink">
-            Venha conhecer nosso estúdio
+            {t.location.title}
           </h2>
         </Reveal>
 
@@ -21,7 +26,7 @@ export function Location() {
           <Reveal>
             <div className="aspect-[4/3] overflow-hidden border border-ink/10 bg-ink/5">
               <iframe
-                title="Localização StudioClownTattoo"
+                title={t.location.mapTitle}
                 src={site.mapsEmbed}
                 className="h-full w-full border-0 grayscale contrast-[1.05] invert"
                 loading="lazy"
@@ -38,7 +43,7 @@ export function Location() {
               </div>
               <div>
                 <h3 className="text-sm uppercase tracking-[0.24em] text-ink">
-                  Endereço
+                  {t.location.address}
                 </h3>
                 <p className="mt-2 font-light leading-relaxed text-mute">
                   {site.address.line1}
@@ -54,10 +59,10 @@ export function Location() {
               </div>
               <div>
                 <h3 className="text-sm uppercase tracking-[0.24em] text-ink">
-                  Horário
+                  {t.location.hours}
                 </h3>
                 <p className="mt-2 whitespace-pre-line font-light leading-relaxed text-mute">
-                  {site.hours}
+                  {siteData.hours}
                 </p>
               </div>
             </div>
@@ -69,7 +74,7 @@ export function Location() {
               className="inline-flex items-center gap-2 border border-ink/15 px-6 py-3 text-[11px] uppercase tracking-[0.24em] text-ink transition-colors hover:bg-ink hover:text-paper"
             >
               <Navigation className="h-4 w-4" />
-              Como chegar
+              {t.location.directions}
             </a>
           </Reveal>
         </div>
