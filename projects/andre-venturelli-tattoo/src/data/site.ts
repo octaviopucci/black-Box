@@ -359,6 +359,14 @@ export const site = {
         "category": "estilos" as const
     }
 ] as const,
+  studioPhotos: [
+    "/studio/estudio-1.jpg",
+    "/studio/estudio-2.jpg",
+    "/studio/estudio-3.jpg",
+    "/studio/estudio-4.jpg",
+    "/studio/estudio-5.jpg",
+    "/studio/estudio-6.jpg",
+  ] as const,
   i18nLocales: ["pt"] as const,
 } as const;
 

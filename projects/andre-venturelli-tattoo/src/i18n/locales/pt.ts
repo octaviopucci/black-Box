@@ -249,6 +249,7 @@ Domingo: Fechado`,
     address: "Endereço",
     hours: "Horário",
     directions: "Como chegar",
+    studioPhotoAlt: "Foto do estúdio",
   },
   ctaBand: {
     titleLine1: "Pronto para transformar",

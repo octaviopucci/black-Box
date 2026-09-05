@@ -249,6 +249,7 @@ Dimanche : Fermé`,
     address: "Adresse",
     hours: "Horaires",
     directions: "Itinéraire",
+    studioPhotoAlt: "Photo du studio",
   },
   ctaBand: {
     titleLine1: "Prêt à transformer",
