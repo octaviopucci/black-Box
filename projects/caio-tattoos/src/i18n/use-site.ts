@@ -15,6 +15,7 @@ export function useSite() {
       stats: t.stats,
       styles: site.styles.map((style, index) => ({
         image: style.image,
+        anchor: style.anchor,
         title: t.styles[index]!.title,
         tagline: t.styles[index]!.tagline,
         desc: t.styles[index]!.desc,

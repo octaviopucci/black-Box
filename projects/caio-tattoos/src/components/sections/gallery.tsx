@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
-import { site, type GalleryCategory } from "@/data/site";
+import { site, type PortfolioCategory } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -12,28 +12,29 @@ import { cn } from "@/lib/utils";
 const INITIAL_VISIBLE = 8;
 const LOAD_BATCH = 6;
 
-export function Gallery() {
+type PortfolioGalleryProps = {
+  category: PortfolioCategory;
+  sectionId: string;
+  index: string;
+};
+
+export function PortfolioGallery({ category, sectionId, index }: PortfolioGalleryProps) {
   const { t } = useLocale();
+  const block = t.portfolio[category];
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [filter, setFilter] = useState<GalleryCategory>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
-  const filters: { id: GalleryCategory; label: string }[] = [
-    { id: "all", label: t.gallery.filters.all },
-    { id: "oldschool", label: t.gallery.filters.oldschool },
-  ];
-
-  const items = useMemo(() => {
-    if (filter === "all") return site.gallery;
-    return site.gallery.filter((item) => item.category === filter);
-  }, [filter]);
+  const items = useMemo(
+    () => site.gallery.filter((item) => item.category === category),
+    [category],
+  );
 
   const visibleItems = items.slice(0, visibleCount);
 
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE);
-  }, [filter]);
+  }, [category]);
 
   useEffect(() => {
     const node = scrollRef.current;
@@ -71,42 +72,24 @@ export function Gallery() {
     return () => window.removeEventListener("keydown", onKey);
   }, [lightboxIndex, items.length]);
 
+  if (items.length === 0) return null;
+
   return (
-    <section id="trabalhos" className="bg-paper py-24 md:py-32">
+    <section
+      id={sectionId}
+      className={cn("py-24 md:py-32", category === "adidas" ? "bg-surface" : "bg-paper")}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <SectionHeader
             align="center"
-            index="002"
-            label={t.gallery.label}
-            title={t.gallery.title}
+            index={index}
+            label={block.label}
+            title={block.title}
           />
-        </Reveal>
-
-        <Reveal delay={0.06} className="mt-8 flex flex-wrap justify-center gap-2">
-          {filters.map((item) => {
-            const count =
-              item.id === "all"
-                ? site.gallery.length
-                : site.gallery.filter((g) => g.category === item.id).length;
-
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setFilter(item.id)}
-                className={cn(
-                  "px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-all duration-300",
-                  filter === item.id
-                    ? "bg-white text-black"
-                    : "border border-white/15 text-mute hover:border-white/40 hover:text-white",
-                )}
-              >
-                {item.label}
-                {filter === item.id ? ` (${count})` : ""}
-              </button>
-            );
-          })}
+          <p className="mx-auto mt-6 max-w-2xl text-center text-sm leading-relaxed text-mute md:text-base">
+            {block.intro}
+          </p>
         </Reveal>
 
         <Reveal delay={0.08} className="group/row relative mt-10">
@@ -131,16 +114,16 @@ export function Gallery() {
             ref={scrollRef}
             className="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 md:gap-4"
           >
-            {visibleItems.map((item, index) => (
+            {visibleItems.map((item, itemIndex) => (
               <button
                 key={item.src}
                 type="button"
-                onClick={() => setLightboxIndex(index)}
+                onClick={() => setLightboxIndex(itemIndex)}
                 className="portfolio-frame group relative h-[17.5rem] w-[13.125rem] shrink-0 snap-start sm:h-[20rem] sm:w-[15rem] md:h-[22rem] md:w-[16.5rem]"
               >
                 <Image
                   src={item.src}
-                  alt={`${t.gallery.workAlt} ${index + 1}`}
+                  alt={`${block.workAlt} ${itemIndex + 1}`}
                   fill
                   loading="lazy"
                   sizes="(max-width: 768px) 210px, 264px"

@@ -2,60 +2,54 @@ import type { Messages } from "../types";
 
 export const en: Messages = {
   meta: {
-    title: "Caio Tattoos | Old School americano",
+    title: "Caio Rodrigues | Old School & Adidas Running Custom",
     description:
-      "Tatuagens old school — bold, colorido e clássico. Lista de espera para encomendas pelo link na bio do Instagram @caiotattoos.",
+      "Tatuagem old school free hand e customização Adidas Running. Portfólio profissional — sem fotos pessoais. Lista de espera @caiotattoos.",
     ogDescription:
-      "Old school americano: linhas grossas, paleta clássica e peças customizadas. Siga @caiotattoos.",
+      "Old school free hand na pele · custom free hand em Adidas Running. @caiotattoos",
   },
   nav: [
     { label: "Início", href: "#inicio" },
     { label: "Sobre", href: "#sobre" },
-    { label: "Trabalhos", href: "#trabalhos" },
-    { label: "Estilo", href: "#estilos" },
+    { label: "Tatuagem", href: "#tatuagem" },
+    { label: "Adidas", href: "#adidas" },
     { label: "Processo", href: "#processo" },
     { label: "Lista de espera", href: "#orcamento" },
     { label: "Instagram", href: "#instagram" },
   ],
   principles: [
-    "OLD SCHOOL",
+    "OLD SCHOOL FREE HAND",
+    "ADIDAS RUNNING CUSTOM",
     "LINHAS BOLD",
-    "CORES CLÁSSICAS",
-    "PEÇAS CUSTOM",
+    "SEM FOTOS PESSOAIS",
     "CHAMAS & TRADICIONAL",
     "LISTA DE ESPERA",
   ],
   stats: [
     { value: 68131, label: "Seguidores no Instagram" },
-    { value: 57, label: "Trabalhos no feed" },
-    { value: 100, suffix: "%", label: "Foco em old school" },
-    { value: 1, label: "Estilo — tradicional americano" },
+    { value: 2, label: "Frentes de trabalho" },
+    { value: 100, suffix: "%", label: "Old school na tatuagem" },
+    { value: 100, suffix: "%", label: "Free hand na custom" },
   ],
   styles: [
     {
-      title: "Old School",
-      tagline: "Bold, colorido e atemporal.",
-      desc: "Tatuagem tradicional americana: contornos grossos, paleta clássica e composições que envelhecem bem na pele.",
+      title: "Old School Free Hand",
+      tagline: "Tatuagem tradicional americana.",
+      desc: "Contornos grossos, paleta clássica e desenho free hand — só tatuagem old school, sem misturar estilos.",
     },
     {
-      title: "Peças customizadas",
-      tagline: "Criadas para você — como as encomendas para Adidas.",
-      desc: "Projetos exclusivos desenvolvidos sob medida, do conceito à sessão. Peças customizadas com identidade old school.",
-    },
-    {
-      title: "Chamas & tradicional",
-      tagline: "O incêndio só aumenta.",
-      desc: "Motivos clássicos, chamas e energia visual — a assinatura que aparece no feed de @caiotattoos.",
+      title: "Adidas Running Custom",
+      tagline: "Customização free hand em tênis.",
+      desc: "Peças exclusivas para Adidas Running — chamas, tipografia e grafismo old school aplicados à corrida.",
     },
   ],
-  artistTags: ["Old School", "Tradicional americano", "Bold", "Custom"],
+  artistTags: ["Old School Free Hand", "Adidas Running", "Bold", "Custom"],
   artistStory: {
-    title: "Caio Tattoos — old school na veia",
+    title: "Duas frentes, uma assinatura",
     paragraphs: [
-      "Peça customizada para a @adidas — linhas bold, cores vivas e a energia clássica do tradicional americano.",
+      "Peça customizada para a @adidas — linhas bold e energia old school levadas para a corrida.",
       "Ta cansadinho de ver chamas por aqui? Então se cuida porque o incêndio só vai aumentar.",
       "Lista de espera para encomendas e informações pelo link na bio do Instagram @caiotattoos.",
-      "No final, não importa quanto tempo você teve. Importa o que fez com ele.",
     ],
   },
   process: [
@@ -101,32 +95,41 @@ export const en: Messages = {
       "Extra grande (30cm+)",
       "Fechamento",
     ],
-    styles: ["Old School", "Tradicional americano", "Custom old school"],
+    styles: [
+      "Old School Free Hand",
+      "Adidas Running Custom",
+      "Tradicional americano",
+    ],
   },
   hours: "",
   hero: {
-    name: "Caio Tattoos",
-    titleLine1: "Old School",
-    titleLine2: "Americano",
-    subtitle: "Bold, colorido e clássico — só tradicional.",
+    name: "Caio Rodrigues",
+    titleLine1: "Tatuagem",
+    titleLine2: "& Adidas Custom",
+    subtitle:
+      "Old school free hand na pele · customização free hand em Adidas Running.",
     ctaQuote: "Lista de espera →",
-    ctaWorks: "Ver trabalhos",
+    ctaWorks: "Ver tatuagem",
   },
   about: {
     label: "Sobre",
-    title: "Só old school. Sem atalho.",
+    title: "Duas frentes. Uma assinatura old school.",
     artistLabel: "Artista",
     paragraphs: [
-      "Caio Tattoos é especializado em tatuagem old school — tradicional americano com linhas grossas, cores clássicas e composições que resistem ao tempo.",
-      "Peças customizadas, parcerias como a @adidas e um feed inteiro dedicado ao estilo bold que define o tradicional.",
-      "Encomendas e informações pela lista de espera no link da bio do Instagram @caiotattoos.",
+      "Caio Rodrigues trabalha em duas frentes: tatuagem old school free hand e customização de tênis Adidas Running — sempre com linhas bold e grafismo tradicional.",
+      "O portfólio do site mostra só trabalho profissional. Fotos pessoais e de família ficam fora — no Instagram você vê o resto da jornada.",
+      "Encomendas e informações pela lista de espera no link da bio @caiotattoos.",
     ],
-    imageAlt: "Caio Tattoos — perfil Instagram @caiotattoos",
+    imageAlt: "Caio Rodrigues — old school & Adidas custom",
   },
   gallery: {
-    label: "Trabalhos",
-    title: "Old school no feed",
-    filters: { all: "Todos", oldschool: "Old School" },
+    label: "Portfólio",
+    title: "Trabalhos",
+    filters: {
+      all: "Todos",
+      oldschool: "Old School",
+      adidas: "Adidas Running",
+    },
     swipeHint: "Deslize para ver mais trabalhos",
     workAlt: "Trabalho old school",
     workEnlarged: "Trabalho ampliado",
@@ -137,9 +140,25 @@ export const en: Messages = {
     prev: "Anterior",
     next: "Próxima",
   },
+  portfolio: {
+    oldschool: {
+      label: "Tatuagem",
+      title: "Old School Free Hand",
+      intro:
+        "Tradicional americano desenhado e tatuado free hand. Portfólio curado — sem fotos pessoais ou de família.",
+      workAlt: "Tatuagem old school",
+    },
+    adidas: {
+      label: "Custom",
+      title: "Adidas Running",
+      intro:
+        "Customização free hand em tênis e peças para corrida — parceria @adidas, chamas e tipografia bold.",
+      workAlt: "Custom Adidas Running",
+    },
+  },
   stylesSection: {
-    label: "Estilo",
-    title: "Old school americano",
+    label: "Frentes",
+    title: "Tatuagem & customização",
     seeWorks: "Ver trabalhos →",
   },
   processSection: {
@@ -148,12 +167,12 @@ export const en: Messages = {
   },
   artist: {
     label: "O Artista",
-    title: "Tradicional americano, sem misturar estilos.",
+    title: "Old school na pele. Bold na corrida.",
     paragraphs: [
-      "Cada trabalho no feed de @caiotattoos reforça o mesmo compromisso: old school puro — bold, colorido e clássico.",
-      "De peças customizadas para marcas a encomendas pessoais, o foco é um só: tatuagem tradicional americana feita com identidade.",
+      "Na tatuagem, só old school free hand — tradicional americano puro, sem misturar estilos.",
+      "Na customização, a mesma linguagem visual vai para Adidas Running: chamas, tipografia e free hand em cada par.",
     ],
-    imageAlt: "Caio Tattoos — artista old school",
+    imageAlt: "Caio Rodrigues — tatuador e customizer",
   },
   testimonialsSection: {
     label: "Depoimentos",

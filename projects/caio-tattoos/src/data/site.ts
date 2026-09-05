@@ -1,6 +1,22 @@
+/** Posts com vida pessoal, família ou lifestyle — fora do portfólio profissional. */
+export const personalPostIds = new Set([
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23,
+  24, 25, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 45, 48, 50,
+  52, 56,
+]);
+
+/** Trabalho old school free hand — foco na tatuagem, sem cenas pessoais. */
+const oldschoolIds = [17] as const;
+
+/** Customização Adidas Running — produto e processo, sem rostos/família. */
+const adidasIds = [26, 27, 43, 44, 46, 47, 49, 51, 53, 54, 55, 57] as const;
+
+function galleryEntry(id: number, category: "oldschool" | "adidas") {
+  return { src: `/instagram/post-${id}.jpg`, category } as const;
+}
+
 export const site = {
   name: "Caio Tattoos",
-  /** Lista de espera via link na bio do Instagram — sem WhatsApp público no perfil. */
   whatsapp: "",
   instagram: {
     handle: "@caiotattoos",
@@ -10,82 +26,34 @@ export const site = {
   },
   assets: {
     logo: "/instagram/profile.jpg",
-    hero: "/instagram/post-4.jpg",
+    hero: "/instagram/post-17.jpg",
     artist: "/instagram/profile.jpg",
-    instagram: "/instagram/post-6.jpg",
+    instagram: "/instagram/post-44.jpg",
   },
   heroRoll: [
-    "/instagram/post-4.jpg",
-    "/instagram/post-6.jpg",
-    "/instagram/post-2.jpg",
-    "/instagram/post-14.jpg",
-    "/instagram/post-23.jpg",
-    "/instagram/post-1.jpg",
+    "/instagram/post-17.jpg",
+    "/instagram/post-44.jpg",
+    "/instagram/post-46.jpg",
+    "/instagram/post-53.jpg",
+    "/instagram/post-55.jpg",
+    "/instagram/post-43.jpg",
   ],
   styles: [
-    { image: "/instagram/post-4.jpg" },
-    { image: "/instagram/post-6.jpg" },
-    { image: "/instagram/post-14.jpg" },
+    {
+      image: "/instagram/post-17.jpg",
+      anchor: "#tatuagem",
+    },
+    {
+      image: "/instagram/post-44.jpg",
+      anchor: "#adidas",
+    },
   ],
   gallery: [
-    { src: "/instagram/post-1.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-2.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-3.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-4.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-5.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-6.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-7.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-8.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-9.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-10.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-11.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-12.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-13.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-14.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-15.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-16.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-17.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-18.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-19.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-20.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-21.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-22.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-23.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-24.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-25.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-26.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-27.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-28.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-29.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-30.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-31.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-32.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-33.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-34.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-35.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-36.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-37.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-38.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-39.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-40.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-41.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-42.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-43.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-44.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-45.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-46.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-47.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-48.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-49.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-50.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-51.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-52.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-53.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-54.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-55.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-56.jpg", category: "oldschool" as const },
-    { src: "/instagram/post-57.jpg", category: "oldschool" as const },
+    ...oldschoolIds.map((id) => galleryEntry(id, "oldschool")),
+    ...adidasIds.map((id) => galleryEntry(id, "adidas")),
   ],
 } as const;
 
-export type GalleryCategory = "all" | "oldschool";
+export type GalleryCategory = "all" | "oldschool" | "adidas";
+
+export type PortfolioCategory = Exclude<GalleryCategory, "all">;

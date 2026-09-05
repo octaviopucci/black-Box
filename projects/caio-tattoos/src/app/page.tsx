@@ -3,7 +3,7 @@ import { Artist } from "@/components/sections/artist";
 import { ArtistStory } from "@/components/sections/artist-story";
 import { CtaBand } from "@/components/sections/cta-band";
 import { Footer } from "@/components/sections/footer";
-import { Gallery } from "@/components/sections/gallery";
+import { PortfolioGallery } from "@/components/sections/gallery";
 import { Hero } from "@/components/sections/hero";
 import { InstagramSection } from "@/components/sections/instagram";
 import { Location } from "@/components/sections/location";
@@ -24,10 +24,11 @@ export default function Home() {
         <Hero />
         <About />
         <PrinciplesMarquee />
-        <Gallery />
+        <PortfolioGallery category="oldschool" sectionId="tatuagem" index="002" />
+        <PrinciplesMarquee />
+        <PortfolioGallery category="adidas" sectionId="adidas" index="003" />
         <PrinciplesMarquee />
         <Styles />
-        <PrinciplesMarquee />
         <Process />
         <Artist />
         <ArtistStory />

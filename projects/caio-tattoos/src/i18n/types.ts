@@ -12,6 +12,7 @@ export type StyleItem = {
   title: string;
   tagline: string;
   desc: string;
+  anchor?: string;
 };
 
 export type ProcessStep = {
@@ -62,7 +63,7 @@ export type Messages = {
   gallery: {
     label: string;
     title: string;
-    filters: { all: string; oldschool: string };
+    filters: { all: string; oldschool: string; adidas: string };
     swipeHint: string;
     workAlt: string;
     workEnlarged: string;
@@ -72,6 +73,20 @@ export type Messages = {
     close: string;
     prev: string;
     next: string;
+  };
+  portfolio: {
+    oldschool: {
+      label: string;
+      title: string;
+      intro: string;
+      workAlt: string;
+    };
+    adidas: {
+      label: string;
+      title: string;
+      intro: string;
+      workAlt: string;
+    };
   };
   stylesSection: {
     label: string;

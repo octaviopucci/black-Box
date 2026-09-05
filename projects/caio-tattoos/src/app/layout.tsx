@@ -25,14 +25,14 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Caio Tattoos | Old School americano",
+  title: "Caio Rodrigues | Old School & Adidas Running Custom",
   description:
-    "Tatuagens old school — bold, colorido e clássico. Lista de espera @caiotattoos no Instagram.",
+    "Tatuagem old school free hand e customização Adidas Running. @caiotattoos",
   openGraph: {
-    title: "Caio Tattoos",
+    title: "Caio Rodrigues",
     description:
-      "Old school americano: linhas grossas, paleta clássica e peças customizadas.",
-    images: ["/instagram/post-4.jpg"],
+      "Old school free hand · Adidas Running custom. @caiotattoos",
+    images: ["/instagram/post-17.jpg"],
   },
 };
 

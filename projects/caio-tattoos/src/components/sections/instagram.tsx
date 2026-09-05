@@ -11,7 +11,7 @@ export function InstagramSection() {
   const { t } = useLocale();
 
   return (
-    <section id="instagram" className="bg-paper py-20 md:py-24">
+    <section id="instagram" className="bg-surface py-20 md:py-24">
       <div className="mx-auto max-w-5xl px-6">
         <Reveal>
           <h2 className="text-center font-display text-[clamp(1.75rem,4vw,2.75rem)] leading-tight text-ink">

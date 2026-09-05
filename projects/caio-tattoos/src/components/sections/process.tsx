@@ -16,7 +16,7 @@ export function Process() {
       <div className="mx-auto max-w-5xl px-6">
         <Reveal>
           <SectionHeader
-            index="004"
+            index="005"
             label={t.processSection.label}
             title={t.processSection.title}
             align="center"

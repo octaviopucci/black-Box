@@ -96,7 +96,7 @@ export function Hero() {
                 <button
                   type="button"
                   className="btn-pill-ghost"
-                  onClick={() => scrollToHash("#trabalhos")}
+                  onClick={() => scrollToHash("#tatuagem")}
                 >
                   {t.hero.ctaWorks}
                 </button>

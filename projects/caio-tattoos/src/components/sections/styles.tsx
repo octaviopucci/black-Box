@@ -16,7 +16,7 @@ export function Styles() {
       <div className="mx-auto max-w-7xl px-6">
         <Reveal>
           <SectionHeader
-            index="003"
+            index="004"
             align="center"
             label={t.stylesSection.label}
             title={t.stylesSection.title}
@@ -43,7 +43,7 @@ export function Styles() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => scrollToHash("#trabalhos")}
+                    onClick={() => scrollToHash(style.anchor ?? "#tatuagem")}
                     className="mt-5 font-mono text-[10px] uppercase tracking-[0.22em] text-white/50 transition-colors duration-300 hover:text-white"
                   >
                     {t.stylesSection.seeWorks}
