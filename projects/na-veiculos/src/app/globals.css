@@ -125,16 +125,80 @@
 
   .film-frame {
     position: relative;
-    aspect-ratio: 4 / 5;
-    margin-inline: 3px;
+    height: 92px;
+    width: 100%;
     overflow: hidden;
     background: var(--elevated);
   }
 
-  .hero-sparkle {
-    opacity: 0.55;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
-    animation: sparkle-twinkle 3.2s ease-in-out infinite;
+  @media (min-width: 640px) {
+    .film-frame {
+      height: 104px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .film-frame {
+      height: 118px;
+    }
+  }
+
+  .hero-backdrop-photo {
+    height: 38vh;
+    max-height: 320px;
+    width: 26%;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(0.92) brightness(0.72);
+  }
+
+  .hero-backdrop-photo--center {
+    width: 34%;
+    height: 44vh;
+    max-height: 380px;
+    filter: saturate(0.95) brightness(0.78);
+  }
+
+  .starlight-star {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0.55) 45%,
+      transparent 70%
+    );
+    animation: starlight-twinkle ease-in-out infinite;
+    will-change: opacity, transform;
+  }
+
+  .starlight-star--bright {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .starlight-star--bright::before,
+  .starlight-star--bright::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    transform: translate(-50%, -50%);
+    border-radius: 1px;
+  }
+
+  .starlight-star--bright::before {
+    width: 100%;
+    height: 18%;
+    box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.85);
+  }
+
+  .starlight-star--bright::after {
+    width: 18%;
+    height: 100%;
+    box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.85);
   }
 }
 
@@ -169,15 +233,19 @@
   }
 }
 
-@keyframes sparkle-twinkle {
+@keyframes starlight-twinkle {
   0%,
   100% {
-    opacity: 0.25;
-    transform: scale(0.85);
+    opacity: 0.2;
+    transform: scale(0.55);
   }
-  50% {
-    opacity: 0.95;
+  45% {
+    opacity: 1;
     transform: scale(1);
+  }
+  72% {
+    opacity: 0.45;
+    transform: scale(0.78);
   }
 }
 
