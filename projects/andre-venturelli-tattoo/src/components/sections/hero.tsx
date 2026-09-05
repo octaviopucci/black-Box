@@ -1,83 +1,108 @@
 "use client";
 
-import Image from "next/image";
-import { site } from "@/data/site";
-import { openWhatsApp, scrollToHash } from "@/lib/whatsapp";
+import { scrollToHash } from "@/lib/whatsapp";
+import { useHeroScrub } from "@/lib/use-hero-scrub";
+import { useLocale } from "@/i18n/locale-provider";
+import { PhotoRoll } from "@/components/artifacts/photo-roll";
+import { ParticleField } from "@/components/artifacts/particle-field";
+import { DiagonalLines, ScrollIndicator } from "@/components/artifacts/kintaro-decor";
 
 export function Hero() {
+  const { t } = useLocale();
+  const { sectionRef, progress } = useHeroScrub();
+
+  const contentY = progress * 88;
+  const contentOpacity = 1 - progress * 0.92;
+  const overlayBoost = progress * 0.35;
+  const sideOverlay = 1 - progress * 0.75;
+
   return (
-    <section id="inicio" className="relative min-h-[max(100svh,720px)]">
-      <div className="absolute inset-0">
-        <Image
-          src={site.assets.hero}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-35"
+    <section
+      ref={sectionRef}
+      id="inicio"
+      className="relative h-[185svh] min-h-[920px]"
+      style={{ ["--hero-p" as string]: progress }}
+    >
+      <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-black">
+        <PhotoRoll scrollProgress={progress} />
+
+        <div className="absolute inset-0 z-[2] bg-black/28 md:bg-black/22" style={{ opacity: sideOverlay }} />
+        <div
+          className="absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-black/10 to-black/5"
+          style={{ opacity: sideOverlay }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-paper/30 via-paper/70 to-paper" />
-      </div>
+        <div
+          className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-black/10 to-transparent"
+          style={{ opacity: sideOverlay }}
+        />
+        <div
+          className="absolute inset-0 z-[2] bg-black"
+          style={{ opacity: overlayBoost * 0.55 }}
+        />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col justify-end px-6 pb-16 pt-32 md:pb-24 md:pt-40">
-        <p className="hero-enter-item font-mono text-xs tracking-[0.3em] text-mute">
-          //// {site.hero.eyebrow}
-        </p>
+        <ParticleField scrollProgress={progress} />
 
-        <h1 className="hero-enter-item mt-6 max-w-4xl font-display text-[clamp(2.5rem,7vw,5.5rem)] font-semibold leading-[1.05] tracking-tight text-ink [animation-delay:0.1s]">
-          {site.hero.title}
-        </h1>
+        <DiagonalLines
+          className="z-[4] transition-opacity duration-300"
+          style={{ opacity: 1 - progress * 0.8 }}
+        />
+        <ScrollIndicator
+          label={t.scroll}
+          className="z-[5] transition-opacity duration-300"
+          style={{ opacity: 1 - progress * 1.2 }}
+        />
 
-        <p className="hero-enter-item mt-8 max-w-2xl text-base leading-relaxed text-mute md:text-lg [animation-delay:0.18s]">
-          {site.hero.subtitle}
-        </p>
+        <div
+          className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 pt-28 will-change-transform md:pb-20 md:pt-36"
+          style={{
+            transform: `translate3d(0, ${contentY}px, 0)`,
+            opacity: contentOpacity,
+          }}
+        >
+          <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_min(42%,480px)]">
+            <div className="max-w-2xl">
+              <p className="hero-enter-item font-mono text-[10px] uppercase tracking-[0.42em] text-white/35">
+                ////
+              </p>
 
-        <div className="hero-enter-item mt-10 flex flex-wrap gap-3 [animation-delay:0.26s]">
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={() =>
-              openWhatsApp("Olá André! Gostaria de solicitar um orçamento de tatuagem.")
-            }
-          >
-            {site.hero.ctaQuote}
-          </button>
-          <button
-            type="button"
-            className="btn-ghost"
-            onClick={() => scrollToHash("#trabalhos")}
-          >
-            {site.hero.ctaWorks}
-          </button>
-        </div>
-
-        <div className="hero-enter-item mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 [animation-delay:0.34s]">
-          {site.heroCards.map((card) => (
-            <button
-              key={card.label}
-              type="button"
-              onClick={() => scrollToHash("#trabalhos")}
-              className="group overflow-hidden border border-line/80 bg-surface/80 text-left backdrop-blur-sm transition-colors hover:border-accent"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <Image
-                  src={card.image}
-                  alt={card.label}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-              </div>
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="font-display text-sm uppercase tracking-[0.15em] text-ink">
-                  {card.label}
+              <h1 className="hero-enter-item mt-5 text-[clamp(2.4rem,7.5vw,4.75rem)] font-bold uppercase leading-[0.9] tracking-tighter text-white [animation-delay:0.08s]">
+                <span className="headline-line block overflow-hidden">
+                  <span className="headline-line-inner inline-block">{t.hero.titleLine1}</span>
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-widest text-accent">
-                  ver mais
+                <span className="headline-line block overflow-hidden">
+                  <span
+                    className="headline-line-inner inline-block"
+                    style={{ animationDelay: "0.2s" }}
+                  >
+                    {t.hero.titleLine2}
+                  </span>
                 </span>
+              </h1>
+
+              <p className="hero-enter-item mt-5 max-w-md text-sm leading-relaxed text-white/55 md:text-base [animation-delay:0.28s]">
+                {t.hero.subtitle}
+              </p>
+
+              <div className="hero-enter-item mt-9 flex flex-wrap gap-3 [animation-delay:0.38s]">
+                <button
+                  type="button"
+                  className="btn-pill-primary"
+                  onClick={() => scrollToHash("#orcamento")}
+                >
+                  {t.hero.ctaQuote}
+                </button>
+                <button
+                  type="button"
+                  className="btn-pill-ghost"
+                  onClick={() => scrollToHash("#trabalhos")}
+                >
+                  {t.hero.ctaWorks}
+                </button>
               </div>
-            </button>
-          ))}
+            </div>
+
+            <div className="hidden lg:block" aria-hidden />
+          </div>
         </div>
       </div>
     </section>

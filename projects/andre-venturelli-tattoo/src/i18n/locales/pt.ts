@@ -1,0 +1,300 @@
+import type { Messages } from "../types";
+
+export const pt: Messages = {
+  meta: {
+    title: "André Ventureli Tattoo | Realismo e Coberturas em Sorocaba",
+    description:
+      "Mais de 24 anos de experiência em realismo preto e cinza, coberturas, delicadas e old school. Estúdio exclusivo em Sorocaba/SP. Solicite seu orçamento.",
+    ogDescription:
+      "Sua tattoo perfeita está aqui — realismo, coberturas, fineline e estilos clássicos em Sorocaba.",
+  },
+  nav: [
+    { label: "Início", href: "#inicio" },
+    { label: "Portfólio", href: "#trabalhos" },
+    { label: "Sobre", href: "#sobre" },
+    { label: "Estilos", href: "#estilos" },
+    { label: "Processo", href: "#processo" },
+    { label: "Orçamento", href: "#orcamento" },
+    { label: "Contato", href: "#contato" },
+  ],
+  principles: [
+    "PRIVACIDADE",
+    "ATENDIMENTO INDIVIDUALIZADO",
+    "PROJETOS PRÉ-TATTOO",
+    "MATERIAL DE PRIMEIRA LINHA",
+    "AMBIENTE CLIMATIZADO",
+    "ESTACIONAMENTO NO LOCAL",
+    "FÁCIL ACESSO",
+  ],
+  stats: [
+    { value: 24, suffix: "+", label: "Anos de experiência" },
+    { value: 100, suffix: "%", label: "Atendimento exclusivo" },
+    { value: 100, suffix: "%", label: "Material de primeira linha" },
+    { value: 100, suffix: "%", label: "Projetos personalizados" },
+  ],
+  styles: [
+    {
+      title: "Realismo Preto e Sombreado",
+      tagline: "Conheça meu trabalho",
+      desc: "Retratos hiper-realistas, sombras profundas e detalhes que impressionam — cada peça desenvolvida com precisão técnica e olhar artístico.",
+    },
+    {
+      title: "Coberturas",
+      tagline: "Conheça meu trabalho",
+      desc: "Reformas e coberturas que devolvem confiança à pele. Projetos pensados para transformar tatuagens antigas em arte nova.",
+    },
+    {
+      title: "Delicadas & Fineline",
+      tagline: "Conheça meu trabalho",
+      desc: "Traços finos, composições minimalistas e delicadas — ideal para quem busca elegância e sutileza na pele.",
+    },
+    {
+      title: "Oriental, Old School & Outros",
+      tagline: "Conheça meu trabalho",
+      desc: "Estilos clássicos e contemporâneos com identidade forte — do oriental ao old school, sempre com acabamento impecável.",
+    },
+  ],
+  artistTags: ["Realismo", "Cobertura", "Fineline", "Old School"],
+  artistStory: {
+    title: "André Ventureli — Mais de 24 anos em Sorocaba",
+    paragraphs: [
+      "Há mais de duas décadas dedico minha vida à tatuagem em Sorocaba. O estúdio foi pensado para oferecer uma experiência exclusiva: atendimento individualizado, privacidade total e ambiente climatizado para você se sentir à vontade do primeiro contato até a última sessão.",
+      "Cada projeto passa por elaboração prévia — criação de artes, ajustes e aprovação antes da agulha tocar a pele. Meu compromisso é entregar apenas o melhor: realismo preto e cinza, coberturas, delicadas, oriental e old school com material de primeira linha.",
+      "Se você busca um profissional experiente, calmo e detalhista em um estúdio completo a 83 km de São Paulo, estou pronto para transformar sua ideia em realidade.",
+    ],
+  },
+  process: [
+    {
+      step: "01",
+      title: "Contato",
+      desc: "Você envia sua ideia pelo WhatsApp ou formulário. Conversamos sobre referências, estilo, tamanho e expectativas.",
+    },
+    {
+      step: "02",
+      title: "Projeto",
+      desc: "Desenvolvo a arte exclusiva com sugestões de melhorias. Ajustamos juntos até ficar perfeito.",
+    },
+    {
+      step: "03",
+      title: "Agendamento",
+      desc: "Horário reservado só para você — sem fila, sem pressa. Ambiente privado e confortável.",
+    },
+    {
+      step: "04",
+      title: "Sessão",
+      desc: "Tatuagem realizada com técnica, calma e acompanhamento pós-sessão para cicatrização perfeita.",
+    },
+  ],
+  testimonials: [
+    {
+      name: "Fernando",
+      style: "Google Reviews",
+      text: "Simplesmente fora de série! O André é um profissional diferenciado! Parabéns!! Quanto à minha tattoo, sem comentários! Top demais.",
+    },
+    {
+      name: "Vinicius",
+      style: "Google Reviews",
+      text: "Pra mim de longe o melhor profissional que conheci! Trabalho espetacular, excelente atendimento, estúdio exclusivo e maravilhoso pronto para você fazer sua tatuagem sozinho e reservado!",
+    },
+    {
+      name: "Wagner",
+      style: "Google Reviews",
+      text: "Para quem curte atendimento VIP e qualidade, esse é o cara — André Ventureli. Educado, pontual e, acima de tudo, profissional. Material e trabalho de primeiríssima qualidade.",
+    },
+    {
+      name: "Natália",
+      style: "Google Reviews",
+      text: "Studio limpo, aconchegante e MUITO bonito, materiais de primeira linha. André é um artista! Mão leve e traço perfeito!! E com certeza o melhor atendimento que já tive em estúdio.",
+    },
+    {
+      name: "Luiz",
+      style: "Google Reviews",
+      text: "Fiz uma tatuagem realista do meu filho e ficou sensacional! Atendimento de primeira, super parceiro e tem um estúdio muito legal, limpo, organizado e com um ótimo cafezinho!",
+    },
+    {
+      name: "Rosmari",
+      style: "Google Reviews",
+      text: "Fiz uma cobertura que me incomodava há anos com o André, ficou perfeita!!! Ele é perfeccionista e passa segurança com relação ao trabalho a ser feito.",
+    },
+  ],
+  formOptions: {
+    bodyParts: [
+      "Braço",
+      "Antebraço",
+      "Ombro",
+      "Costas",
+      "Peito",
+      "Perna",
+      "Coxa",
+      "Panturrilha",
+      "Mão",
+      "Costela",
+      "Pescoço",
+      "Outro",
+    ],
+    sizes: [
+      "Pequeno (até 10cm)",
+      "Médio (10-20cm)",
+      "Grande (20-30cm)",
+      "Extra grande (30cm+)",
+      "Fechamento / Cobertura",
+    ],
+    styles: [
+      "Realismo Preto e Cinza",
+      "Cobertura",
+      "Delicadas / Fineline",
+      "Oriental",
+      "Old School",
+      "Outro",
+    ],
+  },
+  hours: `Segunda a Sexta: 9h às 18h
+Sábado: 9h às 15h
+Domingo: Fechado`,
+  hero: {
+    titleLine1: "Sua Tattoo",
+    titleLine2: "Perfeita Está Aqui",
+    subtitle:
+      "Realismo preto e cinza, coberturas, delicadas e estilos clássicos — mais de 24 anos transformando ideias em arte permanente em Sorocaba.",
+    ctaQuote: "Fazer Orçamento →",
+    ctaWorks: "Ver portfólio",
+  },
+  about: {
+    label: "O Artista",
+    title: "André Ventureli",
+    artistLabel: "Tatuador · Sorocaba/SP",
+    paragraphs: [
+      "Sou especialista em tatuagens altamente detalhadas com foco em realismo preto e cinza, coberturas, delicadas (fineline), oriental e old-school. Com mais de 24 anos de experiência, eu aprimorei minha habilidade para criar as tatuagens mais impressionantes que você já viu.",
+      "Minha paixão por desenhos me levou a desenvolver incansavelmente minha técnica, sempre desafiando o limite do que é possível. Tenho muito orgulho das minhas criações e trabalho incansavelmente para entregar apenas o melhor para cada um dos meus clientes.",
+      "Se você procura por um retrato hiper-realista, uma obra delicada ou uma cobertura de uma tatuagem que não gosta mais, não procure mais. Solicite agora mesmo seu orçamento e prepare-se para transformar sua ideia em realidade.",
+    ],
+    imageAlt: "André Ventureli — tatuador em Sorocaba",
+  },
+  gallery: {
+    label: "Portfólio",
+    title: "Conheça meu trabalho",
+    filters: {
+      all: "Todos",
+      realismo: "Realismo",
+      cobertura: "Coberturas",
+      delicadas: "Delicadas",
+      estilos: "Estilos",
+    },
+    swipeHint: "Deslize para ver mais trabalhos",
+    workAlt: "Trabalho",
+    workEnlarged: "Trabalho ampliado",
+    of: "de",
+    scrollLeft: "Rolar para esquerda",
+    scrollRight: "Rolar para direita",
+    close: "Fechar",
+    prev: "Anterior",
+    next: "Próxima",
+  },
+  stylesSection: {
+    label: "Estilos",
+    title: "Realismo, coberturas, delicadas e estilos clássicos",
+    seeWorks: "Ver portfólio →",
+  },
+  processSection: {
+    label: "Processo",
+    title: "Do orçamento à sessão",
+  },
+  artist: {
+    label: "Experiência",
+    title: "Estúdio exclusivo em Sorocaba",
+    paragraphs: [
+      "O estúdio, localizado em Sorocaba, a 83 km de São Paulo, proporciona uma experiência envolvente no universo da tatuagem. Espaço confortável, climatizado e amplo — projetado para arte, boa música e um ambiente limpo.",
+      "Atendimento individualizado, privacidade total e horários reservados só para você. Material de primeira linha e projetos desenvolvidos do zero para cada cliente.",
+    ],
+    imageAlt: "André Ventureli tatuando no estúdio",
+  },
+  testimonialsSection: {
+    label: "Depoimentos",
+    title: "Avaliações de clientes",
+    prev: "Depoimento anterior",
+    next: "Próximo depoimento",
+  },
+  artistStorySection: {
+    label: "Trajetória",
+  },
+  quoteForm: {
+    label: "Orçamento",
+    title: "Fazer Orçamento",
+    subtitle:
+      "Preencha os campos abaixo e enviaremos sua solicitação diretamente para o WhatsApp do André.",
+    placeholders: {
+      name: "Nome completo",
+      whatsapp: "WhatsApp (com DDD)",
+      email: "Email",
+      age: "Idade",
+      city: "Cidade",
+      bodyPart: "Parte do corpo",
+      size: "Tamanho aproximado",
+      style: "Estilo desejado",
+      description: "Descreva sua ideia de tatuagem...",
+      availability: "Disponibilidade para realizar a tattoo",
+    },
+    hasReference: "Tenho referência/imagem para enviar no WhatsApp",
+    submit: "Enviar orçamento pelo WhatsApp",
+  },
+  instagram: {
+    title: "Mais trabalhos do portfólio",
+    cta: "Ver portfólio completo →",
+    imageAlt: "Portfólio",
+  },
+  location: {
+    label: "Meu Studio",
+    title: "O Estúdio — Sorocaba / SP",
+    mapTitle: "Localização André Ventureli Tattoo",
+    address: "Endereço",
+    hours: "Horário",
+    directions: "Como chegar",
+  },
+  ctaBand: {
+    titleLine1: "Pronto para transformar",
+    titleLine2: "sua ideia em arte?",
+    subtitle: "Solicite seu orçamento e prepare-se para a tattoo perfeita.",
+    button: "Fazer orçamento agora →",
+  },
+  footer: {
+    tagline:
+      "Mais de 24 anos de experiência em realismo, coberturas e fineline. Estúdio exclusivo em Sorocaba/SP.",
+    quickLinks: "Links rápidos",
+    contact: "Contato",
+    rights: "Todos os direitos reservados.",
+  },
+  navbar: {
+    brand: "André Ventureli",
+    brandAria: "André Ventureli Tattoo início",
+    quote: "Orçamento →",
+    openMenu: "Abrir menu",
+    closeMenu: "Fechar menu",
+  },
+  scroll: "Scroll",
+  whatsapp: {
+    fabAria: "WhatsApp André Ventureli Tattoo",
+    fabMessage: "Olá André! Gostaria de solicitar um orçamento de tatuagem.",
+    quoteIntro: "Olá, André Ventureli Tattoo!",
+    quoteRequest: "Gostaria de solicitar um orçamento.",
+    fields: {
+      name: "Nome completo",
+      whatsapp: "WhatsApp",
+      email: "Email",
+      age: "Idade",
+      city: "Cidade",
+      bodyPart: "Parte do corpo",
+      size: "Tamanho aproximado",
+      style: "Estilo desejado",
+      description: "Descreva sua ideia de tatuagem",
+      availability: "Disponibilidade para realizar a tattoo",
+      reference: "Envie uma referência/imagem (opcional)",
+      referenceNote: "Tenho referência para enviar na conversa.",
+    },
+  },
+  language: {
+    pt: "Português",
+    en: "English",
+    fr: "Français",
+    switchTo: "Mudar idioma para",
+  },
+};

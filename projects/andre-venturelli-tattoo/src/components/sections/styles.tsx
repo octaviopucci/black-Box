@@ -1,57 +1,65 @@
 "use client";
 
 import Image from "next/image";
-import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { scrollToHash } from "@/lib/whatsapp";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 
 export function Styles() {
+  const { t } = useLocale();
+  const siteData = useSite();
+
   return (
-    <section id="estilos" className="bg-paper py-24 md:py-32">
+    <section id="estilos" className="bg-surface py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal>
           <SectionHeader
-            index="002"
-            label="Estilos"
-            title="Realismo, coberturas, delicadas e estilos clássicos — cada categoria com técnica e identidade própria."
+            index="003"
+            align="center"
+            label={t.stylesSection.label}
+            title={t.stylesSection.title}
           />
         </Reveal>
 
-        <div className="mt-16 space-y-12">
-          {site.styles.map((style, index) => (
+        <div className="mt-16 space-y-0">
+          {siteData.styles.map((style, index) => (
             <Reveal key={style.title} delay={index * 0.06}>
-              <article className="group grid gap-8 border-t border-line/40 pt-12 md:grid-cols-[80px_1fr_220px] md:items-start">
-                <span className="font-mono text-4xl font-light text-line md:text-5xl">
+              <article className="group grid gap-8 border-t border-white/10 py-12 md:grid-cols-[72px_1fr_180px] md:items-start">
+                <span className="font-mono text-4xl font-light leading-none text-white/15 md:text-5xl">
                   {String(index + 1).padStart(2, "0")}
                 </span>
 
                 <div>
-                  <h3 className="font-display text-xl font-medium uppercase tracking-wide text-ink md:text-2xl">
+                  <h3 className="text-xl font-bold uppercase tracking-wide text-ink md:text-2xl">
                     {style.title}
                   </h3>
-                  <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
                     {style.tagline}
                   </p>
-                  <p className="mt-4 max-w-xl text-sm leading-relaxed text-mute">
+                  <p className="mt-4 max-w-xl text-sm leading-relaxed text-mute md:text-base">
                     {style.desc}
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => scrollToHash("#trabalhos")}
+                    className="mt-5 font-mono text-[10px] uppercase tracking-[0.22em] text-white/50 transition-colors duration-300 hover:text-white"
+                  >
+                    {t.stylesSection.seeWorks}
+                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => scrollToHash("#trabalhos")}
-                  className="portfolio-frame group relative hidden aspect-square md:block"
-                >
+                <div className="relative hidden aspect-square overflow-hidden ring-1 ring-white/10 md:block">
                   <Image
                     src={style.image}
                     alt={style.title}
                     fill
                     loading="lazy"
-                    sizes="220px"
-                    className="portfolio-img"
+                    sizes="180px"
+                    className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                   />
-                </button>
+                </div>
               </article>
             </Reveal>
           ))}

@@ -1,35 +1,34 @@
 "use client";
 
-import Image from "next/image";
-import { Check, Clock, MapPin, Navigation } from "lucide-react";
+import { Clock, MapPin, Navigation } from "lucide-react";
 import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
-import { SectionHeader } from "@/components/ui/section-header";
 
 export function Location() {
-  return (
-    <section id="estudio" className="relative bg-paper py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
-        <Reveal>
-          <SectionHeader
-            index="004"
-            label={site.studio.label}
-            title={site.studio.title}
-          />
-        </Reveal>
+  const { t } = useLocale();
+  const siteData = useSite();
 
-        <Reveal delay={0.06} className="mt-8 max-w-3xl space-y-4 text-base leading-relaxed text-mute">
-          <p>{site.studio.intro}</p>
-          <p>{site.studio.detail}</p>
+  return (
+    <section id="contato" className="relative bg-surface py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        <Reveal className="text-center">
+          <p className="text-[11px] uppercase tracking-[0.4em] text-mute">
+            {t.location.label}
+          </p>
+          <h2 className="mt-5 font-display text-[clamp(2.2rem,5vw,4.5rem)] italic leading-[1.02] text-ink">
+            {t.location.title}
+          </h2>
         </Reveal>
 
         <div className="mt-14 grid gap-8 lg:grid-cols-2">
           <Reveal>
-            <div className="aspect-[4/3] overflow-hidden border border-line bg-elevated">
+            <div className="aspect-[4/3] overflow-hidden border border-ink/10 bg-ink/5">
               <iframe
-                title="Localização André Ventureli Tattoo"
+                title={t.location.mapTitle}
                 src={site.mapsEmbed}
-                className="h-full w-full border-0 grayscale contrast-[1.05]"
+                className="h-full w-full border-0 grayscale contrast-[1.05] invert"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 allowFullScreen
@@ -37,75 +36,47 @@ export function Location() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.08} className="space-y-8">
+          <Reveal delay={0.1} className="space-y-8">
             <div className="flex gap-5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-accent/40 text-accent">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-ink/15">
                 <MapPin className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-display text-sm uppercase tracking-[0.2em] text-ink">
-                  Endereço
+                <h3 className="text-sm uppercase tracking-[0.24em] text-ink">
+                  {t.location.address}
                 </h3>
-                <p className="mt-2 leading-relaxed text-mute">
+                <p className="mt-2 font-light leading-relaxed text-mute">
                   {site.address.line1}
                   <br />
                   {site.address.line2}
-                  <br />
-                  CEP {site.address.zip}
                 </p>
               </div>
             </div>
 
             <div className="flex gap-5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-accent/40 text-accent">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-ink/15">
                 <Clock className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-display text-sm uppercase tracking-[0.2em] text-ink">
-                  Horário
+                <h3 className="text-sm uppercase tracking-[0.24em] text-ink">
+                  {t.location.hours}
                 </h3>
-                <p className="mt-2 whitespace-pre-line leading-relaxed text-mute">
-                  {site.hours}
+                <p className="mt-2 whitespace-pre-line font-light leading-relaxed text-mute">
+                  {siteData.hours}
                 </p>
               </div>
             </div>
-
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {site.studio.amenities.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-mute">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                  {item}
-                </li>
-              ))}
-            </ul>
 
             <a
               href={site.mapsLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-primary inline-flex items-center gap-2"
+              className="inline-flex items-center gap-2 border border-ink/15 px-6 py-3 text-[11px] uppercase tracking-[0.24em] text-ink transition-colors hover:bg-ink hover:text-paper"
             >
               <Navigation className="h-4 w-4" />
-              Como chegar
+              {t.location.directions}
             </a>
           </Reveal>
-        </div>
-
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {site.studio.images.map((src, index) => (
-            <Reveal key={src} delay={index * 0.04}>
-              <div className="relative aspect-[4/3] overflow-hidden ring-1 ring-line/40">
-                <Image
-                  src={src}
-                  alt={`Estúdio André Ventureli — foto ${index + 1}`}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                />
-              </div>
-            </Reveal>
-          ))}
         </div>
       </div>
     </section>

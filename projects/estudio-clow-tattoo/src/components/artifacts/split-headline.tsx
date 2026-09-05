@@ -6,17 +6,16 @@ type SplitHeadlineProps = {
 
 export function SplitHeadline({
   lines,
-  italicFrom = 1,
   className = "",
 }: SplitHeadlineProps) {
   return (
     <h1
-      className={`font-display text-[clamp(2.8rem,8vw,6.5rem)] font-light leading-[0.92] tracking-tight text-ink ${className}`}
+      className={`text-[clamp(2.5rem,9vw,5.5rem)] font-bold uppercase leading-[0.92] tracking-tighter text-white ${className}`}
     >
       {lines.map((line, lineIndex) => (
         <span key={line} className="headline-line block overflow-hidden">
           <span
-            className={`headline-line-inner inline-block ${lineIndex >= italicFrom ? "italic" : ""}`}
+            className="headline-line-inner inline-block"
             style={{ animationDelay: `${0.15 + lineIndex * 0.12}s` }}
           >
             {line}

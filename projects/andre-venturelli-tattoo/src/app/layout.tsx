@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Cinzel, IBM_Plex_Mono, Inter } from "next/font/google";
+import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
+import { Providers } from "./providers";
 import "./globals.css";
 
-const sans = Inter({
+const sans = Space_Grotesk({
   variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const display = Cinzel({
+const display = Space_Grotesk({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
@@ -23,14 +25,16 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "André Ventureli Tattoo | Realismo, Coberturas e Fineline em Sorocaba",
+  title: "StudioClownTattoo | Arte que fica marcada para sempre",
   description:
-    "Mais de 24 anos de experiência em realismo preto e cinza, coberturas, delicadas e old school. Estúdio exclusivo em Sorocaba/SP. Solicite seu orçamento.",
+    "Tatuagens exclusivas com técnica, personalidade e dedicação em cada detalhe. Solicite seu orçamento pelo WhatsApp.",
   openGraph: {
-    title: "André Ventureli Tattoo",
+    title: "StudioClownTattoo",
     description:
-      "Sua tattoo perfeita está aqui — realismo, coberturas, fineline e estilos clássicos em Sorocaba/SP.",
-    images: ["/hero/hero-bg.jpg"],
+      "Tatuagens exclusivas com técnica, personalidade e dedicação em cada detalhe.",
+    images: [
+      "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/294ee25b1_79f8688f-9ae3-4d3a-9467-60bcf41f81c8.jpg",
+    ],
   },
 };
 
@@ -38,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <body className="min-h-screen bg-paper font-sans text-ink antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,3 +1,4 @@
+import type { Messages } from "@/i18n/types";
 import { site } from "@/data/site";
 
 export type QuoteFormData = {
@@ -14,35 +15,36 @@ export type QuoteFormData = {
   hasReference?: boolean;
 };
 
-export function buildQuoteMessage(data: QuoteFormData): string {
-  let message = `Olá, André Ventureli Tattoo!
-Gostaria de solicitar um orçamento.
+export function buildQuoteMessage(data: QuoteFormData, t: Messages): string {
+  const f = t.whatsapp.fields;
+  let message = `${t.whatsapp.quoteIntro}
+${t.whatsapp.quoteRequest}
 
 `;
-  message += `*Nome completo:* ${data.nome}
+  message += `*${f.name}:* ${data.nome}
 `;
-  message += `*WhatsApp:* ${data.whatsapp}
+  message += `*${f.whatsapp}:* ${data.whatsapp}
 `;
-  message += `*Email:* ${data.email}
+  message += `*${f.email}:* ${data.email}
 `;
-  message += `*Idade:* ${data.idade}
+  message += `*${f.age}:* ${data.idade}
 `;
-  message += `*Cidade:* ${data.cidade}
+  message += `*${f.city}:* ${data.cidade}
 `;
-  message += `*Parte do corpo:* ${data.parte}
+  message += `*${f.bodyPart}:* ${data.parte}
 `;
-  message += `*Tamanho aproximado:* ${data.tamanho}
+  message += `*${f.size}:* ${data.tamanho}
 `;
-  message += `*Estilo desejado:* ${data.estilo}
+  message += `*${f.style}:* ${data.estilo}
 `;
-  message += `*Descreva sua ideia de tatuagem...:* ${data.descricao}
+  message += `*${f.description}:* ${data.descricao}
 `;
-  message += `*Disponibilidade para realizar a tattoo:* ${data.disponibilidade}`;
+  message += `*${f.availability}:* ${data.disponibilidade}`;
 
   if (data.hasReference) {
     message += `
 
-*Envie uma referência/imagem (opcional):* Tenho referência para enviar na conversa.`;
+*${f.reference}:* ${f.referenceNote}`;
   }
 
   return message;
