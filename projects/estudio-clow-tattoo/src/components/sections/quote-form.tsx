@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { site } from "@/data/site";
+import { useLocale } from "@/i18n/locale-provider";
+import { useSite } from "@/i18n/use-site";
 import {
   buildQuoteMessage,
   openWhatsApp,
@@ -27,8 +28,11 @@ const fieldClass =
   "w-full border border-line bg-elevated px-4 py-3.5 text-sm text-ink outline-none transition-colors placeholder:text-mute/60 focus:border-accent-soft";
 
 export function QuoteForm() {
+  const { t } = useLocale();
+  const siteData = useSite();
   const [form, setForm] = useState<QuoteFormData>(initialState);
   const [hasReference, setHasReference] = useState(false);
+  const p = t.quoteForm.placeholders;
 
   const update = (
     event: React.ChangeEvent<
@@ -40,7 +44,7 @@ export function QuoteForm() {
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    openWhatsApp(buildQuoteMessage({ ...form, hasReference }));
+    openWhatsApp(buildQuoteMessage({ ...form, hasReference }, t));
   };
 
   return (
@@ -48,14 +52,13 @@ export function QuoteForm() {
       <div className="mx-auto max-w-3xl px-6">
         <Reveal className="text-center">
           <span className="text-xs uppercase tracking-[0.4em] text-mute">
-            Orçamento
+            {t.quoteForm.label}
           </span>
           <h2 className="mt-4 font-display text-4xl font-light italic text-ink sm:text-5xl md:text-6xl">
-            Solicitar orçamento
+            {t.quoteForm.title}
           </h2>
           <p className="mx-auto mt-4 max-w-xl font-light text-mute">
-            Preencha os campos abaixo e enviaremos sua solicitação diretamente
-            para nosso WhatsApp.
+            {t.quoteForm.subtitle}
           </p>
         </Reveal>
 
@@ -64,7 +67,7 @@ export function QuoteForm() {
             <div className="grid gap-4 sm:grid-cols-2">
               <input
                 name="nome"
-                placeholder="Nome completo"
+                placeholder={p.name}
                 value={form.nome}
                 onChange={update}
                 className={fieldClass}
@@ -72,7 +75,7 @@ export function QuoteForm() {
               />
               <input
                 name="whatsapp"
-                placeholder="WhatsApp (com DDD)"
+                placeholder={p.whatsapp}
                 value={form.whatsapp}
                 onChange={update}
                 className={fieldClass}
@@ -84,14 +87,14 @@ export function QuoteForm() {
               <input
                 name="email"
                 type="email"
-                placeholder="Email"
+                placeholder={p.email}
                 value={form.email}
                 onChange={update}
                 className={fieldClass}
               />
               <input
                 name="idade"
-                placeholder="Idade"
+                placeholder={p.age}
                 value={form.idade}
                 onChange={update}
                 className={fieldClass}
@@ -100,7 +103,7 @@ export function QuoteForm() {
 
             <input
               name="cidade"
-              placeholder="Cidade"
+              placeholder={p.city}
               value={form.cidade}
               onChange={update}
               className={fieldClass}
@@ -114,8 +117,8 @@ export function QuoteForm() {
                 className={cn(fieldClass, "appearance-none")}
                 required
               >
-                <option value="">Parte do corpo</option>
-                {site.formOptions.bodyParts.map((part) => (
+                <option value="">{p.bodyPart}</option>
+                {siteData.formOptions.bodyParts.map((part) => (
                   <option key={part} value={part}>
                     {part}
                   </option>
@@ -128,8 +131,8 @@ export function QuoteForm() {
                 className={cn(fieldClass, "appearance-none")}
                 required
               >
-                <option value="">Tamanho aproximado</option>
-                {site.formOptions.sizes.map((size) => (
+                <option value="">{p.size}</option>
+                {siteData.formOptions.sizes.map((size) => (
                   <option key={size} value={size}>
                     {size}
                   </option>
@@ -144,8 +147,8 @@ export function QuoteForm() {
               className={cn(fieldClass, "appearance-none")}
               required
             >
-              <option value="">Estilo desejado</option>
-              {site.formOptions.styles.map((style) => (
+              <option value="">{p.style}</option>
+              {siteData.formOptions.styles.map((style) => (
                 <option key={style} value={style}>
                   {style}
                 </option>
@@ -154,7 +157,7 @@ export function QuoteForm() {
 
             <textarea
               name="descricao"
-              placeholder="Descreva sua ideia de tatuagem..."
+              placeholder={p.description}
               value={form.descricao}
               onChange={update}
               rows={5}
@@ -164,7 +167,7 @@ export function QuoteForm() {
 
             <input
               name="disponibilidade"
-              placeholder="Disponibilidade para realizar a tattoo"
+              placeholder={p.availability}
               value={form.disponibilidade}
               onChange={update}
               className={fieldClass}
@@ -177,14 +180,11 @@ export function QuoteForm() {
                 onChange={(e) => setHasReference(e.target.checked)}
                 className="h-4 w-4 accent-ink"
               />
-              Tenho referência/imagem para enviar no WhatsApp
+              {t.quoteForm.hasReference}
             </label>
 
-            <button
-              type="submit"
-              className="btn-primary w-full"
-            >
-              Enviar orçamento pelo WhatsApp
+            <button type="submit" className="btn-primary w-full">
+              {t.quoteForm.submit}
             </button>
           </form>
         </Reveal>

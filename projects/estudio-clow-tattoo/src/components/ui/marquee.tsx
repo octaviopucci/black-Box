@@ -10,14 +10,14 @@ export function Marquee({ items, className = "" }: MarqueeProps) {
 
   return (
     <div
-      className={`overflow-hidden border-y border-line/40 bg-paper py-4 ${className}`}
+      className={`overflow-hidden border-y border-white/10 bg-black py-4 ${className}`}
       aria-hidden
     >
-      <div className="marquee-track flex w-max gap-12">
+      <div className="marquee-track flex w-max gap-10 md:gap-14">
         {track.map((item, i) => (
           <span
             key={`${item}-${i}`}
-            className="shrink-0 font-mono text-[11px] uppercase tracking-[0.35em] text-mute/70"
+            className="shrink-0 font-mono text-[10px] uppercase tracking-[0.38em] text-white/35"
           >
             {item}
           </span>
