@@ -28,3 +28,4 @@ api/pix/_gateway.cjs
 api/_pix_gateway.cjs
 portal/node_modules
 portal/dist
+lpgestor/
