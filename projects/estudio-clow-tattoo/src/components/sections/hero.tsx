@@ -2,6 +2,7 @@
 
 import { scrollToHash } from "@/lib/whatsapp";
 import { useHeroScrub } from "@/lib/use-hero-scrub";
+import { smootherstep } from "@/lib/hero-easing";
 import { useLocale } from "@/i18n/locale-provider";
 import { PhotoRoll } from "@/components/artifacts/photo-roll";
 import { ParticleField } from "@/components/artifacts/particle-field";
@@ -11,17 +12,18 @@ export function Hero() {
   const { t } = useLocale();
   const { sectionRef, progress } = useHeroScrub();
 
-  const contentY = progress * 96;
-  const contentOpacity = 1 - progress * 0.95;
-  const overlayBoost = progress * 0.28;
-  const sideOverlay = 1 - progress * 0.88;
-  const handoffOpacity = Math.min(Math.max((progress - 0.5) / 0.5, 0), 1);
+  const fade = smootherstep(progress);
+  const contentY = fade * 72;
+  const contentOpacity = 1 - smootherstep(Math.min(progress / 0.82, 1));
+  const overlayBoost = fade * 0.22;
+  const sideOverlay = 1 - smootherstep(Math.min(progress / 0.9, 1));
+  const handoffOpacity = smootherstep(Math.min(Math.max((progress - 0.35) / 0.65, 0), 1));
 
   return (
     <section
       ref={sectionRef}
       id="inicio"
-      className="relative h-[200svh] min-h-[980px]"
+      className="relative h-[240svh] min-h-[1080px]"
       style={{ ["--hero-p" as string]: progress }}
     >
       <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-black">
@@ -38,25 +40,25 @@ export function Hero() {
         />
         <div
           className="absolute inset-0 z-[2] bg-black"
-          style={{ opacity: overlayBoost * 0.45 }}
+          style={{ opacity: overlayBoost * 0.4 }}
         />
 
         <ParticleField scrollProgress={progress} />
 
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[14] h-40 bg-gradient-to-t from-paper via-paper/80 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[14] h-48 bg-gradient-to-t from-paper via-paper/85 to-transparent"
           style={{ opacity: handoffOpacity }}
           aria-hidden
         />
 
         <DiagonalLines
-          className="z-[4] transition-opacity duration-300"
-          style={{ opacity: 1 - progress * 0.85 }}
+          className="z-[4]"
+          style={{ opacity: 1 - smootherstep(Math.min(progress / 0.75, 1)) }}
         />
         <ScrollIndicator
           label={t.scroll}
-          className="z-[5] transition-opacity duration-300"
-          style={{ opacity: 1 - progress * 1.25 }}
+          className="z-[5]"
+          style={{ opacity: 1 - smootherstep(Math.min(progress / 0.55, 1)) }}
         />
 
         <div

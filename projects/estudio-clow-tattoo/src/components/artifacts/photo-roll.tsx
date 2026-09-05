@@ -5,13 +5,7 @@ import { useMemo } from "react";
 import { site } from "@/data/site";
 import { cn } from "@/lib/utils";
 
-function smoothstep(t: number) {
-  return t * t * (3 - 2 * t);
-}
-
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t;
-}
+import { lerp } from "@/lib/hero-easing";
 
 function dedupe(urls: readonly string[]): string[] {
   return [...new Set(urls)];
@@ -115,7 +109,7 @@ type PhotoRollProps = {
 
 export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps) {
   const columns = useMemo(() => buildColumns(), []);
-  const t = smoothstep(scrollProgress);
+  const t = scrollProgress;
   const cinematic = 1 - t;
 
   // Collapsed: rolls on the right (~58% width). Expanded: full viewport, 50/50 columns.

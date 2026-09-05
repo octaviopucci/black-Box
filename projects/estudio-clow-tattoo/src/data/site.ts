@@ -149,6 +149,8 @@ export const site = {
       category: "blackgrey" as const,
     },
   ],
+  /** Fotos do estúdio — grid abaixo do mapa quando preenchido */
+  studioPhotos: [] as const,
   /** Idiomas ativos — Clown: pt/en/fr; demais clientes: só pt até contratar tradução */
   i18nLocales: ["pt", "en", "fr"] as const,
 } as const;

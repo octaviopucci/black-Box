@@ -10,6 +10,7 @@ Referência live: https://estudio-clow-tattoo.netlify.app
 |------|-----------------|----------|
 | Logo, fotos, galeria | `public/` + `src/data/site.ts` | Drive `00–03` |
 | WhatsApp, Instagram, endereço, mapa | `src/data/site.ts` | Seção 2, 4 |
+| Fotos do estúdio (opcional) | `site.studioPhotos` + `public/studio/` | Seção 4 — grid só aparece se houver fotos |
 | Textos PT | `src/i18n/locales/pt.ts` | Seções 5–12 |
 | Textos EN / FR | `src/i18n/locales/en.ts`, `fr.ts` | Seção 3 — **só se contratado**; definir `i18nLocales` em `site.ts` |
 | Cores | `src/app/globals.css` (`--paper`, `--ink`, …) | Seção 1 |

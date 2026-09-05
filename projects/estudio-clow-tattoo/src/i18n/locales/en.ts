@@ -239,6 +239,7 @@ Sunday: Closed`,
     address: "Address",
     hours: "Hours",
     directions: "Get directions",
+    studioPhotoAlt: "Studio photo",
   },
   ctaBand: {
     titleLine1: "Ready to turn",
