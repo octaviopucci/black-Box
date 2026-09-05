@@ -10,9 +10,6 @@ export const site = {
     line1: "Rua Olímpio de Campos, 55, Jd Vila Formosa",
     line2: "São Paulo, SP",
   },
-  hours: `Segunda a Sexta: 10h às 20h
-Sábado: 10h às 18h
-Domingo: Fechado`,
   mapsEmbed:
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.1976536856026!2d-46.6564!3d-23.5505!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDMzJzAxLjgiUyA0NsKwMzknMjMuMCJX!5e0!3m2!1spt-BR!2sbr!4v1234567890",
   assets: {
@@ -21,144 +18,25 @@ Domingo: Fechado`,
     artist: "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/d2b975259_f8f2f203-755c-4193-9fa7-d81509e76f03.jpg",
     instagram: "https://media.base44.com/images/public/6a2ec6a5abe80eb43c19249d/6ffcf53fc_e6e5a491-f051-4e1a-8e32-bf7cee84fb32.jpg",
   },
-  nav: [
-    { label: "Início", href: "#inicio" },
-    { label: "Sobre", href: "#sobre" },
-    { label: "Estilos", href: "#estilos" },
-    { label: "Trabalhos", href: "#trabalhos" },
-    { label: "Trajetória", href: "#trajetoria" },
-    { label: "Contato", href: "#contato" },
-  ],
-  principles: [
-    "ARTE PERMANENTE",
-    "HIGIENE TOTAL",
-    "PROJETOS EXCLUSIVOS",
-    "TÉCNICA REFINADA",
-    "ATENDIMENTO PERSONALIZADO",
-    "MATERIAIS DESCARTÁVEIS",
-  ],
-  roadmap: [
-    {
-      year: "2019",
-      title: "Primeiro contato com a tatuagem",
-      desc: "Descobri um universo onde cada trabalho carrega significado, memória e emoção — e passei a eternizar histórias na pele.",
-      tags: ["Tatuagem", "Arte"],
-    },
-    {
-      year: "2020",
-      title: "Grafite e arte urbana",
-      desc: "Dois anos em projetos artísticos em comércios, escolas e espaços públicos, levando identidade e personalidade para diferentes ambientes.",
-      tags: ["Grafite", "Arte Urbana"],
-    },
-    {
-      year: "2022",
-      title: "Patrocínio Tribo do Sol",
-      desc: "Conquista de patrocínio pela Tribo do Sol, uma das maiores marcas de tatuagem do Brasil, e premiações em convenções pelo país.",
-      tags: ["Tribo do Sol", "Premiações"],
-    },
-    {
-      year: "2024",
-      title: "Arte além-fronteiras",
-      desc: "Trabalho levado até Paris, na França — compartilhando minha visão artística com novos públicos e expandindo referências.",
-      tags: ["Paris", "Internacional"],
-    },
-    {
-      year: "2026",
-      title: "StudioClownTattoo",
-      desc: "Estúdio em São Paulo com foco em realismo, preto & cinza e colorido — cada projeto desenvolvido com dedicação e atenção aos detalhes.",
-      tags: ["Realismo", "Black & Grey", "Colorido"],
-    },
-  ],
-  stats: [
-    { value: 3000, label: "Tatuagens feitas" },
-    { value: 6, label: "Anos de experiência" },
-    { value: 100, suffix: "%", label: "Dedicação a cada projeto" },
-    { value: 100, suffix: "%", label: "Materiais descartáveis" },
+  heroRoll: [
+    "/hero/rafael/rafael-estudio-branco.jpg",
+    "/hero/rafael/rafael-perfil-paris.jpg",
+    "/hero/rafael/rafael-estudio-apron.jpg",
+    "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/294ee25b1_79f8688f-9ae3-4d3a-9467-60bcf41f81c8.jpg",
+    "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/d2b975259_f8f2f203-755c-4193-9fa7-d81509e76f03.jpg",
   ],
   styles: [
     {
-      title: "Preto & Cinza",
-      tagline: "Arte feita através de luz, sombra e detalhes.",
-      desc: "Sombras profundas, contrastes precisos e detalhes que transformam pele em arte. Cada traço revela profundidade e emoção.",
       image:
         "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/e7950d191_IMG_0820.jpg",
     },
     {
-      title: "Colorido",
-      tagline: "Expressão através de cores, vida e personalidade.",
-      desc: "Cores que dão vida às ideias e transformam histórias em arte permanente. Vibrante, intenso e cheio de personalidade.",
       image:
         "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/2a99f1c33_a8a37897-6b0a-44d2-8a7d-0e7241e33e3a.jpg",
     },
     {
-      title: "Projetos Personalizados",
-      tagline: "Criado exclusivamente para você.",
-      desc: "Tatuagens criadas exclusivamente para cada cliente. Seu projeto é único, assim como sua história.",
       image:
         "https://media.base44.com/images/public/user_6a2c5e47c9d1637a9cb37cfd/d2b975259_f8f2f203-755c-4193-9fa7-d81509e76f03.jpg",
-    },
-  ],
-  artistTags: ["Black & Grey", "Realismo", "Colorido", "Personalizado"],
-  artistStory: {
-    title: "Rafael Mactura — Arte que Marca Histórias",
-    paragraphs: [
-      "Minha trajetória na arte começou muito antes da tatuagem. Desde criança, eu passava horas reproduzindo desenhos inspirados por figurinhas, animações e personagens que despertavam minha criatividade. Foi nesse período que nasceu não apenas minha paixão pelo desenho, mas também o desejo de transformar a arte em profissão.",
-      "Anos mais tarde, encontrei no grafite uma nova forma de expressão. Durante cerca de dois anos, participei de projetos artísticos em comércios, escolas, ações sociais e espaços públicos, levando cor, identidade e personalidade para diferentes ambientes através da arte urbana.",
-      "Em 2019, tive meu primeiro contato com a tatuagem — um momento que mudou completamente minha visão sobre a arte. Descobri um universo onde cada trabalho carrega significado, memória e emoção. Mais do que criar desenhos, passei a eternizar histórias na pele das pessoas.",
-      "O que mais me fascinou foi a responsabilidade e a precisão que a tatuagem exige. A ideia de transformar uma obra em algo permanente, sem espaço para erros, despertou em mim um respeito ainda maior pela profissão e me motivou a buscar evolução constante.",
-      "Essa dedicação me proporcionou importantes conquistas ao longo da minha carreira. Fui patrocinado pela Tribo do Sol, uma das maiores marcas de tatuagem do Brasil, além de receber premiações em diversos eventos e convenções de tatuagem pelo país. Minha arte também ultrapassou fronteiras, levando meu trabalho até Paris, na França, onde tive a oportunidade de compartilhar minha visão artística com novos públicos.",
-      "Além da tatuagem, continuo explorando outras formas de arte, produzindo quadros e desenhos tradicionais. No entanto, meu verdadeiro propósito está na arte permanente: aquela que acompanha uma pessoa por toda a vida e atravessa gerações carregando histórias, sentimentos e significados.",
-      "Cada tatuagem que realizo é desenvolvida com dedicação, técnica e atenção aos detalhes, buscando criar algo único para cada cliente.",
-      "Se você valoriza exclusividade, qualidade e uma experiência artística autêntica, convido você a conhecer meu trabalho de perto e descobrir como podemos transformar sua ideia em uma obra de arte para a vida toda.",
-    ],
-  },
-  process: [
-    {
-      step: "01",
-      title: "Ideia inicial",
-      desc: "Cliente envia referência e explica sua ideia. Ouvimos cada detalhe para entender sua visão.",
-    },
-    {
-      step: "02",
-      title: "Criação",
-      desc: "O artista desenvolve um conceito exclusivo, combinando técnica com a personalidade do cliente.",
-    },
-    {
-      step: "03",
-      title: "Ajustes",
-      desc: "Definição de tamanho, local e detalhes. Refinamos até alcançar a perfeição.",
-    },
-    {
-      step: "04",
-      title: "Sessão",
-      desc: "A tatuagem é realizada com segurança, profissionalismo e total dedicação artística.",
-    },
-  ],
-  testimonials: [
-    {
-      name: "Lucas M.",
-      style: "Black & Grey",
-      text: "Trabalho impecável! O artista entendeu exatamente o que eu queria e superou todas as minhas expectativas. A atenção aos detalhes é absurda.",
-    },
-    {
-      name: "Amanda R.",
-      style: "Colorido",
-      text: "Minha primeira tatuagem colorida e não poderia ter escolhido lugar melhor. As cores ficaram incríveis e o atendimento foi perfeito do início ao fim.",
-    },
-    {
-      name: "Gabriel S.",
-      style: "Realismo",
-      text: "Já é a terceira tatuagem que faço no StudioClownTattoo. A qualidade é consistente e cada projeto é tratado como único. Recomendo de olhos fechados.",
-    },
-    {
-      name: "Beatriz L.",
-      style: "Fine Line",
-      text: "O ambiente é muito profissional e acolhedor. Me senti segura durante todo o processo. O resultado ficou ainda melhor do que eu imaginava.",
-    },
-    {
-      name: "Rafael C.",
-      style: "Realismo",
-      text: "Arte de verdade na pele. O nível de realismo é impressionante. Melhor estúdio que já conheci, sem dúvidas.",
     },
   ],
   gallery: [
@@ -271,40 +149,8 @@ Domingo: Fechado`,
       category: "blackgrey" as const,
     },
   ],
-  formOptions: {
-    bodyParts: [
-      "Braço",
-      "Antebraço",
-      "Ombro",
-      "Costas",
-      "Peito",
-      "Perna",
-      "Coxa",
-      "Panturrilha",
-      "Mão",
-      "Costela",
-      "Pescoço",
-      "Outro",
-    ],
-    sizes: [
-      "Pequeno (até 10cm)",
-      "Médio (10-20cm)",
-      "Grande (20-30cm)",
-      "Extra grande (30cm+)",
-      "Fechamento",
-    ],
-    styles: [
-      "Preto & Cinza",
-      "Realismo",
-      "Colorido",
-      "Fine Line",
-      "Old School",
-      "Neo Tradicional",
-      "Blackwork",
-      "Geométrica",
-      "Outro",
-    ],
-  },
+  /** Idiomas ativos — Clown: pt/en/fr; demais clientes: só pt até contratar tradução */
+  i18nLocales: ["pt", "en", "fr"] as const,
 } as const;
 
 export type GalleryCategory = "all" | "blackgrey" | "colorido";
