@@ -1,0 +1,67 @@
+export const readoutSample = {
+  patient: {
+    name: 'Rafael Costa Almeida',
+    examDate: '20/06/2026 10:05',
+    birthDate: '22/07/1989',
+    sex: 'Masculino',
+    lifestyle: 'Sedentário',
+    heightCm: 183,
+    weightKg: 128,
+    bmi: 38.2215,
+  },
+  tmb: {
+    value: 2370,
+    unit: 'KCal/Dia',
+    predicted: 2526,
+    hint: 'Quantidade de energia necessária para manter as funções vitais do organismo em jejum e repouso em 24 horas.',
+  },
+  get: {
+    value: 3081,
+    unit: 'KCal/Dia',
+    hint: 'O gasto energético total é quanto cada indivíduo gasta de energia ao longo de um dia.',
+  },
+  exam: {
+    rq: 0.79,
+    fat: 70.1,
+    carbs: 29.9,
+    vo2: 2.87,
+    vo2Unit: 'ml/Kg.min',
+    ve: 11.52,
+    veUnit: 'l/min',
+    hint: 'A relação entre o CO₂ produzido e o O₂ consumido (RQ) indica se o organismo está utilizando mais gordura ou carboidrato como fonte de energia. Valores mais baixos indicam maior uso de gordura; valores mais altos, maior uso de carboidrato.',
+  },
+  stabilizationMin: 3.2,
+  chart: {
+    /** 0–16 min, passo 2 — igual ao laudo HandyMET */
+    minutes: [0, 2, 4, 6, 8, 10, 12, 14, 16] as number[],
+    ve: [0, 14.2, 10.8, 13.1, 9.6, 14.5, 11.2, 13.4, 12.0],
+    vo2: [0, 3.55, 2.7, 3.28, 2.4, 3.62, 2.8, 3.35, 3.0],
+    tmb: [0, 2180, 2420, 2080, 2580, 2240, 2460, 2120, 2370],
+    scales: {
+      ve: { min: 0, max: 16, step: 2 },
+      vo2: { min: 0, max: 4, step: 0.5 },
+      tmb: { min: 0, max: 3000, step: 500 },
+    },
+  },
+  exercises: [
+    { name: 'YOGA', mets: '2,5', kcal20: 82, kcal30: 123, kcal60: 247 },
+    { name: 'HIDROGINÁSTICA', mets: '4', kcal20: 132, kcal30: 198, kcal60: 395 },
+    { name: 'CAMINHADA A 6 KM/H', mets: '5', kcal20: 165, kcal30: 247, kcal60: 494 },
+    { name: 'MUSCULAÇÃO', mets: '6', kcal20: 198, kcal30: 296, kcal60: 593 },
+    { name: 'SUBIR ESCADAS', mets: '7', kcal20: 230, kcal30: 346, kcal60: 691 },
+    { name: 'CICLISMO', mets: '8', kcal20: 263, kcal30: 395, kcal60: 790 },
+    { name: 'NATAÇÃO', mets: '8', kcal20: 263, kcal30: 395, kcal60: 790 },
+    { name: 'TÊNIS', mets: '8', kcal20: 263, kcal30: 395, kcal60: 790 },
+    { name: 'DANÇAR', mets: '8', kcal20: 263, kcal30: 395, kcal60: 790 },
+    { name: 'VOLEIBOL', mets: '8', kcal20: 263, kcal30: 395, kcal60: 790 },
+    { name: 'FUTEBOL', mets: '8|10', kcal20: '263–329', kcal30: '395–494', kcal60: '790–988' },
+    { name: 'PULAR CORDA', mets: '9', kcal20: 296, kcal30: 444, kcal60: 889 },
+    { name: 'LUTA', mets: '10', kcal20: 329, kcal30: 494, kcal60: 988 },
+    { name: 'CORRIDA A 10 KM/H', mets: '10', kcal20: 329, kcal30: 494, kcal60: 988 },
+  ],
+  exerciseFootnote: '* Valores calculados com base em sua TMB.',
+  exerciseHint:
+    'A prática de exercícios físicos aumenta o metabolismo em relação à taxa basal. Conhecendo o gasto por hora, é possível calcular quanto cada atividade consome com base no seu resultado individual.',
+} as const
+
+export type ExerciseRow = (typeof readoutSample.exercises)[number]
