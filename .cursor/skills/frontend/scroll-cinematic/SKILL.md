@@ -6,6 +6,7 @@ description: >-
   timelines. Use when the user asks for vídeo no scroll, background animado,
   scrub, pin, corridor, or Apple-like scroll storytelling.
 paths:
+  - "projects/**/*.{tsx,jsx,css}"
   - "apps/**/*.{tsx,jsx,css}"
   - "portal/**/*.{tsx,jsx,css}"
 ---

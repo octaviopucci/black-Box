@@ -31,6 +31,33 @@ motion. Mínimo 1 rodada de polish no hero.
 - `cd projects/<slug> && npm run build` verde
 - Lighthouse se pedido (meta 90+ performance)
 
+## E — Premium sem GSAP/Lenis (Erro Premium)
+
+**Sintoma:** Pedido “nível ARP” mas só Framer `whileInView` + hero gradiente flat.
+
+**Fix:** Tier Premium exige [premium-motion.md](premium-motion.md):
+Lenis provider, 1 pin+scrub, hero layered, btn-shine. Framer só micro-UI.
+
+## F — Pin stacking (Erro Premium)
+
+**Sintoma:** Duas ou mais seções pinned seguidas; scroll trava, UX ruim.
+
+**Fix:** Máximo **1** seção pinned por landing. Demais seções: reveal simples.
+
+## G — Motion sem reduced-motion (Erro Premium)
+
+**Sintoma:** Pin/scrub ativo com `prefers-reduced-motion: reduce`.
+
+**Fix:** Fallback estático — última headline visível, scroll nativo, sem Lenis.
+
+## H — Só documentou, não executou (Erro Premium)
+
+**Sintoma:** Resposta com plano/perguntas mas `projects/<slug>/` não existe.
+
+**Fix:** Rodar `bash .cursor/skills/frontend/agency-site/scripts/scaffold-premium.sh <slug>`,
+editar `site.config.ts`, `npm run build` verde — **na mesma resposta**.
+Gatilho correto: **`/agency-premium`**.
+
 ---
 
 ## Honestidade
