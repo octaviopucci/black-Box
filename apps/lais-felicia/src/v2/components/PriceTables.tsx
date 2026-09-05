@@ -3,6 +3,7 @@ import { v2Path } from '../base'
 import { extras, plans, services, whatsappUrl } from '../../data/site'
 import { PriceBlock } from './PriceBlock'
 import { Reveal } from './Reveal'
+import { SectionIntro } from './SectionIntro'
 
 export function PriceTables() {
   const procedureRows = services.map((item) => ({ name: item.name, price: item.price }))
@@ -11,11 +12,13 @@ export function PriceTables() {
     <section id="valores" className="section-pad border-t border-ink/10">
       <Reveal>
         <div className="mx-auto max-w-6xl">
-          <p className="eyebrow">Valores</p>
-          <h2 className="display-title mt-2 text-3xl sm:text-4xl">Procedimentos e planos</h2>
-          <p className="mt-3 max-w-xl text-sm text-ink-mute">
-            Tabela completa de atendimentos. Pagamento na sessão: Pix, cartão ou dinheiro.
-          </p>
+          <SectionIntro
+            eyebrow="Valores"
+            title="Procedimentos e planos"
+            titleClassName="text-3xl sm:text-4xl"
+            description="Tabela completa de atendimentos. Pagamento na sessão: Pix, cartão ou dinheiro."
+            className="mb-0 max-w-2xl"
+          />
         </div>
       </Reveal>
 

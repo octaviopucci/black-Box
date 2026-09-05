@@ -1,16 +1,20 @@
 import { site, v2Asset, v2Testimonials } from '../data/site'
 import { Carousel } from './Carousel'
 import { Reveal } from './Reveal'
+import { SectionIntro } from './SectionIntro'
 
 export function Testimonials() {
   return (
     <div className="mx-auto max-w-6xl">
       <Reveal>
-        <p className="eyebrow">Depoimentos</p>
-        <h3 className="display-title mt-3 text-3xl sm:text-4xl">O que as alunas dizem</h3>
-        <p className="mt-4 max-w-lg text-sm text-ink-soft">
-          Prints reais de alunas que passaram pelos cursos presenciais.
-        </p>
+        <SectionIntro
+          eyebrow="Depoimentos"
+          title="O que as alunas dizem"
+          titleAs="h3"
+          titleClassName="text-3xl sm:text-4xl"
+          description="Prints reais de alunas que passaram pelos cursos presenciais."
+          className="mb-8"
+        />
       </Reveal>
 
       <div className="mt-8">
@@ -32,7 +36,7 @@ export function Testimonials() {
         </Carousel>
       </div>
 
-      <p className="mt-8 text-sm text-ink-mute">
+      <p className="mt-8 text-center text-sm text-ink-mute">
         {site.studio} · {site.city}
       </p>
     </div>
