@@ -85,7 +85,7 @@ export function Hero() {
 
         <HeroStarlight />
 
-        <div className="grain pointer-events-none absolute inset-0 z-[5] opacity-[0.12]" aria-hidden />
+        <div className="grain pointer-events-none absolute inset-0 z-[5] opacity-[0.07]" aria-hidden />
 
         <div className="vignette pointer-events-none absolute inset-0 z-[5] opacity-55" aria-hidden />
 

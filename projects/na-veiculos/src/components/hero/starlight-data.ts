@@ -21,17 +21,17 @@ export type Star = {
   bright: boolean;
 };
 
-export const STARLIGHT: Star[] = Array.from({ length: 220 }, () => {
+export const STARLIGHT: Star[] = Array.from({ length: 260 }, () => {
   const roll = rand();
-  const bright = roll > 0.93;
-  const medium = roll > 0.68;
+  const bright = roll > 0.88;
+  const medium = roll > 0.58;
   return {
     left: rand() * 100,
     top: rand() * 100,
-    size: bright ? 3.2 : medium ? 1.6 : 0.9 + rand() * 0.6,
-    opacity: bright ? 1 : medium ? 0.55 + rand() * 0.25 : 0.18 + rand() * 0.32,
+    size: bright ? 3.6 : medium ? 2 : 1 + rand() * 0.8,
+    opacity: bright ? 1 : medium ? 0.72 + rand() * 0.2 : 0.35 + rand() * 0.4,
     delay: rand() * 8,
-    duration: 2.2 + rand() * 6.8,
+    duration: 1.8 + rand() * 5.2,
     bright,
   };
 });
