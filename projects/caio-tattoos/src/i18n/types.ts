@@ -31,6 +31,9 @@ export type FormOptions = {
   bodyParts: string[];
   sizes: string[];
   styles: string[];
+  requestTypes: { value: string; label: string }[];
+  shoeModels: string[];
+  shoeSizes: string[];
 };
 
 export type Messages = {
@@ -80,6 +83,7 @@ export type Messages = {
       title: string;
       intro: string;
       workAlt: string;
+      embedsLabel: string;
     };
     adidas: {
       label: string;
@@ -122,10 +126,15 @@ export type Messages = {
       email: string;
       age: string;
       city: string;
+      requestType: string;
       bodyPart: string;
       size: string;
       style: string;
+      shoeModel: string;
+      shoeSize: string;
       description: string;
+      descriptionTattoo: string;
+      descriptionSneaker: string;
       availability: string;
     };
     hasReference: string;
@@ -169,6 +178,8 @@ export type Messages = {
     fabMessage: string;
     quoteIntro: string;
     quoteRequest: string;
+    quoteRequestTattoo: string;
+    quoteRequestSneaker: string;
     fields: {
       name: string;
       whatsapp: string;
@@ -180,6 +191,9 @@ export type Messages = {
       style: string;
       description: string;
       availability: string;
+      requestType: string;
+      shoeModel: string;
+      shoeSize: string;
       reference: string;
       referenceNote: string;
     };

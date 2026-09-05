@@ -4,6 +4,7 @@ import { ArtistStory } from "@/components/sections/artist-story";
 import { CtaBand } from "@/components/sections/cta-band";
 import { Footer } from "@/components/sections/footer";
 import { PortfolioGallery } from "@/components/sections/gallery";
+import { TattooSection } from "@/components/sections/tattoo-section";
 import { Hero } from "@/components/sections/hero";
 import { InstagramSection } from "@/components/sections/instagram";
 import { Location } from "@/components/sections/location";
@@ -24,7 +25,7 @@ export default function Home() {
         <Hero />
         <About />
         <PrinciplesMarquee />
-        <PortfolioGallery category="oldschool" sectionId="tatuagem" index="002" />
+        <TattooSection />
         <PrinciplesMarquee />
         <PortfolioGallery category="adidas" sectionId="adidas" index="003" />
         <PrinciplesMarquee />

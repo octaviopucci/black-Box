@@ -1,16 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { site } from "@/data/site";
+import { site, oldschoolGalleryImages } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
 import { Counter } from "@/components/motion/counter";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
+import { ImageCarousel } from "@/components/ui/image-carousel";
 
 export function About() {
   const { t } = useLocale();
   const siteData = useSite();
+  const tattooImages = oldschoolGalleryImages();
 
   return (
     <section id="sobre" className="relative bg-paper py-24 md:py-32">
@@ -20,7 +22,7 @@ export function About() {
         </Reveal>
 
         <div className="mt-16 grid items-start gap-14 lg:grid-cols-[1fr_320px] lg:gap-20">
-          <Reveal className="space-y-6">
+          <Reveal className="order-2 space-y-6 lg:order-1">
             <div className="flex items-center gap-4">
               <span className="text-xs font-bold uppercase tracking-[0.25em] text-white">
                 {site.name}
@@ -38,7 +40,7 @@ export function About() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.08} className="space-y-8">
+          <Reveal delay={0.08} className="order-1 space-y-8 lg:order-2">
             <div className="relative aspect-[3/4] overflow-hidden ring-1 ring-white/10">
               <Image
                 src={site.assets.artist}
@@ -49,6 +51,18 @@ export function About() {
                 className="object-cover object-top grayscale-[0.2]"
               />
             </div>
+
+            <ImageCarousel
+              images={tattooImages}
+              altPrefix={t.portfolio.oldschool.workAlt}
+              labels={{
+                prev: t.gallery.prev,
+                next: t.gallery.next,
+                close: t.gallery.close,
+                of: t.gallery.of,
+                swipeHint: t.gallery.swipeHint,
+              }}
+            />
 
             <div className="grid grid-cols-2 gap-6 border-t border-white/10 pt-8">
               {siteData.stats.map((stat) => (

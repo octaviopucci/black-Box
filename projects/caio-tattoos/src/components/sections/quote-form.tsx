@@ -7,11 +7,13 @@ import {
   buildQuoteMessage,
   openWhatsApp,
   type QuoteFormData,
+  type RequestType,
 } from "@/lib/whatsapp";
 import { Reveal } from "@/components/motion/reveal";
 import { cn } from "@/lib/utils";
 
 const initialState: QuoteFormData = {
+  tipo: "tatuagem",
   nome: "",
   whatsapp: "",
   email: "",
@@ -20,6 +22,8 @@ const initialState: QuoteFormData = {
   parte: "",
   tamanho: "",
   estilo: "",
+  modeloTenis: "",
+  numeroTenis: "",
   descricao: "",
   disponibilidade: "",
 };
@@ -33,13 +37,18 @@ export function QuoteForm() {
   const [form, setForm] = useState<QuoteFormData>(initialState);
   const [hasReference, setHasReference] = useState(false);
   const p = t.quoteForm.placeholders;
+  const isTattoo = form.tipo === "tatuagem";
 
   const update = (
     event: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
-    setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    const { name, value } = event.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "tipo" ? (value as RequestType) : value,
+    }));
   };
 
   const submit = (event: FormEvent) => {
@@ -64,6 +73,20 @@ export function QuoteForm() {
 
         <Reveal delay={0.12}>
           <form onSubmit={submit} className="mt-12 space-y-4">
+            <select
+              name="tipo"
+              value={form.tipo}
+              onChange={update}
+              className={cn(fieldClass, "appearance-none")}
+              required
+            >
+              {siteData.formOptions.requestTypes.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <input
                 name="nome"
@@ -109,55 +132,90 @@ export function QuoteForm() {
               className={fieldClass}
             />
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <select
-                name="parte"
-                value={form.parte}
-                onChange={update}
-                className={cn(fieldClass, "appearance-none")}
-                required
-              >
-                <option value="">{p.bodyPart}</option>
-                {siteData.formOptions.bodyParts.map((part) => (
-                  <option key={part} value={part}>
-                    {part}
-                  </option>
-                ))}
-              </select>
-              <select
-                name="tamanho"
-                value={form.tamanho}
-                onChange={update}
-                className={cn(fieldClass, "appearance-none")}
-                required
-              >
-                <option value="">{p.size}</option>
-                {siteData.formOptions.sizes.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {isTattoo ? (
+              <>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <select
+                    name="parte"
+                    value={form.parte}
+                    onChange={update}
+                    className={cn(fieldClass, "appearance-none")}
+                    required
+                  >
+                    <option value="">{p.bodyPart}</option>
+                    {siteData.formOptions.bodyParts.map((part) => (
+                      <option key={part} value={part}>
+                        {part}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    name="tamanho"
+                    value={form.tamanho}
+                    onChange={update}
+                    className={cn(fieldClass, "appearance-none")}
+                    required
+                  >
+                    <option value="">{p.size}</option>
+                    {siteData.formOptions.sizes.map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <select
-              name="estilo"
-              value={form.estilo}
-              onChange={update}
-              className={cn(fieldClass, "appearance-none")}
-              required
-            >
-              <option value="">{p.style}</option>
-              {siteData.formOptions.styles.map((style) => (
-                <option key={style} value={style}>
-                  {style}
-                </option>
-              ))}
-            </select>
+                <select
+                  name="estilo"
+                  value={form.estilo}
+                  onChange={update}
+                  className={cn(fieldClass, "appearance-none")}
+                  required
+                >
+                  <option value="">{p.style}</option>
+                  {siteData.formOptions.styles.map((style) => (
+                    <option key={style} value={style}>
+                      {style}
+                    </option>
+                  ))}
+                </select>
+              </>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <select
+                  name="modeloTenis"
+                  value={form.modeloTenis}
+                  onChange={update}
+                  className={cn(fieldClass, "appearance-none")}
+                  required
+                >
+                  <option value="">{p.shoeModel}</option>
+                  {siteData.formOptions.shoeModels.map((model) => (
+                    <option key={model} value={model}>
+                      {model}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  name="numeroTenis"
+                  value={form.numeroTenis}
+                  onChange={update}
+                  className={cn(fieldClass, "appearance-none")}
+                  required
+                >
+                  <option value="">{p.shoeSize}</option>
+                  {siteData.formOptions.shoeSizes.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <textarea
               name="descricao"
-              placeholder={p.description}
+              placeholder={isTattoo ? p.descriptionTattoo : p.descriptionSneaker}
               value={form.descricao}
               onChange={update}
               rows={5}

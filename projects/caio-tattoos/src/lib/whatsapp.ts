@@ -1,7 +1,10 @@
 import type { Messages } from "@/i18n/types";
 import { site } from "@/data/site";
 
+export type RequestType = "tatuagem" | "tenis";
+
 export type QuoteFormData = {
+  tipo: RequestType;
   nome: string;
   whatsapp: string;
   email: string;
@@ -10,6 +13,8 @@ export type QuoteFormData = {
   parte: string;
   tamanho: string;
   estilo: string;
+  modeloTenis: string;
+  numeroTenis: string;
   descricao: string;
   disponibilidade: string;
   hasReference?: boolean;
@@ -17,9 +22,14 @@ export type QuoteFormData = {
 
 export function buildQuoteMessage(data: QuoteFormData, t: Messages): string {
   const f = t.whatsapp.fields;
-  let message = `${t.whatsapp.quoteIntro}
-${t.whatsapp.quoteRequest}
+  const intro =
+    data.tipo === "tenis" ? t.whatsapp.quoteRequestSneaker : t.whatsapp.quoteRequestTattoo;
 
+  let message = `${t.whatsapp.quoteIntro}
+${intro}
+
+`;
+  message += `*${f.requestType}:* ${data.tipo === "tenis" ? "Custom Adidas Running" : "Tatuagem old school"}
 `;
   message += `*${f.name}:* ${data.nome}
 `;
@@ -31,12 +41,21 @@ ${t.whatsapp.quoteRequest}
 `;
   message += `*${f.city}:* ${data.cidade}
 `;
-  message += `*${f.bodyPart}:* ${data.parte}
+
+  if (data.tipo === "tatuagem") {
+    message += `*${f.bodyPart}:* ${data.parte}
 `;
-  message += `*${f.size}:* ${data.tamanho}
+    message += `*${f.size}:* ${data.tamanho}
 `;
-  message += `*${f.style}:* ${data.estilo}
+    message += `*${f.style}:* ${data.estilo}
 `;
+  } else {
+    message += `*${f.shoeModel}:* ${data.modeloTenis}
+`;
+    message += `*${f.shoeSize}:* ${data.numeroTenis}
+`;
+  }
+
   message += `*${f.description}:* ${data.descricao}
 `;
   message += `*${f.availability}:* ${data.disponibilidade}`;

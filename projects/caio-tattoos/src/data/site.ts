@@ -53,7 +53,19 @@ export const site = {
     ...oldschoolIds.map((id) => galleryEntry(id, "oldschool")),
     ...adidasIds.map((id) => galleryEntry(id, "adidas")),
   ],
+  /** Posts e reels curados — ordem importa (DPhpvIGDCAD primeiro). */
+  tattooEmbeds: [
+    { kind: "p" as const, shortcode: "DPhpvIGDCAD" },
+    { kind: "reel" as const, shortcode: "DX7t4OTTQsy" },
+    { kind: "reel" as const, shortcode: "DXy-Mc9zk7T" },
+    { kind: "reel" as const, shortcode: "DUk94wDE91B" },
+    { kind: "reel" as const, shortcode: "DSC1mTfk9bd" },
+  ],
 } as const;
+
+export function oldschoolGalleryImages() {
+  return site.gallery.filter((item) => item.category === "oldschool").map((item) => item.src);
+}
 
 export type GalleryCategory = "all" | "oldschool" | "adidas";
 
