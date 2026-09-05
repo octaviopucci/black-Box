@@ -5,7 +5,7 @@ import { site } from "@/data/site";
 import { scrollToHash } from "@/lib/whatsapp";
 import { HeroParticles } from "@/components/hero/hero-particles";
 import { HeroPhotoRolls } from "@/components/hero/hero-photo-rolls";
-import { useHeroScrollProgress } from "@/hooks/use-hero-scroll-progress";
+import { useHeroScrollProgress, smoothstep } from "@/hooks/use-hero-scroll-progress";
 
 function HeroDecorLeft({ className = "", style }: { className?: string; style?: CSSProperties }) {
   return (
@@ -49,13 +49,14 @@ function HeroScrollHint({
 
 export function Hero() {
   const { sectionRef, progress } = useHeroScrollProgress();
+  const p = smoothstep(progress);
 
-  const contentY = 88 * progress;
-  const contentOpacity = 1 - 0.92 * progress;
-  const overlayDark = 0.35 * progress;
-  const overlayOpacity = 1 - 0.75 * progress;
-  const fadeStyle = { opacity: 1 - 0.8 * progress };
-  const scrollStyle = { opacity: 1 - 1.2 * progress };
+  const contentY = 88 * p;
+  const contentOpacity = 1 - 0.92 * p;
+  const overlayDark = 0.35 * p;
+  const overlayOpacity = 1 - 0.72 * p;
+  const fadeStyle = { opacity: 1 - 0.85 * p };
+  const scrollStyle = { opacity: Math.max(0, 1 - 1.15 * p) };
 
   return (
     <section
@@ -65,7 +66,7 @@ export function Hero() {
       style={{ ["--hero-p" as string]: progress }}
     >
       <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-black">
-        <HeroPhotoRolls scrollProgress={progress} />
+        <HeroPhotoRolls />
 
         <div
           className="absolute inset-0 z-[2] bg-black/28 md:bg-black/22"

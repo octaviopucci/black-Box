@@ -65,11 +65,15 @@ export function LoadingScreen() {
       aria-busy={phase !== "exit"}
     >
       <div
-        className={`loader-logo-wrap relative flex h-[9.5rem] w-[9.5rem] items-center justify-center ${
+        className={`loader-logo-wrap relative flex items-center justify-center overflow-visible ${
           phase === "enter" ? "opacity-0 scale-[0.92]" : "opacity-100 scale-100"
         } transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]`}
       >
-        <svg className="absolute inset-0 -rotate-90" viewBox="0 0 120 120" aria-hidden>
+        <svg
+          className="absolute left-1/2 top-1/2 h-[9.5rem] w-[9.5rem] -translate-x-1/2 -translate-y-1/2 -rotate-90"
+          viewBox="0 0 120 120"
+          aria-hidden
+        >
           <circle
             cx="60"
             cy="60"
@@ -93,16 +97,14 @@ export function LoadingScreen() {
           />
         </svg>
 
-        <div className="relative z-10 flex h-[4.75rem] w-[4.75rem] items-center justify-center rounded-full bg-[#0d0d0d] ring-1 ring-white/10">
-          <Image
-            src={asset(site.assets.logo)}
-            alt={site.name}
-            width={64}
-            height={64}
-            priority
-            className="h-11 w-auto brightness-0 invert"
-          />
-        </div>
+        <Image
+          src={asset(site.assets.logo)}
+          alt={site.name}
+          width={2400}
+          height={767}
+          priority
+          className="relative z-10 h-auto w-[min(72vw,240px)] max-w-none object-contain brightness-0 invert"
+        />
       </div>
     </div>
   );

@@ -176,6 +176,12 @@
     pointer-events: none;
   }
 
+  .loader-logo-wrap {
+    min-height: 9.5rem;
+    min-width: min(72vw, 240px);
+    padding: 2.5rem 1rem;
+  }
+
   body.loading-active {
     overflow: hidden;
   }
