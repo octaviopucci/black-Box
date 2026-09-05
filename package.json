@@ -27,6 +27,7 @@
     "dev:rian": "npm --prefix apps/rian run dev",
     "dev:chama": "npm --prefix apps/chama run dev",
     "dev:traco": "npm --prefix apps/traco run dev",
+    "dev:aura-one": "npm --prefix projects/aura-one run dev",
     "dev:mussi": "npm --prefix apps/clinica-mussi-estetica run dev",
     "dev:pix": "npm --prefix apps/pix-gateway run dev",
     "test:pix": "npm --prefix apps/pix-gateway test",
