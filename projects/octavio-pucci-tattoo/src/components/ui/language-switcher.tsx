@@ -1,11 +1,17 @@
 "use client";
 
+import { site } from "@/data/site";
 import { locales, type Locale } from "@/i18n/types";
 import { useLocale } from "@/i18n/locale-provider";
 import { cn } from "@/lib/utils";
 
 export function LanguageSwitcher({ className }: { className?: string }) {
   const { locale, setLocale, t } = useLocale();
+  const available = locales.filter((item) =>
+    (site.i18nLocales as readonly Locale[]).includes(item.code),
+  );
+
+  if (available.length <= 1) return null;
 
   return (
     <div
@@ -13,7 +19,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       role="group"
       aria-label={t.language.switchTo}
     >
-      {locales.map((item) => {
+      {available.map((item) => {
         const active = locale === item.code;
         return (
           <button

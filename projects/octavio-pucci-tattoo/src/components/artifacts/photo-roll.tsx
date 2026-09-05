@@ -9,18 +9,18 @@ function smoothstep(t: number) {
   return t * t * (3 - 2 * t);
 }
 
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
 function dedupe(urls: readonly string[]): string[] {
   return [...new Set(urls)];
 }
 
 function buildPools() {
-  const all = dedupe([...site.heroRoll, ...site.gallery.map((g) => g.src)]);
-  const half = Math.ceil(all.length / 2);
-  return {
-    rafael: all.slice(0, half),
-    works: all.slice(half),
-    all,
-  };
+  const rafael = dedupe(site.heroRoll);
+  const works = dedupe(site.gallery.map((g) => g.src)).filter((src) => !rafael.includes(src));
+  return { rafael, works, all: dedupe([...rafael, ...works]) };
 }
 
 function buildColumn(
@@ -116,24 +116,27 @@ type PhotoRollProps = {
 export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps) {
   const columns = useMemo(() => buildColumns(), []);
   const t = smoothstep(scrollProgress);
+  const cinematic = 1 - t;
 
-  // 54% width on the right → full viewport; inner scale for cinematic fill
-  const leftPct = (1 - t) * 42;
-  const innerScale = 1 + t * 0.35;
-  const innerY = scrollProgress * -80;
-  const maskOpacity = 1 - t * 0.92;
-
+  // Collapsed: rolls on the right (~58% width). Expanded: full viewport, 50/50 columns.
   const shellStyle = {
-    top: `${-t * 8}%`,
+    top: `${lerp(-8, 0, t)}%`,
+    bottom: `${lerp(-8, 0, t)}%`,
+    left: `${lerp(42, 0, t)}%`,
     right: 0,
-    bottom: `${-t * 8}%`,
-    left: `${leftPct}%`,
   };
 
   const trackStyle = {
-    transform: `translate3d(${-t * 6}%, ${innerY}px, 0) scale(${innerScale})`,
-    transformOrigin: "center right" as const,
+    transform: `translate3d(0, ${cinematic * -56}px, 0) scale(${lerp(1.22, 1, t)})`,
+    transformOrigin: t > 0.45 ? "center center" : "center right",
+    height: `${lerp(120, 100, t)}%`,
+    gap: `${lerp(12, 6, t)}px`,
+    paddingLeft: `${lerp(16, 8, t)}px`,
+    paddingRight: `${lerp(16, 8, t)}px`,
+    paddingTop: `${lerp(40, 12, t)}px`,
   };
+
+  const maskOpacity = cinematic * 0.92;
 
   return (
     <div
@@ -142,41 +145,43 @@ export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps
       aria-hidden
     >
       <div
-        className="absolute inset-0 z-10 bg-gradient-to-r from-black/80 via-black/25 to-transparent transition-opacity duration-100"
+        className="absolute inset-0 z-10 bg-gradient-to-r from-black/80 via-black/25 to-transparent"
         style={{ opacity: maskOpacity }}
       />
 
       <div
-        className="flex h-[120%] gap-2 px-2 pt-6 will-change-transform md:gap-3 md:px-4 md:pt-10"
+        className="flex h-full w-full will-change-transform"
         style={trackStyle}
       >
         {columns.map((col, colIndex) => (
           <div
             key={colIndex}
             className={cn(
-              "flex min-w-0 flex-1 flex-col gap-2 md:gap-3",
+              "flex min-w-0 flex-col",
               colIndex === 0 ? "photo-roll-up" : "photo-roll-down",
             )}
             style={{
-              transform: `translateY(${scrollProgress * (colIndex === 0 ? 32 : -32)}px)`,
+              width: "50%",
+              gap: `${lerp(8, 6, t)}px`,
+              transform: `translateY(${cinematic * (colIndex === 0 ? 28 : -28)}px)`,
             }}
           >
             {col.map((src, i) => (
               <div
                 key={`${colIndex}-${i}-${src}`}
-                className={cn(
-                  "relative aspect-[3/4] w-full shrink-0 overflow-hidden ring-1 ring-white/5",
-                  i % 2 === 0 ? "-translate-x-1 md:-translate-x-2" : "translate-x-1 md:translate-x-2",
-                )}
+                className="relative aspect-[3/4] w-full shrink-0 overflow-hidden ring-1 ring-white/5"
+                style={{
+                  transform: `translateX(${cinematic * (i % 2 === 0 ? -8 : 8)}px)`,
+                }}
               >
                 <Image
                   src={src}
                   alt=""
                   fill
-                  sizes="(max-width: 768px) 50vw, 100vw"
+                  sizes="50vw"
                   className="object-cover contrast-[1.05]"
                   style={{
-                    filter: `grayscale(${0.35 * (1 - t * 0.6)}) contrast(1.05)`,
+                    filter: `grayscale(${0.35 * cinematic * 0.6}) contrast(1.05)`,
                   }}
                   priority={colIndex === 0 && i < 2}
                 />

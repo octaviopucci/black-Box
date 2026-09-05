@@ -65,6 +65,7 @@ export const site = {
     "/instagram/post-15.jpg",
     "/instagram/post-24.jpg",
   ],
+  i18nLocales: ["pt"] as const,
 } as const;
 
 export type GalleryCategory = "all" | "blackgrey" | "colorido";
