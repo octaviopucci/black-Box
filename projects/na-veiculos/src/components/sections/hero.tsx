@@ -1,121 +1,141 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { CSSProperties } from "react";
 import { site } from "@/data/site";
 import { scrollToHash } from "@/lib/whatsapp";
-import { HeroFilmGrid } from "@/components/hero/hero-film-grid";
-import { HeroStarlight } from "@/components/hero/hero-starlight";
+import { HeroParticles } from "@/components/hero/hero-particles";
+import { HeroPhotoRolls } from "@/components/hero/hero-photo-rolls";
+import { useHeroScrollProgress } from "@/hooks/use-hero-scroll-progress";
 
-gsap.registerPlugin(ScrollTrigger);
+function HeroDecorLeft({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <div
+      className={`pointer-events-none absolute left-4 top-1/2 z-20 hidden -translate-y-1/2 flex-col gap-1.5 md:left-8 lg:flex ${className}`}
+      style={style}
+      aria-hidden
+    >
+      {Array.from({ length: 4 }).map((_, index) => (
+        <span key={index} className="block h-px w-8 origin-left rotate-[135deg] bg-white/25" />
+      ))}
+    </div>
+  );
+}
+
+function HeroScrollHint({
+  className = "",
+  style,
+  label = "Scroll",
+}: {
+  className?: string;
+  style?: CSSProperties;
+  label?: string;
+}) {
+  return (
+    <div
+      className={`pointer-events-none absolute right-3 top-1/2 z-[6] hidden -translate-y-1/2 flex-col items-center gap-3 md:right-5 lg:flex ${className}`}
+      style={style}
+      aria-hidden
+    >
+      <span className="block h-16 w-px bg-white/20" />
+      <span
+        className="font-mono text-[9px] uppercase tracking-[0.4em] text-white/40"
+        style={{ writingMode: "vertical-rl" }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
 
 export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const pinRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const { sectionRef, progress } = useHeroScrollProgress();
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    const pin = pinRef.current;
-    const grid = gridRef.current;
-    const content = contentRef.current;
-    const overlay = overlayRef.current;
-    if (!section || !pin || !grid || !content || !overlay) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: "+=140%",
-          pin: pin,
-          scrub: 1.4,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-
-      tl.fromTo(grid, { scale: 1, y: 0 }, { scale: 1.06, y: -24, ease: "none" }, 0);
-      tl.fromTo(content, { y: 0, opacity: 1 }, { y: -72, opacity: 0, ease: "none" }, 0);
-      tl.fromTo(overlay, { opacity: 0.48 }, { opacity: 0.68, ease: "none" }, 0);
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
+  const contentY = 88 * progress;
+  const contentOpacity = 1 - 0.92 * progress;
+  const overlayDark = 0.35 * progress;
+  const overlayOpacity = 1 - 0.75 * progress;
+  const fadeStyle = { opacity: 1 - 0.8 * progress };
+  const scrollStyle = { opacity: 1 - 1.2 * progress };
 
   return (
-    <section id="inicio" ref={sectionRef} className="relative h-[210vh] md:h-[230vh]">
-      <div ref={pinRef} className="relative h-[100dvh] min-h-[680px] overflow-hidden bg-paper">
-        <div ref={gridRef} className="absolute inset-0">
-          <HeroFilmGrid />
-        </div>
+    <section
+      ref={sectionRef}
+      id="inicio"
+      className="relative h-[185svh] min-h-[920px]"
+      style={{ ["--hero-p" as string]: progress }}
+    >
+      <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-black">
+        <HeroPhotoRolls scrollProgress={progress} />
 
         <div
-          ref={overlayRef}
-          className="hero-overlay absolute inset-0 z-[2]"
+          className="absolute inset-0 z-[2] bg-black/28 md:bg-black/22"
+          style={{ opacity: overlayOpacity }}
           aria-hidden
         />
+        <div
+          className="absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-black/10 to-black/5"
+          style={{ opacity: overlayOpacity }}
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-black/10 to-transparent"
+          style={{ opacity: overlayOpacity }}
+          aria-hidden
+        />
+        <div className="absolute inset-0 z-[2] bg-black" style={{ opacity: overlayDark }} aria-hidden />
 
-        <div className="absolute inset-0 z-[3] kintaro-grid-bg opacity-[0.14]" aria-hidden />
+        <HeroParticles scrollProgress={progress} />
 
-        <HeroStarlight />
-
-        <div className="grain pointer-events-none absolute inset-0 z-[5] opacity-[0.06]" aria-hidden />
-
-        <div className="vignette pointer-events-none absolute inset-0 z-[5] opacity-70" aria-hidden />
+        <HeroDecorLeft className="transition-opacity duration-300" style={fadeStyle} />
+        <HeroScrollHint label="Scroll" className="transition-opacity duration-300" style={scrollStyle} />
 
         <div
-          ref={contentRef}
-          className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col justify-center px-6 pb-24 pt-28 md:justify-end md:pb-24 md:pt-40"
+          className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 pt-28 will-change-transform md:pb-20 md:pt-36"
+          style={{ transform: `translate3d(0, ${contentY}px, 0)`, opacity: contentOpacity }}
         >
-          <p className="hero-enter-item font-mono text-xs tracking-[0.3em] text-mute">
-            {"//// "}
-            {site.city}
-          </p>
+          <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_min(42%,480px)]">
+            <div className="max-w-2xl">
+              <p className="hero-enter-item font-mono text-[10px] uppercase tracking-[0.42em] text-white/35">
+                {"//// "}
+                {site.city}
+              </p>
 
-          <h1 className="hero-enter-item mt-6 max-w-4xl text-[clamp(2.75rem,11vw,7.5rem)] font-bold uppercase leading-[0.88] tracking-tighter text-ink [animation-delay:0.1s]">
-            Seu carro
-            <br />
-            está aqui
-          </h1>
+              <h1 className="hero-enter-item mt-5 text-[clamp(2.4rem,7.5vw,4.75rem)] font-bold uppercase leading-[0.9] tracking-tighter text-white [animation-delay:0.08s]">
+                <span className="headline-line block overflow-hidden">
+                  <span className="headline-line-inner inline-block">NA</span>
+                </span>
+                <span className="headline-line block overflow-hidden">
+                  <span className="headline-line-inner inline-block" style={{ animationDelay: "0.2s" }}>
+                    Veículos
+                  </span>
+                </span>
+              </h1>
 
-          <p className="hero-enter-item mt-6 max-w-md text-base leading-relaxed text-mute md:text-lg [animation-delay:0.18s]">
-            Novos e seminovos com preço no anúncio, foto real e atendimento direto
-            no WhatsApp.
-          </p>
+              <p className="hero-enter-item mt-5 max-w-md text-sm leading-relaxed text-white/55 md:text-base [animation-delay:0.28s]">
+                O seu Sonho está Aqui!
+              </p>
 
-          <div className="hero-enter-item mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap [animation-delay:0.26s]">
-            <button
-              type="button"
-              className="btn-primary w-full sm:w-auto"
-              onClick={() => scrollToHash("#orcamento")}
-            >
-              Quero comprar
-            </button>
-            <button
-              type="button"
-              className="btn-ghost w-full sm:w-auto"
-              onClick={() => scrollToHash("#estoque")}
-            >
-              Ver estoque
-            </button>
+              <div className="hero-enter-item mt-9 flex flex-wrap gap-3 [animation-delay:0.38s]">
+                <button
+                  type="button"
+                  className="btn-pill-primary"
+                  onClick={() => scrollToHash("#orcamento")}
+                >
+                  Quero comprar →
+                </button>
+                <button
+                  type="button"
+                  className="btn-pill-ghost"
+                  onClick={() => scrollToHash("#estoque")}
+                >
+                  Ver estoque
+                </button>
+              </div>
+            </div>
+
+            <div className="hidden lg:block" aria-hidden />
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => scrollToHash("#sobre")}
-          className="relative z-10 mx-auto mb-8 flex flex-col items-center gap-2 font-mono text-[10px] uppercase tracking-[0.35em] text-mute"
-          aria-label="Rolar para sobre"
-        >
-          Scroll
-          <span className="block h-8 w-px bg-line" />
-        </button>
       </div>
     </section>
   );
