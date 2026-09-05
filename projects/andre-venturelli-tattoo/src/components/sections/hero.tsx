@@ -22,9 +22,8 @@ export function Hero() {
       className="relative h-[240svh] min-h-[1080px]"
       style={{ ["--hero-p" as string]: progress }}
     >
-      <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-black md:bg-transparent">
-        {/* Leitura do texto — rolo fica no SiteBackdrop fixo à direita */}
-        <div className="pointer-events-none absolute inset-0 z-[1] bg-black md:bg-gradient-to-r md:from-black md:via-black/85 md:to-transparent" />
+      <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-transparent">
+        <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-black via-black/88 to-transparent" />
 
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-48 bg-gradient-to-t from-paper via-paper/85 to-transparent md:max-w-[58%]"

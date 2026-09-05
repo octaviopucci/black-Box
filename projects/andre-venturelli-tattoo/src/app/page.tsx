@@ -23,7 +23,7 @@ export default function Home() {
       <SiteBackdrop />
       <LoadingScreen />
       <Navbar />
-      <div className="relative z-10 md:mr-[42%]">
+      <div className="relative z-10 mr-[48%] md:mr-[42%]">
         <main>
           <Hero />
           <About />
