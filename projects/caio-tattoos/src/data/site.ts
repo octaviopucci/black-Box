@@ -1,15 +1,14 @@
 /** Posts com vida pessoal, família ou lifestyle — fora do portfólio profissional. */
 export const personalPostIds = new Set([
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23,
-  24, 25, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 45, 48, 50,
-  52, 56,
+  1, 2, 3, 4, 5, 6, 7, 8, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34,
+  35, 36, 37, 38, 39, 40, 41, 42, 45, 48, 50, 52, 56,
 ]);
 
-/** Trabalho old school free hand — foco na tatuagem, sem cenas pessoais. */
-const oldschoolIds = [17] as const;
+/** Trabalho old school free hand — flash, processo e peças finalizadas. */
+const oldschoolIds = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 57] as const;
 
 /** Customização Adidas Running — produto e processo, sem rostos/família. */
-const adidasIds = [26, 27, 43, 44, 46, 47, 49, 51, 53, 54, 55, 57] as const;
+const adidasIds = [26, 27, 43, 44, 46, 47, 49, 51, 53, 54, 55] as const;
 
 function galleryEntry(id: number, category: "oldschool" | "adidas") {
   return { src: `/instagram/post-${id}.jpg`, category } as const;
@@ -27,16 +26,18 @@ export const site = {
   assets: {
     logo: "/instagram/profile.jpg",
     hero: "/instagram/post-17.jpg",
-    artist: "/instagram/profile.jpg",
+    artist: "/hero/caio-adidas-portrait.jpg",
     instagram: "/instagram/post-44.jpg",
   },
   heroRoll: [
+    "/hero/caio-adidas-portrait.jpg",
     "/instagram/post-17.jpg",
+    "/instagram/post-16.jpg",
+    "/instagram/post-18.jpg",
     "/instagram/post-44.jpg",
     "/instagram/post-46.jpg",
     "/instagram/post-53.jpg",
     "/instagram/post-55.jpg",
-    "/instagram/post-43.jpg",
   ],
   styles: [
     {
