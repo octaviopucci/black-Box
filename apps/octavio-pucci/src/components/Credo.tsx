@@ -72,8 +72,8 @@ export function Credo() {
         <div className="mt-14 grid grid-cols-3 gap-4 border-y border-line py-8 sm:mt-20 sm:gap-8">
           {[
             { value: `${site.years}+`, label: 'Anos de ofício' },
-            { value: '321', label: 'Marcas no arquivo' },
-            { value: site.followers, label: 'No Instagram' },
+            { value: '3', label: 'Linguagens' },
+            { value: site.followersLabel, label: 'No Instagram' },
           ].map((stat) => (
             <Reveal key={stat.label}>
               <p className="font-brand text-3xl tracking-[0.06em] text-gold sm:text-5xl">

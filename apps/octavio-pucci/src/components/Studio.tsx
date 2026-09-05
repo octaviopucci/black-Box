@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { asset, proofs, site } from '../data/site'
+import { asset, media, proofs, site } from '../data/site'
 import { Reveal } from './Reveal'
 
 export function Studio() {
@@ -21,7 +21,7 @@ export function Studio() {
         <div className="relative min-h-[70svh] overflow-hidden lg:min-h-[100svh]">
           <motion.div style={{ y }} className="absolute inset-0">
             <img
-              src={asset('artist-at-work.jpg')}
+              src={asset(media.studio)}
               alt="Octávio Pucci tatuando em sessão no studio privado"
               className="h-full w-full object-cover object-[50%_20%]"
               loading="lazy"
@@ -73,7 +73,7 @@ export function Studio() {
           <Reveal delay={0.2} className="mt-12">
             <div className="relative overflow-hidden border border-line">
               <img
-                src={asset('hero-brand.jpg')}
+                src={asset(media.brand)}
                 alt="Octávio Pucci — identidade visual Predestinado"
                 className="aspect-[16/10] w-full object-cover object-top"
                 loading="lazy"
