@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+/* Flash sheet — paleta própria, sem tokens dark/gold do monorepo */
+:root {
+  --paper: #f7f3eb;
+  --paper-warm: #efe8dc;
+  --ink: #14110f;
+  --accent: #9b1c2e;
+  --accent-light: #e8a0a8;
+  --mute: #5c554c;
+}
+
+@theme inline {
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .font-serif {
+    font-family: var(--font-serif), Georgia, serif;
+  }
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition: none !important;
+  }
+}
