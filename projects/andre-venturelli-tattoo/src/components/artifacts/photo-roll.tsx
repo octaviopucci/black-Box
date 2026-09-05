@@ -105,11 +105,13 @@ function buildColumns(): [string[], string[]] {
 type PhotoRollProps = {
   className?: string;
   scrollProgress?: number;
+  /** Cantinho direito fixo — ignora scrollProgress */
+  fixed?: boolean;
 };
 
-export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps) {
+export function PhotoRoll({ className = "", scrollProgress = 0, fixed = false }: PhotoRollProps) {
   const columns = useMemo(() => buildColumns(), []);
-  const t = scrollProgress;
+  const t = fixed ? 0 : scrollProgress;
   const cinematic = 1 - t;
 
   // Collapsed: rolls on the right (~58% width). Expanded: full viewport, 50/50 columns.

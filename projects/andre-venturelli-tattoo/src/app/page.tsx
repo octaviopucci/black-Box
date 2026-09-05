@@ -15,30 +15,34 @@ import { Testimonials } from "@/components/sections/testimonials";
 import { WhatsAppFab } from "@/components/sections/whatsapp-fab";
 import { PrinciplesMarquee } from "@/components/home-marquees";
 import { LoadingScreen } from "@/components/artifacts/loading-screen";
+import { SiteBackdrop } from "@/components/artifacts/site-backdrop";
 
 export default function Home() {
   return (
     <>
+      <SiteBackdrop />
       <LoadingScreen />
       <Navbar />
-      <main>
-        <Hero />
-        <About />
-        <PrinciplesMarquee />
-        <Gallery />
-        <PrinciplesMarquee />
-        <Styles />
-        <PrinciplesMarquee />
-        <Process />
-        <Artist />
-        <Testimonials />
-        <ArtistStory />
-        <QuoteForm />
-        <InstagramSection />
-        <Location />
-        <CtaBand />
-      </main>
-      <Footer />
+      <div className="relative z-10 md:mr-[42%]">
+        <main>
+          <Hero />
+          <About />
+          <PrinciplesMarquee />
+          <Gallery />
+          <PrinciplesMarquee />
+          <Styles />
+          <PrinciplesMarquee />
+          <Process />
+          <Artist />
+          <Testimonials />
+          <ArtistStory />
+          <QuoteForm />
+          <InstagramSection />
+          <Location />
+          <CtaBand />
+        </main>
+        <Footer />
+      </div>
       <WhatsAppFab />
     </>
   );

@@ -91,7 +91,7 @@ export function BioLinkTree() {
   return (
     <div className="relative min-h-[100dvh] overflow-hidden bg-black text-ink">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <PhotoRoll scrollProgress={0} />
+        <PhotoRoll fixed className="absolute inset-0" />
 
         <div className="absolute inset-0 z-[2] bg-black/28" />
         <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-black/10 to-black/5" />
