@@ -13,5 +13,6 @@
 | Deploy Vercel unificado | `vercel.json`, `npm run build` | architecture |
 | Story Quiz (metodologia Stecca) | `.cursor/skills/frontend/story-quiz/SKILL.md` | reference |
 | Funil BASE Mode Caverna (variante superação) | `apps/protocolo-pav/src/data/quiz.ts` | reference |
+| NA Veículos = Next em `projects/na-veiculos` (template Clow); `apps/na-veiculos` Vite é legado sem script | `projects/na-veiculos/README.md` | architecture |
 
 _Add rows when a future session would be surprised not to know something._

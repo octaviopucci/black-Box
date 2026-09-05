@@ -17,7 +17,6 @@ const dnaDist = join(root, 'apps', 'clinica-dna', 'dist')
 const pradoDist = join(root, 'apps', 'dr-marcelo-prado', 'dist')
 const harmonieDist = join(root, 'apps', 'clinica-harmonie', 'dist')
 const pucciDist = join(root, 'apps', 'octavio-pucci', 'dist')
-const naDist = join(root, 'apps', 'na-veiculos', 'dist')
 const matsubaraDist = join(root, 'apps', 'clinica-matsubara', 'dist')
 const danielleDist = join(root, 'apps', 'danielle-matsubara', 'dist')
 const glDist = join(root, 'apps', 'gl-locacoes', 'dist')
@@ -31,6 +30,7 @@ const tracoDist = join(root, 'apps', 'traco', 'dist')
 const mussiDist = join(root, 'apps', 'clinica-mussi-estetica', 'dist')
 const heitorDist = join(root, 'apps', 'heitor-da-gelsa', 'dist')
 const estudioClowDist = join(root, 'projects', 'estudio-clow-tattoo', 'out')
+const naDist = join(root, 'projects', 'na-veiculos', 'out')
 
 if (!existsSync(portalDist)) throw new Error('portal/dist não encontrado — rode build:portal')
 if (!existsSync(macielDist)) throw new Error('apps/maciel-motors-gestor/dist não encontrado — rode build:maciel')
@@ -64,9 +64,6 @@ if (!existsSync(harmonieDist)) {
 }
 if (!existsSync(pucciDist)) {
   throw new Error('apps/octavio-pucci/dist não encontrado — rode build:pucci')
-}
-if (!existsSync(naDist)) {
-  throw new Error('apps/na-veiculos/dist não encontrado — rode build:na')
 }
 if (!existsSync(matsubaraDist)) {
   throw new Error('apps/clinica-matsubara/dist não encontrado — rode build:matsubara')
@@ -107,6 +104,9 @@ if (!existsSync(heitorDist)) {
 if (!existsSync(estudioClowDist)) {
   throw new Error('projects/estudio-clow-tattoo/out não encontrado — rode build:estudio-clow')
 }
+if (!existsSync(naDist)) {
+  throw new Error('projects/na-veiculos/out não encontrado — rode build:na')
+}
 
 function publish(target) {
   rmSync(target, { recursive: true, force: true })
@@ -139,8 +139,6 @@ function publish(target) {
   cpSync(harmonieDist, join(target, 'clinica-harmonie'), { recursive: true })
   mkdirSync(join(target, 'octavio-pucci'), { recursive: true })
   cpSync(pucciDist, join(target, 'octavio-pucci'), { recursive: true })
-  mkdirSync(join(target, 'na-veiculos'), { recursive: true })
-  cpSync(naDist, join(target, 'na-veiculos'), { recursive: true })
   mkdirSync(join(target, 'clinica-matsubara'), { recursive: true })
   cpSync(matsubaraDist, join(target, 'clinica-matsubara'), { recursive: true })
   mkdirSync(join(target, 'danielle-matsubara'), { recursive: true })
@@ -167,6 +165,8 @@ function publish(target) {
   cpSync(heitorDist, join(target, 'heitor-da-gelsa'), { recursive: true })
   mkdirSync(join(target, 'estudio-clow'), { recursive: true })
   cpSync(estudioClowDist, join(target, 'estudio-clow'), { recursive: true })
+  mkdirSync(join(target, 'na-veiculos'), { recursive: true })
+  cpSync(naDist, join(target, 'na-veiculos'), { recursive: true })
   const pixWeb = join(root, 'apps', 'pix-gateway', 'web')
   mkdirSync(join(target, 'pix'), { recursive: true })
   cpSync(pixWeb, join(target, 'pix'), { recursive: true })
