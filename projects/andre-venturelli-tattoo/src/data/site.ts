@@ -359,6 +359,7 @@ export const site = {
         "category": "estilos" as const
     }
 ] as const,
+  i18nLocales: ["pt"] as const,
 } as const;
 
 export type GalleryCategory = "all" | "realismo" | "cobertura" | "delicadas" | "estilos";

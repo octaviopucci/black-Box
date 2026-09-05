@@ -11,16 +11,17 @@ export function Hero() {
   const { t } = useLocale();
   const { sectionRef, progress } = useHeroScrub();
 
-  const contentY = progress * 88;
-  const contentOpacity = 1 - progress * 0.92;
-  const overlayBoost = progress * 0.35;
-  const sideOverlay = 1 - progress * 0.75;
+  const contentY = progress * 96;
+  const contentOpacity = 1 - progress * 0.95;
+  const overlayBoost = progress * 0.28;
+  const sideOverlay = 1 - progress * 0.88;
+  const handoffOpacity = Math.min(Math.max((progress - 0.5) / 0.5, 0), 1);
 
   return (
     <section
       ref={sectionRef}
       id="inicio"
-      className="relative h-[185svh] min-h-[920px]"
+      className="relative h-[200svh] min-h-[980px]"
       style={{ ["--hero-p" as string]: progress }}
     >
       <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-black">
@@ -37,19 +38,25 @@ export function Hero() {
         />
         <div
           className="absolute inset-0 z-[2] bg-black"
-          style={{ opacity: overlayBoost * 0.55 }}
+          style={{ opacity: overlayBoost * 0.45 }}
         />
 
         <ParticleField scrollProgress={progress} />
 
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[14] h-40 bg-gradient-to-t from-paper via-paper/80 to-transparent"
+          style={{ opacity: handoffOpacity }}
+          aria-hidden
+        />
+
         <DiagonalLines
           className="z-[4] transition-opacity duration-300"
-          style={{ opacity: 1 - progress * 0.8 }}
+          style={{ opacity: 1 - progress * 0.85 }}
         />
         <ScrollIndicator
           label={t.scroll}
           className="z-[5] transition-opacity duration-300"
-          style={{ opacity: 1 - progress * 1.2 }}
+          style={{ opacity: 1 - progress * 1.25 }}
         />
 
         <div
