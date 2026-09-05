@@ -1,0 +1,277 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-mute: var(--mute);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --paper: #000000;
+  --surface: #070707;
+  --elevated: #111111;
+  --line: #1f1f1f;
+  --ink: #ffffff;
+  --accent: #ffffff;
+  --accent-soft: #cccccc;
+  --mute: #8a8a8a;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth font-sans;
+  }
+
+  body {
+    @apply bg-paper text-ink antialiased;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, white 28%, transparent);
+    color: var(--ink);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), sans-serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .section-divider {
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in oklab, var(--line) 100%, transparent)
+    );
+  }
+
+  .hairline-x {
+    background: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in oklab, var(--line) 100%, transparent),
+      transparent
+    );
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.85s var(--ease-premium),
+      transform 0.85s var(--ease-premium);
+  }
+
+  .reveal-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero-enter-item {
+    animation: hero-fade-up 0.8s var(--ease-premium) forwards;
+    opacity: 0;
+  }
+
+  .headline-line-inner {
+    animation: headline-up 0.85s var(--ease-premium) forwards;
+    opacity: 0;
+  }
+
+  .lightbox-open {
+    animation: fade-in 0.22s ease-out forwards;
+  }
+
+  .whatsapp-fab {
+    animation: fab-in 0.45s var(--ease-premium) 0.6s forwards;
+    opacity: 0;
+  }
+
+  .testimonial-slide {
+    animation: fade-in 0.25s ease-out;
+  }
+
+  .editorial-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.38em] text-white/40;
+  }
+
+  .btn-primary {
+    @apply border border-white bg-white px-8 py-3.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-black transition-all duration-300 hover:bg-transparent hover:text-white;
+  }
+
+  .btn-ghost {
+    @apply border border-line px-8 py-3.5 text-[11px] uppercase tracking-[0.22em] text-mute transition-all duration-300 hover:border-white hover:text-white;
+  }
+
+  .btn-pill-primary {
+    @apply rounded-full bg-white px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/92 hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .btn-pill-ghost {
+    @apply rounded-full border border-white/20 px-7 py-3.5 text-[11px] uppercase tracking-[0.18em] text-white/60 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/50 hover:text-white active:scale-[0.98];
+  }
+
+  .portfolio-frame {
+    @apply overflow-hidden bg-elevated ring-1 ring-white/10;
+  }
+
+  .portfolio-img {
+    @apply object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03];
+  }
+
+  .hero-photo {
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .particle-drift {
+    animation: particle-drift linear infinite;
+  }
+
+  .photo-roll-up {
+    animation: photo-roll-up 52s linear infinite;
+  }
+
+  .photo-roll-down {
+    animation: photo-roll-down 58s linear infinite;
+  }
+
+  .marquee-track {
+    animation: marquee-scroll 42s linear infinite;
+  }
+
+  .loader-screen {
+    transition: opacity 0.65s var(--ease-premium);
+  }
+
+  .loader-exit {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes headline-up {
+  from {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fab-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes particle-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: var(--p-o-min);
+  }
+  45% {
+    opacity: var(--p-o-max);
+  }
+  100% {
+    transform: translate3d(var(--p-dx), var(--p-dy), 0);
+    opacity: var(--p-o-min);
+  }
+}
+
+@keyframes photo-roll-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes photo-roll-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .hero-enter-item,
+  .headline-line-inner,
+  .whatsapp-fab,
+  .particle-drift,
+  .photo-roll-up,
+  .photo-roll-down,
+  .marquee-track {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
