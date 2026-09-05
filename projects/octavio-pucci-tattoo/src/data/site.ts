@@ -65,6 +65,7 @@ export const site = {
     "/instagram/post-15.jpg",
     "/instagram/post-24.jpg",
   ],
+  studioPhotos: [] as const,
   i18nLocales: ["pt"] as const,
 } as const;
 

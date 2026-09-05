@@ -231,6 +231,7 @@ export const pt: Messages = {
     address: "",
     hours: "",
     directions: "",
+    studioPhotoAlt: "Foto do estúdio",
   },
   ctaBand: {
     titleLine1: "Pronto pra transformar",

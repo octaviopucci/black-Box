@@ -133,6 +133,7 @@ export type Messages = {
     address: string;
     hours: string;
     directions: string;
+    studioPhotoAlt: string;
   };
   ctaBand: {
     titleLine1: string;
