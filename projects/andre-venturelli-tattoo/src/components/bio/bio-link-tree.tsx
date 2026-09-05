@@ -3,6 +3,8 @@
 import Image from "next/image";
 import type { BioLink } from "@/data/bio";
 import { bio } from "@/data/bio";
+import { PhotoRoll } from "@/components/artifacts/photo-roll";
+import { ParticleField } from "@/components/artifacts/particle-field";
 import { cn } from "@/lib/utils";
 
 function LinkIcon({ icon }: { icon?: BioLink["icon"] }) {
@@ -87,15 +89,21 @@ function BioLinkButton({ link, index }: { link: BioLink; index: number }) {
 
 export function BioLinkTree() {
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-paper text-ink">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-paper via-[#0a0a0a] to-paper" />
-      <div className="pointer-events-none absolute -right-[25%] top-0 h-[55vmin] w-[55vmin] rounded-full bg-accent/20 blur-[100px]" />
-      <div className="pointer-events-none absolute -left-[20%] bottom-[8%] h-[40vmin] w-[40vmin] rounded-full bg-accent-soft/10 blur-[80px]" />
-      <div className="grain pointer-events-none absolute inset-0 opacity-[0.04]" />
+    <div className="relative min-h-[100dvh] overflow-hidden bg-black text-ink">
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <PhotoRoll scrollProgress={0} />
+
+        <div className="absolute inset-0 z-[2] bg-black/28" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-black/10 to-black/5" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-black/10 to-transparent" />
+
+        <ParticleField scrollProgress={0} />
+        <div className="grain absolute inset-0 z-[3] opacity-[0.035]" />
+      </div>
 
       <div className="relative z-10 mx-auto flex min-h-[100dvh] max-w-md flex-col px-6 py-14">
         <header className="bio-enter text-center">
-          <div className="relative mx-auto mb-6 h-28 w-28 overflow-hidden rounded-full ring-2 ring-white/15 ring-offset-2 ring-offset-paper">
+          <div className="relative mx-auto mb-6 h-28 w-28 overflow-hidden rounded-full ring-2 ring-white/15 ring-offset-2 ring-offset-black">
             <Image
               src={bio.profile}
               alt={bio.name}
@@ -122,7 +130,7 @@ export function BioLinkTree() {
           {bio.bio}
         </p>
 
-        <ul className="bio-enter mt-10 flex-1 space-y-1 rounded-xl border border-white/10 bg-surface/90 p-2 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-sm [animation-delay:0.28s]">
+        <ul className="bio-enter mt-10 flex-1 space-y-1 rounded-xl border border-white/10 bg-black/75 p-2 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-md [animation-delay:0.28s]">
           {bio.links.map((link, i) => (
             <BioLinkButton key={link.id} link={link} index={i} />
           ))}
