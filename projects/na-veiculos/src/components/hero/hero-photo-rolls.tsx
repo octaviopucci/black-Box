@@ -45,13 +45,16 @@ export function HeroPhotoRolls({ scrollProgress = 0, className = "" }: HeroPhoto
         {columns.map((photos, columnIndex) => (
           <div
             key={columnIndex}
-            className={cn(
-              "flex min-w-0 flex-1 flex-col gap-2 md:gap-3",
-              columnIndex === 0 ? "photo-roll-up" : "photo-roll-down",
-            )}
+            className="min-w-0 flex-1"
             style={{ transform: `translateY(${scrollProgress * (columnIndex === 0 ? 32 : -32)}px)` }}
           >
-            {photos.map((src, photoIndex) => (
+            <div
+              className={cn(
+                "flex flex-col gap-2 md:gap-3",
+                columnIndex === 0 ? "photo-roll-up" : "photo-roll-down",
+              )}
+            >
+              {photos.map((src, photoIndex) => (
               <div
                 key={`${columnIndex}-${photoIndex}-${src}`}
                 className={cn(
@@ -70,6 +73,7 @@ export function HeroPhotoRolls({ scrollProgress = 0, className = "" }: HeroPhoto
                 />
               </div>
             ))}
+            </div>
           </div>
         ))}
       </div>
