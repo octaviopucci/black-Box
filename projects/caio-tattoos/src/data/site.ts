@@ -10,6 +10,9 @@ const oldschoolIds = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 57] as const;
 /** Customização Adidas Running — produto e processo, sem rostos/família. */
 const adidasIds = [26, 27, 43, 44, 46, 47, 49, 51, 53, 54, 55] as const;
 
+/** Lifestyle — Caio, corrida, família e bastidores (carrossel Sobre). */
+const lifestyleIds = [1, 3, 23, 24, 39, 40, 41, 42, 45, 48, 50, 52] as const;
+
 function galleryEntry(id: number, category: "oldschool" | "adidas") {
   return { src: `/instagram/post-${id}.jpg`, category } as const;
 }
@@ -65,6 +68,13 @@ export const site = {
 
 export function oldschoolGalleryImages() {
   return site.gallery.filter((item) => item.category === "oldschool").map((item) => item.src);
+}
+
+export function lifestyleGalleryImages() {
+  return [
+    site.assets.artist,
+    ...lifestyleIds.map((id) => `/instagram/post-${id}.jpg`),
+  ];
 }
 
 export type GalleryCategory = "all" | "oldschool" | "adidas";

@@ -59,6 +59,18 @@
     display: none;
   }
 
+  .carousel-track {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-track {
+      scroll-behavior: auto;
+    }
+  }
+
   .section-divider {
     background: linear-gradient(
       to bottom,

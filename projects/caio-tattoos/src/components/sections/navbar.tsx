@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
 import { scrollToHash } from "@/lib/whatsapp";
@@ -73,8 +72,7 @@ export function Navbar() {
             ))}
           </nav>
 
-          <div className="relative z-10 hidden items-center gap-4 lg:flex">
-            <LanguageSwitcher />
+          <div className="relative z-10 hidden lg:flex">
             <button
               type="button"
               onClick={() => navigate("#orcamento")}
@@ -84,8 +82,7 @@ export function Navbar() {
             </button>
           </div>
 
-          <div className="relative z-10 flex items-center gap-3 lg:hidden">
-            <LanguageSwitcher />
+          <div className="relative z-10 lg:hidden">
             <button
               type="button"
               className="text-white"

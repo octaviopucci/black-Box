@@ -129,9 +129,11 @@ export const pt: Messages = {
     label: "Sobre",
     title: "Duas frentes. Uma assinatura old school.",
     artistLabel: "Artista",
+    lifestyleLabel: "Caio & lifestyle",
+    lifestyleAlt: "Caio Rodrigues — lifestyle",
     paragraphs: [
       "Caio Rodrigues trabalha em duas frentes: tatuagem old school free hand e customização de tênis Adidas Running — sempre com linhas bold e grafismo tradicional.",
-      "O portfólio do site mostra só trabalho profissional. Fotos pessoais e de família ficam fora — no Instagram você vê o resto da jornada.",
+      "No portfólio de tatuagem entram só trabalhos profissionais. Aqui você vê também a vida, a corrida e os bastidores — como no Instagram.",
       "Encomendas e informações pela lista de espera no link da bio @caiotattoos.",
     ],
     imageAlt: "Caio Rodrigues — old school & Adidas custom",
@@ -159,7 +161,7 @@ export const pt: Messages = {
       label: "Tatuagem",
       title: "Old School Free Hand",
       intro:
-        "Tradicional americano desenhado e tatuado free hand. Portfólio curado — sem fotos pessoais ou de família.",
+      "Tradicional americano desenhado e tatuado free hand. Deslize para ver posts e reels do Instagram.",
       workAlt: "Tatuagem old school",
       embedsLabel: "Vídeos e posts do Instagram",
     },

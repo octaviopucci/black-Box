@@ -5,6 +5,10 @@ import { useLocale } from "@/i18n/locale-provider";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 import { InstagramEmbed } from "@/components/ui/instagram-embed";
+import {
+  CarouselSlide,
+  HorizontalScrollCarousel,
+} from "@/components/ui/horizontal-scroll-carousel";
 
 export function TattooSection() {
   const { t } = useLocale();
@@ -20,20 +24,32 @@ export function TattooSection() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.08} className="mt-12 space-y-8">
-          <p className="text-center text-xs uppercase tracking-[0.25em] text-mute">
-            {t.portfolio.oldschool.embedsLabel}
+        <Reveal delay={0.08} className="mt-12">
+          <p className="mb-4 text-center text-xs uppercase tracking-[0.25em] text-mute">
+            {block.embedsLabel}
           </p>
-          <div className="grid gap-8 md:grid-cols-2 md:gap-10 lg:grid-cols-3">
+          <HorizontalScrollCarousel
+            ariaLabel={block.embedsLabel}
+            prevLabel={t.gallery.prev}
+            nextLabel={t.gallery.next}
+            className="-mx-2 md:-mx-1"
+          >
             {site.tattooEmbeds.map((embed, index) => (
-              <InstagramEmbed
+              <CarouselSlide
                 key={embed.shortcode}
-                shortcode={embed.shortcode}
-                kind={embed.kind}
-                title={`${block.workAlt} ${index + 1}`}
-              />
+                className="w-[min(92vw,540px)]"
+              >
+                <InstagramEmbed
+                  shortcode={embed.shortcode}
+                  kind={embed.kind}
+                  title={`${block.workAlt} ${index + 1}`}
+                />
+              </CarouselSlide>
             ))}
-          </div>
+          </HorizontalScrollCarousel>
+          <p className="mt-3 text-center text-[10px] uppercase tracking-[0.2em] text-mute">
+            {t.gallery.swipeHint}
+          </p>
         </Reveal>
       </div>
     </section>

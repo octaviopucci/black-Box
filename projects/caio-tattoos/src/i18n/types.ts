@@ -60,6 +60,8 @@ export type Messages = {
     label: string;
     title: string;
     artistLabel: string;
+    lifestyleLabel: string;
+    lifestyleAlt: string;
     paragraphs: string[];
     imageAlt: string;
   };
