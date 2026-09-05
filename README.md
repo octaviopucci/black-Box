@@ -19,7 +19,7 @@ Quando o cliente ainda não tem infraestrutura própria, o projeto fica aqui com
 | **Dr. Marcelo Prado** | [/dr-marcelo-prado/](/dr-marcelo-prado/) | Demo premium |
 | **Clínica Harmonie** | [/clinica-harmonie/](/clinica-harmonie/) | Demo premium |
 | **Octávio Pucci Tattoo** | [/octavio-pucci/](/octavio-pucci/) | Demo premium |
-| **NA Veículos** | [/na-veiculos/](/na-veiculos/) | Demo premium |
+| **NA Veículos** | [/na-veiculos/](/na-veiculos/) | Site Next.js (`projects/na-veiculos`) — template Clow Tattoo |
 | **Clínica Matsubara** | [/clinica-matsubara/](/clinica-matsubara/) | Demo premium |
 | **Dra. Danielle Matsubara** | [/danielle-matsubara/](/danielle-matsubara/) | Demo premium |
 | **G&L Locações** | [/gl-locacoes/](/gl-locacoes/) | Demo premium |
@@ -77,7 +77,7 @@ npm run dev:harmonie
 # Octávio Pucci Tattoo (demo premium)
 npm run dev:pucci
 
-# NA Veículos (demo premium)
+# NA Veículos (Next.js — projects/na-veiculos)
 npm run dev:na
 
 # Clínica Matsubara (demo premium)

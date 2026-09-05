@@ -13,6 +13,8 @@ node_modules
 !/public/dra-barbara-alencar/**
 !/public/nutri-luiza-rimoli/
 !/public/nutri-luiza-rimoli/**
+!/public/na-veiculos/
+!/public/na-veiculos/**
 .DS_Store
 *.local
 .env
