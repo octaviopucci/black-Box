@@ -96,12 +96,12 @@ export function Hero() {
         >
           <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_min(42%,480px)]">
             <div className="max-w-2xl">
-              <p className="hero-enter-item font-mono text-[10px] uppercase tracking-[0.42em] text-white/35">
+              <p className="hero-enter-item font-mono text-xs uppercase tracking-[0.42em] text-white/40 md:text-sm">
                 {"//// "}
                 {site.city}
               </p>
 
-              <h1 className="hero-enter-item mt-5 text-[clamp(2.4rem,7.5vw,4.75rem)] font-bold uppercase leading-[0.9] tracking-tighter text-white [animation-delay:0.08s]">
+              <h1 className="hero-enter-item mt-5 text-[clamp(3rem,11vw,6.25rem)] font-bold uppercase leading-[0.88] tracking-tighter text-white [animation-delay:0.08s]">
                 <span className="headline-line block overflow-hidden">
                   <span className="headline-line-inner inline-block">NA</span>
                 </span>
@@ -112,7 +112,7 @@ export function Hero() {
                 </span>
               </h1>
 
-              <p className="hero-enter-item mt-5 max-w-md text-sm leading-relaxed text-white/55 md:text-base [animation-delay:0.28s]">
+              <p className="hero-enter-item mt-6 max-w-lg text-base leading-relaxed text-white/60 md:text-xl [animation-delay:0.28s]">
                 O seu Sonho está Aqui!
               </p>
 
