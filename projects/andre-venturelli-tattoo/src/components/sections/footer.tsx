@@ -33,6 +33,12 @@ export function Footer() {
               {t.footer.quickLinks}
             </h4>
             <nav className="mt-6 space-y-3">
+              <a
+                href="/bio"
+                className="block text-sm text-mute transition-colors hover:text-accent"
+              >
+                Links
+              </a>
               {siteData.nav.filter((item) => item.href !== "#processo").map((item) => (
                 <button
                   key={item.href}
