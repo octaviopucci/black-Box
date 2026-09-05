@@ -23,7 +23,7 @@ export const site = {
   },
   city: "Capão Bonito, SP",
   assets: {
-    logo: "/brand/logo.svg",
+    logo: "/brand/logo-transparent.png",
     ogImage: "/brand/logo.png",
   },
   nav: [
