@@ -15,11 +15,7 @@ export function About() {
     <section id="sobre" className="relative bg-paper py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal>
-          <SectionHeader
-            index="001"
-            label="Sobre"
-            title="Loja de novos e seminovos em Capão Bonito/SP — carro real, preço real e uma conversa direta pra fechar com segurança."
-          />
+          <SectionHeader index="001" label="Sobre" title="" />
         </Reveal>
 
         <div className="mt-16 grid items-start gap-16 lg:grid-cols-[1fr_280px]">
@@ -32,11 +28,7 @@ export function About() {
               <span className="font-mono text-xs text-mute">Loja física</span>
             </div>
 
-            <h3 className="text-2xl font-medium leading-snug text-ink md:text-3xl">
-              Transformamos seu sonho em realidade.
-            </h3>
-
-            <p className="max-w-2xl text-base leading-relaxed text-mute">
+            <p className="max-w-2xl text-base leading-relaxed text-mute md:text-lg">
               A NA Veículos fica na Rua Altino Arantes, 635, no Centro de Capão
               Bonito. Cada carro anunciado está na loja, com o valor no anúncio
               e as fotos da unidade — sem banco de imagem, sem “chama no privado
@@ -66,14 +58,14 @@ export function About() {
           </Reveal>
 
           <Reveal delay={0.08} className="space-y-8">
-            <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden bg-elevated p-8 ring-1 ring-line/40">
+            <div className="relative flex aspect-[3/4] items-center justify-center px-4">
               <Image
                 src={asset(site.assets.logo)}
                 alt={`Logo ${site.name}`}
                 width={280}
                 height={90}
                 loading="lazy"
-                className="h-auto w-full"
+                className="h-auto w-full max-w-[240px]"
               />
             </div>
 

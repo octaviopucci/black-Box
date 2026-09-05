@@ -11,6 +11,7 @@
   --color-mute: var(--mute);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
@@ -67,7 +68,12 @@
   }
 
   .hero-enter-item {
-    animation: hero-fade-up 0.65s ease-out forwards;
+    animation: hero-fade-up 0.8s var(--ease-premium) forwards;
+    opacity: 0;
+  }
+
+  .headline-line-inner {
+    animation: headline-up 0.85s var(--ease-premium) forwards;
     opacity: 0;
   }
 
@@ -79,6 +85,47 @@
     @apply border border-line px-6 py-3 text-[11px] uppercase tracking-[0.25em] text-mute transition-colors hover:border-ink hover:text-ink;
   }
 
+  .btn-pill-primary {
+    border-radius: 9999px;
+    background-color: #fff;
+    padding: 0.875rem 1.75rem;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #000;
+    transition: all 0.3s var(--ease-premium);
+  }
+
+  .btn-pill-primary:hover {
+    background-color: color-mix(in oklab, #fff 92%, transparent);
+    scale: 1.02;
+  }
+
+  .btn-pill-primary:active {
+    scale: 0.98;
+  }
+
+  .btn-pill-ghost {
+    border-radius: 9999px;
+    border: 1px solid color-mix(in oklab, #fff 20%, transparent);
+    padding: 0.875rem 1.75rem;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, #fff 60%, transparent);
+    transition: all 0.3s var(--ease-premium);
+  }
+
+  .btn-pill-ghost:hover {
+    border-color: color-mix(in oklab, #fff 50%, transparent);
+    color: #fff;
+  }
+
+  .btn-pill-ghost:active {
+    scale: 0.98;
+  }
+
   .portfolio-frame {
     @apply overflow-hidden bg-elevated ring-1 ring-line/40;
   }
@@ -88,7 +135,7 @@
   }
 
   .marquee-track {
-    animation: marquee-scroll 40s linear infinite;
+    animation: marquee-scroll 42s linear infinite;
   }
 
   .whatsapp-fab {
@@ -102,16 +149,147 @@
       linear-gradient(to bottom, color-mix(in oklab, var(--line) 40%, transparent) 1px, transparent 1px);
     background-size: 80px 80px;
   }
+
+  .hero-photo {
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .particle-drift {
+    animation: particle-drift linear infinite;
+  }
+
+  .photo-roll-up {
+    animation: photo-roll-up 52s linear infinite;
+  }
+
+  .photo-roll-down {
+    animation: photo-roll-down 58s linear infinite;
+  }
+
+  .loader-screen {
+    transition: opacity 0.65s var(--ease-premium);
+  }
+
+  .loader-exit {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .loader-splash {
+    transition: opacity 0.7s var(--ease-premium);
+  }
+
+  .loader-splash--exit {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .loader-splash__logo {
+    position: relative;
+    overflow: hidden;
+    transition:
+      opacity 0.55s var(--ease-premium),
+      transform 0.75s var(--ease-premium),
+      filter 0.75s var(--ease-premium);
+  }
+
+  .loader-splash__logo--enter {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(6px);
+  }
+
+  .loader-splash__logo--ready {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+
+  .loader-splash__image {
+    display: block;
+    max-width: none;
+  }
+
+  .loader-splash__shine {
+    position: absolute;
+    inset: -20% -30%;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.08) 44%,
+      rgba(255, 255, 255, 0.55) 50%,
+      rgba(255, 255, 255, 0.08) 56%,
+      transparent 62%
+    );
+    animation: loader-shine-sweep 1.15s var(--ease-premium) 2;
+    pointer-events: none;
+  }
+
+  .loader-splash__city {
+    transition: opacity 0.5s ease-out 0.15s;
+  }
+
+  .loader-splash__city--in {
+    animation: loader-city-in 0.55s var(--ease-premium) forwards;
+  }
+
+  body.loading-active {
+    overflow: hidden;
+  }
 }
 
 @keyframes hero-fade-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes headline-up {
+  from {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes particle-drift {
+  0% {
+    opacity: var(--p-o-min);
+    transform: translate(0, 0);
+  }
+  45% {
+    opacity: var(--p-o-max);
+  }
+  100% {
+    transform: translate3d(var(--p-dx), var(--p-dy), 0);
+    opacity: var(--p-o-min);
+  }
+}
+
+@keyframes photo-roll-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes photo-roll-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 
@@ -135,11 +313,35 @@
   }
 }
 
+@keyframes loader-shine-sweep {
+  from {
+    transform: translateX(-120%) skewX(-12deg);
+  }
+  to {
+    transform: translateX(120%) skewX(-12deg);
+  }
+}
+
+@keyframes loader-city-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .hero-enter-item,
+  .headline-line-inner,
   .marquee-track,
-  .whatsapp-fab {
+  .whatsapp-fab,
+  .particle-drift,
+  .photo-roll-up,
+  .photo-roll-down {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;

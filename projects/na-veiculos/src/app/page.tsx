@@ -1,3 +1,4 @@
+import { LoadingScreen } from "@/components/loading-screen";
 import { About } from "@/components/sections/about";
 import { BuyForm } from "@/components/sections/buy-form";
 import { Contact } from "@/components/sections/contact";
@@ -15,6 +16,7 @@ import { site } from "@/data/site";
 export default function Home() {
   return (
     <VehicleSelectionProvider>
+      <LoadingScreen />
       <Navbar />
       <main>
         <Hero />
