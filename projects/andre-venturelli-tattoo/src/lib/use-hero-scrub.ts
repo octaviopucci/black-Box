@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { easeInOutCubic, smootherstep } from "./hero-easing";
 
-/** Lower = scroll progress follows more smoothly (more inertia) */
-const SCRUB_LERP = 0.062;
+/** Lower = mais inércia no scrub (premium, suave) */
+const SCRUB_LERP = 0.052;
 
 export function useHeroScrub() {
   const sectionRef = useRef<HTMLElement>(null);

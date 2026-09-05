@@ -13,52 +13,46 @@ export function Hero() {
   const { sectionRef, progress } = useHeroScrub();
 
   const fade = smootherstep(progress);
-  const contentY = fade * 72;
-  const contentOpacity = 1 - smootherstep(Math.min(progress / 0.82, 1));
-  const overlayBoost = fade * 0.22;
-  const sideOverlay = 1 - smootherstep(Math.min(progress / 0.9, 1));
-  const handoffOpacity = smootherstep(Math.min(Math.max((progress - 0.35) / 0.65, 0), 1));
+  const contentY = fade * 56;
+  const contentOpacity = 1 - smootherstep(Math.min(progress / 0.78, 1));
+  const readOverlay = 1 - smootherstep(Math.min(progress / 0.85, 1)) * 0.65;
+  const handoffOpacity = smootherstep(Math.min(Math.max((progress - 0.28) / 0.72, 0), 1));
 
   return (
     <section
       ref={sectionRef}
       id="inicio"
-      className="relative h-[240svh] min-h-[1080px]"
+      className="relative h-[200svh] min-h-[960px]"
       style={{ ["--hero-p" as string]: progress }}
     >
       <div className="sticky top-0 flex h-[100svh] min-h-[720px] items-end overflow-hidden bg-black">
-        <PhotoRoll scrollProgress={progress} />
+        <PhotoRoll fixed />
 
-        <div className="absolute inset-0 z-[2] bg-black/28 md:bg-black/22" style={{ opacity: sideOverlay }} />
         <div
-          className="absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-black/10 to-black/5"
-          style={{ opacity: sideOverlay }}
+          className="absolute inset-0 z-[2] bg-gradient-to-r from-black/55 via-black/20 to-transparent"
+          style={{ opacity: readOverlay }}
         />
         <div
-          className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-black/10 to-transparent"
-          style={{ opacity: sideOverlay }}
-        />
-        <div
-          className="absolute inset-0 z-[2] bg-black"
-          style={{ opacity: overlayBoost * 0.4 }}
+          className="absolute inset-0 z-[2] bg-gradient-to-t from-black/45 via-transparent to-black/5"
+          style={{ opacity: readOverlay }}
         />
 
         <ParticleField scrollProgress={progress} />
 
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[14] h-48 bg-gradient-to-t from-paper via-paper/85 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[14] h-44 bg-gradient-to-t from-paper via-paper/80 to-transparent"
           style={{ opacity: handoffOpacity }}
           aria-hidden
         />
 
         <DiagonalLines
           className="z-[4]"
-          style={{ opacity: 1 - smootherstep(Math.min(progress / 0.75, 1)) }}
+          style={{ opacity: 1 - smootherstep(Math.min(progress / 0.7, 1)) }}
         />
         <ScrollIndicator
           label={t.scroll}
           className="z-[5]"
-          style={{ opacity: 1 - smootherstep(Math.min(progress / 0.55, 1)) }}
+          style={{ opacity: 1 - smootherstep(Math.min(progress / 0.5, 1)) }}
         />
 
         <div
