@@ -6,11 +6,12 @@ import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
 
+const studioPhotos =
+  "studioPhotos" in site && site.studioPhotos.length > 0 ? site.studioPhotos : null;
+
 export function Artist() {
   const { t } = useLocale();
   const siteData = useSite();
-  const studioPhotos =
-    "studioPhotos" in site && site.studioPhotos.length > 0 ? site.studioPhotos : null;
 
   return (
     <section className="bg-paper py-24 md:py-32">
@@ -56,7 +57,7 @@ export function Artist() {
             </div>
 
             {studioPhotos && (
-              <div className="grid grid-cols-2 gap-2.5 pt-4 sm:gap-3">
+              <div className="grid grid-cols-2 gap-2.5 pt-6 sm:grid-cols-3 sm:gap-3">
                 {studioPhotos.map((src, index) => (
                   <div
                     key={src}
@@ -66,7 +67,8 @@ export function Artist() {
                       src={src}
                       alt={`${t.location.studioPhotoAlt} ${index + 1}`}
                       fill
-                      sizes="(max-width: 1024px) 50vw, 240px"
+                      loading="lazy"
+                      sizes="(max-width: 640px) 50vw, 33vw"
                       className="object-cover"
                     />
                   </div>
