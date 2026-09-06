@@ -2,10 +2,33 @@ export type Sex = 'male' | 'female'
 
 export const harrisBenedict = {
   title: 'Harris-Benedict (Revisada em 1984)',
-  subtitle: 'A fórmula clássica que apps e planilhas ainda usam para chutar sua Taxa Metabólica Basal.',
+  intro:
+    'Essa é a fórmula clássica que apps e planilhas usam para estimar seu gasto energético. É simples — mas não personalizada.',
+  subtitle: 'Ajuste os dados abaixo e veja como a estimativa é montada passo a passo.',
   cta: 'Calcular estimativa',
   footnote:
     'Isso é uma média estatística — não mede o seu metabolismo. A Calorimetria Indireta lê a sua respiração e entrega o número real.',
+  doubt: {
+    headline: 'Será que é isso mesmo?',
+    body: [
+      {
+        text: 'Só tem uma maneira precisa de saber — através da ',
+        emphasis: 'Calorimetria Indireta',
+        suffix: '.',
+      },
+      {
+        text: 'Comprovado cientificamente como o ',
+        emphasis: 'melhor método',
+        suffix: ' para calcular sua ',
+        emphasis2: 'Taxa Metabólica Basal',
+        suffix2: '.',
+      },
+      {
+        text: 'Usado pelos melhores profissionais da área.',
+      },
+    ],
+    closing: 'E aí, vai no certo, ou no duvidoso?',
+  },
   male: {
     label: 'Homens',
     base: 88.36,

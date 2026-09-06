@@ -126,7 +126,8 @@ export function HarrisBenedictCalc() {
               Experimente a fórmula
             </p>
             <h3 className="mt-1 font-display text-xl text-paper sm:text-2xl">{harrisBenedict.title}</h3>
-            <p className="mt-2 max-w-lg text-sm leading-relaxed text-paper/65">{harrisBenedict.subtitle}</p>
+            <p className="mt-2 max-w-lg text-sm leading-relaxed text-paper/82">{harrisBenedict.intro}</p>
+            <p className="mt-2 max-w-lg text-sm leading-relaxed text-paper/55">{harrisBenedict.subtitle}</p>
           </div>
         </div>
       </div>
@@ -270,6 +271,28 @@ export function HarrisBenedictCalc() {
             )}
           </AnimatePresence>
         </div>
+      </div>
+
+      <div className="border-t border-paper/10 bg-ink-soft/40 px-5 py-6 sm:px-7 sm:py-7">
+        <p className="font-display text-[clamp(1.35rem,3.2vw,1.75rem)] leading-snug text-paper">
+          {harrisBenedict.doubt.headline}
+        </p>
+        <div className="mt-4 space-y-3 text-sm leading-relaxed text-paper/75 sm:text-[15px]">
+          {harrisBenedict.doubt.body.map((block) => (
+            <p key={block.text.slice(0, 24)}>
+              {block.text}
+              {'emphasis' in block && block.emphasis && (
+                <span className="font-semibold uppercase tracking-wide text-teal-bright">{block.emphasis}</span>
+              )}
+              {'suffix' in block && block.suffix}
+              {'emphasis2' in block && block.emphasis2 && (
+                <span className="font-semibold uppercase tracking-wide text-teal-bright">{block.emphasis2}</span>
+              )}
+              {'suffix2' in block && block.suffix2}
+            </p>
+          ))}
+        </div>
+        <p className="mt-5 font-display text-lg text-ember sm:text-xl">{harrisBenedict.doubt.closing}</p>
       </div>
     </motion.div>
   )
