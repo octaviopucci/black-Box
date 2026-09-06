@@ -5,17 +5,15 @@ function galleryEntry(
   return { src: `/gallery/${file}`, category } as const;
 }
 
+/** Portfólio real — sem stock genérico do template Wix */
 const finelineWorks = [
-  "work-01.jpeg", "work-02.jpeg", "work-03.jpeg", "work-04.jpg", "work-05.jpeg",
-  "work-06.jpg", "work-07.jpeg", "work-08.jpeg", "work-09.jpeg", "work-10.jpeg",
-  "work-11.jpeg", "work-12.jpeg", "work-13.jpeg", "work-14.jpg", "work-15.jpeg",
-  "work-16.jpeg", "work-17.jpeg", "work-18.jpeg", "work-19.jpg", "work-20.jpg",
-  "work-21.jpg", "work-22.jpg",
+  "work-02.jpeg", "work-03.jpeg", "work-09.jpeg", "work-10.jpeg",
+  "work-11.jpeg", "work-12.jpeg", "work-14.jpeg", "work-15.jpeg",
+  "work-18.jpeg",
 ] as const;
 
 const delicadasWorks = [
-  "work-23.jpg", "work-24.jpg", "work-25.jpg", "work-26.jpg", "work-27.jpg",
-  "work-28.jpg", "work-29.jpg", "work-30.jpg",
+  "work-05.jpeg", "work-08.jpeg", "work-13.jpg", "work-16.jpeg", "work-17.jpeg",
 ] as const;
 
 export const site = {
@@ -36,24 +34,27 @@ export const site = {
   bookingDepositBrl: 150,
   assets: {
     logo: "/hero/stella-portrait.jpeg",
-    hero: "/hero/stella-hero.jpeg",
-    artist: "/hero/stella-portrait.jpeg",
+    hero: "/hero/stella-artist.jpg",
+    artist: "/hero/stella-artist.jpg",
     instagram: "/gallery/work-05.jpeg",
   },
+  /** Rolo da hero — só fotos da Stella e tatuagens dela */
   heroRoll: [
+    "/hero/stella-artist.jpg",
     "/hero/stella-hero.jpeg",
-    "/hero/stella-portrait.jpeg",
-    "/gallery/work-01.jpeg",
+    "/gallery/work-02.jpeg",
     "/gallery/work-03.jpeg",
     "/gallery/work-05.jpeg",
     "/gallery/work-08.jpeg",
+    "/gallery/work-09.jpeg",
+    "/gallery/work-10.jpeg",
+    "/gallery/work-11.jpeg",
     "/gallery/work-12.jpeg",
+    "/gallery/work-14.jpeg",
     "/gallery/work-15.jpeg",
-    "/gallery/work-19.jpg",
-    "/gallery/work-22.jpg",
-    "/gallery/work-24.jpg",
-    "/gallery/work-27.jpg",
-    "/gallery/work-29.jpg",
+    "/gallery/work-16.jpeg",
+    "/gallery/work-17.jpeg",
+    "/gallery/work-18.jpeg",
   ],
   styles: [
     {
@@ -65,7 +66,7 @@ export const site = {
       anchor: "#trabalhos",
     },
     {
-      image: "/gallery/work-28.jpg",
+      image: "/gallery/work-17.jpeg",
       anchor: "#trabalhos",
     },
   ],

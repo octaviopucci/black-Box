@@ -13,61 +13,6 @@ function dedupe(urls: readonly string[]): string[] {
   return [...new Set(urls)];
 }
 
-function buildPools() {
-  const featured = dedupe(site.heroRoll);
-  const portfolio = dedupe(site.gallery.map((g) => g.src)).filter(
-    (src) => !featured.includes(src),
-  );
-  return { featured, portfolio, all: dedupe([...featured, ...portfolio]) };
-}
-
-function buildColumn(
-  featured: string[],
-  portfolio: string[],
-  all: string[],
-  minItems: number,
-): string[] {
-  const col: string[] = [];
-  let fi = 0;
-  let pi = 0;
-
-  const takeFeatured = () => {
-    while (fi < featured.length) {
-      const next = featured[fi++];
-      if (!col.includes(next) && col.at(-1) !== next) return next;
-    }
-    return null;
-  };
-
-  const takePortfolio = () => {
-    while (pi < portfolio.length) {
-      const next = portfolio[pi++];
-      if (!col.includes(next) && col.at(-1) !== next) return next;
-    }
-    return null;
-  };
-
-  const takeAny = () => {
-    for (const next of all) {
-      if (!col.includes(next) && col.at(-1) !== next) return next;
-    }
-    return null;
-  };
-
-  while (col.length < minItems) {
-    const last = col.at(-1);
-    const lastIsFeatured = last !== undefined && featured.includes(last);
-
-    let next = lastIsFeatured || last === undefined ? takePortfolio() : takeFeatured();
-    if (!next) next = lastIsFeatured ? takeFeatured() : takePortfolio();
-    if (!next) next = takeAny();
-    if (!next) break;
-    col.push(next);
-  }
-
-  return col;
-}
-
 function fixLoopBoundary(track: string[]): string[] {
   if (track.length < 2) return track;
   if (track[0] === track.at(-1)) {
@@ -92,16 +37,25 @@ function loopTrack(column: string[]): string[] {
 }
 
 function buildColumns(): [string[], string[]] {
-  const { featured, portfolio, all } = buildPools();
-  const minPerColumn = 8;
+  const pool = dedupe(site.heroRoll);
+  const minPerColumn = 7;
+  const col0: string[] = [];
+  const col1: string[] = [];
 
-  const col0 = buildColumn([...featured], [...portfolio], all, minPerColumn);
-  const col1 = buildColumn(
-    [...featured].reverse(),
-    [...portfolio].reverse(),
-    [...all].reverse(),
-    minPerColumn,
-  );
+  pool.forEach((src, index) => {
+    (index % 2 === 0 ? col0 : col1).push(src);
+  });
+
+  let i = 0;
+  while (col0.length < minPerColumn) {
+    col0.push(pool[i % pool.length]!);
+    i += 1;
+  }
+  i = 1;
+  while (col1.length < minPerColumn) {
+    col1.push(pool[i % pool.length]!);
+    i += 2;
+  }
 
   return [loopTrack(col0), loopTrack(col1)];
 }
