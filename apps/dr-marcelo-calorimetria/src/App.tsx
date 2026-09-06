@@ -1,3 +1,4 @@
+import { SchedulingProvider } from './context/SchedulingContext'
 import { EnergyBridge } from './components/EnergyBridge'
 import { Nav } from './components/Nav'
 import { Hero } from './components/Hero'
@@ -9,10 +10,12 @@ import { AboutDoctor } from './components/AboutDoctor'
 import { Booking } from './components/Booking'
 import { FAQ } from './components/FAQ'
 import { Footer } from './components/Footer'
+import { SchedulingModal } from './components/scheduling/SchedulingModal'
+import { ScheduleCtaFooter } from './components/scheduling/ScheduleCtaFooter'
 
 export default function App() {
   return (
-    <>
+    <SchedulingProvider>
       <Nav />
       <main>
         <Hero />
@@ -24,8 +27,10 @@ export default function App() {
         <AboutDoctor />
         <Booking />
         <FAQ />
+        <ScheduleCtaFooter />
       </main>
       <Footer />
-    </>
+      <SchedulingModal />
+    </SchedulingProvider>
   )
 }
