@@ -188,7 +188,8 @@
   .hero-enter-item,
   .headline-line-inner,
   .photo-roll-up,
-  .photo-roll-down {
+  .photo-roll-down,
+  .reveal {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
