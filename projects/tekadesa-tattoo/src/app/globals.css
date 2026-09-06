@@ -138,6 +138,10 @@
   .lightbox-open {
     animation: fade-in 0.25s ease-out;
   }
+
+  .marquee-track {
+    animation: marquee-scroll 42s linear infinite;
+  }
 }
 
 @keyframes hero-fade-up {
@@ -184,12 +188,22 @@
   }
 }
 
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-enter-item,
   .headline-line-inner,
   .photo-roll-up,
   .photo-roll-down,
-  .reveal {
+  .reveal,
+  .marquee-track {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
