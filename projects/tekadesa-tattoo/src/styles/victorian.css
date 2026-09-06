@@ -1,0 +1,217 @@
+/* Victorian v2 — paleta salão antigo: pergaminho, burgundy, ouro */
+
+.theme-victorian {
+  --paper: #f2ebe1;
+  --surface: #e8dfd3;
+  --elevated: #faf6f0;
+  --line: #c4a574;
+  --ink: #1a1210;
+  --accent: #5c2438;
+  --accent-soft: #d4b896;
+  --mute: #5a4a42;
+  --gold: #b8956a;
+  --gold-light: #dcc9a3;
+  --forest: #2a4038;
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-forest: var(--forest);
+}
+
+.theme-victorian body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(ellipse 90% 60% at 50% 0%, color-mix(in oklab, var(--gold-light) 22%, transparent), transparent),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      color-mix(in oklab, var(--line) 8%, transparent) 3px,
+      color-mix(in oklab, var(--line) 8%, transparent) 4px
+    );
+}
+
+.theme-victorian .font-display {
+  font-family: var(--font-display), "Playfair Display", Georgia, serif;
+}
+
+.theme-victorian .font-sans {
+  font-family: var(--font-sans), "Lora", Georgia, serif;
+}
+
+/* Botões — retangulares, moldura dourada */
+.theme-victorian .btn-pill-primary {
+  border-radius: 0;
+  border: 1px solid var(--gold);
+  background: var(--accent);
+  letter-spacing: 0.28em;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold-light) 40%, transparent);
+}
+
+.theme-victorian .btn-pill-primary:hover {
+  background: var(--forest);
+  color: var(--gold-light);
+  border-color: var(--gold-light);
+}
+
+.theme-victorian .btn-pill-ghost {
+  border-radius: 0;
+  border: 1px solid var(--line);
+  letter-spacing: 0.28em;
+}
+
+.theme-victorian .btn-pill-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in oklab, var(--gold-light) 15%, transparent);
+}
+
+/* Navbar */
+.theme-victorian header button[class*="font-bold"] {
+  font-family: var(--font-display), serif;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.theme-victorian nav button {
+  font-family: var(--font-sans), serif;
+  font-style: italic;
+  letter-spacing: 0.12em;
+}
+
+/* Section headers */
+.theme-victorian .vic-section-header h2 {
+  font-family: var(--font-display), serif;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+}
+
+.theme-victorian .vic-section-header .vic-index {
+  font-family: var(--font-sans), serif;
+  font-style: italic;
+  color: var(--gold);
+  letter-spacing: 0.18em;
+}
+
+.theme-victorian .vic-section-header .vic-title {
+  font-family: var(--font-display), serif;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Marquee */
+.theme-victorian .vic-marquee {
+  border-color: var(--gold);
+  background: var(--accent);
+}
+
+.theme-victorian .vic-marquee span {
+  color: var(--gold-light);
+  font-family: var(--font-display), serif;
+  font-style: italic;
+  letter-spacing: 0.32em;
+}
+
+/* Cards e molduras */
+.theme-victorian .vic-frame {
+  box-shadow:
+    inset 0 0 0 1px var(--gold),
+    inset 0 0 0 4px var(--paper),
+    inset 0 0 0 5px var(--line);
+}
+
+.theme-victorian .vic-ornament-line {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--gold) 20%,
+    var(--gold) 80%,
+    transparent
+  );
+}
+
+/* Galeria — filtros victorianos */
+.theme-victorian #trabalhos button.border {
+  border-radius: 0;
+  font-family: var(--font-sans), serif;
+  font-style: italic;
+}
+
+/* Processo — medallions */
+.theme-victorian .vic-step-badge {
+  border-radius: 9999px;
+  border: 1px solid var(--gold);
+  background: var(--elevated);
+  color: var(--accent);
+  font-family: var(--font-display), serif;
+}
+
+/* Footer */
+.theme-victorian footer {
+  border-color: var(--line);
+  background: color-mix(in oklab, var(--surface) 80%, var(--paper));
+}
+
+.theme-victorian footer h4 {
+  font-family: var(--font-display), serif;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+}
+
+/* CTA band */
+.theme-victorian .vic-cta h2,
+.theme-victorian section:has(.btn-pill-primary) h2 {
+  font-family: var(--font-display), serif;
+  text-transform: none;
+  font-weight: 600;
+}
+
+/* Imagens com moldura */
+.theme-victorian .ring-line\/60 {
+  --tw-ring-color: color-mix(in oklab, var(--gold) 70%, transparent);
+}
+
+.theme-victorian #sobre img,
+.theme-victorian #trabalhos img,
+.theme-victorian section img.object-cover {
+  outline: 1px solid color-mix(in oklab, var(--gold) 45%, transparent);
+  outline-offset: 3px;
+}
+
+/* Processo */
+.theme-victorian #processo .border-line.bg-paper {
+  border-color: var(--gold);
+  border-radius: 9999px;
+  font-family: var(--font-display), serif;
+}
+
+/* Artist / story headings */
+.theme-victorian section h2.text-3xl,
+.theme-victorian section h2.font-display {
+  font-family: var(--font-display), serif;
+  font-weight: 600;
+}
+
+.theme-victorian .editorial-label {
+  font-family: var(--font-display), serif;
+  font-style: italic;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+}
+
+/* Quote form inputs */
+.theme-victorian input,
+.theme-victorian textarea,
+.theme-victorian select {
+  border-radius: 0;
+  border-color: color-mix(in oklab, var(--line) 80%, transparent);
+}
+
+.theme-victorian input:focus,
+.theme-victorian textarea:focus,
+.theme-victorian select:focus {
+  border-color: var(--gold);
+}

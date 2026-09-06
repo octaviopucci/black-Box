@@ -1,15 +1,21 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MapPin } from "lucide-react";
 import { site } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
 import { scrollToHash } from "@/lib/whatsapp";
+import { useThemeVariant } from "@/lib/theme-variant";
 
 export function Footer() {
   const { t } = useLocale();
   const siteData = useSite();
+  const pathname = usePathname();
+  const theme = useThemeVariant();
+  const isVictorian = theme === "victorian" || pathname?.startsWith("/v2");
 
   return (
     <footer className="border-t border-ink/10 bg-paper">
@@ -25,6 +31,17 @@ export function Footer() {
             />
             <p className="mt-6 max-w-xs text-sm font-light leading-relaxed text-mute">
               {t.footer.tagline}
+            </p>
+            <p className="mt-4">
+              {isVictorian ? (
+                <Link href="/" className="text-sm italic text-accent transition-colors hover:text-ink">
+                  ← Versão clássica
+                </Link>
+              ) : (
+                <Link href="/v2" className="text-sm italic text-accent transition-colors hover:text-ink">
+                  Edição victoriana →
+                </Link>
+              )}
             </p>
           </div>
 
