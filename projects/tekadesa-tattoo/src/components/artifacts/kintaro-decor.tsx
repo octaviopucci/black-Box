@@ -16,7 +16,7 @@ export function DiagonalLines({
       {Array.from({ length: 4 }).map((_, i) => (
         <span
           key={i}
-          className="block h-px w-8 origin-left rotate-[135deg] bg-white/25"
+          className="block h-px w-8 origin-left rotate-[135deg] bg-line/80"
         />
       ))}
     </div>
@@ -38,9 +38,9 @@ export function ScrollIndicator({
       style={style}
       aria-hidden
     >
-      <span className="block h-16 w-px bg-white/20" />
+      <span className="block h-16 w-px bg-line/70" />
       <span
-        className="font-mono text-[9px] uppercase tracking-[0.4em] text-white/40"
+        className="font-mono text-[9px] uppercase tracking-[0.4em] text-mute/60"
         style={{ writingMode: "vertical-rl" }}
       >
         {label}

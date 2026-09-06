@@ -14,32 +14,34 @@ function dedupe(urls: readonly string[]): string[] {
 }
 
 function buildPools() {
-  const rafael = dedupe(site.heroRoll);
-  const works = dedupe(site.gallery.map((g) => g.src)).filter((src) => !rafael.includes(src));
-  return { rafael, works, all: dedupe([...rafael, ...works]) };
+  const featured = dedupe(site.heroRoll);
+  const portfolio = dedupe(site.gallery.map((g) => g.src)).filter(
+    (src) => !featured.includes(src),
+  );
+  return { featured, portfolio, all: dedupe([...featured, ...portfolio]) };
 }
 
 function buildColumn(
-  rafael: string[],
-  works: string[],
+  featured: string[],
+  portfolio: string[],
   all: string[],
   minItems: number,
 ): string[] {
   const col: string[] = [];
-  let ri = 0;
-  let wi = 0;
+  let fi = 0;
+  let pi = 0;
 
-  const takeRafael = () => {
-    while (ri < rafael.length) {
-      const next = rafael[ri++];
+  const takeFeatured = () => {
+    while (fi < featured.length) {
+      const next = featured[fi++];
       if (!col.includes(next) && col.at(-1) !== next) return next;
     }
     return null;
   };
 
-  const takeWork = () => {
-    while (wi < works.length) {
-      const next = works[wi++];
+  const takePortfolio = () => {
+    while (pi < portfolio.length) {
+      const next = portfolio[pi++];
       if (!col.includes(next) && col.at(-1) !== next) return next;
     }
     return null;
@@ -54,10 +56,10 @@ function buildColumn(
 
   while (col.length < minItems) {
     const last = col.at(-1);
-    const lastIsRafael = last !== undefined && rafael.includes(last);
+    const lastIsFeatured = last !== undefined && featured.includes(last);
 
-    let next = lastIsRafael || last === undefined ? takeWork() : takeRafael();
-    if (!next) next = lastIsRafael ? takeRafael() : takeWork();
+    let next = lastIsFeatured || last === undefined ? takePortfolio() : takeFeatured();
+    if (!next) next = lastIsFeatured ? takeFeatured() : takePortfolio();
     if (!next) next = takeAny();
     if (!next) break;
     col.push(next);
@@ -90,13 +92,13 @@ function loopTrack(column: string[]): string[] {
 }
 
 function buildColumns(): [string[], string[]] {
-  const { rafael, works, all } = buildPools();
-  const minPerColumn = 7;
+  const { featured, portfolio, all } = buildPools();
+  const minPerColumn = 8;
 
-  const col0 = buildColumn([...rafael], [...works], all, minPerColumn);
+  const col0 = buildColumn([...featured], [...portfolio], all, minPerColumn);
   const col1 = buildColumn(
-    [...rafael].reverse(),
-    [...works].reverse(),
+    [...featured].reverse(),
+    [...portfolio].reverse(),
     [...all].reverse(),
     minPerColumn,
   );
@@ -113,11 +115,10 @@ export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps
   const columns = useMemo(() => buildColumns(), []);
   const t = smoothstep(scrollProgress);
 
-  // 54% width on the right → full viewport; inner scale for cinematic fill
   const leftPct = (1 - t) * 42;
   const innerScale = 1 + t * 0.35;
   const innerY = scrollProgress * -80;
-  const maskOpacity = 1 - t * 0.92;
+  const maskOpacity = 1 - t * 0.85;
 
   const shellStyle = {
     top: `${-t * 8}%`,
@@ -138,7 +139,7 @@ export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps
       aria-hidden
     >
       <div
-        className="absolute inset-0 z-10 bg-gradient-to-r from-black/80 via-black/25 to-transparent transition-opacity duration-100"
+        className="absolute inset-0 z-10 bg-gradient-to-r from-paper via-paper/55 to-transparent transition-opacity duration-100"
         style={{ opacity: maskOpacity }}
       />
 
@@ -161,7 +162,7 @@ export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps
               <div
                 key={`${colIndex}-${i}-${src}`}
                 className={cn(
-                  "relative aspect-[3/4] w-full shrink-0 overflow-hidden ring-1 ring-white/5",
+                  "relative aspect-[3/4] w-full shrink-0 overflow-hidden rounded-sm ring-1 ring-line/60",
                   i % 2 === 0 ? "-translate-x-1 md:-translate-x-2" : "translate-x-1 md:translate-x-2",
                 )}
               >
@@ -170,10 +171,7 @@ export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps
                   alt=""
                   fill
                   sizes="(max-width: 768px) 50vw, 100vw"
-                  className="object-cover contrast-[1.05]"
-                  style={{
-                    filter: `grayscale(${0.35 * (1 - t * 0.6)}) contrast(1.05)`,
-                  }}
+                  className="object-cover"
                   priority={colIndex === 0 && i < 2}
                 />
               </div>

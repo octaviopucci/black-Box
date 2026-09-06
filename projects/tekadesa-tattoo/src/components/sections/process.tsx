@@ -16,9 +16,10 @@ export function Process() {
       <div className="mx-auto max-w-5xl px-6">
         <Reveal>
           <SectionHeader
-            index="004"
+            index="005"
             label={t.processSection.label}
             title={t.processSection.title}
+            description={t.processSection.description}
             align="center"
           />
         </Reveal>
@@ -26,7 +27,7 @@ export function Process() {
         <div className="relative mt-16">
           <div
             aria-hidden
-            className="absolute bottom-0 left-6 top-0 hidden w-px bg-gradient-to-b from-white/10 via-white/5 to-white/10 sm:left-1/2 sm:block"
+            className="absolute bottom-0 left-6 top-0 hidden w-px bg-gradient-to-b from-line/40 via-line/20 to-line/40 sm:left-1/2 sm:block"
           />
 
           <div className="space-y-12 sm:space-y-16">
@@ -41,7 +42,7 @@ export function Process() {
                     }`}
                   >
                     <div className={`flex-1 ${isLeft ? "sm:text-right" : "sm:text-left"}`}>
-                      <span className="font-mono text-xs tracking-[0.25em] text-white/30">
+                      <span className="font-mono text-xs tracking-[0.25em] text-accent/70">
                         {step.step}
                       </span>
                       <h3 className="mt-2 text-xl font-bold uppercase tracking-wide text-ink sm:text-2xl">
@@ -52,8 +53,8 @@ export function Process() {
                       </p>
                     </div>
 
-                    <div className="z-10 flex h-12 w-12 shrink-0 items-center justify-center border border-white/15 bg-black sm:flex">
-                      <span className="font-mono text-[10px] text-white/50">{step.step}</span>
+                    <div className="z-10 flex h-12 w-12 shrink-0 items-center justify-center border border-line bg-paper sm:flex">
+                      <span className="font-mono text-[10px] text-accent">{step.step}</span>
                     </div>
 
                     <div className="hidden flex-1 sm:block" />

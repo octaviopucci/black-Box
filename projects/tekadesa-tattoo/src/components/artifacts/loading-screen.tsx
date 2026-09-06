@@ -52,7 +52,7 @@ export function LoadingScreen() {
 
   return (
     <div
-      className={`loader-screen fixed inset-0 z-[100] flex items-center justify-center bg-black ${
+      className={`loader-screen fixed inset-0 z-[100] flex items-center justify-center bg-paper ${
         phase === "exit" ? "loader-exit" : phase === "enter" ? "loader-enter" : ""
       }`}
       aria-hidden={phase === "exit"}
@@ -70,7 +70,7 @@ export function LoadingScreen() {
             cy="60"
             r="54"
             fill="none"
-            stroke="rgba(255,255,255,0.06)"
+            stroke="color-mix(in oklab, var(--accent-soft) 60%, transparent)"
             strokeWidth="1"
             strokeDasharray="3 5"
           />
@@ -79,7 +79,7 @@ export function LoadingScreen() {
             cy="60"
             r="54"
             fill="none"
-            stroke="white"
+            stroke="var(--accent)"
             strokeWidth="1.25"
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -88,14 +88,14 @@ export function LoadingScreen() {
           />
         </svg>
 
-        <div className="relative z-10 flex h-[4.75rem] w-[4.75rem] items-center justify-center rounded-full bg-[#0d0d0d] ring-1 ring-white/10">
+        <div className="relative z-10 flex h-[4.75rem] w-[4.75rem] items-center justify-center overflow-hidden rounded-full bg-surface ring-1 ring-line/60">
           <Image
             src={site.assets.logo}
             alt="Stella de Sá — Fineline"
             width={64}
             height={64}
             priority
-            className="h-11 w-auto brightness-0 invert"
+            className="h-full w-full object-cover object-top"
           />
         </div>
       </div>

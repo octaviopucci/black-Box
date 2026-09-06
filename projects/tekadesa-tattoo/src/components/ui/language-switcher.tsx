@@ -23,7 +23,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-sm text-lg leading-none transition-all duration-300",
               active
-                ? "scale-110 opacity-100 ring-1 ring-white/30"
+                ? "scale-110 opacity-100 ring-1 ring-line/70"
                 : "opacity-45 hover:scale-105 hover:opacity-80",
             )}
             aria-label={`${t.language.switchTo} ${item.label}`}

@@ -12,6 +12,7 @@ export const pt: Messages = {
     { label: "Início", href: "#inicio" },
     { label: "Sobre", href: "#sobre" },
     { label: "Trabalhos", href: "#trabalhos" },
+    { label: "Serviços", href: "#servicos" },
     { label: "Estilos", href: "#estilos" },
     { label: "Processo", href: "#processo" },
     { label: "Orçamento", href: "#orcamento" },
@@ -53,8 +54,9 @@ export const pt: Messages = {
     title: "Arte que eleva a autoestima",
     paragraphs: [
       "Stella de Sá é tatuadora apaixonada por transformar sonhos em arte. Seu estilo delicado e minucioso conquista mulheres que buscam expressar sua essência de forma única.",
-      "Com abordagem cuidadosa e atenta aos detalhes, cada traço é uma manifestação autêntica da personalidade de quem inspira a peça.",
-      "Comprometida com os mais altos padrões de higiene e segurança — para você se sentir confortável e confiante em cada etapa.",
+      "Com abordagem cuidadosa e atenta aos detalhes, Stella cria tatuagens que contam histórias e celebram a feminilidade em suas mais diversas formas. Cada traço é uma manifestação autêntica da personalidade de quem inspira a peça.",
+      "Sua missão é proporcionar uma experiência exclusiva — do primeiro contato ao pós-tatuagem — com os mais altos padrões de higiene e segurança, para você se sentir confortável e confiante em cada etapa.",
+      "Navegue pelo portfólio, compartilhe sua inspiração e junte-se à comunidade de mulheres que expressam sua individualidade através da arte na pele.",
     ],
   },
   process: [
@@ -111,10 +113,11 @@ export const pt: Messages = {
   },
   hours: "Horários divulgados via Instagram e WhatsApp.\nAssine a newsletter no site para novidades de agenda.",
   hero: {
+    eyebrow: "Tatuadora · Alphaville",
     titleLine1: "Stella de Sá",
     titleLine2: "Fineline",
     subtitle:
-      "Tatuagens de traços finos com delicadeza e elegância — elevando sua autoestima através da arte.",
+      "Especializada em tatuagens de traços finos — delicadeza, elegância e projetos personalizados que elevam sua autoestima através da arte.",
     ctaQuote: "Agendar orçamento →",
     ctaWorks: "Ver trabalhos",
   },
@@ -123,9 +126,9 @@ export const pt: Messages = {
     title: "Delicadeza e elegância em cada traço.",
     artistLabel: "Tatuadora",
     paragraphs: [
-      "Stella de Sá é especializada em fineline — tatuagens de traços finos que celebram a feminilidade em suas mais diversas formas.",
-      "Studio em Alphaville Comercial, Barueri: um espaço pensado para mulheres que expressam sua individualidade através da arte na pele.",
-      "Navegue pelo portfólio, compartilhe sua inspiração e agende pelo WhatsApp. Sinal de R$ 150 para confirmação de horário.",
+      "Stella de Sá é especializada em fineline — tatuagens de traços finos que celebram a feminilidade em suas mais diversas formas, com um toque de delicadeza e elegância em cada projeto.",
+      "No studio em Alphaville Comercial, Barueri, cada tatuagem é uma colaboração artística: Stella traduz sua história em traços finos, legíveis e significativos, pensados para valorizar seu corpo.",
+      "Navegue pelo portfólio, compartilhe sua inspiração e agende pelo WhatsApp. Sinal de R$ 150 para confirmação de horário. Horários e novidades também no Instagram @tekadesa.tatuadora.",
     ],
     imageAlt: "Stella de Sá — tatuadora fineline",
   },
@@ -148,9 +151,28 @@ export const pt: Messages = {
     title: "Como tatuo",
     seeWorks: "Ver portfólio →",
   },
+  servicesSection: {
+    label: "Serviços",
+    title: "O que ofereço no studio",
+    description:
+      "Do flash delicado ao projeto de fechamento — cada serviço é pensado para mulheres que buscam expressar sua essência com arte na pele.",
+    cta: "Solicitar orçamento →",
+  },
+  services: [
+    { name: "Flash Tattoo", desc: "Tatuagem simples até 5 cm — ideal para quem quer começar com algo delicado e significativo." },
+    { name: "Combo Mini Tattoos", desc: "Três flash tattoos até 4 cm cada — perfeito para compor um conjunto harmonioso." },
+    { name: "Tatuagens Delicadas", desc: "Projetos personalizados até 8 cm — minimalistas, românticos e cheios de personalidade." },
+    { name: "Tatuagem Estilo Glitter", desc: "Arte com efeito brilhante exclusivo — para quem busca algo ainda mais especial na pele." },
+    { name: "Gold Tattoo", desc: "Estilo dourado exclusivo da Stella — elegância e sofisticação em traços finos." },
+    { name: "Fineline 15 cm", desc: "Projetos maiores com detalhes impressionantes — traços finos com precisão milimétrica até 15 cm." },
+    { name: "Fechamento", desc: "Projetos de fechamento e cobertura — transformando áreas existentes em composições coesas." },
+    { name: "Consultoria", desc: "Consultoria pré-tatuagem — alinhamos ideia, local, tamanho e estilo antes de agendar a sessão." },
+  ],
   processSection: {
     label: "Processo",
     title: "Como funciona",
+    description:
+      "Do primeiro contato à cicatrização — transparência, cuidado e biossegurança em cada etapa.",
   },
   artist: {
     label: "A Artista",
@@ -200,8 +222,15 @@ export const pt: Messages = {
     title: "Alphaville Comercial",
     mapTitle: "Studio Stella de Sá — Barueri",
     address: "Praça das Flôres, 12",
-    hours: "Agendamento via WhatsApp",
+    hours: "Agendamento via WhatsApp e Instagram",
     directions: "Como chegar",
+  },
+  contactSection: {
+    label: "Contato",
+    title: "Orçamento e agendamento",
+    description:
+      "Fineline, tatuagens delicadas, glitter e gold — entre em contato para cotar seu projeto ou tirar dúvidas sobre disponibilidade.",
+    whatsappMessage: "Olá! Vi o site e gostaria de cotar uma tatuagem fineline.",
   },
   ctaBand: {
     titleLine1: "Pronta para sua",

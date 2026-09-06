@@ -99,8 +99,8 @@ export function Gallery() {
                 className={cn(
                   "px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-all duration-300",
                   filter === item.id
-                    ? "bg-white text-black"
-                    : "border border-white/15 text-mute hover:border-white/40 hover:text-white",
+                    ? "bg-accent text-white"
+                    : "border border-line text-mute hover:border-accent hover:text-ink",
                 )}
               >
                 {item.label}

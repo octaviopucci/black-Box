@@ -10,7 +10,7 @@ export function SplitHeadline({
 }: SplitHeadlineProps) {
   return (
     <h1
-      className={`text-[clamp(2.5rem,9vw,5.5rem)] font-bold uppercase leading-[0.92] tracking-tighter text-white ${className}`}
+      className={`text-[clamp(2.5rem,9vw,5.5rem)] font-bold uppercase leading-[0.92] tracking-tighter text-ink ${className}`}
     >
       {lines.map((line, lineIndex) => (
         <span key={line} className="headline-line block overflow-hidden">

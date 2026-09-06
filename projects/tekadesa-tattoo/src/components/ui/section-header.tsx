@@ -21,7 +21,7 @@ export function SectionHeader({
   return (
     <div className={`${alignClass} ${className}`}>
       {index ? (
-        <p className="font-mono text-[11px] tracking-[0.22em] text-white/35">
+        <p className="font-mono text-[11px] tracking-[0.22em] text-accent/80">
           [{index}]
         </p>
       ) : null}
@@ -31,14 +31,14 @@ export function SectionHeader({
       </h2>
 
       <p
-        className={`mt-4 text-lg font-medium leading-snug text-white/75 md:text-xl ${align === "center" ? "mx-auto" : ""}`}
+        className={`mt-4 text-lg font-medium leading-snug text-mute md:text-xl ${align === "center" ? "mx-auto" : ""}`}
       >
         {title}
       </p>
 
       {description ? (
         <p
-          className={`mt-4 max-w-xl text-sm leading-relaxed text-mute md:text-base ${align === "center" ? "mx-auto" : ""}`}
+          className={`mt-4 max-w-xl text-sm leading-relaxed text-mute/80 md:text-base ${align === "center" ? "mx-auto" : ""}`}
         >
           {description}
         </p>

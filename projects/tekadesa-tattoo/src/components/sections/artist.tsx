@@ -15,7 +15,7 @@ export function Artist() {
       <div className="mx-auto max-w-6xl px-6">
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <Reveal className="relative">
-            <div className="relative overflow-hidden ring-1 ring-white/10">
+            <div className="relative overflow-hidden ring-1 ring-line/60">
               <Image
                 src={site.assets.hero}
                 alt={t.artist.imageAlt}
@@ -27,8 +27,8 @@ export function Artist() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-paper/60 to-transparent" />
             </div>
-            <div className="absolute -left-4 -top-4 h-24 w-24 border-l border-t border-white/15" />
-            <div className="absolute -bottom-4 -right-4 h-24 w-24 border-b border-r border-white/15" />
+            <div className="absolute -left-4 -top-4 h-24 w-24 border-l border-t border-line/70" />
+            <div className="absolute -bottom-4 -right-4 h-24 w-24 border-b border-r border-line/70" />
           </Reveal>
 
           <Reveal delay={0.08} className="space-y-5">
@@ -36,7 +36,7 @@ export function Artist() {
             <h2 className="text-3xl font-bold uppercase leading-tight tracking-tight text-ink sm:text-4xl">
               {t.artist.title}
             </h2>
-            <div className="h-px w-14 bg-white/20" />
+            <div className="h-px w-14 bg-line/70" />
             {t.artist.paragraphs.map((paragraph) => (
               <p key={paragraph.slice(0, 40)} className="text-base leading-relaxed text-mute md:text-lg">
                 {paragraph}

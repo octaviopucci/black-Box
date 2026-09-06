@@ -24,6 +24,7 @@ export function useSite() {
       process: t.process,
       testimonials: t.testimonials,
       formOptions: t.formOptions,
+      services: t.services,
       hours: t.hours,
     }),
     [t],

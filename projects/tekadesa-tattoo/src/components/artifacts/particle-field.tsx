@@ -17,7 +17,7 @@ export function ParticleField({ className = "", scrollProgress = 0 }: ParticleFi
       {PARTICLES.map((p) => (
         <span
           key={p.id}
-          className="particle-drift absolute rounded-full bg-white will-change-transform"
+          className="particle-drift absolute rounded-full bg-accent will-change-transform"
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,

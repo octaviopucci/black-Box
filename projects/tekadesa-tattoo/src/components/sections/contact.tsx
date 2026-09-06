@@ -2,11 +2,13 @@
 
 import { site } from "@/data/site";
 import { openWhatsApp } from "@/lib/whatsapp";
+import { useLocale } from "@/i18n/locale-provider";
 import { useSite } from "@/i18n/use-site";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 
 export function Contact() {
+  const { t } = useLocale();
   const siteData = useSite();
 
   return (
@@ -14,9 +16,10 @@ export function Contact() {
       <div className="mx-auto max-w-3xl px-6">
         <Reveal>
           <SectionHeader
-            index="005"
-            label="Contato"
-            title="Orçamento e agendamento — fineline e tatuagens delicadas em Alphaville."
+            index="006"
+            label={t.contactSection.label}
+            title={t.contactSection.title}
+            description={t.contactSection.description}
             align="center"
           />
         </Reveal>
@@ -28,11 +31,7 @@ export function Contact() {
             </p>
             <button
               type="button"
-              onClick={() =>
-                openWhatsApp(
-                  "Olá! Vim através do site e gostaria de cotar um orçamento!",
-                )
-              }
+              onClick={() => openWhatsApp(t.contactSection.whatsappMessage)}
               className="mt-3 block text-left text-lg text-ink transition-colors hover:text-accent"
             >
               (11) 98986-2547

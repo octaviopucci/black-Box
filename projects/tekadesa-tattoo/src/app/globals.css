@@ -113,6 +113,10 @@
     @apply object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.03];
   }
 
+  .editorial-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.35em] text-mute;
+  }
+
   .hero-enter-item {
     animation: hero-fade-up 0.8s var(--ease-premium) forwards;
     opacity: 0;

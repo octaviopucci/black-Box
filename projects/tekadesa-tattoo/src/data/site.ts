@@ -44,11 +44,16 @@ export const site = {
     "/hero/stella-hero.jpeg",
     "/hero/stella-portrait.jpeg",
     "/gallery/work-01.jpeg",
+    "/gallery/work-03.jpeg",
+    "/gallery/work-05.jpeg",
     "/gallery/work-08.jpeg",
     "/gallery/work-12.jpeg",
+    "/gallery/work-15.jpeg",
     "/gallery/work-19.jpg",
+    "/gallery/work-22.jpg",
     "/gallery/work-24.jpg",
     "/gallery/work-27.jpg",
+    "/gallery/work-29.jpg",
   ],
   styles: [
     {

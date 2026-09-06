@@ -32,6 +32,11 @@ export type FormOptions = {
   styles: string[];
 };
 
+export type ServiceItem = {
+  name: string;
+  desc: string;
+};
+
 export type Messages = {
   meta: { title: string; description: string; ogDescription: string };
   nav: NavItem[];
@@ -45,6 +50,7 @@ export type Messages = {
   formOptions: FormOptions;
   hours: string;
   hero: {
+    eyebrow: string;
     titleLine1: string;
     titleLine2: string;
     subtitle: string;
@@ -77,9 +83,17 @@ export type Messages = {
     title: string;
     seeWorks: string;
   };
+  servicesSection: {
+    label: string;
+    title: string;
+    description: string;
+    cta: string;
+  };
+  services: ServiceItem[];
   processSection: {
     label: string;
     title: string;
+    description: string;
   };
   artist: {
     label: string;
@@ -127,6 +141,12 @@ export type Messages = {
     address: string;
     hours: string;
     directions: string;
+  };
+  contactSection: {
+    label: string;
+    title: string;
+    description: string;
+    whatsappMessage: string;
   };
   ctaBand: {
     titleLine1: string;

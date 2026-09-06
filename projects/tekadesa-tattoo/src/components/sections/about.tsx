@@ -39,18 +39,18 @@ export function About() {
           </Reveal>
 
           <Reveal delay={0.08} className="space-y-8">
-            <div className="relative aspect-[3/4] overflow-hidden ring-1 ring-white/10">
+            <div className="relative aspect-[3/4] overflow-hidden ring-1 ring-line/60">
               <Image
                 src={site.assets.artist}
                 alt={t.about.imageAlt}
                 fill
                 loading="lazy"
                 sizes="320px"
-                className="object-cover object-top grayscale-[0.2]"
+                className="object-cover object-top"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 border-t border-white/10 pt-8">
+            <div className="grid grid-cols-2 gap-6 border-t border-line/60 pt-8">
               {siteData.stats.map((stat) => (
                 <Counter
                   key={stat.label}
