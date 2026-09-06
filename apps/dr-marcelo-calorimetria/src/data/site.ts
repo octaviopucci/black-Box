@@ -13,6 +13,9 @@ export const site = {
   instagram: 'https://www.instagram.com/dr.marceloprado',
   instagramHandle: '@dr.marceloprado',
   linktree: 'https://linktr.ee/dr.marceloprado',
+  whatsapp: '5515997532764',
+  whatsappMessage:
+    'Olá! Gostaria de agendar uma Calorimetria Indireta com o Dr. Marcelo Prado.',
   media: {
     scrubVideo: 'calorimetria-scrub.mp4',
     scrubPoster: 'calorimetria-poster.jpg',
@@ -141,8 +144,12 @@ export const faqs = [
   },
 ]
 
+export function whatsappUrl(message = site.whatsappMessage) {
+  return `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`
+}
+
 export function bookingUrl() {
-  return site.linktree
+  return whatsappUrl()
 }
 
 export function asset(path: string) {

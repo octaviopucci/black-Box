@@ -59,7 +59,7 @@ export function Booking() {
           className="mt-9 flex flex-wrap items-center justify-center gap-4"
         >
           <a href={bookingUrl()} target="_blank" rel="noreferrer" className="cta-solid">
-            Agendar pelo Linktree
+            Agendar pelo WhatsApp
           </a>
           <a href={site.instagram} target="_blank" rel="noreferrer" className="cta-ghost-light">
             <InstagramGlyph />

@@ -2,7 +2,6 @@ import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowDown } from 'lucide-react'
 import { site, bookingUrl, asset, scrubMobileFramePaths } from '../data/site'
-import { ScheduleButton } from './scheduling/ScheduleButton'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 import { usePreferFrameScrub } from '../hooks/usePreferFrameScrub'
 import { useScrollFrameScrub, useScrollVideoScrub } from '../hooks/useScrollVideoScrub'
@@ -72,7 +71,6 @@ function HeroCopy() {
           <a href={bookingUrl()} target="_blank" rel="noreferrer" className="cta-solid justify-center sm:justify-start">
             Agendar exame
           </a>
-          <ScheduleButton className="sm:justify-start" />
           <a href="#como-funciona" className="cta-ghost-light justify-center sm:justify-start">
             Como funciona
             <ArrowDown className="h-4 w-4" />
