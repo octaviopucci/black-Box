@@ -48,8 +48,8 @@ export function Portfolio() {
       <div className="bb-container">
         <Reveal>
           <SectionHeader
-            title="Projetos selecionados"
-            subtitle="Alguns sistemas que demonstram o que podemos construir."
+            title="Exemplos do que construímos"
+            subtitle="Cases conceituais que mostram o tipo de solução que entregamos — do problema ao resultado."
             eyebrow="Portfólio"
           />
         </Reveal>

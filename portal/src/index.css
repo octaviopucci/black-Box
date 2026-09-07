@@ -71,12 +71,40 @@
   }
 
   .bb-eyebrow {
-    @apply font-mono text-[11px] uppercase tracking-[0.28em] text-[color:var(--mute)];
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--mute)];
   }
 
   .bb-display {
-    @apply font-display font-semibold uppercase tracking-[-0.02em] text-[color:var(--paper)];
-    line-height: 0.92;
+    @apply font-display font-semibold uppercase tracking-tight text-[color:var(--paper)];
+    line-height: 1.02;
+  }
+
+  .bb-orb {
+    filter: blur(60px);
+  }
+
+  .bb-card-shine {
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .bb-card-shine:hover {
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .bb-btn-glow {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    animation: bb-btn-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes bb-btn-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    }
+    50% {
+      box-shadow: 0 0 28px rgba(255, 255, 255, 0.08);
+    }
   }
 
   .bb-panel {

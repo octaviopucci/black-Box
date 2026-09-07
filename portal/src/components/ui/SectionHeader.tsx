@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
 type Props = {
@@ -17,8 +18,12 @@ export function SectionHeader({ eyebrow, title, subtitle, className, align = 'le
         className,
       )}
     >
-      {eyebrow ? <p className="bb-eyebrow mb-5">{eyebrow}</p> : null}
-      <h2 className="bb-display text-4xl sm:text-5xl lg:text-6xl">{title}</h2>
+      {eyebrow ? (
+        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-mute">{eyebrow}</p>
+      ) : null}
+      <h2 className="font-display text-3xl font-semibold uppercase leading-[1.05] tracking-tight text-paper sm:text-4xl lg:text-5xl">
+        {title}
+      </h2>
       {subtitle ? (
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-mute sm:text-lg">{subtitle}</p>
       ) : null}

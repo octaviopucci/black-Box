@@ -79,7 +79,7 @@ export function Navbar() {
 
           <div className="hidden lg:block">
             <Button href={whatsappUrl()} arrow target="_blank" rel="noreferrer">
-              Começar um projeto
+              Quero um projeto
             </Button>
           </div>
 

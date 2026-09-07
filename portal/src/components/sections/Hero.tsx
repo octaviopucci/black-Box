@@ -1,22 +1,25 @@
 import { motion } from 'framer-motion'
 import { Button } from '../ui/Button'
-import { StatusDot } from '../ui/StatusDot'
+import { AnimatedCounter } from '../ui/AnimatedCounter'
+import { FloatingOrbs } from '../ui/FloatingOrbs'
+import { SplitHeadline, Stagger, staggerItem } from '../ui/Motion'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
 import { whatsappUrl } from '../../data/site'
+import { clientOutcomes } from '../../data/content'
 
-const systemRows = [
-  { label: 'ENGENHARIA DE IA', value: 'ONLINE' },
-  { label: 'AUTOMAÇÕES', value: 'ATIVAS' },
-  { label: 'WEB APPS', value: '08' },
-  { label: 'INTEGRAÇÕES', value: '31' },
-  { label: 'SISTEMAS', value: '12' },
-]
-
-const meta = [
-  'SISTEMA / 001',
-  'BLACK BOX / 2026',
-  'MODO / CONSTRUÇÃO',
-  'NÚCLEO / IA',
+const heroCards = [
+  {
+    title: 'Vender sem se perder',
+    text: 'Leads organizados, follow-up automático e comercial focado em fechar.',
+  },
+  {
+    title: 'Parar de fazer na mão',
+    text: 'WhatsApp, CRM e planilhas conversando — sem copiar dado de um lado pro outro.',
+  },
+  {
+    title: 'Trazer cliente de volta',
+    text: 'Quem parou de responder volta pro funil com mensagem certa, na hora certa.',
+  },
 ]
 
 export function Hero() {
@@ -24,108 +27,88 @@ export function Hero() {
 
   return (
     <section id="topo" className="relative min-h-[100svh] overflow-hidden pt-28 sm:pt-32">
-      <div className="pointer-events-none absolute inset-0 bb-grid-bg opacity-40" />
+      <div className="pointer-events-none absolute inset-0 bb-grid-bg opacity-25" />
       <div className="bb-noise" />
-      <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-white/[0.03] blur-3xl" />
-      <div className="pointer-events-none absolute -right-16 top-24 h-80 w-80 rounded-full bg-white/[0.04] blur-3xl" />
+      <FloatingOrbs />
 
-      <div className="bb-container relative grid min-h-[calc(100svh-6rem)] items-center gap-12 pb-16 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10">
+      <div className="bb-container relative grid min-h-[calc(100svh-6rem)] items-center gap-14 pb-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
         <div>
           <motion.p
             initial={reduced ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="bb-eyebrow mb-6"
+            transition={{ duration: 0.5 }}
+            className="mb-6 text-sm font-medium text-silver"
           >
-            Software Factory · Engenharia de IA
+            Tecnologia sob medida para empresas que querem crescer
           </motion.p>
 
-          <motion.h1
-            initial={reduced ? false : { opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.08 }}
-            className="bb-display text-[clamp(2.6rem,8vw,6.2rem)]"
-          >
-            Você imagina.
-            <br />
-            A Black Box constrói.
-          </motion.h1>
+          <SplitHeadline
+            text="Você imagina. A Black Box constrói."
+            className="bb-display text-[clamp(2.4rem,7.5vw,5.5rem)]"
+            delay={0.05}
+          />
 
           <motion.p
             initial={reduced ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.18 }}
-            className="mt-6 max-w-xl text-base leading-relaxed text-mute sm:text-lg"
+            transition={{ duration: 0.65, delay: 0.35 }}
+            className="mt-7 max-w-xl text-lg leading-relaxed text-mute sm:text-xl"
           >
-            Engenharia de IA, sistemas web e automações para transformar ideias e problemas reais
-            em soluções digitais.
+            Transformamos ideias, processos e problemas do seu negócio em sistemas digitais que{' '}
+            <span className="text-paper">vendem mais, automatizam tarefas e recuperam clientes</span>.
           </motion.p>
 
           <motion.div
             initial={reduced ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.28 }}
+            transition={{ duration: 0.65, delay: 0.45 }}
             className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
-            <Button href="#projetos" arrow>
-              Ver projetos
+            <Button href={whatsappUrl()} arrow className="bb-btn-glow">
+              Quero um projeto
             </Button>
-            <Button href={whatsappUrl()} variant="secondary" target="_blank" rel="noreferrer">
-              Começar um projeto
+            <Button href="#projetos" variant="secondary">
+              Ver exemplos
             </Button>
           </motion.div>
+
+          <Stagger className="mt-12 grid grid-cols-3 gap-4 sm:gap-6" delay={0.5}>
+            {clientOutcomes.map((item) => (
+              <motion.div key={item.label} variants={staggerItem} className="text-center sm:text-left">
+                <p className="font-display text-3xl text-paper sm:text-4xl">
+                  <AnimatedCounter value={item.stat} suffix={item.suffix} />
+                </p>
+                <p className="mt-1 text-[11px] leading-snug text-mute sm:text-xs">{item.label}</p>
+              </motion.div>
+            ))}
+          </Stagger>
         </div>
 
-        <motion.aside
-          initial={reduced ? false : { opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.85, delay: 0.2 }}
-          className="bb-panel relative overflow-hidden p-5 sm:p-6"
-          aria-label="Interface do sistema central Black Box"
-        >
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.06),transparent_45%)]" />
-          <div className="relative">
-            <div className="mb-6 flex items-start justify-between gap-4 border-b border-white/10 pb-4">
-              <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-paper">
-                  Black Box / Sistema Central
-                </p>
-                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
-                  Núcleo operacional
-                </p>
-              </div>
-              <StatusDot />
-            </div>
-
-            <ul className="space-y-3 font-mono text-[11px] uppercase tracking-[0.14em]">
-              {systemRows.map((row) => (
-                <li key={row.label} className="flex items-baseline gap-3 text-silver">
-                  <span className="shrink-0 text-mute">{row.label}</span>
-                  <span className="min-w-0 flex-1 border-b border-dotted border-white/20" aria-hidden="true" />
-                  <span className="shrink-0 text-paper">{row.value}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-6 border border-white/10 bg-black/30 p-4">
-              <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.22em] text-mute">
-                Status do sistema
+        <Stagger className="space-y-4" delay={0.25}>
+          {heroCards.map((card, i) => (
+            <motion.article
+              key={card.title}
+              variants={staggerItem}
+              whileHover={reduced ? undefined : { x: 6, transition: { duration: 0.25 } }}
+              className="bb-panel bb-card-shine group relative overflow-hidden p-5 sm:p-6"
+            >
+              <div
+                className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
+                style={{
+                  background:
+                    'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%)',
+                }}
+              />
+              <p className="font-display text-lg uppercase tracking-tight text-paper sm:text-xl">
+                {card.title}
               </p>
-              <StatusDot label="Operacional" />
-            </div>
-
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              {meta.map((item) => (
-                <p
-                  key={item}
-                  className="border border-white/10 bg-white/[0.02] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-mute"
-                >
-                  {item}
-                </p>
-              ))}
-            </div>
-          </div>
-        </motion.aside>
+              <p className="mt-2 text-sm leading-relaxed text-mute">{card.text}</p>
+              <span className="mt-4 inline-block font-mono text-[10px] uppercase tracking-[0.2em] text-silver/60">
+                0{i + 1} · Resultado
+              </span>
+            </motion.article>
+          ))}
+        </Stagger>
       </div>
     </section>
   )

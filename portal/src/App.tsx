@@ -2,6 +2,7 @@ import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { Hero } from './components/sections/Hero'
 import { SpecialtyMarquee } from './components/sections/SpecialtyMarquee'
+import { ForWho } from './components/sections/ForWho'
 import { Positioning } from './components/sections/Positioning'
 import { Solutions } from './components/sections/Solutions'
 import { Portfolio } from './components/sections/Portfolio'
@@ -25,6 +26,7 @@ export default function App() {
       <main id="conteudo">
         <Hero />
         <SpecialtyMarquee />
+        <ForWho />
         <Positioning />
         <Solutions />
         <Portfolio />

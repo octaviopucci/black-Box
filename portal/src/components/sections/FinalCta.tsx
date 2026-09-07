@@ -19,7 +19,8 @@ export function FinalCta() {
                 Nós construímos.
               </h2>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-mute sm:text-lg">
-                Tem uma ideia, processo ou problema que pode virar um sistema?
+                Conta pra gente o que você quer resolver. A primeira conversa é para entender — sem
+                compromisso.
               </p>
               <div className="mt-10 flex flex-col gap-3 sm:flex-row">
                 <Button href={whatsappUrl()} arrow target="_blank" rel="noreferrer">

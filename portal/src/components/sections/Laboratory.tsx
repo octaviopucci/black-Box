@@ -1,53 +1,44 @@
 import { labItems } from '../../data/content'
 import { Reveal } from '../ui/Reveal'
 import { SectionHeader } from '../ui/SectionHeader'
-import { StatusDot } from '../ui/StatusDot'
-
-const statusTone: Record<(typeof labItems)[number]['status'], string> = {
-  EXPERIMENTAL: 'text-silver',
-  PROTÓTIPO: 'text-paper',
-  'EM TESTES': 'text-status',
-  'P&D': 'text-mute',
-}
+import { Stagger, staggerItem } from '../ui/Motion'
+import { motion } from 'framer-motion'
+import { useReducedMotion } from '../../hooks/useReducedMotion'
 
 export function Laboratory() {
+  const reduced = useReducedMotion()
+
   return (
     <section id="laboratorio" className="bb-section border-t border-white/10">
       <div className="bb-container">
         <Reveal>
           <SectionHeader
-            title="Laboratório Black Box"
-            subtitle="Experimentos, protótipos e ideias que estamos transformando em tecnologia."
+            title="O que estamos testando agora"
+            subtitle="Ideias novas viram produto — e depois, solução para clientes como você."
             eyebrow="Inovação"
           />
         </Reveal>
 
-        <div className="relative mt-14 overflow-hidden border border-white/10 bg-[#09090b]">
-          <div className="bb-noise opacity-[0.06]" />
-          <div className="pointer-events-none absolute inset-0 bb-grid-bg opacity-30" />
-          <div className="relative divide-y divide-white/10">
-            <div className="flex items-center justify-between px-5 py-4 sm:px-7">
-              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-mute">
-                Ambiente / Laboratório
-              </p>
-              <StatusDot label="Ativo" />
-            </div>
-            {labItems.map((item, i) => (
-              <Reveal key={item.title} delay={0.04 * i}>
-                <article className="grid gap-3 px-5 py-6 sm:grid-cols-[1fr_auto] sm:items-center sm:px-7">
-                  <h3 className="font-display text-xl uppercase tracking-tight text-paper sm:text-2xl">
-                    {item.title}
-                  </h3>
-                  <p
-                    className={`font-mono text-[11px] uppercase tracking-[0.2em] ${statusTone[item.status]}`}
-                  >
-                    Status: {item.status}
-                  </p>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-        </div>
+        <Stagger className="mt-14 space-y-3" delay={0.05}>
+          {labItems.map((item) => (
+            <motion.article
+              key={item.title}
+              variants={staggerItem}
+              whileHover={reduced ? undefined : { x: 4 }}
+              className="bb-panel flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+            >
+              <div>
+                <h3 className="font-display text-lg uppercase tracking-tight text-paper sm:text-xl">
+                  {item.title}
+                </h3>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-mute">{item.teaser}</p>
+              </div>
+              <span className="shrink-0 self-start rounded-full border border-white/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-silver sm:self-center">
+                {item.status}
+              </span>
+            </motion.article>
+          ))}
+        </Stagger>
       </div>
     </section>
   )
