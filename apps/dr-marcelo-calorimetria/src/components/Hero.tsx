@@ -149,15 +149,17 @@ export function Hero() {
     >
       <div ref={pinRef} className="relative h-[100svh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-ink">
-          <img
-            src={heroPoster}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            width={1280}
-            height={720}
-            fetchPriority="high"
-          />
+          {useFrames && (
+            <img
+              src={heroPoster}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full object-cover object-center"
+              width={720}
+              height={1280}
+              fetchPriority="high"
+            />
+          )}
 
           {useFrames ? (
             <canvas
@@ -166,22 +168,20 @@ export function Hero() {
               className="absolute inset-0 h-full w-full"
             />
           ) : (
-            <video
-              ref={videoRef}
-              className="absolute inset-0 h-full w-full object-cover object-center"
-              src={heroVideo}
-              poster={heroPoster}
-              muted
-              playsInline
-              preload="auto"
-              width={1280}
-              height={720}
-              aria-hidden
-            />
-          )}
-
-          {useFrames && (
-            <div className="pointer-events-none absolute inset-0 bg-black/[0.08]" aria-hidden />
+            <>
+              <video
+                ref={videoRef}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+                src={heroVideo}
+                poster={heroPoster}
+                muted
+                playsInline
+                preload="auto"
+                width={1280}
+                height={720}
+                aria-hidden
+              />
+            </>
           )}
 
           <HeroOverlay />

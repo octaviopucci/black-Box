@@ -138,6 +138,9 @@ export function useScrollFrameScrub(
     const ctx = canvas.getContext('2d', { alpha: false })
     if (!ctx) return
 
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+
     let trigger: ScrollTrigger | undefined
     let cancelled = false
     let currentIdx = -1
@@ -159,7 +162,7 @@ export function useScrollFrameScrub(
     }
 
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const dpr = Math.min(window.devicePixelRatio || 1, 3)
       const { width, height } = canvas.getBoundingClientRect()
       canvas.width = Math.round(width * dpr)
       canvas.height = Math.round(height * dpr)
