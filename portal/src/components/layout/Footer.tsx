@@ -5,10 +5,10 @@ export function Footer() {
   return (
     <footer className="relative border-t border-white/10 pb-10 pt-16">
       <div className="bb-container">
-        <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr]">
+        <div className="grid gap-12 lg:grid-cols-[1.15fr_1fr_1fr]">
           <div>
-            <Logo />
-            <p className="mt-5 max-w-sm font-mono text-[11px] uppercase tracking-[0.22em] text-mute">
+            <Logo stacked className="w-36 sm:w-40" />
+            <p className="mt-6 max-w-sm font-mono text-[11px] uppercase tracking-[0.22em] text-mute">
               {site.slogan}
             </p>
           </div>
@@ -38,8 +38,13 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href={whatsappUrl()} className="transition hover:text-paper">
-                  WhatsApp
+                <a
+                  href={whatsappUrl()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition hover:text-paper"
+                >
+                  WhatsApp · {site.whatsapp.display}
                 </a>
               </li>
               <li className="flex gap-5 pt-2">

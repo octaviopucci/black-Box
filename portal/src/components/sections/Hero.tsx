@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { StatusDot } from '../ui/StatusDot'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
+import { whatsappUrl } from '../../data/site'
 
 const systemRows = [
   { label: 'ENGENHARIA DE IA', value: 'ONLINE' },
@@ -69,7 +70,7 @@ export function Hero() {
             <Button href="#projetos" arrow>
               Ver projetos
             </Button>
-            <Button href="#contato" variant="secondary">
+            <Button href={whatsappUrl()} variant="secondary" target="_blank" rel="noreferrer">
               Começar um projeto
             </Button>
           </motion.div>

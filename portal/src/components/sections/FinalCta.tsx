@@ -1,6 +1,6 @@
 import { Button } from '../ui/Button'
 import { Reveal } from '../ui/Reveal'
-import { mailtoUrl, whatsappUrl } from '../../data/site'
+import { whatsappUrl } from '../../data/site'
 
 export function FinalCta() {
   return (
@@ -22,10 +22,16 @@ export function FinalCta() {
                 Tem uma ideia, processo ou problema que pode virar um sistema?
               </p>
               <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-                <Button href={mailtoUrl()} arrow>
+                <Button href={whatsappUrl()} arrow target="_blank" rel="noreferrer">
                   Começar um projeto
                 </Button>
-                <Button href={whatsappUrl()} variant="secondary" arrow target="_blank" rel="noreferrer">
+                <Button
+                  href={whatsappUrl('Olá, Black Box. Quero falar pelo WhatsApp.')}
+                  variant="secondary"
+                  arrow
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   Falar pelo WhatsApp
                 </Button>
               </div>

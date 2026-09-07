@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Logo } from '../ui/Logo'
 import { Button } from '../ui/Button'
-import { site } from '../../data/site'
+import { site, whatsappUrl } from '../../data/site'
 import { cn } from '../../lib/cn'
 
 export function Navbar() {
@@ -78,7 +78,7 @@ export function Navbar() {
           </nav>
 
           <div className="hidden lg:block">
-            <Button href="#contato" variant="secondary" arrow>
+            <Button href={whatsappUrl()} arrow target="_blank" rel="noreferrer">
               Começar um projeto
             </Button>
           </div>
@@ -135,7 +135,7 @@ export function Navbar() {
                   </motion.a>
                 ))}
               </nav>
-              <Button href="#contato" arrow onClick={() => setOpen(false)}>
+              <Button href={whatsappUrl()} arrow target="_blank" rel="noreferrer" onClick={() => setOpen(false)}>
                 Começar um projeto
               </Button>
             </div>

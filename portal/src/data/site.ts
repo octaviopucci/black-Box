@@ -5,7 +5,9 @@ export const site = {
   url: 'https://blckbox.vercel.app',
   email: 'contato@blckbox.dev',
   whatsapp: {
-    number: '5500000000000',
+    /** E.164 sem + — Brasil 55 + DDD 15 + número */
+    number: '5515996972944',
+    display: '(15) 99697-2944',
     message: 'Olá, Black Box. Quero começar um projeto.',
   },
   social: {
