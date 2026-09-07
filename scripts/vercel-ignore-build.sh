@@ -26,9 +26,8 @@ BUILD_PATTERNS=(
   '^package-lock\.json$'
   '^projects/'
   '^scripts/assemble-estudio-clow-only\.mjs$'
+  '^scripts/publish-portal-root\.mjs$'
 )
-
-needs_build=0
 while IFS= read -r file; do
   [ -z "$file" ] && continue
   for pattern in "${BUILD_PATTERNS[@]}"; do

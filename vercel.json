@@ -3,7 +3,7 @@
   "outputDirectory": "public",
   "framework": null,
   "installCommand": "npm install",
-  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
+  "ignoreCommand": "if [ -f scripts/vercel-ignore-build.sh ]; then bash scripts/vercel-ignore-build.sh; else exit 1; fi",
   "redirects": [
     {
       "source": "/:path*",

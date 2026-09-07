@@ -1,0 +1,17 @@
+# Site Black Box (portal) — deploy rápido no Netlify
+#
+# Opção A (recomendada): conecte o repo e defina
+#   Base directory: portal
+#   (Netlify lê portal/netlify.toml automaticamente)
+#
+# Opção B: use o zip black-box-site-netlify.zip em app.netlify.com/drop
+
+[build]
+  base = "portal"
+  command = "npm ci --include=dev && npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
