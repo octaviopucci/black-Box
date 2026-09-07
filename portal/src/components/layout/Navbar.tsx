@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Logo } from '../ui/Logo'
 import { Button } from '../ui/Button'
@@ -8,6 +8,8 @@ import { cn } from '../../lib/cn'
 export function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -18,9 +20,36 @@ export function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
+    if (open) closeRef.current?.focus()
     return () => {
       document.body.style.overflow = ''
     }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        return
+      }
+      if (e.key !== 'Tab' || !menuRef.current) return
+      const focusable = menuRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled])',
+      )
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
   return (
@@ -28,7 +57,7 @@ export function Navbar() {
       <header
         className={cn(
           'fixed inset-x-0 top-0 z-50 transition-colors duration-300',
-          scrolled || open ? 'border-b border-white/10 bg-ink/85 backdrop-blur-md' : 'bg-transparent',
+          scrolled || open ? 'border-b border-white/10 bg-ink/90 backdrop-blur-md' : 'bg-transparent',
         )}
       >
         <div className="bb-container flex h-16 items-center justify-between sm:h-[4.5rem]">
@@ -55,6 +84,7 @@ export function Navbar() {
           </div>
 
           <button
+            ref={closeRef}
             type="button"
             className="relative z-50 flex h-10 w-10 items-center justify-center border border-white/15 text-paper lg:hidden"
             aria-expanded={open}
@@ -70,7 +100,9 @@ export function Navbar() {
                   open && 'translate-y-[3.5px] rotate-45',
                 )}
               />
-              <span className={cn('h-px w-full bg-paper transition', open && '-translate-y-[3.5px] -rotate-45')} />
+              <span
+                className={cn('h-px w-full bg-paper transition', open && '-translate-y-[3.5px] -rotate-45')}
+              />
             </span>
           </button>
         </div>
@@ -80,6 +112,7 @@ export function Navbar() {
         {open ? (
           <motion.div
             id="menu-mobile"
+            ref={menuRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -87,7 +120,7 @@ export function Navbar() {
           >
             <div className="bb-noise" />
             <div className="bb-container flex h-full flex-col justify-between pb-10 pt-24">
-              <nav className="flex flex-col gap-2" aria-label="Mobile">
+              <nav className="flex flex-col gap-2" aria-label="Menu mobile">
                 {site.nav.map((item, i) => (
                   <motion.a
                     key={item.id}

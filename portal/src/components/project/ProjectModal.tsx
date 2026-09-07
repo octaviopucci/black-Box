@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { ProjectCase } from '../../data/projects'
 import { Button } from '../ui/Button'
@@ -11,17 +11,44 @@ type Props = {
 
 export function ProjectModal({ project, onClose }: Props) {
   const reduced = useReducedMotion()
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const previouslyFocused = useRef<HTMLElement | null>(null)
+  const titleId = useId()
 
   useEffect(() => {
     if (!project) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+
+    previouslyFocused.current = document.activeElement as HTMLElement | null
     document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+      )
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
     window.addEventListener('keydown', onKey)
     return () => {
       document.body.style.overflow = ''
       window.removeEventListener('keydown', onKey)
+      previouslyFocused.current?.focus()
     }
   }, [project, onClose])
 
@@ -35,16 +62,18 @@ export function ProjectModal({ project, onClose }: Props) {
           exit={{ opacity: 0 }}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="project-modal-title"
+          aria-labelledby={titleId}
         >
           <button
             type="button"
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             aria-label="Fechar estudo de caso"
             onClick={onClose}
+            tabIndex={-1}
           />
 
           <motion.div
+            ref={panelRef}
             initial={reduced ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
@@ -56,6 +85,7 @@ export function ProjectModal({ project, onClose }: Props) {
                 Estudo de caso
               </p>
               <button
+                ref={closeRef}
                 type="button"
                 onClick={onClose}
                 className="font-mono text-[11px] uppercase tracking-[0.18em] text-silver transition hover:text-paper"
@@ -72,7 +102,7 @@ export function ProjectModal({ project, onClose }: Props) {
               </div>
 
               <h2
-                id="project-modal-title"
+                id={titleId}
                 className="mt-5 font-display text-3xl uppercase tracking-tight text-paper sm:text-5xl"
               >
                 {project.title}

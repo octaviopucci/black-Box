@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { Reveal } from '../ui/Reveal'
@@ -131,6 +131,8 @@ export function AiChat() {
   const reduced = useReducedMotion()
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
+  const listRef = useRef<HTMLDivElement>(null)
+  const endRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -141,6 +143,10 @@ export function AiChat() {
   ])
 
   const canSend = useMemo(() => input.trim().length > 3 && !busy, [input, busy])
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' })
+  }, [messages, busy, reduced])
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -189,7 +195,11 @@ export function AiChat() {
               <StatusDot label="Online" />
             </div>
 
-            <div className="max-h-[28rem] space-y-4 overflow-y-auto px-5 py-6 sm:px-6" aria-live="polite">
+            <div
+              ref={listRef}
+              className="max-h-[28rem] space-y-4 overflow-y-auto px-5 py-6 sm:px-6"
+              aria-live="polite"
+            >
               <AnimatePresence initial={false}>
                 {messages.map((message) => (
                   <motion.div
@@ -248,6 +258,7 @@ export function AiChat() {
                   Analisando<span className="bb-cursor-blink">_</span>
                 </p>
               ) : null}
+              <div ref={endRef} />
             </div>
 
             <form

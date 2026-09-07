@@ -22,7 +22,7 @@ export function Hero() {
   const reduced = useReducedMotion()
 
   return (
-    <section id="topo" className="relative min-h-[100svh] overflow-hidden pt-24 sm:pt-28">
+    <section id="topo" className="relative min-h-[100svh] overflow-hidden pt-28 sm:pt-32">
       <div className="pointer-events-none absolute inset-0 bb-grid-bg opacity-40" />
       <div className="bb-noise" />
       <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-white/[0.03] blur-3xl" />
@@ -98,11 +98,10 @@ export function Hero() {
 
             <ul className="space-y-3 font-mono text-[11px] uppercase tracking-[0.14em]">
               {systemRows.map((row) => (
-                <li key={row.label} className="flex items-center justify-between gap-4 text-silver">
-                  <span className="text-mute">{row.label}</span>
-                  <span className="text-paper">
-                    {'.'.repeat(8)} {row.value}
-                  </span>
+                <li key={row.label} className="flex items-baseline gap-3 text-silver">
+                  <span className="shrink-0 text-mute">{row.label}</span>
+                  <span className="min-w-0 flex-1 border-b border-dotted border-white/20" aria-hidden="true" />
+                  <span className="shrink-0 text-paper">{row.value}</span>
                 </li>
               ))}
             </ul>

@@ -65,7 +65,7 @@ export function Portfolio() {
                     onClick={() => setActive(project)}
                     aria-label={`Abrir estudo de caso: ${project.title}`}
                   >
-                    <div className="overflow-hidden transition duration-500 group-hover:scale-[1.01]">
+                    <div className="overflow-hidden transition duration-500 group-hover:brightness-110">
                       <ProjectVisual project={project} />
                     </div>
                   </button>

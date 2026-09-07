@@ -12,34 +12,26 @@ export function Process() {
 
         <div className="relative mt-16">
           <div
-            className="pointer-events-none absolute left-4 top-0 hidden h-full w-px bg-gradient-to-b from-white/30 via-white/10 to-transparent md:left-1/2 md:block"
+            className="pointer-events-none absolute left-[0.55rem] top-2 hidden h-[calc(100%-1rem)] w-px bg-gradient-to-b from-white/30 via-white/10 to-transparent md:block"
             aria-hidden="true"
           />
 
-          <ol className="space-y-10 md:space-y-0">
+          <ol className="space-y-10">
             {processSteps.map((step, i) => (
-              <Reveal key={step.number} delay={0.05 * i}>
-                <li
-                  className={`relative grid gap-4 md:grid-cols-2 md:gap-16 md:py-10 ${
-                    i % 2 === 1 ? 'md:text-right' : ''
-                  }`}
-                >
-                  <div className={i % 2 === 1 ? 'md:col-start-2' : ''}>
-                    <div
-                      className={`absolute left-4 top-2 hidden h-3 w-3 -translate-x-1/2 rounded-full border border-paper/70 bg-ink md:left-1/2 md:block ${
-                        i % 2 === 1 ? '' : ''
-                      }`}
-                      aria-hidden="true"
-                    />
-                    <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-mute">
-                      {step.number} / {step.title}
-                    </p>
-                    <p className="mt-3 max-w-md text-base leading-relaxed text-silver md:inline-block">
-                      {step.description}
-                    </p>
-                  </div>
-                </li>
-              </Reveal>
+              <li key={step.number} className="relative pl-8 md:pl-10">
+                <span
+                  className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full border border-paper/70 bg-ink"
+                  aria-hidden="true"
+                />
+                <Reveal delay={0.05 * i}>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-mute">
+                    {step.number} / {step.title}
+                  </p>
+                  <p className="mt-3 max-w-xl text-base leading-relaxed text-silver">
+                    {step.description}
+                  </p>
+                </Reveal>
+              </li>
             ))}
           </ol>
         </div>
