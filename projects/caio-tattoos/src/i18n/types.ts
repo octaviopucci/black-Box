@@ -142,6 +142,20 @@ export type Messages = {
     hasReference: string;
     submit: string;
   };
+  contact: {
+    label: string;
+    title: string;
+    whatsappCta: string;
+    whatsappButton: string;
+    instagramNote: string;
+  };
+  sponsors: {
+    label: string;
+    title: string;
+    intro: string;
+    workshopLabel: string;
+    workshopNote: string;
+  };
   instagram: {
     title: string;
     cta: string;
@@ -154,6 +168,9 @@ export type Messages = {
     address: string;
     hours: string;
     directions: string;
+    whatsappNote: string;
+    whatsappButton: string;
+    cityNote: string;
   };
   ctaBand: {
     titleLine1: string;

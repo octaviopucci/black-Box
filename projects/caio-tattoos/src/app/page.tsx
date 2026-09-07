@@ -11,6 +11,7 @@ import { Location } from "@/components/sections/location";
 import { Navbar } from "@/components/sections/navbar";
 import { Process } from "@/components/sections/process";
 import { QuoteForm } from "@/components/sections/quote-form";
+import { SponsorsSection } from "@/components/sections/sponsors";
 import { Styles } from "@/components/sections/styles";
 import { WhatsAppFab } from "@/components/sections/whatsapp-fab";
 import { PrinciplesMarquee } from "@/components/home-marquees";
@@ -32,6 +33,7 @@ export default function Home() {
         <Styles />
         <Process />
         <Artist />
+        <SponsorsSection />
         <ArtistStory />
         <QuoteForm />
         <InstagramSection />

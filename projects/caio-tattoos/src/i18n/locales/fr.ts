@@ -14,8 +14,9 @@ export const fr: Messages = {
     { label: "Tatuagem", href: "#tatuagem" },
     { label: "Adidas", href: "#adidas" },
     { label: "Processo", href: "#processo" },
-    { label: "Lista de espera", href: "#orcamento" },
-    { label: "Instagram", href: "#instagram" },
+    { label: "Partenaires", href: "#parceiros" },
+    { label: "Liste d'attente", href: "#orcamento" },
+    { label: "Contact", href: "#contato" },
   ],
   principles: [
     "OLD SCHOOL FREE HAND",
@@ -223,7 +224,24 @@ export const fr: Messages = {
       availability: "Disponibilité",
     },
     hasReference: "Tenho referência para enviar no Instagram",
-    submit: "Ir para @caiotattoos →",
+    submit: "Envoyer via WhatsApp →",
+  },
+  sponsors: {
+    label: "Partenaires",
+    title: "Sponsoring & partenariats",
+    intro:
+      "Caio représente des marques qui partagent la même énergie : old school sur la peau, bold sur la piste, qualité pro à chaque détail.",
+    workshopLabel: "Atelier en ligne",
+    workshopNote:
+      "Au-delà du tatouage et de la custom, Caio a créé le cours Viver a Tatuagem — pour aller plus loin dans la passion.",
+  },
+  contact: {
+    label: "Contact",
+    title: "Devis via WhatsApp",
+    whatsappCta: "Contacter Caio Tattoos",
+    whatsappButton: "Ouvrir WhatsApp →",
+    instagramNote:
+      "Suivez le quotidien, reels et coulisses sur Instagram — le portfolio pro est ici sur le site.",
   },
   instagram: {
     title: "Siga @caiotattoos — 68k+ no Instagram",
@@ -231,22 +249,26 @@ export const fr: Messages = {
     imageAlt: "Feed Caio Tattoos",
   },
   location: {
-    label: "Contato",
-    title: "Lista de espera via Instagram",
-    mapTitle: "Caio Tattoos no Instagram",
-    address: "Instagram",
-    hours: "Agendamento",
-    directions: "Abrir perfil",
+    label: "Contact",
+    title: "Devis & rendez-vous",
+    mapTitle: "Caio Tattoos — São Paulo",
+    address: "Base",
+    hours: "Rendez-vous",
+    directions: "Voir Instagram",
+    whatsappNote:
+      "Devis, rendez-vous tatouage et custom Adidas Running — contactez directement sur WhatsApp.",
+    whatsappButton: "Écrire sur WhatsApp →",
+    cityNote: "São Paulo · sur rendez-vous",
   },
   ctaBand: {
     titleLine1: "Pronto para uma peça",
     titleLine2: "old school?",
-    subtitle: "Entre na lista de espera pelo link na bio do Instagram.",
-    button: "Ir para @caiotattoos →",
+    subtitle: "Rejoignez la liste d'attente via WhatsApp — tatouage ou custom Adidas.",
+    button: "Écrire sur WhatsApp →",
   },
   footer: {
     tagline:
-      "Caio Tattoos — old school americano. Bold, colorido e clássico. Fonte: Instagram @caiotattoos.",
+      "Caio Tattoos — old school américain, ambassadeur Electric Ink, partenaire Adidas Running. São Paulo · @caiotattoos",
     quickLinks: "Links rápidos",
     contact: "Contato",
     rights: "Todos os direitos reservados.",
@@ -260,8 +282,8 @@ export const fr: Messages = {
   },
   scroll: "Scroll",
   whatsapp: {
-    fabAria: "Instagram Caio Tattoos",
-    fabMessage: "Olá! Vi o site e quero entrar na lista de espera.",
+    fabAria: "WhatsApp Caio Tattoos",
+    fabMessage: "Bonjour ! J'ai vu le site et je veux un devis / liste d'attente.",
     quoteIntro: "Olá, Caio Tattoos!",
     quoteRequest: "Je souhaite rejoindre la liste d'attente.",
     quoteRequestTattoo: "Je souhaite rejoindre la liste d'attente pour un tatouage old school.",

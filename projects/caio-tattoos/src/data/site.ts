@@ -19,13 +19,36 @@ function galleryEntry(id: number, category: "oldschool" | "adidas") {
 
 export const site = {
   name: "Caio Tattoos",
-  whatsapp: "",
+  whatsapp: "5511918401392",
+  linktree: "https://linktr.ee/caiorodriguestattoos",
+  location: "São Paulo, SP",
+  workshop: {
+    name: "Viver a Tatuagem",
+    url: "https://hotmart.com/pt-br/marketplace/produtos/viver-a-tatuagem/P96292020N",
+  },
   instagram: {
     handle: "@caiotattoos",
     url: "https://www.instagram.com/caiotattoos",
     profileUrl: "https://www.instagram.com/caiotattoos",
     followers: 68131,
   },
+  sponsors: [
+    {
+      name: "Electric Ink",
+      logo: "/sponsors/electric-ink.svg",
+      role: "Embaixador oficial",
+    },
+    {
+      name: "Adidas Running",
+      logo: "/sponsors/adidas-running.svg",
+      role: "Customização free hand",
+    },
+    {
+      name: "Icons & Prodigies",
+      logo: "/sponsors/icons-prodigies.svg",
+      role: "Guest artist · Veneza 2026",
+    },
+  ],
   assets: {
     logo: "/instagram/profile.jpg",
     hero: "/instagram/post-17.jpg",
@@ -80,3 +103,9 @@ export function lifestyleGalleryImages() {
 export type GalleryCategory = "all" | "oldschool" | "adidas";
 
 export type PortfolioCategory = Exclude<GalleryCategory, "all">;
+
+export type Sponsor = (typeof site.sponsors)[number];
+
+export type RollItem =
+  | { kind: "photo"; src: string }
+  | { kind: "sponsor"; src: string; name: string };

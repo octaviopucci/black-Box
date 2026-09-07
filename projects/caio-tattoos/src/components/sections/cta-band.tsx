@@ -1,8 +1,8 @@
 "use client";
 
 import { useLocale } from "@/i18n/locale-provider";
+import { openWhatsApp } from "@/lib/whatsapp";
 import { Reveal } from "@/components/motion/reveal";
-import { scrollToHash } from "@/lib/whatsapp";
 
 export function CtaBand() {
   const { t } = useLocale();
@@ -24,7 +24,9 @@ export function CtaBand() {
           </p>
           <button
             type="button"
-            onClick={() => scrollToHash("#orcamento")}
+            onClick={() =>
+              openWhatsApp("Olá! Vi o site e quero orçamento / lista de espera.")
+            }
             className="btn-pill-primary mt-10"
           >
             {t.ctaBand.button}

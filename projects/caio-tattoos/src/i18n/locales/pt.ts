@@ -14,8 +14,9 @@ export const pt: Messages = {
     { label: "Tatuagem", href: "#tatuagem" },
     { label: "Adidas", href: "#adidas" },
     { label: "Processo", href: "#processo" },
+    { label: "Parceiros", href: "#parceiros" },
     { label: "Lista de espera", href: "#orcamento" },
-    { label: "Instagram", href: "#instagram" },
+    { label: "Contato", href: "#contato" },
   ],
   principles: [
     "OLD SCHOOL FREE HAND",
@@ -27,7 +28,7 @@ export const pt: Messages = {
   ],
   stats: [
     { value: 68131, label: "Seguidores no Instagram" },
-    { value: 2, label: "Frentes de trabalho" },
+    { value: 3, label: "Parcerias oficiais" },
     { value: 100, suffix: "%", label: "Old school na tatuagem" },
     { value: 100, suffix: "%", label: "Free hand na custom" },
   ],
@@ -43,13 +44,19 @@ export const pt: Messages = {
       desc: "Peças exclusivas para Adidas Running — chamas, tipografia e grafismo old school aplicados à corrida.",
     },
   ],
-  artistTags: ["Old School Free Hand", "Adidas Running", "Bold", "Custom"],
+  artistTags: [
+    "Old School Free Hand",
+    "Embaixador Electric Ink",
+    "Adidas Running",
+    "São Paulo",
+    "Guest Icons & Prodigies",
+  ],
   artistStory: {
     title: "Duas frentes, uma assinatura",
     paragraphs: [
-      "Peça customizada para a @adidas — linhas bold e energia old school levadas para a corrida.",
-      "Ta cansadinho de ver chamas por aqui? Então se cuida porque o incêndio só vai aumentar.",
-      "Lista de espera para encomendas e informações pelo link na bio do Instagram @caiotattoos.",
+      "Embaixador oficial da Electric Ink — a maior indústria de materiais para tatuagem do Brasil. Na pele, só old school free hand: tradicional americano puro.",
+      "Parceiro @adidas e @adidasbrasil na customização free hand de tênis Running — chamas, tipografia bold e peças exclusivas para a corrida.",
+      "Selecionado como guest artist na Icons & Prodigies Tattoo Convention em Veneza (2026). Orçamentos, agendamentos e custom pelo WhatsApp.",
     ],
   },
   process: [
@@ -121,8 +128,8 @@ export const pt: Messages = {
     titleLine1: "Tatuagem",
     titleLine2: "& Adidas Custom",
     subtitle:
-      "Old school free hand na pele · customização free hand em Adidas Running.",
-    ctaQuote: "Lista de espera →",
+      "Old school free hand na pele · customização Adidas Running · embaixador Electric Ink · São Paulo.",
+    ctaQuote: "WhatsApp →",
     ctaWorks: "Ver tatuagem",
   },
   about: {
@@ -132,9 +139,9 @@ export const pt: Messages = {
     lifestyleLabel: "Caio & lifestyle",
     lifestyleAlt: "Caio Rodrigues — lifestyle",
     paragraphs: [
-      "Caio Rodrigues trabalha em duas frentes: tatuagem old school free hand e customização de tênis Adidas Running — sempre com linhas bold e grafismo tradicional.",
-      "No portfólio de tatuagem entram só trabalhos profissionais. Aqui você vê também a vida, a corrida e os bastidores — como no Instagram.",
-      "Encomendas e informações pela lista de espera no link da bio @caiotattoos.",
+      "Caio Rodrigues (@caiotattoos) é tatuador old school free hand e customizer Adidas Running, baseado em São Paulo. Mais de 68 mil seguidores acompanham tatuagem, corrida e bastidores — mas o portfólio profissional do site mostra só o trabalho.",
+      "Embaixador oficial da Electric Ink e parceiro @adidas / @adidasbrasil na customização de tênis. Linhas bold, paleta clássica e desenho 100% free hand nas duas frentes.",
+      "Guest artist confirmado na Icons & Prodigies (Veneza, 2026). Também é criador do workshop online Viver a Tatuagem. Orçamentos e lista de espera direto pelo WhatsApp.",
     ],
     imageAlt: "Caio Rodrigues — old school & Adidas custom",
   },
@@ -186,8 +193,9 @@ export const pt: Messages = {
     label: "O Artista",
     title: "Old school na pele. Bold na corrida.",
     paragraphs: [
-      "Na tatuagem, só old school free hand — tradicional americano puro, sem misturar estilos.",
-      "Na customização, a mesma linguagem visual vai para Adidas Running: chamas, tipografia e free hand em cada par.",
+      "Na tatuagem, só old school free hand — tradicional americano puro, sem misturar estilos. Embaixador Electric Ink, usa e representa materiais profissionais de referência no Brasil.",
+      "Na customização, a mesma linguagem visual vai para Adidas Running: chamas, tipografia e free hand em cada par. Parceria oficial com @adidas e @adidasbrasil.",
+      "Além do estúdio, compartilha conhecimento no curso Viver a Tatuagem e no Instagram — onde mostra processo, corrida e vida além das peças finalizadas.",
     ],
     imageAlt: "Caio Rodrigues — tatuador e customizer",
   },
@@ -204,7 +212,7 @@ export const pt: Messages = {
     label: "Lista de espera",
     title: "Encomendas & informações",
     subtitle:
-      "Lista de espera para tatuagem old school ou custom Adidas Running. Preencha e envie pelo Instagram @caiotattoos.",
+      "Lista de espera para tatuagem old school ou custom Adidas Running. Preencha e envie pelo WhatsApp.",
     placeholders: {
       name: "Nome completo",
       whatsapp: "WhatsApp (com DDD)",
@@ -222,8 +230,25 @@ export const pt: Messages = {
       descriptionSneaker: "Descreva a customização desejada (chamas, tipografia, cores...)",
       availability: "Disponibilidade",
     },
-    hasReference: "Tenho referência para enviar no Instagram",
-    submit: "Ir para @caiotattoos →",
+    hasReference: "Tenho referência para enviar no WhatsApp",
+    submit: "Enviar pelo WhatsApp →",
+  },
+  sponsors: {
+    label: "Parceiros",
+    title: "Patrocínios & parcerias",
+    intro:
+      "Caio representa marcas que compartilham a mesma energia: old school na pele, bold na corrida e qualidade profissional em cada detalhe.",
+    workshopLabel: "Workshop online",
+    workshopNote:
+      "Além de tatuar e customizar, Caio é criador do curso Viver a Tatuagem — para quem quer levar a paixão pela arte a um novo patamar.",
+  },
+  contact: {
+    label: "Contato",
+    title: "Orçamentos pelo WhatsApp",
+    whatsappCta: "Falar com Caio Tattoos",
+    whatsappButton: "Abrir conversa no WhatsApp →",
+    instagramNote:
+      "Acompanhe o dia a dia, reels e bastidores no Instagram — portfólio profissional separado aqui no site.",
   },
   instagram: {
     title: "Siga @caiotattoos — 68k+ no Instagram",
@@ -232,21 +257,25 @@ export const pt: Messages = {
   },
   location: {
     label: "Contato",
-    title: "Lista de espera via Instagram",
-    mapTitle: "Caio Tattoos no Instagram",
-    address: "Instagram",
+    title: "Orçamentos & agendamentos",
+    mapTitle: "Caio Tattoos — São Paulo",
+    address: "Base",
     hours: "Agendamento",
-    directions: "Abrir perfil",
+    directions: "Ver Instagram",
+    whatsappNote:
+      "Orçamentos, agendamentos de tatuagem e encomendas de custom Adidas Running — fale direto pelo WhatsApp. Resposta pela ordem de mensagem.",
+    whatsappButton: "Chamar no WhatsApp →",
+    cityNote: "Atendimento e encomendas com agendamento prévio",
   },
   ctaBand: {
     titleLine1: "Pronto para uma peça",
     titleLine2: "old school?",
-    subtitle: "Entre na lista de espera pelo link na bio do Instagram.",
-    button: "Ir para @caiotattoos →",
+    subtitle: "Entre na lista de espera pelo WhatsApp — tatuagem ou custom Adidas.",
+    button: "Chamar no WhatsApp →",
   },
   footer: {
     tagline:
-      "Caio Tattoos — old school americano. Bold, colorido e clássico. Fonte: Instagram @caiotattoos.",
+      "Caio Tattoos — old school americano, embaixador Electric Ink, parceiro Adidas Running. São Paulo · @caiotattoos",
     quickLinks: "Links rápidos",
     contact: "Contato",
     rights: "Todos os direitos reservados.",
@@ -254,14 +283,14 @@ export const pt: Messages = {
   navbar: {
     brand: "Caio Tattoos",
     brandAria: "Caio Tattoos início",
-    quote: "Lista de espera →",
+    quote: "WhatsApp →",
     openMenu: "Abrir menu",
     closeMenu: "Fechar menu",
   },
   scroll: "Scroll",
   whatsapp: {
-    fabAria: "Instagram Caio Tattoos",
-    fabMessage: "Olá! Vi o site e quero entrar na lista de espera.",
+    fabAria: "WhatsApp Caio Tattoos",
+    fabMessage: "Olá! Vi o site e quero orçamento / lista de espera.",
     quoteIntro: "Olá, Caio Tattoos!",
     quoteRequest: "Gostaria de entrar na lista de espera.",
     quoteRequestTattoo: "Gostaria de entrar na lista de espera para uma tatuagem old school.",
@@ -281,7 +310,7 @@ export const pt: Messages = {
       description: "Descreva sua ideia",
       availability: "Disponibilidade",
       reference: "Referência",
-      referenceNote: "Tenho referência para enviar no Instagram.",
+      referenceNote: "Tenho referência para enviar no WhatsApp.",
     },
   },
   language: {

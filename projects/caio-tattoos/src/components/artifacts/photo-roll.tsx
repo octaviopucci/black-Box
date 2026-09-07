@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useMemo } from "react";
-import { site } from "@/data/site";
+import { site, type RollItem } from "@/data/site";
 import { cn } from "@/lib/utils";
 
 function smoothstep(t: number) {
@@ -14,92 +14,117 @@ function dedupe(urls: readonly string[]): string[] {
 }
 
 function buildPools() {
-  const rafael = dedupe(site.heroRoll);
-  const works = dedupe(site.gallery.map((g) => g.src)).filter((src) => !rafael.includes(src));
-  return { rafael, works, all: dedupe([...rafael, ...works]) };
+  const photos = dedupe([
+    ...site.heroRoll,
+    ...site.gallery.map((g) => g.src),
+  ]);
+  const sponsors: RollItem[] = site.sponsors.map((s) => ({
+    kind: "sponsor" as const,
+    src: s.logo,
+    name: s.name,
+  }));
+  return { photos, sponsors };
 }
 
 function buildColumn(
-  rafael: string[],
-  works: string[],
-  all: string[],
+  photos: string[],
+  sponsors: RollItem[],
   minItems: number,
-): string[] {
-  const col: string[] = [];
-  let ri = 0;
-  let wi = 0;
+  sponsorOffset: number,
+): RollItem[] {
+  const col: RollItem[] = [];
+  let pi = 0;
+  let si = sponsorOffset;
 
-  const takeRafael = () => {
-    while (ri < rafael.length) {
-      const next = rafael[ri++];
-      if (!col.includes(next) && col.at(-1) !== next) return next;
+  const takePhoto = (): RollItem | null => {
+    const start = pi;
+    while (pi < photos.length + start) {
+      const next = photos[pi % photos.length];
+      pi++;
+      const last = col.at(-1);
+      if (last?.kind === "photo" && last.src === next) continue;
+      return { kind: "photo", src: next };
     }
     return null;
   };
 
-  const takeWork = () => {
-    while (wi < works.length) {
-      const next = works[wi++];
-      if (!col.includes(next) && col.at(-1) !== next) return next;
+  const takeSponsor = (): RollItem | null => {
+    if (sponsors.length === 0) return null;
+    for (let attempt = 0; attempt < sponsors.length; attempt++) {
+      const sponsor = sponsors[si % sponsors.length];
+      si++;
+      if (col.at(-1)?.kind === "sponsor") continue;
+      return sponsor;
     }
     return null;
   };
 
-  const takeAny = () => {
-    for (const next of all) {
-      if (!col.includes(next) && col.at(-1) !== next) return next;
-    }
-    return null;
-  };
+  let photosSinceSponsor = 0;
 
   while (col.length < minItems) {
-    const last = col.at(-1);
-    const lastIsRafael = last !== undefined && rafael.includes(last);
+    const shouldInsertSponsor =
+      sponsors.length > 0 &&
+      photosSinceSponsor >= 2 &&
+      col.at(-1)?.kind !== "sponsor";
 
-    let next = lastIsRafael || last === undefined ? takeWork() : takeRafael();
-    if (!next) next = lastIsRafael ? takeRafael() : takeWork();
-    if (!next) next = takeAny();
-    if (!next) break;
-    col.push(next);
+    if (shouldInsertSponsor) {
+      const sponsor = takeSponsor();
+      if (sponsor) {
+        col.push(sponsor);
+        photosSinceSponsor = 0;
+        continue;
+      }
+    }
+
+    const photo = takePhoto();
+    if (!photo) break;
+    col.push(photo);
+    photosSinceSponsor++;
   }
 
   return col;
 }
 
-function fixLoopBoundary(track: string[]): string[] {
+function fixLoopBoundary(track: RollItem[]): RollItem[] {
   if (track.length < 2) return track;
-  if (track[0] === track.at(-1)) {
-    for (let i = 1; i < track.length - 1; i++) {
-      if (track[i] !== track[0] && track[i] !== track.at(-2)) {
-        const last = track.length - 1;
-        const tmp = track[i];
-        track[i] = track[last];
-        track[last] = tmp;
-        break;
+  const first = track[0];
+  const last = track.at(-1);
+  if (first && last && first.kind === last.kind) {
+    if (first.kind === "sponsor" && first.src === last.src) {
+      for (let i = 1; i < track.length - 1; i++) {
+        if (track[i].kind === "photo") {
+          const tmp = track[i];
+          track[i] = track[track.length - 1];
+          track[track.length - 1] = tmp;
+          break;
+        }
+      }
+    } else if (first.kind === "photo" && first.src === last.src) {
+      for (let i = 1; i < track.length - 1; i++) {
+        if (track[i].kind === "photo" && track[i].src !== first.src) {
+          const tmp = track[i];
+          track[i] = track[track.length - 1];
+          track[track.length - 1] = tmp;
+          break;
+        }
       }
     }
   }
   return track;
 }
 
-function loopTrack(column: string[]): string[] {
+function loopTrack(column: RollItem[]): RollItem[] {
   const track = fixLoopBoundary([...column]);
-  if (track.length === 0) return track;
-  if (track.length === 1) return track;
+  if (track.length <= 1) return track;
   return [...track, ...track];
 }
 
-function buildColumns(): [string[], string[]] {
-  const { rafael, works, all } = buildPools();
-  const minPerColumn = 7;
+function buildColumns(): [RollItem[], RollItem[]] {
+  const { photos, sponsors } = buildPools();
+  const minPerColumn = 8;
 
-  const col0 = buildColumn([...rafael], [...works], all, minPerColumn);
-  const col1 = buildColumn(
-    [...rafael].reverse(),
-    [...works].reverse(),
-    [...all].reverse(),
-    minPerColumn,
-  );
+  const col0 = buildColumn(photos, sponsors, minPerColumn, 0);
+  const col1 = buildColumn(photos, sponsors, minPerColumn, 1);
 
   return [loopTrack(col0), loopTrack(col1)];
 }
@@ -109,11 +134,66 @@ type PhotoRollProps = {
   scrollProgress?: number;
 };
 
+function RollTile({
+  item,
+  colIndex,
+  index,
+  t,
+}: {
+  item: RollItem;
+  colIndex: number;
+  index: number;
+  t: number;
+}) {
+  const offsetClass =
+    index % 2 === 0 ? "-translate-x-1 md:-translate-x-2" : "translate-x-1 md:translate-x-2";
+
+  if (item.kind === "sponsor") {
+    return (
+      <div
+        className={cn(
+          "relative aspect-[3/4] w-full shrink-0 overflow-hidden bg-black ring-1 ring-white/10",
+          offsetClass,
+        )}
+      >
+        <Image
+          src={item.src}
+          alt={item.name}
+          fill
+          sizes="(max-width: 768px) 50vw, 100vw"
+          className="object-contain p-6 md:p-8"
+          priority={colIndex === 0 && index < 2}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "relative aspect-[3/4] w-full shrink-0 overflow-hidden ring-1 ring-white/5",
+        offsetClass,
+      )}
+    >
+      <Image
+        src={item.src}
+        alt=""
+        fill
+        sizes="(max-width: 768px) 50vw, 100vw"
+        className="object-cover contrast-[1.05]"
+        style={{
+          filter: `grayscale(${0.35 * (1 - t * 0.6)}) contrast(1.05)`,
+        }}
+        priority={colIndex === 0 && index < 2}
+      />
+    </div>
+  );
+}
+
 export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps) {
   const columns = useMemo(() => buildColumns(), []);
   const t = smoothstep(scrollProgress);
 
-  // 54% width on the right → full viewport; inner scale for cinematic fill
   const leftPct = (1 - t) * 42;
   const innerScale = 1 + t * 0.35;
   const innerY = scrollProgress * -80;
@@ -157,26 +237,14 @@ export function PhotoRoll({ className = "", scrollProgress = 0 }: PhotoRollProps
               transform: `translateY(${scrollProgress * (colIndex === 0 ? 32 : -32)}px)`,
             }}
           >
-            {col.map((src, i) => (
-              <div
-                key={`${colIndex}-${i}-${src}`}
-                className={cn(
-                  "relative aspect-[3/4] w-full shrink-0 overflow-hidden ring-1 ring-white/5",
-                  i % 2 === 0 ? "-translate-x-1 md:-translate-x-2" : "translate-x-1 md:translate-x-2",
-                )}
-              >
-                <Image
-                  src={src}
-                  alt=""
-                  fill
-                  sizes="(max-width: 768px) 50vw, 100vw"
-                  className="object-cover contrast-[1.05]"
-                  style={{
-                    filter: `grayscale(${0.35 * (1 - t * 0.6)}) contrast(1.05)`,
-                  }}
-                  priority={colIndex === 0 && i < 2}
-                />
-              </div>
+            {col.map((item, i) => (
+              <RollTile
+                key={`${colIndex}-${i}-${item.kind}-${item.src}`}
+                item={item}
+                colIndex={colIndex}
+                index={i}
+                t={t}
+              />
             ))}
           </div>
         ))}

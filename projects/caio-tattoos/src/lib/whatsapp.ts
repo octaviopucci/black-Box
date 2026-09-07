@@ -70,12 +70,8 @@ ${intro}
 }
 
 export function openWhatsApp(message: string) {
-  if (site.whatsapp) {
-    const url = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-    return;
-  }
-  window.open(site.instagram.url, "_blank", "noopener,noreferrer");
+  const url = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
 }
 
 export function scrollToHash(hash: string) {
