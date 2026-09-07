@@ -35,17 +35,17 @@ export const site = {
   sponsors: [
     {
       name: "Electric Ink",
-      logo: "/sponsors/electric-ink.svg",
+      logo: "/sponsors/electric-ink.png",
       role: "Embaixador oficial",
     },
     {
       name: "Adidas Running",
-      logo: "/sponsors/adidas-running.svg",
+      logo: "/sponsors/adidas-running.png",
       role: "Customização free hand",
     },
     {
       name: "Icons & Prodigies",
-      logo: "/sponsors/icons-prodigies.svg",
+      logo: "/sponsors/icons-prodigies.png",
       role: "Guest artist · Veneza 2026",
     },
   ],
