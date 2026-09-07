@@ -1,12 +1,15 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowDown } from 'lucide-react'
-import { site, bookingUrl, asset } from '../data/site'
+import { site, bookingUrl, asset, scrubMobileFramePaths } from '../data/site'
 import { useReducedMotion } from '../hooks/useReducedMotion'
+import { usePreferFrameScrub } from '../hooks/usePreferFrameScrub'
+import { useScrollFrameScrub, useScrollVideoScrub } from '../hooks/useScrollVideoScrub'
 
 const headlineWords = site.headline.split(' ')
 const heroVideo = asset(site.media.heroVideo)
 const heroPoster = asset(site.media.heroPoster)
+const scrubFrames = scrubMobileFramePaths()
 
 function HeroOverlay() {
   return (
@@ -75,6 +78,15 @@ function HeroCopy() {
           </a>
         </motion.div>
 
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.1 }}
+          className="mt-8 hidden font-mono text-[10px] uppercase tracking-[0.28em] text-paper/40 sm:mt-10 sm:block"
+        >
+          Role para ver o analisador metabólico
+        </motion.p>
+
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.28em] text-paper/35 sm:mt-8">
           {site.examTagline}
         </p>
@@ -83,66 +95,100 @@ function HeroCopy() {
   )
 }
 
+function HeroStatic() {
+  return (
+    <section id="topo" className="relative min-h-[100svh] overflow-hidden bg-ink text-paper">
+      <img
+        src={heroPoster}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-center"
+        width={1280}
+        height={720}
+        fetchPriority="high"
+      />
+      <HeroOverlay />
+      <HeroCopy />
+    </section>
+  )
+}
+
 export function Hero() {
   const reduced = useReducedMotion()
+  const preferFrames = usePreferFrameScrub()
+  const sectionRef = useRef<HTMLElement>(null)
+  const pinRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  useEffect(() => {
-    if (reduced) return
-    const video = videoRef.current
-    if (!video) return
+  const scrub = !reduced
+  const useFrames = preferFrames
+  const scrollLength = useFrames ? 1.75 : 2.4
 
-    video.muted = true
-    video.playsInline = true
+  useScrollFrameScrub(sectionRef, pinRef, canvasRef, {
+    enabled: scrub && useFrames,
+    frames: scrubFrames,
+    scrollLength,
+    scrub: 0.12,
+  })
 
-    const play = () => {
-      video.play().catch(() => {})
-    }
+  useScrollVideoScrub(sectionRef, pinRef, videoRef, {
+    enabled: scrub && !useFrames,
+    scrollLength,
+    scrub: 0.45,
+  })
 
-    if (video.readyState >= 2) play()
-    else video.addEventListener('loadeddata', play, { once: true })
-
-    return () => {
-      video.removeEventListener('loadeddata', play)
-    }
-  }, [reduced])
+  if (!scrub) return <HeroStatic />
 
   return (
     <section
       id="topo"
-      className="relative min-h-[100svh] overflow-hidden bg-ink text-paper"
+      ref={sectionRef}
+      data-video-slot
+      className="relative bg-ink"
       aria-label="Calorimetria Indireta — apresentação do exame"
     >
-      <div className="absolute inset-0">
-        {reduced ? (
+      <div ref={pinRef} className="relative h-[100svh] w-full overflow-hidden">
+        <div className="absolute inset-0 bg-ink">
           <img
             src={heroPoster}
             alt=""
-            className="h-full w-full object-cover object-center"
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover object-center"
             width={1280}
             height={720}
             fetchPriority="high"
           />
-        ) : (
-          <video
-            ref={videoRef}
-            className="h-full w-full object-cover object-center"
-            src={heroVideo}
-            poster={heroPoster}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            width={1280}
-            height={720}
-            aria-hidden
-          />
-        )}
-      </div>
 
-      <HeroOverlay />
-      <HeroCopy />
+          {useFrames ? (
+            <canvas
+              ref={canvasRef}
+              aria-hidden
+              className="absolute inset-0 h-full w-full"
+            />
+          ) : (
+            <video
+              ref={videoRef}
+              className="absolute inset-0 h-full w-full object-cover object-center"
+              src={heroVideo}
+              poster={heroPoster}
+              muted
+              playsInline
+              preload="auto"
+              width={1280}
+              height={720}
+              aria-hidden
+            />
+          )}
+
+          {useFrames && (
+            <div className="pointer-events-none absolute inset-0 bg-black/[0.08]" aria-hidden />
+          )}
+
+          <HeroOverlay />
+        </div>
+
+        <HeroCopy />
+      </div>
     </section>
   )
 }
