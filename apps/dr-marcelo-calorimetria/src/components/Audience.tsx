@@ -21,7 +21,7 @@ export function Audience() {
           transition={{ duration: 0.6, delay: 0.05 }}
           className="display-title max-w-lg text-[clamp(2rem,4.4vw,3rem)]"
         >
-          Um exame, três caminhos
+          Um exame, dois caminhos
         </motion.h2>
 
         <motion.p
@@ -34,7 +34,7 @@ export function Audience() {
           {audienceIntro}
         </motion.p>
 
-        <div className="mt-16 grid gap-10 sm:grid-cols-3 sm:gap-8">
+        <div className="mt-16 grid gap-10 sm:grid-cols-2 sm:gap-12">
           {audiences.map((item, i) => (
             <motion.div
               key={item.title}

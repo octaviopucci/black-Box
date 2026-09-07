@@ -1,15 +1,20 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowDown } from 'lucide-react'
 import { site, bookingUrl, asset, scrubMobileFramePaths } from '../data/site'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 import { usePreferFrameScrub } from '../hooks/usePreferFrameScrub'
 import { useScrollFrameScrub, useScrollVideoScrub } from '../hooks/useScrollVideoScrub'
 
+gsap.registerPlugin(ScrollTrigger)
+
 const headlineWords = site.headline.split(' ')
 const posterDesktop = asset(site.media.scrubPoster)
 const posterMobile = asset(site.media.scrubMobilePoster)
 const videoSrc = asset(site.media.scrubVideo)
+const deviceOpenSrc = asset(site.media.scrubDeviceOpen)
 const scrubFrames = scrubMobileFramePaths()
 
 function HeroCopy() {
@@ -111,23 +116,49 @@ export function Hero() {
   const pinRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const deviceOpenRef = useRef<HTMLImageElement>(null)
 
   const scrub = !reduced
   const useFrames = preferFrames
   const posterSrc = useFrames ? posterMobile : posterDesktop
+  const scrollLength = useFrames ? 1.75 : 2.4
 
   useScrollFrameScrub(sectionRef, pinRef, canvasRef, {
     enabled: scrub && useFrames,
     frames: scrubFrames,
-    scrollLength: 1.75,
+    scrollLength,
     scrub: 0.12,
   })
 
   useScrollVideoScrub(sectionRef, pinRef, videoRef, {
     enabled: scrub && !useFrames,
-    scrollLength: 2.4,
+    scrollLength,
     scrub: 0.45,
   })
+
+  useEffect(() => {
+    if (!scrub) return
+
+    const section = sectionRef.current
+    const overlay = deviceOpenRef.current
+    if (!section || !overlay) return
+
+    const trigger = ScrollTrigger.create({
+      trigger: section,
+      start: 'top top',
+      end: () => `+=${window.innerHeight * scrollLength}`,
+      scrub: true,
+      onUpdate: (self) => {
+        const fadeStart = 0.72
+        const opacity = Math.min(Math.max((self.progress - fadeStart) / (1 - fadeStart), 0), 1)
+        overlay.style.opacity = String(opacity)
+      },
+    })
+
+    return () => {
+      trigger.kill()
+    }
+  }, [scrub, scrollLength])
 
   if (!scrub) return <HeroStatic />
 
@@ -178,6 +209,17 @@ export function Hero() {
               aria-hidden
             />
           )}
+
+          <img
+            ref={deviceOpenRef}
+            src={deviceOpenSrc}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+            style={{ opacity: 0 }}
+            width={1170}
+            height={480}
+          />
 
           <div
             className="pointer-events-none absolute inset-0"

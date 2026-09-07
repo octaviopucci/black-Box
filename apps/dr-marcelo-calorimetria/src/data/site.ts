@@ -22,6 +22,7 @@ export const site = {
     scrubMobilePoster: 'calorimetria-poster-mobile.jpg',
     scrubMobileFrameCount: 81,
     scrubMobileFrameDir: 'scrub-frames-mobile',
+    scrubDeviceOpen: 'aparelho-aberto.jpg',
     vsMontage: 'vs-calculadora-aparelho.jpg',
     devicePhoto: 'aparelho-vo2master.jpg',
     reportSample: 'laudo-graficos.jpg',
@@ -49,8 +50,28 @@ export const site = {
   ],
 } as const
 
-export const energyBridge =
-  'E tem mais… Essas fórmulas não te mostram como está a eficiência energética do seu organismo. Será que ele está usando gordura como deveria?'
+export type EnergyBridgeTopic = {
+  lead: string
+  body: string
+  highlight?: string
+}
+
+export const energyBridgeTopics: EnergyBridgeTopic[] = [
+  {
+    lead: 'E tem mais…',
+    body: 'Além da sua taxa metabólica basal, que corresponde à quantidade de energia necessária para manter suas funções vitais em repouso.',
+    highlight: 'taxa metabólica basal',
+  },
+  {
+    lead: 'Te mostra também…',
+    body: 'Com esse cálculo sabemos quanto ele está usando de gordura e carboidratos para produzir energia. Será que seu corpo está realmente queimando gordura como deveria?',
+    highlight: 'eficiência energética do organismo',
+  },
+  {
+    lead: 'E não para por aí…',
+    body: 'Te apresenta uma estimativa de gasto calórico para diversas atividades físicas.',
+  },
+]
 
 export const audienceIntro =
   'Quando a dieta e o treino parecem não trazer resultados, o que pode estar faltando são parâmetros exatos — para fazer ajustes personalizados para você.'
@@ -90,13 +111,12 @@ export const journey: Step[] = [
   {
     step: '03',
     title: 'Laudo no mesmo atendimento',
-    description:
-      'Exame analisado pelo médico, que elabora o laudo e te envia. Assim você terá acesso a quanto seu corpo gasta de energia durante o dia, sua eficiência energética e estimativa de gasto em diversas atividades.',
+    description: 'Exame analisado pelo médico, que elabora o laudo e te envia.',
   },
 ]
 
 export const readoutIntro =
-  'Exame analisado pelo médico, que elabora o laudo e te envia. Assim você terá acesso a quanto seu corpo gasta de energia durante o dia, sua eficiência energética e estimativa de gasto energético em diversas atividades.'
+  'Exame analisado pelo médico, que elabora o laudo e te envia — com taxa metabólica basal, eficiência energética e estimativa de gasto em diversas atividades.'
 
 export type Audience = {
   title: string
@@ -107,17 +127,12 @@ export const audiences: Audience[] = [
   {
     title: 'Emagrecimento e composição corporal',
     description:
-      'Quando a dieta e o treino não avançam como deveriam, medir o gasto real evita dietas "no escuro" e ajusta o plano ao seu metabolismo — não ao de uma média populacional.',
+      'Quem está na luta por um corpo melhor e mais saudável sabe que cada caloria conta. Busque o melhor, não perca tempo com cálculos superficiais. Ajuste o plano ao seu metabolismo, não ao de uma média populacional como é feito com essas fórmulas.',
   },
   {
-    title: 'Performance',
+    title: 'Performance e hipertrofia',
     description:
-      'Para quem treina com objetivo claro, conhecer o consumo real de energia orienta ajustes finos de dieta, intensidade e periodização.',
-  },
-  {
-    title: 'Hipertrofia',
-    description:
-      'Saber quanto seu corpo queima em repouso ajuda a calibrar superávit, distribuição de macros e recuperação para ganho de massa com precisão.',
+      'Para quem treina com objetivo claro, conhecer o consumo real de energia orienta ajustes finos de dieta, intensidade e periodização. Saber quanto seu corpo queima em repouso ajuda a calibrar superávit, distribuição de macros e recuperação para ganho de massa com precisão.',
   },
 ]
 
@@ -140,7 +155,7 @@ export const faqs = [
   },
   {
     q: 'Como agendar?',
-    a: 'Pelo Instagram @dr.marceloprado ou pelo Linktree. Informe se prefere Capão Bonito ou Itapeva e o motivo da avaliação.',
+    a: 'Pelo WhatsApp. Informe se prefere Capão Bonito ou Itapeva e o motivo da avaliação.',
   },
 ]
 
