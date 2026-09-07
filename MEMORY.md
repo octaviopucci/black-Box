@@ -14,5 +14,7 @@
 | Story Quiz (metodologia Stecca) | `.cursor/skills/frontend/story-quiz/SKILL.md` | reference |
 | Funil BASE Mode Caverna (variante superação) | `apps/protocolo-pav/src/data/quiz.ts` | reference |
 | NA Veículos = Next em `projects/na-veiculos` (template Clow); `apps/na-veiculos` Vite é legado sem script | `projects/na-veiculos/README.md` | architecture |
+| Site institucional Black Box = `portal/` (raiz blckbox.vercel.app) | `portal/README.md` | architecture |
+| Contato/WhatsApp/redes do portal: `portal/src/data/site.ts` | `portal/src/data/site.ts` | business-rule |
 
 _Add rows when a future session would be surprised not to know something._
