@@ -1,21 +1,27 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowDown } from 'lucide-react'
-import { site, bookingUrl, asset, scrubMobileFramePaths } from '../data/site'
+import { site, bookingUrl, asset } from '../data/site'
 import { useReducedMotion } from '../hooks/useReducedMotion'
-import { usePreferFrameScrub } from '../hooks/usePreferFrameScrub'
-import { useScrollFrameScrub, useScrollVideoScrub } from '../hooks/useScrollVideoScrub'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const headlineWords = site.headline.split(' ')
-const posterDesktop = asset(site.media.scrubPoster)
-const posterMobile = asset(site.media.scrubMobilePoster)
-const videoSrc = asset(site.media.scrubVideo)
-const deviceOpenSrc = asset(site.media.scrubDeviceOpen)
-const scrubFrames = scrubMobileFramePaths()
+const heroVideo = asset(site.media.heroVideo)
+const heroPoster = asset(site.media.heroPoster)
+
+function HeroOverlay() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 z-[1]"
+      style={{
+        background: [
+          'linear-gradient(to top, rgba(8,14,13,0.94) 0%, rgba(8,14,13,0.78) 38%, rgba(8,14,13,0.52) 62%, rgba(8,14,13,0.38) 100%)',
+          'radial-gradient(ellipse 90% 70% at 50% 100%, rgba(8,14,13,0.55), transparent 70%)',
+        ].join(', '),
+      }}
+      aria-hidden
+    />
+  )
+}
 
 function HeroCopy() {
   return (
@@ -69,15 +75,6 @@ function HeroCopy() {
           </a>
         </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.1 }}
-          className="mt-8 hidden font-mono text-[10px] uppercase tracking-[0.28em] text-paper/40 sm:mt-10 sm:block"
-        >
-          Role para ver o analisador metabólico
-        </motion.p>
-
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.28em] text-paper/35 sm:mt-8">
           {site.examTagline}
         </p>
@@ -86,152 +83,66 @@ function HeroCopy() {
   )
 }
 
-function HeroStatic() {
-  return (
-    <section id="topo" className="relative min-h-[100svh] overflow-hidden bg-ink text-paper">
-      <img
-        src={posterDesktop}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover object-center"
-        width={1280}
-        height={720}
-        fetchPriority="high"
-      />
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(to top, rgba(10,18,17,0.96) 0%, rgba(10,18,17,0.65) 45%, rgba(10,18,17,0.25) 100%)',
-        }}
-      />
-      <HeroCopy />
-    </section>
-  )
-}
-
 export function Hero() {
   const reduced = useReducedMotion()
-  const preferFrames = usePreferFrameScrub()
-  const sectionRef = useRef<HTMLElement>(null)
-  const pinRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const deviceOpenRef = useRef<HTMLImageElement>(null)
-
-  const scrub = !reduced
-  const useFrames = preferFrames
-  const posterSrc = useFrames ? posterMobile : posterDesktop
-  const scrollLength = useFrames ? 1.75 : 2.4
-
-  useScrollFrameScrub(sectionRef, pinRef, canvasRef, {
-    enabled: scrub && useFrames,
-    frames: scrubFrames,
-    scrollLength,
-    scrub: 0.12,
-  })
-
-  useScrollVideoScrub(sectionRef, pinRef, videoRef, {
-    enabled: scrub && !useFrames,
-    scrollLength,
-    scrub: 0.45,
-  })
 
   useEffect(() => {
-    if (!scrub) return
+    if (reduced) return
+    const video = videoRef.current
+    if (!video) return
 
-    const section = sectionRef.current
-    const overlay = deviceOpenRef.current
-    if (!section || !overlay) return
+    video.muted = true
+    video.playsInline = true
 
-    const trigger = ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: () => `+=${window.innerHeight * scrollLength}`,
-      scrub: true,
-      onUpdate: (self) => {
-        const fadeStart = 0.72
-        const opacity = Math.min(Math.max((self.progress - fadeStart) / (1 - fadeStart), 0), 1)
-        overlay.style.opacity = String(opacity)
-      },
-    })
+    const play = () => {
+      video.play().catch(() => {})
+    }
+
+    if (video.readyState >= 2) play()
+    else video.addEventListener('loadeddata', play, { once: true })
 
     return () => {
-      trigger.kill()
+      video.removeEventListener('loadeddata', play)
     }
-  }, [scrub, scrollLength])
-
-  if (!scrub) return <HeroStatic />
+  }, [reduced])
 
   return (
     <section
       id="topo"
-      ref={sectionRef}
-      data-video-slot
-      className="relative bg-ink"
+      className="relative min-h-[100svh] overflow-hidden bg-ink text-paper"
       aria-label="Calorimetria Indireta — apresentação do exame"
     >
-      <div ref={pinRef} className="relative h-[100svh] w-full overflow-hidden">
-        <div className="absolute inset-0 bg-ink">
+      <div className="absolute inset-0">
+        {reduced ? (
           <img
-            src={posterSrc}
+            src={heroPoster}
             alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            width={useFrames ? 720 : 1280}
-            height={useFrames ? 1280 : 720}
+            className="h-full w-full object-cover object-center"
+            width={1280}
+            height={720}
             fetchPriority="high"
           />
-
-          {useFrames ? (
-            <canvas
-              ref={canvasRef}
-              aria-hidden
-              className="absolute inset-0 h-full w-full"
-            />
-          ) : (
-            <video
-              ref={videoRef}
-              className="absolute inset-0 h-full w-full object-cover object-center"
-              src={videoSrc}
-              poster={posterSrc}
-              muted
-              playsInline
-              preload="auto"
-              width={1280}
-              height={720}
-              aria-hidden
-            />
-          )}
-
-          {useFrames && (
-            <div
-              className="pointer-events-none absolute inset-0 bg-black/[0.08]"
-              aria-hidden
-            />
-          )}
-
-          <img
-            ref={deviceOpenRef}
-            src={deviceOpenSrc}
-            alt=""
+        ) : (
+          <video
+            ref={videoRef}
+            className="h-full w-full object-cover object-center"
+            src={heroVideo}
+            poster={heroPoster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            width={1280}
+            height={720}
             aria-hidden
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
-            style={{ opacity: 0 }}
-            width={1170}
-            height={480}
           />
-
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(to top, rgba(10,18,17,0.96) 0%, rgba(10,18,17,0.65) 45%, rgba(10,18,17,0.2) 75%, rgba(10,18,17,0.35) 100%)',
-            }}
-          />
-        </div>
-
-        <HeroCopy />
+        )}
       </div>
+
+      <HeroOverlay />
+      <HeroCopy />
     </section>
   )
 }

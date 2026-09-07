@@ -17,6 +17,8 @@ export const site = {
   whatsappMessage:
     'Olá! Gostaria de agendar uma Calorimetria Indireta com o Dr. Marcelo Prado.',
   media: {
+    heroVideo: 'hero-calorimetria.mp4',
+    heroPoster: 'hero-calorimetria-poster.jpg',
     scrubVideo: 'calorimetria-scrub.mp4',
     scrubPoster: 'calorimetria-poster.jpg',
     scrubMobilePoster: 'calorimetria-poster-mobile.jpg',
