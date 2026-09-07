@@ -4,15 +4,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#070708',
-        panel: '#121214',
-        line: '#2A2A2E',
-        sand: '#E8E2D6',
-        signal: '#D4A017',
+        ink: 'var(--ink)',
+        panel: 'var(--panel)',
+        line: 'var(--line)',
+        paper: 'var(--paper)',
+        mute: 'var(--mute)',
+        silver: 'var(--silver)',
+        metal: 'var(--metal)',
+        status: 'var(--status)',
       },
       fontFamily: {
-        display: ['"Syne"', 'system-ui', 'sans-serif'],
-        body: ['"Manrope"', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        sans: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
+      },
+      letterSpacing: {
+        section: '0.22em',
+      },
+      maxWidth: {
+        content: '72rem',
       },
     },
   },

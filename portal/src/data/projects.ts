@@ -1,264 +1,107 @@
-export type ProjectStatus = 'ativo' | 'demo' | 'manutencao'
-
-export interface ClientProject {
+export type ProjectCase = {
   id: string
-  name: string
-  client: string
-  description: string
-  href: string
-  status: ProjectStatus
-  tags: string[]
+  number: string
+  title: string
+  category: string
+  year: string
+  summary: string
+  technologies: string[]
+  problem: string
+  solution: string
+  flow: string[]
+  impact: string[]
 }
 
-export const projects: ClientProject[] = [
+export const projects: ProjectCase[] = [
   {
-    id: 'maciel-motors',
-    name: 'Maciel Motors Gestor',
-    client: 'Maciel Motors',
-    description:
-      'Sistema completo de gestão para revenda de veículos: estoque, financeiro, clientes, relatórios e backup. Login com entrada cinematográfica.',
-    href: '/maciel-motors/',
-    status: 'ativo',
-    tags: ['React', 'Gestão', 'Automotivo'],
+    id: 'engenharia-de-vendas',
+    number: '01',
+    title: 'ENGENHARIA DE VENDAS',
+    category: 'IA + AUTOMAÇÃO',
+    year: '2026',
+    summary:
+      'Um sistema inteligente para analisar, qualificar e encaminhar leads automaticamente para o processo comercial.',
+    technologies: ['IA', 'CRM', 'AUTOMAÇÃO', 'API'],
+    problem:
+      'Leads chegavam sem critério, a equipe perdia tempo com contatos frios e oportunidades boas demoravam para ser atendidas.',
+    solution:
+      'Construímos um sistema que analisa cada lead com IA, qualifica por comportamento e intenção, e encaminha automaticamente para o fluxo comercial certo.',
+    flow: ['LEAD', 'ANÁLISE POR IA', 'QUALIFICAÇÃO', 'CRM', 'AUTOMAÇÃO', 'EQUIPE COMERCIAL'],
+    impact: [
+      'Redução de tempo entre captura e primeiro contato',
+      'Priorização automática de leads com maior potencial',
+      'Menos trabalho manual na triagem comercial',
+      'Visibilidade clara do funil em tempo real',
+    ],
   },
   {
-    id: 'maciel-motors-x',
-    name: 'Maciel Motors Gestor X',
-    client: 'Maciel Motors',
-    description:
-      'Mesmo sistema com login e entrada mais interativos (animações, presença de marca). Use para comparar lado a lado com a versão estável.',
-    href: '/maciel-motors-x/',
-    status: 'demo',
-    tags: ['React', 'Interativo', 'Comparação'],
+    id: 'recuperacao',
+    number: '02',
+    title: 'RECUPERAÇÃO',
+    category: 'RECUPERAÇÃO DE CLIENTES',
+    year: '2026',
+    summary:
+      'Sistema de reativação automática para encontrar clientes e leads que deixaram de interagir com a empresa.',
+    technologies: ['IA', 'CRM', 'WHATSAPP', 'AUTOMAÇÃO'],
+    problem:
+      'A base de clientes e leads inativos crescia sem estratégia. Oportunidades existentes ficavam esquecidas enquanto a empresa só investia em aquisição.',
+    solution:
+      'Criamos um sistema de recuperação que segmenta a base, detecta sinais de reativação e dispara follow-ups inteligentes por WhatsApp e outros canais.',
+    flow: [
+      'BASE DE CLIENTES',
+      'SEGMENTAÇÃO',
+      'ANÁLISE DE COMPORTAMENTO',
+      'PERSONALIZAÇÃO COM IA',
+      'WHATSAPP AUTOMÁTICO',
+      'REGISTRO NO CRM',
+    ],
+    impact: [
+      'Reativação de leads e clientes parados',
+      'Campanhas personalizadas em escala',
+      'Aproveitamento da base existente',
+      'Follow-ups consistentes sem sobrecarregar a equipe',
+    ],
   },
   {
-    id: 'lp-motors',
-    name: 'LP Motors Gestor',
-    client: 'LP Motors',
-    description:
-      'Novo sistema profissional de gestão de estoque e operação para lojas de veículos: dossiê 360°, custos, alertas, inteligência sem IA e sync multi-dispositivo.',
-    href: '/lp-motors/',
-    status: 'ativo',
-    tags: ['React', 'Gestão', 'Automotivo'],
+    id: 'painel-operacional',
+    number: '03',
+    title: 'PAINEL OPERACIONAL',
+    category: 'WEB APP',
+    year: '2026',
+    summary:
+      'Dashboard para centralizar indicadores, dados e processos importantes da operação.',
+    technologies: ['WEB APP', 'BANCO DE DADOS', 'DASHBOARD', 'API'],
+    problem:
+      'Informações críticas estavam espalhadas em planilhas, sistemas e conversas. Decisões demoravam porque ninguém via a operação inteira.',
+    solution:
+      'Desenvolvemos um painel operacional sob medida que concentra indicadores, status de processos e dados em uma interface clara e acionável.',
+    flow: ['FONTES DE DADOS', 'APIs', 'PROCESSAMENTO', 'DASHBOARD', 'ALERTAS', 'DECISÃO'],
+    impact: [
+      'Visão unificada da operação',
+      'Decisões mais rápidas com dados atualizados',
+      'Menos dependência de planilhas manuais',
+      'Monitoramento contínuo de indicadores-chave',
+    ],
   },
   {
-    id: 'lp-motors-x',
-    name: 'LP Motors Gestor X',
-    client: 'LP Motors',
-    description:
-      'Variante interativa do LP Motors Gestor para demos. Produto independente do Maciel Motors.',
-    href: '/lp-motors-x/',
-    status: 'demo',
-    tags: ['React', 'Interativo', 'Comparação'],
-  },
-  {
-    id: 'porthal-imoveis',
-    name: 'Porthal Imóveis',
-    client: 'Porthal Imóveis',
-    description:
-      'Site premium e interativo para consultoria imobiliária de alto padrão em Capão Bonito/SP — hero cinematográfico, busca, destaques e simulador.',
-    href: '/porthal-imoveis/',
-    status: 'demo',
-    tags: ['React', 'Imobiliária', 'Premium'],
-  },
-  {
-    id: 'marcio-mariano',
-    name: 'Márcio Mariano',
-    client: 'Imobiliária Márcio Mariano',
-    description:
-      'Reconstrução premium da imobiliária tradicional de Capão Bonito — legado desde 1955, busca, catálogo, serviços e conversão via WhatsApp.',
-    href: '/marcio-mariano/',
-    status: 'demo',
-    tags: ['React', 'Imobiliária', 'Premium'],
-  },
-  {
-    id: 'sogov',
-    name: 'gov.br Premium',
-    client: 'Conceito · Governo Federal',
-    description:
-      'Reinvenção sofisticada do portal gov.br: busca intuitiva, perfis cidadão, serviços essenciais e jornada interativa em 3 passos.',
-    href: '/sogov/',
-    status: 'demo',
-    tags: ['React', 'gov.br', 'Premium'],
-  },
-  {
-    id: 'clinica-dna',
-    name: 'Clínica DNA',
-    client: 'Clínica DNA · Capão Bonito',
-    description:
-      'Experiência “Fio Vivo”: narrativa contínua com fio luminoso, manifesto tipográfico, corredor horizontal de especialidades e limiar WhatsApp.',
-    href: '/clinica-dna/',
-    status: 'demo',
-    tags: ['React', 'Saúde', 'Awwwards'],
-  },
-  {
-    id: 'dr-marcelo-prado',
-    name: 'Dr. Marcelo Prado',
-    client: 'Endocrinologia Aplicada · Itapeva',
-    description:
-      'Site editorial chic para endocrinologia aplicada: hero brand-first, eixos de cuidado, jornada clínica, Protocolo Harmonie e agendamento — Capão Bonito, Itapeva e on-line.',
-    href: '/dr-marcelo-prado/',
-    status: 'demo',
-    tags: ['React', 'Saúde', 'Premium'],
-  },
-  {
-    id: 'clinica-harmonie',
-    name: 'Clínica Harmonie',
-    client: 'Harmonie · Itapeva',
-    description:
-      'Experiência “Ressonância”: narrativa harmônica com partitura de cuidados, Protocolo Harmonie, espaço vivo e conversão WhatsApp — saúde, beleza e bem-estar.',
-    href: '/clinica-harmonie/',
-    status: 'demo',
-    tags: ['React', 'Saúde', 'Awwwards'],
-  },
-  {
-    id: 'octavio-pucci',
-    name: 'Octávio Pucci Tattoo',
-    client: 'Octávio Pucci · Capão Bonito',
-    description:
-      'Experiência “Predestinado”: narrativa em tinta preta e cinza, linguagens (realismo, coberturas, fine line), arquivo de pele e orçamento WhatsApp — studio privado.',
-    href: '/octavio-pucci/',
-    status: 'demo',
-    tags: ['React', 'Tattoo', 'Awwwards'],
-  },
-  {
-    id: 'na-veiculos',
-    name: 'NA Veículos',
-    client: 'N.A Veículos · Capão Bonito',
-    description:
-      'Site da loja: estoque real do Instagram, disponíveis e entregas, preço transparente e WhatsApp — Capão Bonito/SP. Intro cinematográfica e corredor de estoque.',
-    href: '/na-veiculos/',
-    status: 'demo',
-    tags: ['React', 'Automotivo', 'Awwwards'],
-  },
-  {
-    id: 'clinica-matsubara',
-    name: 'Clínica Matsubara',
-    client: 'Matsubara · Capão Bonito',
-    description:
-      'Experiência “A Versão”: narrativa boutique com rios de cuidado (odontologia, estética, especialidades), espaço real e conversão WhatsApp — identidade burgundy e rose.',
-    href: '/clinica-matsubara/',
-    status: 'demo',
-    tags: ['React', 'Saúde', 'Awwwards'],
-  },
-  {
-    id: 'danielle-matsubara',
-    name: 'Dra. Danielle Matsubara',
-    client: 'Danielle Matsubara · Capão Bonito',
-    description:
-      'Experiência “A Escuta”: site pessoal da endodontista e fundadora — voz em primeira pessoa, walk físico da clínica e conversão WhatsApp.',
-    href: '/danielle-matsubara/',
-    status: 'demo',
-    tags: ['React', 'Saúde', 'Awwwards'],
-  },
-  {
-    id: 'lais-felicia',
-    name: 'Studio Laís Felicia',
-    client: 'Laís Felicia · Capão Bonito',
-    description:
-      'Landing dark de autoridade (estrutura Duda Nito / NODA): hero sobreposto, serviços, cursos, FAQ e WhatsApp. Fotos reais e identidade rose gold.',
-    href: '/lais-felicia/',
-    status: 'demo',
-    tags: ['React', 'Beleza', 'Premium'],
-  },
-  {
-    id: 'dra-nathalia-rigo',
-    name: 'Dra. Nathalia Rigo',
-    client: 'Nathalia Rigo · Sorocaba',
-    description:
-      'Site alinhado ao Instagram @dranathaliarigo: estética avançada, criolipólise, preenchimento labial e laser no Parque São Bento — Transforme-se hoje.',
-    href: '/dra-nathalia-rigo/',
-    status: 'demo',
-    tags: ['React', 'Estética', 'Sorocaba'],
-  },
-  {
-    id: 'clinica-mussi-estetica',
-    name: 'Clínica Mussi Estética',
-    client: 'Mussi · Sorocaba',
-    description:
-      'Landing calm & tactile: estética facial e corporal em Jardim Nova Ipanema. Copy e depoimentos extraídos de fontes públicas — WhatsApp e Instagram oficiais.',
-    href: '/clinica-mussi-estetica/',
-    status: 'demo',
-    tags: ['React', 'Estética', 'Premium'],
-  },
-  {
-    id: 'gl-locacoes',
-    name: 'G&L Locações',
-    client: 'G&L Locações de Brinquedos · Capão Bonito',
-    description:
-      'Experiência “Diversão Garantida”: pula-pula, piscina de bolinhas, escorregadores e toboágua com fotos reais do Instagram e reserva WhatsApp.',
-    href: '/gl-locacoes/',
-    status: 'demo',
-    tags: ['React', 'Eventos', 'Locação'],
-  },
-  {
-    id: 'heitor-da-gelsa',
-    name: 'Heitor da Gelsa',
-    client: 'Heitor da Gelsa · Capão Bonito',
-    description:
-      'Site institucional premium: trajetória pública, carrossel “Quem é Heitor”, registros do Instagram e contato WhatsApp.',
-    href: '/heitor-da-gelsa/',
-    status: 'demo',
-    tags: ['React', 'Institucional', 'Capão Bonito'],
-  },
-  {
-    id: 'cbx',
-    name: 'CBX',
-    client: 'CBX · Capão Bonito',
-    description:
-      'Marketplace local de Capão Bonito: comprar e vender com experiência premium — home rica, chat, anúncios, planos e lojas. 100% front-end mockado.',
-    href: '/cbx/',
-    status: 'demo',
-    tags: ['Next.js', 'Marketplace', 'Premium'],
-  },
-  {
-    id: 'protocolo-pav',
-    name: 'Protocolo PAV — BASE',
-    client: 'BASE · Sistema PAV',
-    description:
-      'Funil quiz v2 visual BASE (copy intacta) + planos Kiwify originais. Arena e protocolo no mesmo app.',
-    href: '/protocolo-pav/quiz-v2',
-    status: 'demo',
-    tags: ['React', 'Quiz', 'BASE'],
-  },
-  {
-    id: 'rian',
-    name: 'BASE · Rian (afiliado)',
-    client: 'BASE · Afiliado Rian',
-    description:
-      'Pré-venda afiliado Rian v2: quiz visual + cadastro + planos com checkout Kiwify próprio (afid wSk0NAct).',
-    href: '/rian/quiz-v2',
-    status: 'ativo',
-    tags: ['React', 'Afiliado', 'BASE'],
-  },
-  {
-    id: 'chama',
-    name: 'chama',
-    client: 'chama · de chamar',
-    description:
-      'Clone funcional do Manychat: flow builder, inbox, automações comentário→DM, broadcasts, analytics e simulador — tudo persistido no navegador.',
-    href: '/chama/',
-    status: 'demo',
-    tags: ['React', 'Chat', 'Automação'],
-  },
-  {
-    id: 'traco',
-    name: 'traço',
-    client: 'traço · desenhe com inteligência',
-    description:
-      'Clone melhorado do Procreate: pincéis, camadas, laço/seleção e IA integrada para alterar regiões, camadas ou o canvas por prompt.',
-    href: '/traco/',
-    status: 'demo',
-    tags: ['React', 'Canvas', 'IA'],
-  },
-  {
-    id: 'pix-gateway',
-    name: 'PIX Gateway',
-    client: 'Black Box · uso próprio',
-    description:
-      'API Pix multi-conta/chave, QR grátis na sua chave e confirmação automática via webhook. Painel em /pix e API em /api/pix.',
-    href: '/pix/',
-    status: 'ativo',
-    tags: ['API', 'Pix', 'Gateway'],
+    id: 'maquina-de-conversao',
+    number: '04',
+    title: 'MÁQUINA DE CONVERSÃO',
+    category: 'LANDING PAGE + CONVERSÃO',
+    year: '2026',
+    summary:
+      'Experiência digital criada para transformar tráfego em leads e oportunidades comerciais.',
+    technologies: ['UX', 'CONVERSÃO', 'ANALYTICS', 'WEB'],
+    problem:
+      'O tráfego existia, mas a experiência digital não convertia. Visitantes saíam sem entender a oferta nem avançar no funil.',
+    solution:
+      'Projetamos uma experiência de conversão com narrativa clara, hierarquia forte e captura inteligente — do clique ao lead qualificado.',
+    flow: ['TRÁFEGO', 'EXPERIÊNCIA', 'INTERESSE', 'CAPTURA', 'QUALIFICAÇÃO', 'OPORTUNIDADE'],
+    impact: [
+      'Aumento da taxa de conversão',
+      'Mensagem alinhada à oferta real',
+      'Leads mais qualificados para o comercial',
+      'Base analítica para otimização contínua',
+    ],
   },
 ]
