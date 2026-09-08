@@ -20,6 +20,7 @@ Aquisição → Vendas → Transação → Onboarding → Produção → Relacio
 
 | Arquivo | Conteúdo |
 |---------|----------|
+| **[SUMMARY.md](./SUMMARY.md)** | **Resumo executivo — visão, status, como rodar** |
 | [SPECIFICATION.md](./SPECIFICATION.md) | Blueprint técnico completo (108 seções) |
 | [MISSIONS.md](./MISSIONS.md) | Grafo de dependências, ondas paralelas, 15 missões |
 | [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) | Template obrigatório antes de executar cada missão |
@@ -63,4 +64,7 @@ Cada missão no Cursor deve:
 
 ## Relação com este monorepo
 
-Hoje este repositório (`black-box`) hospeda portal institucional, demos de clientes e APIs auxiliares. A plataforma descrita aqui é um **produto futuro** — blueprint para implementação em missões separadas, possivelmente em diretório dedicado (ex.: `platform/` ou repositório próprio).
+- **`platform/`** — app Black Box Platform (Missões 01–02 concluídas)
+- **`portal/`, `apps/`, `projects/`** — portal institucional + demos clientes (legado, inalterado)
+
+Ver [SUMMARY.md](./SUMMARY.md) para setup e status completo.
