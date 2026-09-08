@@ -106,5 +106,8 @@ export function serializeOpportunity(
   return {
     ...row,
     amount: row.amount != null ? row.amount.toString() : null,
+    expectedCloseAt: row.expectedCloseAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
   }
 }
