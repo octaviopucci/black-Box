@@ -70,10 +70,8 @@ describe('auth integration', () => {
   })
 
   afterEach(async () => {
-    await prisma.session.deleteMany()
-    await prisma.organizationMembership.deleteMany()
-    await prisma.user.deleteMany()
-    await prisma.organization.deleteMany()
+    const { cleanupAllFixtures } = await import('../helpers/db')
+    await cleanupAllFixtures()
   })
 
   it('logs in with valid credentials and returns session cookie', async () => {

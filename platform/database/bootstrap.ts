@@ -3,13 +3,31 @@ import { getBootstrapConfig } from '@/config/env'
 import { normalizeEmail } from '@/modules/auth/domain/email'
 import { hashPassword } from '@/modules/auth/infrastructure/password'
 import { slugifyOrganizationName, resolveUniqueSlug } from '@/modules/organization/domain/slug'
+import { seedRbacForOrganization } from '@/modules/authorization/infrastructure/rbac-seed'
 import { logger } from '@/lib/logger'
 
 export type BootstrapResult = {
   created: boolean
   organizationId: string
   userId: string
+  membershipId: string
   message: string
+}
+
+async function ensureRbacForExistingUser(
+  userId: string,
+  organizationId: string,
+  membershipId: string,
+): Promise<BootstrapResult> {
+  await seedRbacForOrganization(prisma, organizationId, membershipId)
+
+  return {
+    created: false,
+    organizationId,
+    userId,
+    membershipId,
+    message: 'Bootstrap skipped — user exists; RBAC seed ensured',
+  }
 }
 
 export async function runBootstrap(): Promise<BootstrapResult> {
@@ -26,15 +44,13 @@ export async function runBootstrap(): Promise<BootstrapResult> {
   if (existingUser) {
     const membership = await prisma.organizationMembership.findFirst({
       where: { userId: existingUser.id },
-      include: { organization: true },
     })
 
-    return {
-      created: false,
-      organizationId: membership?.organizationId ?? '',
-      userId: existingUser.id,
-      message: 'Bootstrap skipped — user already exists',
+    if (!membership) {
+      throw new Error('Bootstrap user exists but has no membership')
     }
+
+    return ensureRbacForExistingUser(existingUser.id, membership.organizationId, membership.id)
   }
 
   const slugBase = slugifyOrganizationName(config.orgSlug || config.orgName)
@@ -42,7 +58,6 @@ export async function runBootstrap(): Promise<BootstrapResult> {
     (await prisma.organization.findMany({ select: { slug: true } })).map((o) => o.slug),
   )
   const slug = resolveUniqueSlug(slugBase, existingSlugs)
-
   const passwordHash = await hashPassword(config.userPassword)
 
   const result = await prisma.$transaction(async (tx) => {
@@ -63,7 +78,7 @@ export async function runBootstrap(): Promise<BootstrapResult> {
       },
     })
 
-    await tx.organizationMembership.create({
+    const membership = await tx.organizationMembership.create({
       data: {
         userId: user.id,
         organizationId: organization.id,
@@ -71,8 +86,10 @@ export async function runBootstrap(): Promise<BootstrapResult> {
       },
     })
 
-    return { organization, user }
+    return { organization, user, membership }
   })
+
+  await seedRbacForOrganization(prisma, result.organization.id, result.membership.id)
 
   logger.info('Bootstrap completed', {
     organizationId: result.organization.id,
@@ -83,6 +100,7 @@ export async function runBootstrap(): Promise<BootstrapResult> {
     created: true,
     organizationId: result.organization.id,
     userId: result.user.id,
+    membershipId: result.membership.id,
     message: 'Bootstrap completed',
   }
 }

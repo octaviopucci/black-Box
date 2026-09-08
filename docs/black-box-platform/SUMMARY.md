@@ -50,7 +50,7 @@ A plataforma roda em **porta 3001** (`npm run dev:platform` na raiz).
 | Stack | Next.js 15 · TypeScript · Tailwind 4 · PostgreSQL · Prisma 6 · Zod · Vitest |
 | IDs | UUID (nunca sequenciais expostos) |
 | Auth | Sessão server-side + cookie httpOnly (Missão 02) |
-| RBAC | Centralizado no backend — **Missão 03** (ainda não implementado) |
+| RBAC | Centralizado no backend — **Missão 03** ✅ |
 | Tenant | `Organization` derivada da sessão, nunca do frontend |
 
 ### Regras que não podem ser violadas
@@ -76,7 +76,7 @@ Detalhe: [DECISIONS.md](./DECISIONS.md) · Spec completa: [SPECIFICATION.md](./S
       ↓                  │                         │
 02 Auth + Org ✓          │                         │
       ↓                  │                         │
-03 RBAC                  │                         │
+03 RBAC ✓                  │                         │
       ↓                  │                         │
 04 Partners ─────────────┤                         ├──→ 08 Sales + Customer
                          │                         │
@@ -103,10 +103,10 @@ Detalhe: [MISSIONS.md](./MISSIONS.md)
 |--------|------|--------|-----|
 | 01 | Fundação técnica | ✅ Completa | [#146](https://github.com/octaviopucci/black-Box/pull/146) |
 | 02 | Auth + Organization | ✅ Completa | [#147](https://github.com/octaviopucci/black-Box/pull/147) |
-| 03 | RBAC + Authorization | ⏳ Pendente | — |
+| 03 | RBAC + Authorization | ✅ Completa | — |
 | 04–15 | Partners → Hardening | ⏳ Pendente | — |
 
-Briefs entregues: [01-fundacao.md](./missions/01-fundacao.md) · [02-auth-organization.md](./missions/02-auth-organization.md)
+Briefs entregues: [01-fundacao.md](./missions/01-fundacao.md) · [02-auth-organization.md](./missions/02-auth-organization.md) · [03-rbac-authorization.md](./missions/03-rbac-authorization.md)
 
 ---
 
@@ -200,36 +200,86 @@ Variáveis: `BOOTSTRAP_ORG_NAME`, `BOOTSTRAP_ORG_SLUG`, `BOOTSTRAP_USER_NAME`, `
 
 ---
 
-## 8. Estrutura de código (`platform/`)
+## 8. Missão 03 — RBAC + Authorization (entregue)
+
+**Objetivo:** roles tenant-scoped, catálogo de permissions, gates server-side, tenant isolation.
+
+### Modelo de dados
+
+```
+Organization
+ ├── Role (tenant-scoped)
+ │     └── RolePermission → Permission (global catalog)
+ └── OrganizationMembership
+       └── MembershipRole → Role
+```
+
+### Roles padrão (por organização)
+
+| Slug | Escopo |
+|------|--------|
+| `admin` | Todas as permissions do catálogo |
+| `gestor` | Permissions operacionais explícitas |
+| `parceiro` | Permissions comerciais apenas |
+
+### API pública de autorização
+
+```typescript
+import { PERMISSIONS, requirePermission, hasPermission } from '@/lib/authorization'
+await requirePermission(PERMISSIONS.LEAD_CREATE)
+```
+
+Helpers: `hasAnyPermission`, `hasAllPermissions`, `hasRole`, `requireRole`, `getAuthorizationContext()`.
+
+### Bootstrap (evoluído)
+
+```bash
+npm run db:bootstrap   # idempotente — org + user + membership + roles + permissions + ADMIN assignment
+```
+
+### Segurança
+
+- **401** ausência/invalidade de autenticação · **403** autenticado sem autorização
+- Tenant sempre derivado da sessão — nunca do frontend
+- ADMIN é tenant-scoped (`ADMIN(X) ≠ ADMIN(global)`)
+- Role INACTIVE, membership INACTIVE, org INACTIVE → deny
+- Proteção contra privilege escalation e cross-tenant IDOR
+
+---
+
+## 9. Estrutura de código (`platform/`)
 
 ```
 platform/
-├── prisma/schema.prisma          # User, Organization, Membership, Session
+├── prisma/schema.prisma          # User, Organization, Membership, Session, Role, Permission
 ├── prisma/migrations/
-├── database/bootstrap.ts         # Bootstrap idempotente
+├── database/bootstrap.ts         # Bootstrap idempotente + RBAC seed
 ├── src/
 │   ├── app/
 │   │   ├── api/auth/             # login, logout, me
-│   │   ├── api/organizations/    # current, select
+│   │   ├── api/authorization/    # roles, permissions
+│   │   ├── api/organizations/    # current, select, membership roles
 │   │   ├── api/health/
 │   │   ├── login/
 │   │   └── (authenticated)/app/  # área protegida
 │   ├── config/env.ts
 │   ├── lib/
 │   │   ├── auth/                 # context, cookies, constants
+│   │   ├── authorization/        # permissions, gates, context
 │   │   ├── db.ts, errors.ts, logger.ts, http/
 │   │   └── ...
 │   ├── modules/
 │   │   ├── auth/                 # domain, application, infrastructure
 │   │   ├── organization/
+│   │   ├── authorization/        # RBAC seed, role service
 │   │   └── foundation/
 │   └── middleware.ts
-└── tests/                        # 23 testes (unit + integration)
+└── tests/                        # 36 testes (unit + integration + authorization)
 ```
 
 ---
 
-## 9. Como rodar localmente
+## 10. Como rodar localmente
 
 ```bash
 cd platform
@@ -257,7 +307,7 @@ npm run build:platform
 
 ---
 
-## 10. Variáveis de ambiente
+## 11. Variáveis de ambiente
 
 | Variável | Obrigatória | Descrição |
 |----------|-------------|-----------|
@@ -270,22 +320,22 @@ npm run build:platform
 
 ---
 
-## 11. Comandos
+## 12. Comandos
 
 | Comando | Função |
 |---------|--------|
 | `npm run dev` | Dev server (:3001) |
 | `npm run build` | Build produção |
-| `npm run test` | 23 testes Vitest |
+| `npm run test` | 36 testes Vitest |
 | `npm run typecheck` | TypeScript |
 | `npm run lint` | ESLint |
 | `npm run db:migrate:deploy` | Aplicar migrations |
-| `npm run db:bootstrap` | Criar org + user inicial |
+| `npm run db:bootstrap` | Criar org + user + RBAC inicial |
 | `npm run db:generate` | Regenerar Prisma client |
 
 ---
 
-## 12. Fluxo end-to-end do MVP (definição de pronto)
+## 13. Fluxo end-to-end do MVP (definição de pronto)
 
 O produto só estará funcional quando este fluxo completo funcionar:
 
@@ -299,11 +349,11 @@ ADMIN cadastra/ativa PARCEIRO
   → PARCEIRO acompanha venda, comissão e projeto
 ```
 
-**Hoje:** apenas fundação + identidade/tenant. O fluxo acima depende das Missões 03–15.
+**Hoje:** fundação + identidade/tenant + RBAC centralizado. O fluxo acima depende das Missões 04–15.
 
 ---
 
-## 13. Contrato arquitetural (fluxo de request)
+## 14. Contrato arquitetural (fluxo de request)
 
 ```
 REQUEST
@@ -316,7 +366,7 @@ ACTIVE MEMBERSHIP
    ↓
 ORGANIZATION
    ↓
-RBAC + AUTHORIZATION       ← Missão 03 ⏳
+RBAC + AUTHORIZATION       ← Missão 03 ✅
    ↓
 BUSINESS OPERATIONS        ← Missões 04–15 ⏳
 ```
@@ -325,20 +375,19 @@ BUSINESS OPERATIONS        ← Missões 04–15 ⏳
 
 ---
 
-## 14. Próximos passos
+## 15. Próximos passos
 
 | Prioridade | Missão | Escopo |
 |------------|--------|--------|
-| **1** | 03 — RBAC + Authorization | Role, Permission, gates server-side |
-| **2** | 04 — Partners | Cadastro, ativação, produtos autorizados |
-| **3** | 05–07 (paralelo) | Leads/CRM **e** Products/Offers |
-| **4** | 08+ | Sales → Hardening |
+| **1** | 04 — Partners | Cadastro, ativação, produtos autorizados |
+| **2** | 05–07 (paralelo) | Leads/CRM **e** Products/Offers |
+| **3** | 08+ | Sales → Hardening |
 
 Antes de implementar: copiar [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) → `missions/NN-slug.md`.
 
 ---
 
-## 15. Índice de documentação
+## 16. Índice de documentação
 
 | Documento | Conteúdo |
 |-----------|----------|
@@ -350,16 +399,17 @@ Antes de implementar: copiar [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) → `m
 | [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) | Template de execução |
 | [platform/README.md](../../platform/README.md) | Setup operacional |
 | [missions/01-fundacao.md](./missions/01-fundacao.md) | Brief Missão 01 |
-| [missions/02-auth-organization.md](./missions/02-auth-organization.md) | Brief Missão 02 |
+| [missions/03-rbac-authorization.md](./missions/03-rbac-authorization.md) | Brief Missão 03 |
 
 ---
 
-## 16. Testes (estado atual)
+## 17. Testes (estado atual)
 
-**23 testes passando** em `platform/tests/`:
+**36 testes passando** em `platform/tests/`:
 
-- Unitários: env, errors, email, slug, password (Argon2id)
-- Integração: health, migration, auth (login/logout/me), bootstrap idempotente, tenant isolation
+- Unitários: env, errors, email, slug, password (Argon2id), permission catalog
+- Integração: health, migration, auth (login/logout/me), bootstrap idempotente + RBAC
+- Autorização: gates, tenant isolation, privilege escalation
 
 ```bash
 cd platform && npm run test
@@ -367,9 +417,8 @@ cd platform && npm run test
 
 ---
 
-## 17. O que explicitamente NÃO existe ainda
+## 18. O que explicitamente NÃO existe ainda
 
-- RBAC, roles, permissions
 - Partner, Lead, CRM, Product, Sale, Commission
 - Brief, Project, Dashboard funcional
 - Notificações, AuditLog

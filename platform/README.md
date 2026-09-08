@@ -1,6 +1,6 @@
 # Black Box Platform
 
-Revenue Operating System for commercial partners — modular monolith (Missions 01–02).
+Revenue Operating System for commercial partners — modular monolith (Missions 01–03).
 
 ## Requirements
 
@@ -55,7 +55,7 @@ Configuration is centralized in `src/config/env.ts` — do not read `process.env
 | `npm run db:migrate:deploy` | Apply migrations (CI/prod) |
 | `npm run db:generate` | Regenerate Prisma client |
 | `npm run db:seed` | Run seed (no-op) |
-| `npm run db:bootstrap` | Create initial org + user (idempotent) |
+| `npm run db:bootstrap` | Create initial org + user + RBAC (idempotent) |
 
 From monorepo root:
 
@@ -78,7 +78,60 @@ Server helpers (`src/lib/auth/context.ts`):
 - `getCurrentUser()` / `getCurrentOrganization()`
 - `requireAuthenticatedUser()` / `requireActiveOrganization()`
 
-**No RBAC in Mission 02** — authorization arrives in Mission 03.
+**No RBAC in Mission 02** — authorization arrives in Mission 03 (see below).
+
+## Authorization (Mission 03)
+
+Central RBAC — tenant-scoped roles, permission gates, deny by default.
+
+### Flow
+
+```
+SESSION → USER → MEMBERSHIP → ORGANIZATION → ROLES → PERMISSIONS → ALLOW/DENY
+```
+
+### Public API (`src/lib/authorization/`)
+
+```typescript
+import { PERMISSIONS, requirePermission, hasPermission } from '@/lib/authorization'
+
+await requirePermission(PERMISSIONS.LEAD_CREATE) // 401 unauthenticated, 403 forbidden
+const allowed = await hasPermission(PERMISSIONS.PARTNER_READ, request)
+```
+
+Also available: `hasAnyPermission`, `hasAllPermissions`, `hasRole`, `requireRole`, `getAuthorizationContext()`.
+
+**Permission is the primary authorization unit.** Roles group permissions; avoid `if (role === 'ADMIN')` in business code.
+
+### Default roles (per organization)
+
+| Slug | Scope |
+|------|-------|
+| `admin` | All permissions in catalog |
+| `gestor` | Explicit operational permissions |
+| `parceiro` | Commercial permissions only |
+
+Bootstrap assigns `admin` to the bootstrap user.
+
+### Authorization API
+
+| Method | Route | Permission required |
+|--------|-------|---------------------|
+| GET | `/api/authorization/roles` | `authorization.role.read` |
+| POST | `/api/authorization/roles` | `authorization.role.create` |
+| PATCH | `/api/authorization/roles/:id` | `authorization.role.update` |
+| POST | `/api/authorization/roles/:id/permissions` | `authorization.role.assign_permission` |
+| DELETE | `/api/authorization/roles/:id/permissions/:permissionId` | `authorization.role.assign_permission` |
+| POST | `/api/organizations/memberships/:membershipId/roles` | `authorization.membership.assign_role` |
+| DELETE | `/api/organizations/memberships/:membershipId/roles/:roleId` | `authorization.membership.remove_role` |
+
+### Security rules
+
+- **401** — not authenticated
+- **403** — authenticated but not authorized (generic message, no RBAC internals exposed)
+- Tenant derived from session only — never trust `organizationId` from request body/query
+- ADMIN is tenant-scoped (`ADMIN(X) ≠ ADMIN(global)`)
+- INACTIVE role, membership, or organization → no authorization
 
 Protected routes: `/app/*` (middleware + server layout).
 
@@ -147,7 +200,8 @@ Response includes application and database connectivity checks.
 
 - **Mission 01 — Foundation** ✓
 - **Mission 02 — Auth + Organization** ✓
-- **Next:** Mission 03 — RBAC + Authorization
+- **Mission 03 — RBAC + Authorization** ✓
+- **Next:** Mission 04 — Partners
 
 ## Related docs
 

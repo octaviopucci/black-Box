@@ -3,13 +3,11 @@ import { prisma } from '@/lib/db'
 import { runBootstrap } from '../../database/bootstrap'
 import { resetEnvCache } from '@/config/env'
 import { setTestEnv } from '../helpers/env'
+import { cleanupAllFixtures } from '../helpers/db'
 
 describe('bootstrap', () => {
   afterEach(async () => {
-    await prisma.session.deleteMany()
-    await prisma.organizationMembership.deleteMany()
-    await prisma.user.deleteMany()
-    await prisma.organization.deleteMany()
+    await cleanupAllFixtures()
   })
 
   it('is idempotent', async () => {
