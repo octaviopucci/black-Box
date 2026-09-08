@@ -2,7 +2,8 @@ import { z } from 'zod'
 
 export const updateStageSchema = z
   .object({
-    name: z.string().min(1).max(120).optional(),
+    name: z.string().trim().min(1).max(120).optional(),
+    description: z.string().max(500).optional().nullable(),
     position: z.coerce.number().int().min(0).optional(),
   })
   .strict()

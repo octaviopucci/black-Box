@@ -261,6 +261,7 @@ model Pipeline {
   name           String
   description    String?
   isDefault      Boolean  @default(false) @map("is_default")
+  isActive       Boolean  @default(true) @map("is_active")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
@@ -277,6 +278,7 @@ model PipelineStage {
   pipelineId     String   @map("pipeline_id") @db.Uuid
   organizationId String   @map("organization_id") @db.Uuid
   name           String
+  description    String?
   position       Int
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")

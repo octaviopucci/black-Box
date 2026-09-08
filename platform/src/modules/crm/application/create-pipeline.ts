@@ -18,6 +18,7 @@ export async function createPipeline(ctx: AuthorizationContext, input: CreatePip
       name: input.name.trim(),
       description: input.description?.trim(),
       isDefault: input.isDefault ?? false,
+      isActive: input.isActive ?? true,
     },
     include: { stages: { orderBy: { position: 'asc' } } },
   })
@@ -60,6 +61,7 @@ export async function updatePipeline(
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),
       ...(input.description !== undefined ? { description: input.description?.trim() ?? null } : {}),
       ...(input.isDefault !== undefined ? { isDefault: input.isDefault } : {}),
+      ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
     },
     include: { stages: { orderBy: { position: 'asc' } } },
   })

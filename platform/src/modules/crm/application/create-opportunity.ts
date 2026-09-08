@@ -32,7 +32,7 @@ export async function createOpportunity(
     throw validationError('Pipeline and stage are required')
   }
 
-  await assertPipelineInOrg(ctx, pipelineId)
+  await assertPipelineInOrg(ctx, pipelineId, { requireActive: true })
   await assertStageInPipeline(ctx, stageId, pipelineId)
 
   const partnerId = input.partnerId ?? lead.partnerId ?? null

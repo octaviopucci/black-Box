@@ -592,4 +592,162 @@ describe('CRM RBAC', () => {
     const res = await listOpportunitiesGet(new Request('http://localhost/api/crm/opportunities'))
     expect(res.status).toBe(401)
   })
+
+  it('returns 403 without CRM permissions', async () => {
+    const { org } = await createOrganizationWithRbac('Org No Perm', `org-crm-noperm-${Date.now()}`)
+    const { user } = await createUserWithMembership(
+      org.id,
+      `noperm-${Date.now()}@test.local`,
+      'No Role',
+    )
+    const token = await loginSession(user.id, org.id)
+    const headers = cookieHeader(token)
+
+    expect((await listOpportunitiesGet(new Request('http://localhost/api/crm/opportunities', { headers }))).status).toBe(403)
+    expect(
+      (
+        await createOpportunityPost(
+          new Request('http://localhost/api/crm/opportunities', {
+            method: 'POST',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ leadId: '00000000-0000-4000-8000-000000000099', title: 'X' }),
+          }),
+        )
+      ).status,
+    ).toBe(403)
+    expect((await listPipelinesGet(new Request('http://localhost/api/crm/pipelines', { headers }))).status).toBe(403)
+  })
+})
+
+describe('CRM history immutability', () => {
+  beforeEach(setupEnv)
+  afterEach(async () => {
+    clearAuthorizationCacheForTests()
+    await cleanupCrmFixtures()
+  })
+
+  it('appends history on move and preserves prior records', async () => {
+    const { org } = await createOrganizationWithRbac('Org Hist', `org-crm-hist-${Date.now()}`)
+    const { pipelineId, stages } = await ensurePipeline(org.id)
+    const lead = await createLeadDirect(org.id, { name: 'Hist Lead' })
+    const opp = await createOpportunityDirect(org.id, {
+      leadId: lead.id,
+      pipelineId,
+      stageId: stages[0]!.id,
+      title: 'Hist Opp',
+    })
+
+    const token = await adminToken(org.id, 'admin-hist')
+    const headers = { ...cookieHeader(token), 'Content-Type': 'application/json' }
+    const ctx = { params: Promise.resolve({ id: opp.id }) }
+
+    const before = await prisma.opportunityStageHistory.count({ where: { opportunityId: opp.id } })
+
+    await moveOpportunityPost(
+      new Request(`http://localhost/api/crm/opportunities/${opp.id}/move`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ stageId: stages[1]!.id }),
+      }),
+      ctx,
+    )
+
+    await moveOpportunityPost(
+      new Request(`http://localhost/api/crm/opportunities/${opp.id}/move`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ stageId: stages[2]!.id }),
+      }),
+      ctx,
+    )
+
+    const after = await prisma.opportunityStageHistory.findMany({
+      where: { opportunityId: opp.id },
+      orderBy: { createdAt: 'asc' },
+    })
+    expect(after.length).toBe(before + 2)
+    expect(after[after.length - 1]?.toStageId).toBe(stages[2]!.id)
+  })
+
+  it('does not create history when moving to same stage', async () => {
+    const { org } = await createOrganizationWithRbac('Org Same', `org-crm-same-${Date.now()}`)
+    const { pipelineId, stages } = await ensurePipeline(org.id)
+    const lead = await createLeadDirect(org.id, { name: 'Same Lead' })
+    const opp = await createOpportunityDirect(org.id, {
+      leadId: lead.id,
+      pipelineId,
+      stageId: stages[0]!.id,
+      title: 'Same Opp',
+    })
+
+    const countBefore = await prisma.opportunityStageHistory.count({ where: { opportunityId: opp.id } })
+    const token = await adminToken(org.id, 'admin-same')
+
+    await moveOpportunityPost(
+      new Request(`http://localhost/api/crm/opportunities/${opp.id}/move`, {
+        method: 'POST',
+        headers: { ...cookieHeader(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stageId: stages[0]!.id }),
+      }),
+      { params: Promise.resolve({ id: opp.id }) },
+    )
+
+    const countAfter = await prisma.opportunityStageHistory.count({ where: { opportunityId: opp.id } })
+    expect(countAfter).toBe(countBefore)
+  })
+})
+
+describe('CRM inactive pipeline', () => {
+  beforeEach(setupEnv)
+  afterEach(async () => {
+    clearAuthorizationCacheForTests()
+    await cleanupCrmFixtures()
+  })
+
+  it('rejects new opportunity on inactive pipeline', async () => {
+    const { org } = await createOrganizationWithRbac('Org Inactive', `org-crm-inactive-${Date.now()}`)
+    const { pipelineId, stages } = await ensurePipeline(org.id)
+    await prisma.pipeline.update({ where: { id: pipelineId }, data: { isActive: false } })
+    const lead = await createLeadDirect(org.id, { name: 'Inactive Lead' })
+    const token = await adminToken(org.id, 'admin-inactive')
+
+    const res = await createOpportunityPost(
+      new Request('http://localhost/api/crm/opportunities', {
+        method: 'POST',
+        headers: { ...cookieHeader(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          leadId: lead.id,
+          pipelineId,
+          stageId: stages[0]!.id,
+          title: 'Should Fail',
+        }),
+      }),
+    )
+    expect(res.status).toBe(400)
+  })
+})
+
+describe('CRM pipeline tenant isolation', () => {
+  beforeEach(setupEnv)
+  afterEach(async () => {
+    clearAuthorizationCacheForTests()
+    await cleanupCrmFixtures()
+  })
+
+  it('denies cross-tenant pipeline access', async () => {
+    const { org: orgA } = await createOrganizationWithRbac('Org Pipe A', `org-pipe-a-${Date.now()}`)
+    const { org: orgB } = await createOrganizationWithRbac('Org Pipe B', `org-pipe-b-${Date.now()}`)
+    const { pipelineId } = await ensurePipeline(orgB.id)
+
+    const token = await adminToken(orgA.id, 'admin-pipe-iso')
+    const res = await updatePipelinePatch(
+      new Request(`http://localhost/api/crm/pipelines/${pipelineId}`, {
+        method: 'PATCH',
+        headers: { ...cookieHeader(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Hacked' }),
+      }),
+      { params: Promise.resolve({ id: pipelineId }) },
+    )
+    expect(res.status).toBe(404)
+  })
 })

@@ -30,6 +30,7 @@ export async function ensureDefaultPipelineForOrganization(
       name: 'Pipeline Comercial',
       description: 'Pipeline padrão da organização',
       isDefault: true,
+      isActive: true,
       stages: {
         create: DEFAULT_STAGES.map((name, index) => ({
           organizationId,

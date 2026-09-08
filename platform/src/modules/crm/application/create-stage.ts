@@ -17,6 +17,7 @@ export async function createStage(
       organizationId: ctx.organization.id,
       pipelineId,
       name: input.name.trim(),
+      description: input.description?.trim(),
       position: input.position,
     },
   })
@@ -41,6 +42,7 @@ export async function updateStage(
     where: { id: stageId },
     data: {
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),
+      ...(input.description !== undefined ? { description: input.description?.trim() ?? null } : {}),
       ...(input.position !== undefined ? { position: input.position } : {}),
     },
   })

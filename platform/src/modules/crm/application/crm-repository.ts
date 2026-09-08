@@ -59,12 +59,19 @@ export async function assertPartnerInOrg(ctx: AuthorizationContext, partnerId: s
   return partner
 }
 
-export async function assertPipelineInOrg(ctx: AuthorizationContext, pipelineId: string) {
+export async function assertPipelineInOrg(
+  ctx: AuthorizationContext,
+  pipelineId: string,
+  options?: { requireActive?: boolean },
+) {
   const pipeline = await prisma.pipeline.findFirst({
     where: { id: pipelineId, organizationId: ctx.organization.id },
     include: { stages: { orderBy: { position: 'asc' } } },
   })
   if (!pipeline) throw validationError('Pipeline not found in this organization')
+  if (options?.requireActive && !pipeline.isActive) {
+    throw validationError('Pipeline is inactive and cannot accept new opportunities')
+  }
   return pipeline
 }
 

@@ -6,7 +6,7 @@ import { Button, Card } from '@/components/ui/primitives'
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/states'
 
 type Stage = { id: string; name: string; position: number }
-type Pipeline = { id: string; name: string; isDefault: boolean; stages: Stage[] }
+type Pipeline = { id: string; name: string; isDefault: boolean; isActive?: boolean; stages: Stage[] }
 
 type Opportunity = {
   id: string
@@ -143,6 +143,9 @@ export function CrmPageClient({ canCreate, canMove }: CrmPageClientProps) {
               <Button>Nova oportunidade</Button>
             </Link>
           ) : null}
+          <Link href="/app/crm/pipelines">
+            <Button variant="secondary">Configurar pipeline</Button>
+          </Link>
         </div>
       </div>
 
@@ -210,6 +213,9 @@ export function CrmPageClient({ canCreate, canMove }: CrmPageClientProps) {
                       <Link href={`/app/crm/opportunities/${opp.id}`} className="block">
                         <h3 className="font-medium text-zinc-100">{opp.title}</h3>
                         <p className="mt-1 text-xs text-zinc-400">{opp.lead?.name ?? '—'}</p>
+                        {opp.lead?.companyName ? (
+                          <p className="text-xs text-zinc-500">{opp.lead.companyName}</p>
+                        ) : null}
                         {opp.partner ? (
                           <p className="text-xs text-zinc-500">Parceiro: {opp.partner.name}</p>
                         ) : null}
