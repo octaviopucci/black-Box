@@ -1,12 +1,21 @@
 export type ErrorCode =
   | 'VALIDATION_ERROR'
   | 'UNAUTHORIZED'
+  | 'UNAUTHENTICATED'
+  | 'INVALID_CREDENTIALS'
   | 'FORBIDDEN'
+  | 'INACTIVE_USER'
+  | 'INACTIVE_MEMBERSHIP'
   | 'NOT_FOUND'
+  | 'ORGANIZATION_NOT_FOUND'
   | 'CONFLICT'
+  | 'EMAIL_ALREADY_EXISTS'
+  | 'SLUG_ALREADY_EXISTS'
+  | 'MEMBERSHIP_ALREADY_EXISTS'
   | 'UNPROCESSABLE_ENTITY'
   | 'INTERNAL_ERROR'
   | 'SERVICE_UNAVAILABLE'
+  | 'TOO_MANY_REQUESTS'
 
 export class AppError extends Error {
   readonly code: ErrorCode
@@ -40,8 +49,56 @@ export function validationError(message: string, details?: Record<string, unknow
   })
 }
 
+export function invalidCredentialsError(message = 'Invalid credentials') {
+  return new AppError({
+    code: 'INVALID_CREDENTIALS',
+    message,
+    status: 401,
+  })
+}
+
+export function unauthenticatedError(message = 'Authentication required') {
+  return new AppError({
+    code: 'UNAUTHENTICATED',
+    message,
+    status: 401,
+  })
+}
+
+export function inactiveUserError(message = 'User account is inactive') {
+  return new AppError({
+    code: 'INACTIVE_USER',
+    message,
+    status: 403,
+  })
+}
+
+export function inactiveMembershipError(message = 'Organization membership is inactive') {
+  return new AppError({
+    code: 'INACTIVE_MEMBERSHIP',
+    message,
+    status: 403,
+  })
+}
+
 export function notFoundError(message = 'Resource not found') {
   return new AppError({ code: 'NOT_FOUND', message, status: 404 })
+}
+
+export function organizationNotFoundError(message = 'Organization not found') {
+  return new AppError({ code: 'ORGANIZATION_NOT_FOUND', message, status: 404 })
+}
+
+export function forbiddenError(message = 'Forbidden') {
+  return new AppError({ code: 'FORBIDDEN', message, status: 403 })
+}
+
+export function conflictError(code: Extract<ErrorCode, 'EMAIL_ALREADY_EXISTS' | 'SLUG_ALREADY_EXISTS' | 'MEMBERSHIP_ALREADY_EXISTS'>, message: string) {
+  return new AppError({ code, message, status: 409 })
+}
+
+export function tooManyRequestsError(message = 'Too many attempts. Try again later.') {
+  return new AppError({ code: 'TOO_MANY_REQUESTS', message, status: 429 })
 }
 
 export function internalError(message = 'Internal server error', cause?: unknown) {
@@ -91,6 +148,8 @@ const SENSITIVE_PATTERNS = [
   /token/i,
   /DATABASE_URL/i,
   /api[_-]?key/i,
+  /passwordHash/i,
+  /password_hash/i,
 ]
 
 export function sanitizeForClient(value: unknown): unknown {

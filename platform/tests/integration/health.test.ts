@@ -15,6 +15,7 @@ describe('GET /api/health', () => {
         'postgresql://blackbox:blackbox@localhost:5432/blackbox_platform?schema=public',
       NODE_ENV: 'test',
       LOG_LEVEL: 'error',
+      AUTH_SECRET: 'test-auth-secret-with-at-least-32-characters',
     })
 
     const response = await GET(new Request('http://localhost/api/health'))

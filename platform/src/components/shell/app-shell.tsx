@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { label: 'Home', href: '/', enabled: true },
+  { label: 'Sign in', href: '/login', enabled: true },
   { label: 'Dashboard', href: '#', enabled: false, note: 'Mission 12' },
   { label: 'Opportunities', href: '#', enabled: false, note: 'Mission 05–06' },
   { label: 'Products', href: '#', enabled: false, note: 'Mission 07' },
@@ -26,7 +27,7 @@ export function AppHeader() {
           </div>
         </div>
         <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
-          Mission 01
+          Mission 02
         </span>
       </div>
     </header>

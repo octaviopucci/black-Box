@@ -7,5 +7,79 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Business entities (Organization, User, Lead, Sale, etc.) are added
-// in missions 02+. See docs/black-box-platform/SPECIFICATION.md
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum OrganizationStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  memberships OrganizationMembership[]
+  sessions    Session[]
+
+  @@map("users")
+}
+
+model Organization {
+  id        String             @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String             @unique
+  status    OrganizationStatus @default(ACTIVE)
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  memberships        OrganizationMembership[]
+  activeSessions     Session[] @relation("ActiveOrganization")
+
+  @@map("organizations")
+}
+
+model OrganizationMembership {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId         String           @map("user_id") @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  status         MembershipStatus @default(ACTIVE)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+  @@map("organization_memberships")
+}
+
+model Session {
+  id                   String    @id @default(uuid()) @db.Uuid
+  userId               String    @map("user_id") @db.Uuid
+  tokenHash            String    @unique @map("token_hash")
+  activeOrganizationId String?   @map("active_organization_id") @db.Uuid
+  expiresAt            DateTime  @map("expires_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganization Organization? @relation("ActiveOrganization", fields: [activeOrganizationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}

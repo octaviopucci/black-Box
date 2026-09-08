@@ -17,10 +17,12 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:seed": "tsx database/seeds/index.ts",
+    "db:bootstrap": "tsx database/bootstrap.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
+    "argon2": "^0.45.1",
     "next": "15.5.22",
     "react": "19.1.0",
     "react-dom": "19.1.0",

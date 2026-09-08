@@ -1,6 +1,6 @@
 # Black Box Platform
 
-Revenue Operating System for commercial partners — modular monolith foundation (Mission 01).
+Revenue Operating System for commercial partners — modular monolith (Missions 01–02).
 
 ## Requirements
 
@@ -13,22 +13,31 @@ Revenue Operating System for commercial partners — modular monolith foundation
 ```bash
 cd platform
 cp .env.example .env
-# Edit DATABASE_URL in .env
+# Set DATABASE_URL and AUTH_SECRET (min 32 chars)
 
 npm install --legacy-peer-deps
 npm run db:migrate:deploy
+npm run db:bootstrap
 npm run dev
 ```
 
-Open http://localhost:3001 — the home page shows live health status from `GET /api/health`.
+Open http://localhost:3001 → **Sign in** → `/login` with bootstrap credentials from `.env`.
+
+Default bootstrap (`.env.example`):
+
+- Email: `admin@blackbox.local`
+- Password: value of `BOOTSTRAP_USER_PASSWORD`
 
 ## Environment variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DATABASE_URL` | yes | PostgreSQL connection string |
-| `NODE_ENV` | no | `development` \| `test` \| `production` (default: `development`) |
-| `LOG_LEVEL` | no | `debug` \| `info` \| `warn` \| `error` (default: `info`) |
+| `AUTH_SECRET` | yes | Min 32 characters |
+| `NODE_ENV` | no | `development` \| `test` \| `production` |
+| `LOG_LEVEL` | no | `debug` \| `info` \| `warn` \| `error` |
+| `SESSION_MAX_AGE_SECONDS` | no | Session TTL (default 7 days) |
+| `BOOTSTRAP_*` | for bootstrap | Initial org + user (see `.env.example`) |
 
 Configuration is centralized in `src/config/env.ts` — do not read `process.env` directly in application code.
 
@@ -45,7 +54,8 @@ Configuration is centralized in `src/config/env.ts` — do not read `process.env
 | `npm run db:migrate` | Create/apply migrations (dev) |
 | `npm run db:migrate:deploy` | Apply migrations (CI/prod) |
 | `npm run db:generate` | Regenerate Prisma client |
-| `npm run db:seed` | Run seed (no-op in Mission 01) |
+| `npm run db:seed` | Run seed (no-op) |
+| `npm run db:bootstrap` | Create initial org + user (idempotent) |
 
 From monorepo root:
 
@@ -54,6 +64,23 @@ npm run dev:platform
 npm run build:platform
 npm run test:platform
 ```
+
+## Authentication (Mission 02)
+
+- **Login:** `POST /api/auth/login` — sets httpOnly session cookie
+- **Logout:** `POST /api/auth/logout`
+- **Current identity:** `GET /api/auth/me`
+- **Active organization:** `GET /api/organizations/current`
+- **Select organization:** `POST /api/organizations/select` (multi-membership)
+
+Server helpers (`src/lib/auth/context.ts`):
+
+- `getCurrentUser()` / `getCurrentOrganization()`
+- `requireAuthenticatedUser()` / `requireActiveOrganization()`
+
+**No RBAC in Mission 02** — authorization arrives in Mission 03.
+
+Protected routes: `/app/*` (middleware + server layout).
 
 ## Architecture
 
@@ -118,9 +145,9 @@ Response includes application and database connectivity checks.
 
 ## Mission status
 
-**Mission 01 — Foundation** complete.
-
-Next: **Mission 02 — Auth + Organization** (see `docs/black-box-platform/MISSIONS.md`).
+- **Mission 01 — Foundation** ✓
+- **Mission 02 — Auth + Organization** ✓
+- **Next:** Mission 03 — RBAC + Authorization
 
 ## Related docs
 
