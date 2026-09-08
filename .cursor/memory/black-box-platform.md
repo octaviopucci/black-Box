@@ -35,6 +35,10 @@ Lead≠Customer, Product≠Offer, Sale≠Payment, Sale≠Commission, CRM≠Produ
 
 Este repo (`black-box`) hoje = portal + demos clientes. A plataforma descrita é produto separado — implementar em missões futuras, possivelmente em `platform/` ou repo próprio.
 
+## Grafo de missões
+
+01→02→03→04 sequencial. Após 04: trilhas **05→06** (comercial) e **07** (catálogo) em paralelo → convergem em **08 Sales**.
+
 ## Primeira missão recomendada
 
 Missão 01 — Fundação técnica (projeto, banco, migrations, módulos).
