@@ -6,6 +6,8 @@ export async function cleanupAllFixtures(): Promise<void> {
   await prisma.rolePermission.deleteMany()
   await prisma.role.deleteMany()
   await prisma.permission.deleteMany()
+  await prisma.offer.deleteMany()
+  await prisma.product.deleteMany()
   await prisma.partner.deleteMany()
   await prisma.session.deleteMany()
   await prisma.organizationMembership.deleteMany()

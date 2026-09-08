@@ -33,6 +33,12 @@ enum PartnerStatus {
   INACTIVE
 }
 
+enum CatalogStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   id           String     @id @default(uuid()) @db.Uuid
   email        String     @unique
@@ -61,6 +67,8 @@ model Organization {
   activeSessions Session[]              @relation("ActiveOrganization")
   roles          Role[]
   partners       Partner[]
+  products       Product[]
+  offers         Offer[]
 
   @@map("organizations")
 }
@@ -183,4 +191,48 @@ model Partner {
   @@index([organizationId])
   @@index([status])
   @@map("partners")
+}
+
+model Product {
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  name           String
+  slug           String
+  description    String?
+  category       String?
+  status         CatalogStatus  @default(DRAFT)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  offers       Offer[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([status])
+  @@index([category])
+  @@map("products")
+}
+
+model Offer {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String        @map("organization_id") @db.Uuid
+  productId      String        @map("product_id") @db.Uuid
+  name           String
+  slug           String
+  description    String?
+  price          Decimal       @db.Decimal(15, 2)
+  currency       String        @default("BRL")
+  status         CatalogStatus @default(DRAFT)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([productId])
+  @@index([status])
+  @@map("offers")
 }

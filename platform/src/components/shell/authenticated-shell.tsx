@@ -60,6 +60,9 @@ export function AuthenticatedShell({ user, organization, children }: Authenticat
           <Link href="/app/partners" className={navClass('/app/partners')}>
             Partners
           </Link>
+          <Link href="/app/products" className={navClass('/app/products')}>
+            Products
+          </Link>
           <span className="cursor-not-allowed whitespace-nowrap rounded-md px-3 py-1.5 text-sm text-zinc-500" title="Mission 12">
             Dashboard
           </span>
