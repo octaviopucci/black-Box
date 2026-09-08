@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/primitives'
 import type { SafeOrganization, SafeUser } from '@/lib/auth/context'
 
@@ -13,11 +13,19 @@ type AuthenticatedShellProps = {
 
 export function AuthenticatedShell({ user, organization, children }: AuthenticatedShellProps) {
   const router = useRouter()
+  const pathname = usePathname()
 
   async function onLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
     router.replace('/login')
     router.refresh()
+  }
+
+  function navClass(href: string) {
+    const active = href === '/app' ? pathname === '/app' : pathname.startsWith(href)
+    return active
+      ? 'rounded-md bg-zinc-100 px-3 py-1.5 text-sm text-zinc-950'
+      : 'rounded-md px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-900'
   }
 
   return (
@@ -46,8 +54,11 @@ export function AuthenticatedShell({ user, organization, children }: Authenticat
 
       <nav aria-label="Primary" className="border-b border-zinc-800 bg-zinc-950">
         <div className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 py-2 sm:px-6">
-          <Link href="/app" className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm text-zinc-950">
+          <Link href="/app" className={navClass('/app')}>
             Home
+          </Link>
+          <Link href="/app/partners" className={navClass('/app/partners')}>
+            Partners
           </Link>
           <span className="cursor-not-allowed whitespace-nowrap rounded-md px-3 py-1.5 text-sm text-zinc-500" title="Mission 12">
             Dashboard

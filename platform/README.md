@@ -1,6 +1,6 @@
 # Black Box Platform
 
-Revenue Operating System for commercial partners — modular monolith (Missions 01–03).
+Revenue Operating System for commercial partners — modular monolith (Missions 01–04).
 
 ## Requirements
 
@@ -135,6 +135,38 @@ Bootstrap assigns `admin` to the bootstrap user.
 
 Protected routes: `/app/*` (middleware + server layout).
 
+## Partners (Mission 04)
+
+Commercial partner entity — separate from User identity.
+
+### Model
+
+```
+Organization → Partner (optional User link)
+Status: PENDING | ACTIVE | INACTIVE
+```
+
+### API
+
+| Method | Route | Permission |
+|--------|-------|------------|
+| GET | `/api/partners` | `partner.read` |
+| POST | `/api/partners` | `partner.create` |
+| GET | `/api/partners/:id` | `partner.read` |
+| PATCH | `/api/partners/:id` | `partner.update` |
+| POST | `/api/partners/:id/activate` | `partner.activate` |
+| POST | `/api/partners/:id/deactivate` | `partner.activate` |
+
+Tenant is always derived from session — never from request payload.
+
+### Frontend
+
+- `/app/partners` — list (cards on mobile)
+- `/app/partners/new` — create
+- `/app/partners/[id]` — detail + edit + activate/deactivate
+
+UI hides actions without permission; authorization is enforced server-side.
+
 ## Architecture
 
 ```
@@ -201,7 +233,8 @@ Response includes application and database connectivity checks.
 - **Mission 01 — Foundation** ✓
 - **Mission 02 — Auth + Organization** ✓
 - **Mission 03 — RBAC + Authorization** ✓
-- **Next:** Mission 04 — Partners
+- **Mission 04 — Partners** ✓
+- **Next:** Mission 05 — Leads (parallel with 07 after 04)
 
 ## Related docs
 

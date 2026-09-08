@@ -78,7 +78,7 @@ Detalhe: [DECISIONS.md](./DECISIONS.md) · Spec completa: [SPECIFICATION.md](./S
       ↓                  │                         │
 03 RBAC ✓                  │                         │
       ↓                  │                         │
-04 Partners ─────────────┤                         ├──→ 08 Sales + Customer
+04 Partners ✓ ───────────┤                         ├──→ 08 Sales + Customer
                          │                         │
                          └── 07 Products + Offers ─┘
                                       ↓
@@ -103,8 +103,9 @@ Detalhe: [MISSIONS.md](./MISSIONS.md)
 |--------|------|--------|-----|
 | 01 | Fundação técnica | ✅ Completa | [#146](https://github.com/octaviopucci/black-Box/pull/146) |
 | 02 | Auth + Organization | ✅ Completa | [#147](https://github.com/octaviopucci/black-Box/pull/147) |
-| 03 | RBAC + Authorization | ✅ Completa | — |
-| 04–15 | Partners → Hardening | ⏳ Pendente | — |
+| 03 | RBAC + Authorization | ✅ Completa | [#148](https://github.com/octaviopucci/black-Box/pull/148) |
+| 04 | Partners | ✅ Completa | — |
+| 05–15 | Leads → Hardening | ⏳ Pendente | — |
 
 Briefs entregues: [01-fundacao.md](./missions/01-fundacao.md) · [02-auth-organization.md](./missions/02-auth-organization.md) · [03-rbac-authorization.md](./missions/03-rbac-authorization.md) · [03-rbac-resumo.md](./missions/03-rbac-resumo.md)
 
@@ -247,7 +248,34 @@ npm run db:bootstrap   # idempotente — org + user + membership + roles + permi
 
 ---
 
-## 9. Estrutura de código (`platform/`)
+## 9. Missão 04 — Partners (entregue)
+
+**Objetivo:** primeira entidade de negócio — parceiro comercial tenant-scoped, separado de User.
+
+### Modelo
+
+```
+Organization → Partner (userId opcional)
+Status: PENDING | ACTIVE | INACTIVE
+```
+
+### API
+
+| Método | Rota | Permission |
+|--------|------|------------|
+| GET | `/api/partners` | `partner.read` |
+| POST | `/api/partners` | `partner.create` |
+| GET/PATCH | `/api/partners/:id` | `partner.read` / `partner.update` |
+| POST | `/api/partners/:id/activate` | `partner.activate` |
+| POST | `/api/partners/:id/deactivate` | `partner.activate` |
+
+### Frontend
+
+`/app/partners` · `/app/partners/new` · `/app/partners/[id]`
+
+---
+
+## 10. Estrutura de código (`platform/`)
 
 ```
 platform/
@@ -259,9 +287,10 @@ platform/
 │   │   ├── api/auth/             # login, logout, me
 │   │   ├── api/authorization/    # roles, permissions
 │   │   ├── api/organizations/    # current, select, membership roles
+│   │   ├── api/partners/         # partners CRUD + lifecycle
 │   │   ├── api/health/
 │   │   ├── login/
-│   │   └── (authenticated)/app/  # área protegida
+│   │   └── (authenticated)/app/  # área protegida + /partners
 │   ├── config/env.ts
 │   ├── lib/
 │   │   ├── auth/                 # context, cookies, constants
@@ -272,14 +301,15 @@ platform/
 │   │   ├── auth/                 # domain, application, infrastructure
 │   │   ├── organization/
 │   │   ├── authorization/        # RBAC seed, role service
+│   │   ├── partners/             # partner domain + service
 │   │   └── foundation/
 │   └── middleware.ts
-└── tests/                        # 36 testes (unit + integration + authorization)
+└── tests/                        # 50 testes (unit + integration + auth + partners)
 ```
 
 ---
 
-## 10. Como rodar localmente
+## 11. Como rodar localmente
 
 ```bash
 cd platform
@@ -326,7 +356,7 @@ npm run build:platform
 |---------|--------|
 | `npm run dev` | Dev server (:3001) |
 | `npm run build` | Build produção |
-| `npm run test` | 36 testes Vitest |
+| `npm run test` | 50 testes Vitest |
 | `npm run typecheck` | TypeScript |
 | `npm run lint` | ESLint |
 | `npm run db:migrate:deploy` | Aplicar migrations |
@@ -349,7 +379,7 @@ ADMIN cadastra/ativa PARCEIRO
   → PARCEIRO acompanha venda, comissão e projeto
 ```
 
-**Hoje:** fundação + identidade/tenant + RBAC centralizado. O fluxo acima depende das Missões 04–15.
+**Hoje:** fundação + identidade/tenant + RBAC + módulo Partners. O fluxo comercial completo depende das Missões 05–15.
 
 ---
 
@@ -379,8 +409,8 @@ BUSINESS OPERATIONS        ← Missões 04–15 ⏳
 
 | Prioridade | Missão | Escopo |
 |------------|--------|--------|
-| **1** | 04 — Partners | Cadastro, ativação, produtos autorizados |
-| **2** | 05–07 (paralelo) | Leads/CRM **e** Products/Offers |
+| **1** | 05 — Leads (paralelo 07) | Captura e gestão inicial de leads |
+| **2** | 06 — CRM | Pipeline comercial |
 | **3** | 08+ | Sales → Hardening |
 
 Antes de implementar: copiar [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) → `missions/NN-slug.md`.
@@ -406,11 +436,12 @@ Antes de implementar: copiar [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) → `m
 
 ## 17. Testes (estado atual)
 
-**36 testes passando** em `platform/tests/`:
+**50 testes passando** em `platform/tests/`:
 
-- Unitários: env, errors, email, slug, password (Argon2id), permission catalog
-- Integração: health, migration, auth (login/logout/me), bootstrap idempotente + RBAC
+- Unitários: env, errors, email, slug, password, permission catalog, partner status
+- Integração: health, migration, auth, bootstrap RBAC
 - Autorização: gates, tenant isolation, privilege escalation
+- Partners: CRUD, RBAC, IDOR, user association, status transitions
 
 ```bash
 cd platform && npm run test
@@ -420,7 +451,7 @@ cd platform && npm run test
 
 ## 18. O que explicitamente NÃO existe ainda
 
-- Partner, Lead, CRM, Product, Sale, Commission
+- Lead, CRM, Product, Sale, Commission
 - Brief, Project, Dashboard funcional
 - Notificações, AuditLog
 - Gateway, checkout, WhatsApp, IA

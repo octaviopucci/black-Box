@@ -27,6 +27,12 @@ enum RoleStatus {
   INACTIVE
 }
 
+enum PartnerStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   id           String     @id @default(uuid()) @db.Uuid
   email        String     @unique
@@ -38,6 +44,7 @@ model User {
 
   memberships OrganizationMembership[]
   sessions    Session[]
+  partners    Partner[]
 
   @@map("users")
 }
@@ -53,6 +60,7 @@ model Organization {
   memberships    OrganizationMembership[]
   activeSessions Session[]              @relation("ActiveOrganization")
   roles          Role[]
+  partners       Partner[]
 
   @@map("organizations")
 }
@@ -151,4 +159,28 @@ model MembershipRole {
   @@index([membershipId])
   @@index([roleId])
   @@map("membership_roles")
+}
+
+model Partner {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String        @map("organization_id") @db.Uuid
+  userId         String?       @map("user_id") @db.Uuid
+  name           String
+  legalName      String?       @map("legal_name")
+  document       String?
+  email          String?
+  phone          String?
+  status         PartnerStatus @default(PENDING)
+  notes          String?
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, userId])
+  @@unique([organizationId, document])
+  @@index([organizationId])
+  @@index([status])
+  @@map("partners")
 }
