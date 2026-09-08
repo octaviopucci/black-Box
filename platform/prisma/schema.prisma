@@ -39,6 +39,18 @@ enum CatalogStatus {
   INACTIVE
 }
 
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SaleStatus {
+  DRAFT
+  PENDING_PAYMENT
+  PAID
+  CANCELED
+}
+
 model User {
   id           String     @id @default(uuid()) @db.Uuid
   email        String     @unique
@@ -48,9 +60,13 @@ model User {
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
 
-  memberships OrganizationMembership[]
-  sessions    Session[]
-  partners    Partner[]
+  memberships               OrganizationMembership[]
+  sessions                  Session[]
+  partners                  Partner[]
+  leadInteractions          LeadInteraction[]
+  opportunityStageHistories OpportunityStageHistory[]
+  crmInteractions           CrmInteraction[]
+  salesPaid                 Sale[]                    @relation("SalePaidBy")
 
   @@map("users")
 }
@@ -63,12 +79,17 @@ model Organization {
   createdAt DateTime           @default(now()) @map("created_at")
   updatedAt DateTime           @updatedAt @map("updated_at")
 
-  memberships    OrganizationMembership[]
+  memberships   OrganizationMembership[]
   activeSessions Session[]              @relation("ActiveOrganization")
   roles          Role[]
   partners       Partner[]
   products       Product[]
   offers         Offer[]
+  leads          Lead[]
+  pipelines      Pipeline[]
+  opportunities  Opportunity[]
+  customers      Customer[]
+  sales          Sale[]
 
   @@map("organizations")
 }
@@ -183,8 +204,12 @@ model Partner {
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  leads         Lead[]
+  opportunities Opportunity[]
+  customers     Customer[]
+  sales         Sale[]
 
   @@unique([organizationId, userId])
   @@unique([organizationId, document])
@@ -194,18 +219,19 @@ model Partner {
 }
 
 model Product {
-  id             String         @id @default(uuid()) @db.Uuid
-  organizationId String         @map("organization_id") @db.Uuid
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String        @map("organization_id") @db.Uuid
   name           String
   slug           String
   description    String?
   category       String?
-  status         CatalogStatus  @default(DRAFT)
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
+  status         CatalogStatus @default(DRAFT)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   offers       Offer[]
+  sales        Sale[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -229,10 +255,256 @@ model Offer {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   product      Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  sales        Sale[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
   @@index([productId])
   @@index([status])
   @@map("offers")
+}
+
+enum LeadInteractionType {
+  NOTE
+  CALL
+  WHATSAPP
+  EMAIL
+  MEETING
+  OTHER
+}
+
+model Lead {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  partnerId      String?  @map("partner_id") @db.Uuid
+  name           String
+  companyName    String?  @map("company_name")
+  email          String?
+  phone          String?
+  document       String?
+  notes          String?
+  source         String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization  Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  partner       Partner?           @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  interactions  LeadInteraction[]
+  opportunities Opportunity[]
+  customers     Customer[]
+  sales         Sale[]
+
+  @@index([organizationId])
+  @@index([partnerId])
+  @@index([source])
+  @@map("leads")
+}
+
+model LeadInteraction {
+  id              String              @id @default(uuid()) @db.Uuid
+  organizationId  String              @map("organization_id") @db.Uuid
+  leadId          String              @map("lead_id") @db.Uuid
+  type            LeadInteractionType
+  description     String
+  occurredAt      DateTime            @map("occurred_at")
+  createdByUserId String              @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([leadId])
+  @@map("lead_interactions")
+}
+
+enum CrmInteractionType {
+  NOTE
+  CALL
+  WHATSAPP
+  EMAIL
+  MEETING
+  PROPOSAL
+  OTHER
+}
+
+model Pipeline {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  name           String
+  description    String?
+  isDefault      Boolean  @default(false) @map("is_default")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stages        PipelineStage[]
+  opportunities Opportunity[]
+
+  @@index([organizationId])
+  @@map("pipelines")
+}
+
+model PipelineStage {
+  id             String   @id @default(uuid()) @db.Uuid
+  pipelineId     String   @map("pipeline_id") @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  name           String
+  description    String?
+  position       Int
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  pipeline      Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  opportunities Opportunity[]
+  historyFrom   OpportunityStageHistory[] @relation("FromStage")
+  historyTo     OpportunityStageHistory[] @relation("ToStage")
+
+  @@unique([pipelineId, position])
+  @@index([organizationId])
+  @@index([pipelineId])
+  @@map("pipeline_stages")
+}
+
+model Opportunity {
+  id              String    @id @default(uuid()) @db.Uuid
+  organizationId  String    @map("organization_id") @db.Uuid
+  leadId          String    @map("lead_id") @db.Uuid
+  partnerId       String?   @map("partner_id") @db.Uuid
+  pipelineId      String    @map("pipeline_id") @db.Uuid
+  stageId         String    @map("stage_id") @db.Uuid
+  title           String
+  description     String?
+  amount          Decimal?  @db.Decimal(15, 2)
+  probability     Int?
+  expectedCloseAt DateTime? @map("expected_close_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  partner      Partner?     @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  pipeline     Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Restrict)
+  stage        PipelineStage @relation(fields: [stageId], references: [id], onDelete: Restrict)
+  stageHistory OpportunityStageHistory[]
+  interactions CrmInteraction[]
+  sales        Sale[]
+
+  @@index([organizationId])
+  @@index([leadId])
+  @@index([partnerId])
+  @@index([pipelineId])
+  @@index([stageId])
+  @@map("opportunities")
+}
+
+model OpportunityStageHistory {
+  id              String   @id @default(uuid()) @db.Uuid
+  organizationId  String   @map("organization_id") @db.Uuid
+  opportunityId   String   @map("opportunity_id") @db.Uuid
+  fromStageId     String?  @map("from_stage_id") @db.Uuid
+  toStageId       String   @map("to_stage_id") @db.Uuid
+  createdByUserId String   @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  opportunity Opportunity    @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  fromStage   PipelineStage? @relation("FromStage", fields: [fromStageId], references: [id], onDelete: SetNull)
+  toStage     PipelineStage  @relation("ToStage", fields: [toStageId], references: [id], onDelete: Restrict)
+  user        User           @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([opportunityId])
+  @@map("opportunity_stage_history")
+}
+
+model CrmInteraction {
+  id              String             @id @default(uuid()) @db.Uuid
+  organizationId  String             @map("organization_id") @db.Uuid
+  opportunityId   String             @map("opportunity_id") @db.Uuid
+  type            CrmInteractionType
+  description     String
+  occurredAt      DateTime           @map("occurred_at")
+  createdByUserId String             @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime           @default(now()) @map("created_at")
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([opportunityId])
+  @@map("crm_interactions")
+}
+
+model Customer {
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  leadId         String?        @map("lead_id") @db.Uuid
+  partnerId      String?        @map("partner_id") @db.Uuid
+  name           String
+  legalName      String?        @map("legal_name")
+  document       String?
+  email          String?
+  phone          String?
+  companyName    String?        @map("company_name")
+  status         CustomerStatus @default(ACTIVE)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  partner      Partner?     @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  sales        Sale[]
+
+  @@unique([organizationId, document])
+  @@unique([organizationId, leadId])
+  @@index([organizationId])
+  @@index([partnerId])
+  @@index([status])
+  @@index([email])
+  @@map("customers")
+}
+
+model Sale {
+  id                  String     @id @default(uuid()) @db.Uuid
+  organizationId      String     @map("organization_id") @db.Uuid
+  leadId              String?    @map("lead_id") @db.Uuid
+  customerId          String     @map("customer_id") @db.Uuid
+  opportunityId       String?    @map("opportunity_id") @db.Uuid
+  partnerId           String?    @map("partner_id") @db.Uuid
+  productId           String     @map("product_id") @db.Uuid
+  offerId             String     @map("offer_id") @db.Uuid
+  status              SaleStatus @default(DRAFT)
+  productNameSnapshot String     @map("product_name_snapshot")
+  offerNameSnapshot   String     @map("offer_name_snapshot")
+  listPrice           Decimal    @map("list_price") @db.Decimal(15, 2)
+  finalPrice          Decimal    @map("final_price") @db.Decimal(15, 2)
+  currency            String     @default("BRL")
+  soldAt              DateTime?  @map("sold_at")
+  paidAt              DateTime?  @map("paid_at")
+  paidByUserId        String?    @map("paid_by_user_id") @db.Uuid
+  paymentMethod       String?    @map("payment_method")
+  paymentReference    String?    @map("payment_reference")
+  createdAt           DateTime   @default(now()) @map("created_at")
+  updatedAt           DateTime   @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  opportunity  Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  partner      Partner?     @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  product      Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  offer        Offer        @relation(fields: [offerId], references: [id], onDelete: Restrict)
+  paidBy       User?        @relation("SalePaidBy", fields: [paidByUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([leadId])
+  @@index([opportunityId])
+  @@index([partnerId])
+  @@index([offerId])
+  @@index([status])
+  @@index([soldAt])
+  @@index([paidAt])
+  @@map("sales")
 }

@@ -1,6 +1,6 @@
 # Black Box Platform
 
-Revenue Operating System for commercial partners — modular monolith (Missions 01–04).
+Revenue Operating System for commercial partners — modular monolith (Missions 01–05).
 
 ## Requirements
 
@@ -167,6 +167,27 @@ Tenant is always derived from session — never from request payload.
 
 UI hides actions without permission; authorization is enforced server-side.
 
+## Leads (Mission 05)
+
+Prospective contact entity — separate from Partner, Customer, Opportunity.
+
+### API
+
+| Method | Route | Permission |
+|--------|-------|------------|
+| GET | `/api/leads` | `lead.read` |
+| POST | `/api/leads` | `lead.create` |
+| GET/PATCH | `/api/leads/:id` | `lead.read` / `lead.update` |
+| GET/POST | `/api/leads/:id/interactions` | `lead.interaction.read` / `lead.interaction.create` |
+
+Query params: `search`, `partnerId`, `source`, `page`, `pageSize`.
+
+### Frontend
+
+- `/app/leads` — list with search/filters (table desktop, cards mobile)
+- `/app/leads/new` — create
+- `/app/leads/[id]` — detail, edit, interaction history
+
 ## Architecture
 
 ```
@@ -233,8 +254,8 @@ Response includes application and database connectivity checks.
 - **Mission 01 — Foundation** ✓
 - **Mission 02 — Auth + Organization** ✓
 - **Mission 03 — RBAC + Authorization** ✓
-- **Mission 04 — Partners** ✓
-- **Next:** Mission 05 — Leads (parallel with 07 after 04)
+- **Mission 05 — Leads** ✓
+- **Next:** Mission 06 — CRM
 
 ## Related docs
 

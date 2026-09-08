@@ -12,3 +12,9 @@ export {
   hasRole,
   requireRole,
 } from './gates'
+export {
+  resolvePartnerDataScope,
+  buildOpportunityPartnerFilter,
+  assertOpportunityInPartnerScope,
+} from './partner-scope'
+export type { PartnerDataScope } from './partner-scope'

@@ -337,7 +337,7 @@ npm run build:platform
 
 ---
 
-## 11. Variáveis de ambiente
+## 12. Variáveis de ambiente
 
 | Variável | Obrigatória | Descrição |
 |----------|-------------|-----------|
@@ -350,7 +350,7 @@ npm run build:platform
 
 ---
 
-## 12. Comandos
+## 13. Comandos
 
 | Comando | Função |
 |---------|--------|
@@ -365,7 +365,7 @@ npm run build:platform
 
 ---
 
-## 13. Fluxo end-to-end do MVP (definição de pronto)
+## 14. Fluxo end-to-end do MVP (definição de pronto)
 
 O produto só estará funcional quando este fluxo completo funcionar:
 
@@ -383,7 +383,7 @@ ADMIN cadastra/ativa PARCEIRO
 
 ---
 
-## 14. Contrato arquitetural (fluxo de request)
+## 15. Contrato arquitetural (fluxo de request)
 
 ```
 REQUEST
@@ -405,7 +405,7 @@ BUSINESS OPERATIONS        ← Missões 04–15 ⏳
 
 ---
 
-## 15. Próximos passos
+## 16. Próximos passos
 
 | Prioridade | Missão | Escopo |
 |------------|--------|--------|
@@ -417,7 +417,7 @@ Antes de implementar: copiar [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) → `m
 
 ---
 
-## 16. Índice de documentação
+## 17. Índice de documentação
 
 | Documento | Conteúdo |
 |-----------|----------|
@@ -434,7 +434,7 @@ Antes de implementar: copiar [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) → `m
 
 ---
 
-## 17. Testes (estado atual)
+## 18. Testes (estado atual)
 
 **50 testes passando** em `platform/tests/`:
 
@@ -449,7 +449,7 @@ cd platform && npm run test
 
 ---
 
-## 18. O que explicitamente NÃO existe ainda
+## 19. O que explicitamente NÃO existe ainda
 
 - Lead, CRM, Product, Sale, Commission
 - Brief, Project, Dashboard funcional
