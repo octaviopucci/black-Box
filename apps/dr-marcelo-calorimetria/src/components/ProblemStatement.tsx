@@ -1,6 +1,5 @@
-import { motion } from 'framer-motion'
+import { harrisBenedict } from '../data/harrisBenedict'
 import { problemLines, site, asset } from '../data/site'
-import { HarrisBenedictCalc } from './HarrisBenedictCalc'
 
 const vsMontage = asset(site.media.vsMontage)
 
@@ -8,24 +7,12 @@ export function ProblemStatement() {
   return (
     <section className="relative bg-paper px-6 py-28 sm:py-36">
       <div className="mx-auto max-w-4xl">
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.6 }}
-          className="eyebrow"
-        >
-          O problema
-        </motion.p>
+        <p className="eyebrow">O problema</p>
 
         <div className="mt-4 space-y-2">
-          {problemLines.map((item, i) => (
-            <motion.p
+          {problemLines.map((item) => (
+            <p
               key={item.line}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.6 }}
-              transition={{ duration: 0.6, delay: i * 0.09, ease: [0.22, 1, 0.36, 1] }}
               className={
                 item.emphasis
                   ? 'display-title text-[clamp(1.9rem,4.4vw,3.1rem)] text-ink'
@@ -33,28 +20,43 @@ export function ProblemStatement() {
               }
             >
               {item.line}
-            </motion.p>
+            </p>
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-14 overflow-hidden rounded-sm bg-ink shadow-lift"
-        >
+        <div className="mt-14 overflow-hidden rounded-sm bg-ink shadow-lift">
           <img
             src={vsMontage}
             alt="Calculadora versus analisador metabólico portátil"
             className="block w-full"
-            width={2752}
-            height={1536}
+            width={1376}
+            height={768}
             loading="lazy"
+            decoding="async"
           />
-        </motion.div>
+        </div>
 
-        <HarrisBenedictCalc />
+        <div className="mt-14 rounded-sm border border-ink/10 bg-paper-deep px-6 py-8 sm:px-8">
+          <p className="font-display text-[clamp(1.35rem,3vw,1.75rem)] leading-snug text-ink">
+            {harrisBenedict.doubt.headline}
+          </p>
+          <div className="mt-4 space-y-3 text-[15px] leading-relaxed text-mute">
+            {harrisBenedict.doubt.body.map((block, i) => (
+              <p key={i}>
+                {block.text}
+                {'emphasis' in block && block.emphasis ? (
+                  <span className="font-medium text-ink">{block.emphasis}</span>
+                ) : null}
+                {'suffix' in block ? block.suffix : null}
+                {'emphasis2' in block && block.emphasis2 ? (
+                  <span className="font-medium text-ink">{block.emphasis2}</span>
+                ) : null}
+                {'suffix2' in block ? block.suffix2 : null}
+              </p>
+            ))}
+          </div>
+          <p className="mt-5 font-display text-lg text-teal-soft">{harrisBenedict.doubt.closing}</p>
+        </div>
       </div>
     </section>
   )

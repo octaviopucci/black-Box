@@ -1,11 +1,8 @@
 import { useEffect, type RefObject } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 
 type VideoScrubOptions = {
   enabled?: boolean
+  videoSrc: string
   scrub?: number | boolean
   scrollLength?: number
 }
@@ -14,213 +11,98 @@ export function useScrollVideoScrub(
   sectionRef: RefObject<HTMLElement | null>,
   pinRef: RefObject<HTMLElement | null>,
   videoRef: RefObject<HTMLVideoElement | null>,
-  { enabled = true, scrub = 0.45, scrollLength = 2.2 }: VideoScrubOptions = {},
+  { enabled = true, videoSrc, scrub = 0.45, scrollLength = 2.2 }: VideoScrubOptions,
 ) {
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled || !videoSrc) return
 
     const section = sectionRef.current
     const pin = pinRef.current
     const video = videoRef.current
     if (!section || !pin || !video) return
 
+    let cancelled = false
+    let trigger: { kill: () => void } | undefined
+    let ctxRevert: (() => void) | undefined
+
     video.muted = true
     video.playsInline = true
-    video.pause()
-    video.load()
+    video.preload = 'auto'
 
-    let trigger: ScrollTrigger | undefined
-    let ready = false
-
-    const ctx = gsap.context(() => {
-      const bind = () => {
-        if (!video.duration || Number.isNaN(video.duration)) return
-        ready = true
-        trigger?.kill()
-
-        trigger = ScrollTrigger.create({
-          trigger: section,
-          start: 'top top',
-          end: () => `+=${window.innerHeight * scrollLength}`,
-          pin,
-          pinSpacing: true,
-          scrub,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const target = Math.min(
-              Math.max(self.progress * video.duration, 0),
-              Math.max(video.duration - 0.05, 0),
-            )
-            if (Math.abs(video.currentTime - target) > 0.025) {
-              video.currentTime = target
-            }
-          },
-        })
-
-        ScrollTrigger.refresh()
-      }
-
-      const onReady = () => {
-        video.pause()
-        video.currentTime = 0
-        bind()
-      }
-
-      if (video.readyState >= 2) onReady()
-      else video.addEventListener('loadeddata', onReady, { once: true })
-
-      const refresh = () => {
-        if (ready) ScrollTrigger.refresh()
-      }
-      window.addEventListener('load', refresh)
-      const refreshTimer = window.setTimeout(refresh, 1500)
-
-      return () => {
-        window.removeEventListener('load', refresh)
-        window.clearTimeout(refreshTimer)
-      }
-    }, section)
-
-    return () => {
-      trigger?.kill()
-      ctx.revert()
-    }
-  }, [enabled, pinRef, scrub, scrollLength, sectionRef, videoRef])
-}
-
-type FrameScrubOptions = {
-  enabled?: boolean
-  scrub?: number | boolean
-  scrollLength?: number
-  frames: string[]
-}
-
-function drawCover(
-  ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
-  width: number,
-  height: number,
-) {
-  const imageRatio = img.naturalWidth / img.naturalHeight
-  const canvasRatio = width / height
-
-  let sourceX = 0
-  let sourceY = 0
-  let sourceW = img.naturalWidth
-  let sourceH = img.naturalHeight
-
-  if (imageRatio > canvasRatio) {
-    sourceW = img.naturalHeight * canvasRatio
-    sourceX = (img.naturalWidth - sourceW) / 2
-  } else {
-    sourceH = img.naturalWidth / canvasRatio
-    sourceY = (img.naturalHeight - sourceH) / 2
-  }
-
-  ctx.drawImage(img, sourceX, sourceY, sourceW, sourceH, 0, 0, width, height)
-}
-
-export function useScrollFrameScrub(
-  sectionRef: RefObject<HTMLElement | null>,
-  pinRef: RefObject<HTMLElement | null>,
-  canvasRef: RefObject<HTMLCanvasElement | null>,
-  { enabled = true, scrub = 0.15, scrollLength = 1.8, frames }: FrameScrubOptions,
-) {
-  useEffect(() => {
-    if (!enabled || frames.length === 0) return
-
-    const section = sectionRef.current
-    const pin = pinRef.current
-    const canvas = canvasRef.current
-    if (!section || !pin || !canvas) return
-
-    const ctx = canvas.getContext('2d', { alpha: false })
-    if (!ctx) return
-
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = 'high'
-
-    let trigger: ScrollTrigger | undefined
-    let cancelled = false
-    let currentIdx = -1
-
-    const images: HTMLImageElement[] = frames.map((src) => {
-      const img = new Image()
-      img.decoding = 'async'
-      img.src = src
-      return img
-    })
-
-    const drawFrame = (idx: number) => {
-      const img = images[idx]
-      if (!img?.complete) return
-      const { width, height } = canvas.getBoundingClientRect()
-      if (canvas.width === 0 || canvas.height === 0) resizeCanvas()
-      drawCover(ctx, img, width, height)
-      currentIdx = idx
+    const start = () => {
+      if (cancelled || video.src) return
+      video.src = videoSrc
+      video.load()
     }
 
-    const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 3)
-      const { width, height } = canvas.getBoundingClientRect()
-      canvas.width = Math.round(width * dpr)
-      canvas.height = Math.round(height * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      if (currentIdx >= 0) {
-        const img = images[currentIdx]
-        if (img?.complete) drawCover(ctx, img, width, height)
-      }
-    }
+    if (document.readyState === 'complete') start()
+    else window.addEventListener('load', start, { once: true })
 
-    const bind = () => {
+    const boot = async () => {
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger'),
+      ])
       if (cancelled) return
-      trigger?.kill()
 
-      trigger = ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        end: () => `+=${window.innerHeight * scrollLength}`,
-        pin,
-        pinSpacing: true,
-        scrub,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const idx = Math.min(
-            Math.round(self.progress * (frames.length - 1)),
-            frames.length - 1,
-          )
-          if (idx !== currentIdx) drawFrame(idx)
-        },
-      })
+      gsap.registerPlugin(ScrollTrigger)
 
-      drawFrame(0)
-      ScrollTrigger.refresh()
+      const ctx = gsap.context(() => {
+        const bind = () => {
+          if (!video.duration || Number.isNaN(video.duration)) return
+          trigger?.kill()
+
+          trigger = ScrollTrigger.create({
+            trigger: section,
+            start: 'top top',
+            end: () => `+=${window.innerHeight * scrollLength}`,
+            pin,
+            pinSpacing: true,
+            scrub,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const target = Math.min(
+                Math.max(self.progress * video.duration, 0),
+                Math.max(video.duration - 0.05, 0),
+              )
+              if (Math.abs(video.currentTime - target) > 0.025) {
+                video.currentTime = target
+              }
+            },
+          })
+
+          ScrollTrigger.refresh()
+        }
+
+        const onReady = () => {
+          video.pause()
+          video.currentTime = 0
+          bind()
+        }
+
+        if (video.readyState >= 2 && video.src) onReady()
+        else video.addEventListener('loadeddata', onReady, { once: true })
+
+        const refresh = () => ScrollTrigger.refresh()
+        window.addEventListener('load', refresh)
+        const refreshTimer = window.setTimeout(refresh, 1200)
+
+        return () => {
+          window.removeEventListener('load', refresh)
+          window.clearTimeout(refreshTimer)
+        }
+      }, section)
+
+      ctxRevert = () => ctx.revert()
     }
 
-    Promise.all(
-      images.map(
-        (img) =>
-          new Promise<void>((resolve) => {
-            if (img.complete) resolve()
-            else {
-              img.onload = () => resolve()
-              img.onerror = () => resolve()
-            }
-          }),
-      ),
-    ).then(() => {
-      if (!cancelled) bind()
-    })
-
-    resizeCanvas()
-    window.addEventListener('resize', resizeCanvas)
+    void boot()
 
     return () => {
       cancelled = true
-      window.removeEventListener('resize', resizeCanvas)
       trigger?.kill()
+      ctxRevert?.()
     }
-  }, [enabled, frames, pinRef, scrub, scrollLength, sectionRef, canvasRef])
+  }, [enabled, pinRef, scrub, scrollLength, sectionRef, videoRef, videoSrc])
 }

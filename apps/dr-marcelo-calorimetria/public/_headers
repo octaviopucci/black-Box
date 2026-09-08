@@ -1,2 +1,10 @@
 /*
-  Basic-Auth: site:Site
+  Cache-Control: public, max-age=31536000, immutable
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpg
+  Cache-Control: public, max-age=604800
+/*.mp4
+  Cache-Control: public, max-age=604800

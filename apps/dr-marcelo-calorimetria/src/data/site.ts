@@ -19,13 +19,7 @@ export const site = {
   media: {
     heroVideo: 'hero-calorimetria.mp4',
     heroPoster: 'hero-calorimetria-poster.jpg',
-    scrubVideo: 'hero-calorimetria.mp4',
-    scrubPoster: 'hero-calorimetria-poster.jpg',
-    scrubMobilePoster: 'hero-calorimetria-poster.jpg',
-    scrubMobileFrameCount: 80,
-    scrubMobileFrameDir: 'hero-frames-mobile',
-    scrubDeviceOpen: 'aparelho-aberto.jpg',
-    vsMontage: 'vs-calculadora-aparelho.jpg',
+    vsMontage: 'vs-calculadora-aparelho.webp',
     devicePhoto: 'aparelho-vo2master.jpg',
     reportSample: 'laudo-graficos.jpg',
   },
@@ -172,10 +166,4 @@ export function bookingUrl() {
 export function asset(path: string) {
   const base = import.meta.env.BASE_URL
   return `${base}${path.replace(/^\//, '')}`
-}
-
-export function scrubMobileFramePaths() {
-  return Array.from({ length: site.media.scrubMobileFrameCount }, (_, i) =>
-    asset(`${site.media.scrubMobileFrameDir}/frame-${String(i + 1).padStart(3, '0')}.jpg`),
-  )
 }

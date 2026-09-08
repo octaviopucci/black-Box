@@ -18,6 +18,7 @@ export default defineConfig({
       output: {
         codeSplitting: {
           groups: [
+            { name: 'gsap', test: /node_modules[\\/](gsap)/, priority: 30 },
             { name: 'motion', test: /node_modules[\\/](framer-motion)/, priority: 20 },
             { name: 'vendor', test: /node_modules/, priority: 10 },
           ],

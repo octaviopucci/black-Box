@@ -1,15 +1,12 @@
 import { useRef } from 'react'
-import { motion } from 'framer-motion'
 import { ArrowDown } from 'lucide-react'
-import { site, bookingUrl, asset, scrubMobileFramePaths } from '../data/site'
+import { site, bookingUrl, asset } from '../data/site'
 import { useReducedMotion } from '../hooks/useReducedMotion'
-import { usePreferFrameScrub } from '../hooks/usePreferFrameScrub'
-import { useScrollFrameScrub, useScrollVideoScrub } from '../hooks/useScrollVideoScrub'
+import { useScrollVideoScrub } from '../hooks/useScrollVideoScrub'
 
 const headlineWords = site.headline.split(' ')
 const heroVideo = asset(site.media.heroVideo)
 const heroPoster = asset(site.media.heroPoster)
-const scrubFrames = scrubMobileFramePaths()
 
 function HeroOverlay() {
   return (
@@ -28,46 +25,32 @@ function HeroOverlay() {
 
 function HeroCopy() {
   return (
-    <div className="relative z-10 flex h-full flex-col justify-end px-5 pb-8 pt-28 text-paper sm:px-8 sm:pb-12 md:pb-16 lg:px-10">
+    <div className="hero-copy relative z-10 flex h-full flex-col justify-end px-5 pb-8 pt-28 text-paper sm:px-8 sm:pb-12 md:pb-16 lg:px-10">
       <div className="mx-auto w-full max-w-6xl">
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="eyebrow-light"
-        >
+        <p className="hero-fade eyebrow-light">
           <span className="h-1.5 w-1.5 rounded-full bg-teal-bright" />
           {site.specialty} · {site.crm}
-        </motion.p>
+        </p>
 
         <h1 className="display-title max-w-[14ch] text-[clamp(2.25rem,8.5vw,5.25rem)] leading-[0.96] sm:max-w-4xl">
           {headlineWords.map((word, i) => (
-            <motion.span
+            <span
               key={`${word}-${i}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.12 + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="mr-[0.28em] inline-block"
+              className="hero-fade mr-[0.28em] inline-block"
+              style={{ animationDelay: `${0.12 + i * 0.05}s` }}
             >
               {word}
-            </motion.span>
+            </span>
           ))}
         </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-5 max-w-md text-[15px] leading-relaxed text-paper/78 sm:mt-6 sm:text-lg"
-        >
+        <p className="hero-fade mt-5 max-w-md text-[15px] leading-relaxed text-paper/78 sm:mt-6 sm:text-lg" style={{ animationDelay: '0.55s' }}>
           {site.support}
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.68, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
+        <div
+          className="hero-fade mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
+          style={{ animationDelay: '0.68s' }}
         >
           <a href={bookingUrl()} target="_blank" rel="noreferrer" className="cta-solid justify-center sm:justify-start">
             Agendar exame
@@ -76,16 +59,14 @@ function HeroCopy() {
             Como funciona
             <ArrowDown className="h-4 w-4" />
           </a>
-        </motion.div>
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.1 }}
-          className="mt-8 hidden font-mono text-[10px] uppercase tracking-[0.28em] text-paper/40 sm:mt-10 sm:block"
+        <p
+          className="hero-fade mt-8 hidden font-mono text-[10px] uppercase tracking-[0.28em] text-paper/40 sm:mt-10 sm:block"
+          style={{ animationDelay: '1.1s' }}
         >
           Role para ver o analisador metabólico
-        </motion.p>
+        </p>
 
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.28em] text-paper/35 sm:mt-8">
           {site.examTagline}
@@ -105,6 +86,7 @@ function HeroStatic() {
         width={1280}
         height={720}
         fetchPriority="high"
+        decoding="async"
       />
       <HeroOverlay />
       <HeroCopy />
@@ -114,26 +96,16 @@ function HeroStatic() {
 
 export function Hero() {
   const reduced = useReducedMotion()
-  const preferFrames = usePreferFrameScrub()
   const sectionRef = useRef<HTMLElement>(null)
   const pinRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const scrub = !reduced
-  const useFrames = preferFrames
-  const scrollLength = useFrames ? 1.75 : 2.4
-
-  useScrollFrameScrub(sectionRef, pinRef, canvasRef, {
-    enabled: scrub && useFrames,
-    frames: scrubFrames,
-    scrollLength,
-    scrub: 0.12,
-  })
 
   useScrollVideoScrub(sectionRef, pinRef, videoRef, {
-    enabled: scrub && !useFrames,
-    scrollLength,
+    enabled: scrub,
+    videoSrc: heroVideo,
+    scrollLength: 2.4,
     scrub: 0.45,
   })
 
@@ -149,44 +121,29 @@ export function Hero() {
     >
       <div ref={pinRef} className="relative h-[100svh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-ink">
-          {useFrames && (
-            <img
-              src={heroPoster}
-              alt=""
-              aria-hidden
-              className="absolute inset-0 h-full w-full object-cover object-center"
-              width={720}
-              height={1280}
-              fetchPriority="high"
-            />
-          )}
-
-          {useFrames ? (
-            <canvas
-              ref={canvasRef}
-              aria-hidden
-              className="absolute inset-0 h-full w-full"
-            />
-          ) : (
-            <>
-              <video
-                ref={videoRef}
-                className="absolute inset-0 h-full w-full object-cover object-center"
-                src={heroVideo}
-                poster={heroPoster}
-                muted
-                playsInline
-                preload="auto"
-                width={1280}
-                height={720}
-                aria-hidden
-              />
-            </>
-          )}
-
+          <img
+            src={heroPoster}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            width={1280}
+            height={720}
+            fetchPriority="high"
+            decoding="async"
+          />
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            poster={heroPoster}
+            muted
+            playsInline
+            preload="none"
+            width={1280}
+            height={720}
+            aria-hidden
+          />
           <HeroOverlay />
         </div>
-
         <HeroCopy />
       </div>
     </section>
