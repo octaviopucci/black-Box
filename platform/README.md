@@ -1,6 +1,6 @@
 # Black Box Platform
 
-Revenue Operating System for commercial partners — modular monolith (Missions 01–04).
+Revenue Operating System for commercial partners — modular monolith (Missions 01–05).
 
 ## Requirements
 
@@ -254,8 +254,8 @@ Response includes application and database connectivity checks.
 - **Mission 01 — Foundation** ✓
 - **Mission 02 — Auth + Organization** ✓
 - **Mission 03 — RBAC + Authorization** ✓
-- **Mission 04 — Partners** ✓
-- **Next:** Mission 05 — Leads (parallel with 07 after 04)
+- **Mission 05 — Leads** ✓
+- **Next:** Mission 06 — CRM
 
 ## Related docs
 

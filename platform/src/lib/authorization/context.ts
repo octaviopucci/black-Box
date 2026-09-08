@@ -7,6 +7,7 @@ import {
 } from '@/lib/errors'
 import { getAuthContext, getAuthContextFromRequest } from '@/lib/auth/context'
 import type { AuthorizationContext } from '@/lib/authorization/types'
+import { resolvePartnerDataScope } from '@/lib/authorization/partner-scope'
 
 const requestCache = new WeakMap<Request, AuthorizationContext>()
 let cookieCache: AuthorizationContext | null = null
@@ -72,6 +73,15 @@ async function buildAuthorizationContext(
   }
 
   const { roles, permissions } = await loadPermissionsForMembership(membership.id)
+  const partnerScope = await resolvePartnerDataScope({
+    user: session.user,
+    organization: session.organization,
+    membership,
+    session: session.session,
+    roles,
+    permissions,
+    partnerScope: { type: 'unrestricted' },
+  })
 
   return {
     user: session.user,
@@ -80,6 +90,7 @@ async function buildAuthorizationContext(
     session: session.session,
     roles,
     permissions,
+    partnerScope,
   }
 }
 

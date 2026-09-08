@@ -46,6 +46,8 @@ model User {
   sessions    Session[]
   partners    Partner[]
   leadInteractions LeadInteraction[]
+  opportunityStageHistories OpportunityStageHistory[]
+  crmInteractions CrmInteraction[]
 
   @@map("users")
 }
@@ -63,6 +65,8 @@ model Organization {
   roles          Role[]
   partners       Partner[]
   leads          Lead[]
+  pipelines      Pipeline[]
+  opportunities  Opportunity[]
 
   @@map("organizations")
 }
@@ -180,6 +184,7 @@ model Partner {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   leads        Lead[]
+  opportunities Opportunity[]
 
   @@unique([organizationId, userId])
   @@unique([organizationId, document])
@@ -214,6 +219,7 @@ model Lead {
   organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   partner      Partner?           @relation(fields: [partnerId], references: [id], onDelete: SetNull)
   interactions LeadInteraction[]
+  opportunities Opportunity[]
 
   @@index([organizationId])
   @@index([partnerId])
@@ -237,4 +243,119 @@ model LeadInteraction {
   @@index([organizationId])
   @@index([leadId])
   @@map("lead_interactions")
+}
+
+enum CrmInteractionType {
+  NOTE
+  CALL
+  WHATSAPP
+  EMAIL
+  MEETING
+  PROPOSAL
+  OTHER
+}
+
+model Pipeline {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  name           String
+  description    String?
+  isDefault      Boolean  @default(false) @map("is_default")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stages        PipelineStage[]
+  opportunities Opportunity[]
+
+  @@index([organizationId])
+  @@map("pipelines")
+}
+
+model PipelineStage {
+  id             String   @id @default(uuid()) @db.Uuid
+  pipelineId     String   @map("pipeline_id") @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  name           String
+  position       Int
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  pipeline      Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  opportunities Opportunity[]
+  historyFrom   OpportunityStageHistory[] @relation("FromStage")
+  historyTo     OpportunityStageHistory[] @relation("ToStage")
+
+  @@unique([pipelineId, position])
+  @@index([organizationId])
+  @@index([pipelineId])
+  @@map("pipeline_stages")
+}
+
+model Opportunity {
+  id              String    @id @default(uuid()) @db.Uuid
+  organizationId  String    @map("organization_id") @db.Uuid
+  leadId          String    @map("lead_id") @db.Uuid
+  partnerId       String?   @map("partner_id") @db.Uuid
+  pipelineId      String    @map("pipeline_id") @db.Uuid
+  stageId         String    @map("stage_id") @db.Uuid
+  title           String
+  description     String?
+  amount          Decimal?  @db.Decimal(15, 2)
+  probability     Int?
+  expectedCloseAt DateTime? @map("expected_close_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  partner      Partner?     @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  pipeline     Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Restrict)
+  stage        PipelineStage @relation(fields: [stageId], references: [id], onDelete: Restrict)
+  stageHistory OpportunityStageHistory[]
+  interactions CrmInteraction[]
+
+  @@index([organizationId])
+  @@index([leadId])
+  @@index([partnerId])
+  @@index([pipelineId])
+  @@index([stageId])
+  @@map("opportunities")
+}
+
+model OpportunityStageHistory {
+  id              String   @id @default(uuid()) @db.Uuid
+  organizationId  String   @map("organization_id") @db.Uuid
+  opportunityId   String   @map("opportunity_id") @db.Uuid
+  fromStageId     String?  @map("from_stage_id") @db.Uuid
+  toStageId       String   @map("to_stage_id") @db.Uuid
+  createdByUserId String   @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  opportunity Opportunity    @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  fromStage   PipelineStage? @relation("FromStage", fields: [fromStageId], references: [id], onDelete: SetNull)
+  toStage     PipelineStage  @relation("ToStage", fields: [toStageId], references: [id], onDelete: Restrict)
+  user        User           @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([opportunityId])
+  @@map("opportunity_stage_history")
+}
+
+model CrmInteraction {
+  id              String             @id @default(uuid()) @db.Uuid
+  organizationId  String             @map("organization_id") @db.Uuid
+  opportunityId   String             @map("opportunity_id") @db.Uuid
+  type            CrmInteractionType
+  description     String
+  occurredAt      DateTime           @map("occurred_at")
+  createdByUserId String             @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime           @default(now()) @map("created_at")
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([opportunityId])
+  @@map("crm_interactions")
 }
