@@ -106,7 +106,7 @@ Detalhe: [MISSIONS.md](./MISSIONS.md)
 | 03 | RBAC + Authorization | ✅ Completa | — |
 | 04–15 | Partners → Hardening | ⏳ Pendente | — |
 
-Briefs entregues: [01-fundacao.md](./missions/01-fundacao.md) · [02-auth-organization.md](./missions/02-auth-organization.md) · [03-rbac-authorization.md](./missions/03-rbac-authorization.md)
+Briefs entregues: [01-fundacao.md](./missions/01-fundacao.md) · [02-auth-organization.md](./missions/02-auth-organization.md) · [03-rbac-authorization.md](./missions/03-rbac-authorization.md) · [03-rbac-resumo.md](./missions/03-rbac-resumo.md)
 
 ---
 
@@ -400,6 +400,7 @@ Antes de implementar: copiar [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) → `m
 | [platform/README.md](../../platform/README.md) | Setup operacional |
 | [missions/01-fundacao.md](./missions/01-fundacao.md) | Brief Missão 01 |
 | [missions/03-rbac-authorization.md](./missions/03-rbac-authorization.md) | Brief Missão 03 |
+| [missions/03-rbac-resumo.md](./missions/03-rbac-resumo.md) | Resumo executivo Missão 03 |
 
 ---
 

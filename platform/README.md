@@ -208,3 +208,4 @@ Response includes application and database connectivity checks.
 - `docs/black-box-platform/SPECIFICATION.md` — full architecture
 - `docs/black-box-platform/MISSIONS.md` — implementation roadmap
 - `docs/black-box-platform/missions/01-fundacao.md` — Mission 01 brief
+- `docs/black-box-platform/missions/03-rbac-resumo.md` — Mission 03 executive summary
