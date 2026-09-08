@@ -167,6 +167,27 @@ Tenant is always derived from session — never from request payload.
 
 UI hides actions without permission; authorization is enforced server-side.
 
+## Leads (Mission 05)
+
+Prospective contact entity — separate from Partner, Customer, Opportunity.
+
+### API
+
+| Method | Route | Permission |
+|--------|-------|------------|
+| GET | `/api/leads` | `lead.read` |
+| POST | `/api/leads` | `lead.create` |
+| GET/PATCH | `/api/leads/:id` | `lead.read` / `lead.update` |
+| GET/POST | `/api/leads/:id/interactions` | `lead.interaction.read` / `lead.interaction.create` |
+
+Query params: `search`, `partnerId`, `source`, `page`, `pageSize`.
+
+### Frontend
+
+- `/app/leads` — list with search/filters (table desktop, cards mobile)
+- `/app/leads/new` — create
+- `/app/leads/[id]` — detail, edit, interaction history
+
 ## Architecture
 
 ```

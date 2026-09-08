@@ -45,6 +45,7 @@ model User {
   memberships OrganizationMembership[]
   sessions    Session[]
   partners    Partner[]
+  leadInteractions LeadInteraction[]
 
   @@map("users")
 }
@@ -61,6 +62,7 @@ model Organization {
   activeSessions Session[]              @relation("ActiveOrganization")
   roles          Role[]
   partners       Partner[]
+  leads          Lead[]
 
   @@map("organizations")
 }
@@ -177,10 +179,62 @@ model Partner {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  leads        Lead[]
 
   @@unique([organizationId, userId])
   @@unique([organizationId, document])
   @@index([organizationId])
   @@index([status])
   @@map("partners")
+}
+
+enum LeadInteractionType {
+  NOTE
+  CALL
+  WHATSAPP
+  EMAIL
+  MEETING
+  OTHER
+}
+
+model Lead {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  partnerId      String?  @map("partner_id") @db.Uuid
+  name           String
+  companyName    String?  @map("company_name")
+  email          String?
+  phone          String?
+  document       String?
+  notes          String?
+  source         String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  partner      Partner?           @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  interactions LeadInteraction[]
+
+  @@index([organizationId])
+  @@index([partnerId])
+  @@index([source])
+  @@map("leads")
+}
+
+model LeadInteraction {
+  id              String              @id @default(uuid()) @db.Uuid
+  organizationId  String              @map("organization_id") @db.Uuid
+  leadId          String              @map("lead_id") @db.Uuid
+  type            LeadInteractionType
+  description     String
+  occurredAt      DateTime            @map("occurred_at")
+  createdByUserId String              @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([leadId])
+  @@map("lead_interactions")
 }
