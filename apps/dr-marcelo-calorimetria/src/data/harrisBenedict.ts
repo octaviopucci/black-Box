@@ -1,4 +1,11 @@
+export type Sex = 'male' | 'female'
+
 export const harrisBenedict = {
+  title: 'Harris-Benedict (Revisada em 1984)',
+  intro:
+    'Essa é a fórmula clássica que apps e planilhas usam para estimar seu gasto energético. É simples — mas não personalizada.',
+  footnote:
+    'Isso é uma média estatística — não mede o seu metabolismo. A Calorimetria Indireta lê a sua respiração e entrega o número real.',
   doubt: {
     headline: 'Será que é isso mesmo?',
     body: [
@@ -20,4 +27,81 @@ export const harrisBenedict = {
     ],
     closing: 'E aí, vai no certo, ou no duvidoso?',
   },
+  male: {
+    label: 'Homens',
+    base: 88.36,
+    weight: 13.4,
+    height: 4.8,
+    age: -5.7,
+    formula: 'TMB = 88,36 + (13,4 × peso) + (4,8 × altura em cm) − (5,7 × idade)',
+  },
+  female: {
+    label: 'Mulheres',
+    base: 447.6,
+    weight: 9.2,
+    height: 3.1,
+    age: -4.3,
+    formula: 'TMB = 447,6 + (9,2 × peso) + (3,1 × altura em cm) − (4,3 × idade)',
+  },
+  defaults: {
+    sex: 'male' as Sex,
+    weightKg: 78,
+    heightCm: 172,
+    age: 35,
+  },
 } as const
+
+export type HarrisInputs = {
+  sex: Sex
+  weightKg: number
+  heightCm: number
+  age: number
+}
+
+export type HarrisBreakdown = {
+  base: number
+  weightTerm: number
+  heightTerm: number
+  ageTerm: number
+  total: number
+}
+
+export function computeHarrisBenedict({ sex, weightKg, heightCm, age }: HarrisInputs): HarrisBreakdown {
+  const coef = sex === 'male' ? harrisBenedict.male : harrisBenedict.female
+  const weightTerm = coef.weight * weightKg
+  const heightTerm = coef.height * heightCm
+  const ageTerm = coef.age * age
+  const total = coef.base + weightTerm + heightTerm + ageTerm
+
+  return {
+    base: coef.base,
+    weightTerm,
+    heightTerm,
+    ageTerm,
+    total: Math.max(Math.round(total), 0),
+  }
+}
+
+function formatNum(n: number, decimals = 2) {
+  return n.toLocaleString('pt-BR', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })
+}
+
+export function formatHarrisExample(inputs: HarrisInputs = harrisBenedict.defaults) {
+  const coef = inputs.sex === 'male' ? harrisBenedict.male : harrisBenedict.female
+  const b = computeHarrisBenedict(inputs)
+
+  const expansion =
+    inputs.sex === 'male'
+      ? `${formatNum(coef.base)} + (${formatNum(coef.weight, 1)} × ${inputs.weightKg}) + (${formatNum(coef.height, 1)} × ${inputs.heightCm}) − (${formatNum(Math.abs(coef.age), 1)} × ${inputs.age})`
+      : `${formatNum(coef.base, 1)} + (${formatNum(coef.weight, 1)} × ${inputs.weightKg}) + (${formatNum(coef.height, 1)} × ${inputs.heightCm}) − (${formatNum(Math.abs(coef.age), 1)} × ${inputs.age})`
+
+  return {
+    coef,
+    breakdown: b,
+    expansion,
+    profile: `${coef.label.toLowerCase()}, ${inputs.weightKg} kg, ${inputs.heightCm} cm, ${inputs.age} anos`,
+  }
+}

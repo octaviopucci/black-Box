@@ -107,6 +107,7 @@ export function Hero() {
     videoSrc: heroVideo,
     scrollLength: 2.4,
     scrub: 0.45,
+    deferUntilInteraction: true,
   })
 
   if (!scrub) return <HeroStatic />
