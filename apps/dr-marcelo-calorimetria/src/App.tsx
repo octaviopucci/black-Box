@@ -1,12 +1,10 @@
 import { lazy, Suspense } from 'react'
 import { Nav } from './components/Nav'
 import { Hero } from './components/Hero'
+import { ProblemStatement } from './components/ProblemStatement'
 import { Footer } from './components/Footer'
 import { WhatsAppFloat } from './components/WhatsAppFloat'
 
-const ProblemStatement = lazy(() =>
-  import('./components/ProblemStatement').then((m) => ({ default: m.ProblemStatement })),
-)
 const EnergyBridge = lazy(() =>
   import('./components/EnergyBridge').then((m) => ({ default: m.EnergyBridge })),
 )
@@ -31,8 +29,8 @@ export default function App() {
       <Nav />
       <main>
         <Hero />
-        <Suspense fallback={<SectionFallback minH="50vh" />}>
-          <ProblemStatement />
+        <ProblemStatement />
+        <Suspense fallback={<SectionFallback minH="30vh" />}>
           <EnergyBridge />
           <HowItWorks />
           <Readout />
