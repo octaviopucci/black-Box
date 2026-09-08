@@ -7,6 +7,7 @@ import { useScrollVideoScrub } from '../hooks/useScrollVideoScrub'
 const headlineWords = site.headline.split(' ')
 const heroVideo = asset(site.media.heroVideo)
 const heroPoster = asset(site.media.heroPoster)
+const SCROLL_LENGTH = 2.4
 
 function HeroOverlay() {
   return (
@@ -102,12 +103,11 @@ export function Hero() {
 
   const scrub = !reduced
 
-  useScrollVideoScrub(sectionRef, pinRef, videoRef, {
+  const scrubReady = useScrollVideoScrub(sectionRef, pinRef, videoRef, {
     enabled: scrub,
     videoSrc: heroVideo,
-    scrollLength: 2.4,
+    scrollLength: SCROLL_LENGTH,
     scrub: 0.45,
-    deferUntilInteraction: true,
   })
 
   if (!scrub) return <HeroStatic />
@@ -126,7 +126,9 @@ export function Hero() {
             src={heroPoster}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ${
+              scrubReady ? 'opacity-0' : 'opacity-100'
+            }`}
             width={1280}
             height={720}
             fetchPriority="high"
@@ -134,11 +136,13 @@ export function Hero() {
           />
           <video
             ref={videoRef}
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ${
+              scrubReady ? 'opacity-100' : 'opacity-0'
+            }`}
             poster={heroPoster}
             muted
             playsInline
-            preload="none"
+            preload="auto"
             width={1280}
             height={720}
             aria-hidden
@@ -147,6 +151,7 @@ export function Hero() {
         </div>
         <HeroCopy />
       </div>
+      <div aria-hidden className="pointer-events-none" style={{ height: `${SCROLL_LENGTH * 100}svh` }} />
     </section>
   )
 }
