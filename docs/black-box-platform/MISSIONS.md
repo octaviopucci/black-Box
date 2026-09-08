@@ -1,44 +1,41 @@
 # Roadmap de implementação — Black Box Platform
 
 > Sequência recomendada para reduzir dependências circulares. Cada item = uma missão Cursor independente.
+>
+> **Template de missão:** [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) — preencher antes de implementar.
 
 ## Grafo de dependências
 
 ```
-01 Fundação
- ↓
-02 Auth + Organization
- ↓
-03 RBAC + Authorization
- ↓
-04 Partners
- ├───────────────┐
- ↓               ↓
-05 Leads         07 Products + Offers
- ↓               │
-06 CRM           │
- └───────┬───────┘
-         ↓
-       08 Sales + Customer
-         ↓
-       09 Commissions
-         ↓
-       10 Forms + Briefs
-         ↓
-       11 Projects
-         ↓
-       12 Dashboards
-         ↓
-       13 Notifications
-         ↓
-       14 Audit
-         ↓
-       15 Hardening
+                         ┌── 05 Leads ──→ 06 CRM ──┐
+01 Fundação              │                         │
+      ↓                  │                         │
+02 Auth + Organization   │                         │
+      ↓                  │                         │
+03 RBAC + Authorization  │                         │
+      ↓                  │                         │
+04 Partners ─────────────┤                         ├──→ 08 Sales + Customer
+                         │                         │
+                         └── 07 Products + Offers ─┘
+                                      ↓
+                              09 Commissions
+                                      ↓
+                               10 Forms + Briefs
+                                      ↓
+                                  11 Projects
+                                      ↓
+                                 12 Dashboards
+                                      ↓
+                               13 Notifications
+                                      ↓
+                                  14 Audit
+                                      ↓
+                                15 Hardening
 ```
 
 ## Ondas paralelas (após Missão 04)
 
-Depois da **Missão 04 — Partners**, duas trilhas são **independentes** e podem ser desenvolvidas simultaneamente por agentes distintos:
+Depois da **Missão 04 — Partners**, duas trilhas são **independentes**:
 
 ```
               ┌── 05 Leads → 06 CRM ──┐
@@ -53,21 +50,74 @@ Depois da **Missão 04 — Partners**, duas trilhas são **independentes** e pod
 | **C** (convergência) | 08 | Requer 06 **e** 07 concluídas |
 | **D** (sequencial) | 09 → 10 → 11 → 12 → 13 → 14 → 15 | Transação → produção → observabilidade |
 
-**Regra vibe-coding:** só paralelizar quando não há dependência direta/transitiva **e** os conjuntos `Files:` são disjuntos. Trilhas B não tocam nos mesmos módulos (`/modules/leads` vs `/modules/products`).
+**Regra vibe-coding:** só paralelizar quando não há dependência direta/transitiva **e** os conjuntos `Files:` são disjuntos.
+
+---
 
 ## Definição de pronto (MVP)
 
-O MVP só está funcional quando este fluxo completo funciona de ponta a ponta:
+Fluxo end-to-end que define o MVP funcional:
 
 ```
-ADMIN cadastra parceiro
-  → PARCEIRO entra, gerencia lead, CRM, registra venda
-  → ADMIN confirma pagamento
-  → Sistema calcula comissão + gera briefing
-  → CLIENTE preenche briefing (link público)
-  → EQUIPE cria projeto, produz, entrega
-  → PARCEIRO acompanha venda, projeto e comissão
+ADMIN
+  ↓
+cadastra/ativa PARCEIRO
+  ↓
+PARCEIRO
+  ↓
+cria LEAD
+  ↓
+cria OPPORTUNITY
+  ↓
+move no PIPELINE
+  ↓
+registra VENDA
+  ↓
+ADMIN confirma PAGAMENTO
+  ↓
+COMMISSION calculada
+  ↓
+BRIEF gerado
+  ↓
+CLIENTE acessa LINK PÚBLICO
+  ↓
+envia BRIEFING
+  ↓
+EQUIPE cria PROJECT
+  ↓
+produção
+  ↓
+entrega
+  ↓
+PARCEIRO acompanha
+  ├── venda
+  ├── comissão
+  └── projeto
 ```
+
+---
+
+## Índice de missões
+
+| # | Missão | Depends-on | Paralelo |
+|---|--------|------------|----------|
+| 01 | [Fundação técnica](#missão-01--fundação-técnica) | — | — |
+| 02 | [Auth + Organization](#missão-02--auth--organization) | 01 | — |
+| 03 | [RBAC + Authorization](#missão-03--rbac--authorization) | 02 | — |
+| 04 | [Partners](#missão-04--partners) | 03 | — |
+| 05 | [Leads](#missão-05--leads) | 04 | 07 |
+| 06 | [CRM](#missão-06--crm) | 05 | 07 |
+| 07 | [Products + Offers](#missão-07--products--offers) | 04 | 05→06 |
+| 08 | [Sales + Customer](#missão-08--sales--customer) | 06, 07 | — |
+| 09 | [Commissions](#missão-09--commissions) | 08 | — |
+| 10 | [Forms + Briefs](#missão-10--forms--briefs) | 08 | — |
+| 11 | [Projects](#missão-11--projects) | 10 | — |
+| 12 | [Dashboards](#missão-12--dashboards) | 06, 08, 09, 11 | — |
+| 13 | [Notifications](#missão-13--notifications) | 08, 10, 11 | — |
+| 14 | [Audit](#missão-14--audit) | 03, 08, 09 | — |
+| 15 | [Hardening](#missão-15--hardening) | 12, 13, 14 | — |
+
+Briefs individuais: `missions/NN-slug.md` *(criar a partir do template antes de executar)*.
 
 ---
 
@@ -86,7 +136,7 @@ ADMIN cadastra parceiro
 - Roles, permissions, autorização server-side
 - **Depends-on:** 02
 
-## Missão 04 — Parceiros
+## Missão 04 — Partners
 
 - Cadastro, ativação, perfil, produtos autorizados
 - **Depends-on:** 03
@@ -95,23 +145,24 @@ ADMIN cadastra parceiro
 
 - CRUD, busca, filtros, atividades
 - **Depends-on:** 04
+- **Paralelo com:** 07
 
 ## Missão 06 — CRM
 
 - Pipeline comercial, estágios, follow-up, score básico (Opportunities + Activities)
 - **Depends-on:** 05
-- **Paralelo com:** 07 (após 04)
+- **Paralelo com:** 07
 
 ## Missão 07 — Products + Offers
 
 - Catálogo, preço, comissão, materiais básicos, PartnerProduct
 - **Depends-on:** 04
-- **Paralelo com:** 05 → 06 (trilha comercial)
+- **Paralelo com:** 05 → 06
 
 ## Missão 08 — Sales + Customer
 
 - Registrar venda, customer, confirmação manual
-- **Depends-on:** 06, 07 (convergência das duas trilhas)
+- **Depends-on:** 06, 07
 
 ## Missão 09 — Commissions
 
@@ -138,7 +189,7 @@ ADMIN cadastra parceiro
 - Eventos internos, leitura/não leitura
 - **Depends-on:** 08, 10, 11
 
-## Missão 14 — Auditoria
+## Missão 14 — Audit
 
 - Logs de ações, eventos financeiros, permissões
 - **Depends-on:** 03, 08, 09

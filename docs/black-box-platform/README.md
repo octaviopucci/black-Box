@@ -21,7 +21,9 @@ Aquisição → Vendas → Transação → Onboarding → Produção → Relacio
 | Arquivo | Conteúdo |
 |---------|----------|
 | [SPECIFICATION.md](./SPECIFICATION.md) | Blueprint técnico completo (108 seções) |
-| [MISSIONS.md](./MISSIONS.md) | 15 missões de implementação recomendadas |
+| [MISSIONS.md](./MISSIONS.md) | Grafo de dependências, ondas paralelas, 15 missões |
+| [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) | Template obrigatório antes de executar cada missão |
+| [missions/](./missions/) | Briefs preenchidos por missão (`NN-slug.md`) |
 | [DECISIONS.md](./DECISIONS.md) | Decisões arquiteturais que não podem ser violadas |
 
 ## Princípio arquitetural
@@ -51,11 +53,13 @@ LEAD → VENDA → PAGAMENTO → COMISSÃO → BRIEFING → PRODUÇÃO → ENTRE
 
 Cada missão no Cursor deve:
 
-1. Implementar **um domínio específico** (ver [MISSIONS.md](./MISSIONS.md)).
-2. Respeitar entidades e relacionamentos desta arquitetura.
-3. Incluir migrations, validações, testes e autorização server-side.
-4. **Não** duplicar regras de negócio nem mover autorização para o frontend.
-5. Preservar auditoria em operações financeiras e de permissão.
+1. Copiar [MISSION-TEMPLATE.md](./MISSION-TEMPLATE.md) → `missions/NN-slug.md` e **preencher todas as seções**.
+2. Implementar **um domínio específico** (ver [MISSIONS.md](./MISSIONS.md)).
+3. Respeitar entidades e relacionamentos desta arquitetura.
+4. Incluir migrations, validações, testes e autorização server-side.
+5. **Não** duplicar regras de negócio nem mover autorização para o frontend.
+6. Preservar auditoria em operações financeiras e de permissão.
+7. Validar contra o [fluxo end-to-end](./MISSIONS.md#definição-de-pronto-mvp) quando a missão fizer parte do caminho crítico.
 
 ## Relação com este monorepo
 

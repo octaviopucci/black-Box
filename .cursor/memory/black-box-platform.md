@@ -14,7 +14,9 @@ Produto futuro: Sistema Operacional de Vendas e Operação para Parceiros Comerc
 Blueprint em `docs/black-box-platform/`:
 - `README.md` — índice e regras críticas
 - `SPECIFICATION.md` — spec completa (108 seções)
-- `MISSIONS.md` — 15 missões de implementação
+- `MISSIONS.md` — grafo, ondas paralelas, fluxo E2E, 15 missões
+- `MISSION-TEMPLATE.md` — template obrigatório (CONTEXT → FINAL VERIFICATION)
+- `missions/` — briefs preenchidos por missão
 - `DECISIONS.md` — decisões que não podem ser violadas
 
 ## Arquitetura
