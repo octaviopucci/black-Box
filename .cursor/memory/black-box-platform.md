@@ -35,7 +35,7 @@ Lead≠Customer, Product≠Offer, Sale≠Payment, Sale≠Commission, CRM≠Produ
 
 ## Relação com monorepo atual
 
-Este repo (`black-box`) hoje = portal + demos clientes. A plataforma descrita é produto separado — implementar em missões futuras, possivelmente em `platform/` ou repo próprio.
+Este repo (`black-box`) hoje = portal + demos clientes + **`platform/`** (Mission 01 foundation). Business modules come in missions 02+.
 
 ## Grafo de missões
 
