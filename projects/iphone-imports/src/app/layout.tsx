@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { ToastContainer } from "@/store/toast";
+import { CatalogProvider } from "@/components/catalog/CatalogProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -41,13 +42,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={inter.variable}>
       <body className="min-h-screen font-sans">
-        <TopBar />
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <CartDrawer />
-        <WhatsAppButton />
-        <ToastContainer />
+        <CatalogProvider>
+          <TopBar />
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <CartDrawer />
+          <WhatsAppButton />
+          <ToastContainer />
+        </CatalogProvider>
       </body>
     </html>
   );

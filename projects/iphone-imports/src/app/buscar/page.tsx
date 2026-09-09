@@ -6,15 +6,17 @@ import { Search } from "lucide-react";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { searchProducts } from "@/lib/products";
+import { useCatalog } from "@/components/catalog/CatalogProvider";
+import { searchInProducts } from "@/lib/catalog-utils";
 
 function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") ?? "";
+  const { products } = useCatalog();
 
   const results = useMemo(
-    () => (query ? searchProducts(query) : []),
-    [query]
+    () => (query ? searchInProducts(products, query) : []),
+    [query, products]
   );
 
   return (
