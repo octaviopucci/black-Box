@@ -25,11 +25,14 @@ export function Footer() {
   );
 
   return (
-    <footer className="border-t border-brand-border bg-brand-black text-white">
+    <footer className="border-t border-brand-yellow/20 bg-brand-black text-white">
       <div className="container-store py-12 md:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h3 className="mb-4 text-lg font-bold">{storeConfig.name}</h3>
+            <h3 className="mb-4 text-lg font-black">
+              <span className="text-white">iPhone </span>
+              <span className="text-brand-yellow">Imports</span>
+            </h3>
             <p className="text-sm leading-relaxed text-brand-gray">
               {storeConfig.description}
             </p>

@@ -20,25 +20,26 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section className="py-12 md:py-16">
+    <section className="section-white py-14 md:py-20">
       <div className="container-store">
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold md:text-3xl">O que dizem nossos clientes</h2>
-          <p className="mt-2 text-sm text-brand-gray">
+        <div className="mb-10 text-center">
+          <div className="accent-line mx-auto mb-4" />
+          <h2 className="text-2xl font-black md:text-3xl">O que dizem nossos clientes</h2>
+          <p className="mt-2 text-sm text-brand-muted">
             Depoimentos ilustrativos — substitua por avaliações reais
           </p>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-3">
           {testimonials.map((t) => (
             <div
               key={t.name}
-              className="rounded-2xl border border-brand-border bg-white p-6"
+              className="rounded-2xl border border-brand-border-light bg-brand-light p-6 transition-all hover:border-brand-yellow/50 hover:shadow-[0_8px_30px_rgba(255,212,0,0.1)]"
             >
-              <Rating value={t.rating} demo className="mb-3" />
-              <p className="mb-4 text-sm leading-relaxed text-brand-gray">
+              <Rating value={t.rating} demo className="mb-4" />
+              <p className="mb-4 text-sm leading-relaxed text-brand-muted">
                 &ldquo;{t.text}&rdquo;
               </p>
-              <p className="text-sm font-semibold">{t.name}</p>
+              <p className="text-sm font-bold text-brand-black">{t.name}</p>
             </div>
           ))}
         </div>

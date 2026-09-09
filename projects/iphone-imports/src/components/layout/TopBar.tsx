@@ -2,15 +2,15 @@ import { storeConfig } from "@/config/store";
 
 export function TopBar() {
   return (
-    <div className="bg-brand-black text-white">
+    <div className="bg-brand-yellow text-brand-black">
       <div className="overflow-hidden md:overflow-visible">
         <div className="flex whitespace-nowrap py-2 md:justify-center">
-          <span className="marquee inline-block px-4 text-xs font-medium md:animate-none md:px-0">
+          <p className="marquee px-4 text-xs font-bold uppercase tracking-wider md:animate-none md:px-0">
             {storeConfig.topBarMessage}
-          </span>
-          <span className="marquee inline-block px-4 text-xs font-medium md:hidden">
+          </p>
+          <p className="marquee px-4 text-xs font-bold uppercase tracking-wider md:hidden">
             {storeConfig.topBarMessage}
-          </span>
+          </p>
         </div>
       </div>
     </div>

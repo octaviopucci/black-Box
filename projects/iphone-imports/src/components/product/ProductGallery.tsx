@@ -14,13 +14,13 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-brand-light">
+      <div className="relative aspect-square overflow-hidden rounded-3xl product-image-bg ring-1 ring-brand-border">
         <Image
           src={images[active]}
           alt={`${name} - imagem ${active + 1}`}
           fill
           sizes="(max-width: 1024px) 100vw, 50vw"
-          className="object-contain p-6 transition-opacity duration-200"
+          className="object-contain p-8 transition-opacity duration-200"
           priority
         />
       </div>
@@ -31,18 +31,12 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
               key={i}
               onClick={() => setActive(i)}
               className={cn(
-                "relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 bg-brand-light transition-colors",
-                active === i ? "border-brand-yellow" : "border-transparent"
+                "relative h-16 w-16 shrink-0 overflow-hidden rounded-xl product-image-bg ring-2 transition-all",
+                active === i ? "ring-brand-yellow" : "ring-transparent"
               )}
               aria-label={`Ver imagem ${i + 1}`}
             >
-              <Image
-                src={img}
-                alt=""
-                fill
-                sizes="64px"
-                className="object-contain p-1"
-              />
+              <Image src={img} alt="" fill sizes="64px" className="object-contain p-1" />
             </button>
           ))}
         </div>

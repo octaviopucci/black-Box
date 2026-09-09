@@ -3,14 +3,17 @@
 @theme inline {
   --color-brand-black: #090909;
   --color-brand-dark: #111111;
+  --color-brand-surface: #161616;
   --color-brand-yellow: #ffd400;
   --color-brand-yellow-hover: #ffc400;
+  --color-brand-yellow-dim: #ffd40033;
   --color-brand-white: #ffffff;
   --color-brand-light: #f5f5f5;
-  --color-brand-gray: #737373;
-  --color-brand-border: #e5e5e5;
+  --color-brand-gray: #a3a3a3;
+  --color-brand-muted: #737373;
+  --color-brand-border: #2a2a2a;
+  --color-brand-border-light: #e5e5e5;
   --font-sans: var(--font-sans);
-  --radius-card: 16px;
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -20,12 +23,12 @@
   }
 
   body {
-    @apply bg-brand-white text-brand-black;
+    @apply bg-brand-light text-brand-black;
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-brand-yellow) 40%, white);
-    color: var(--color-brand-black);
+    background: color-mix(in oklab, var(--color-brand-yellow) 50%, black);
+    color: white;
   }
 
   :focus-visible {
@@ -38,40 +41,84 @@
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
+  .grid-pattern {
+    background-image:
+      linear-gradient(to right, rgba(255, 212, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 212, 0, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .section-dark {
+    @apply bg-brand-black text-white;
+  }
+
+  .section-light {
+    @apply bg-brand-light text-brand-black;
+  }
+
+  .section-white {
+    @apply bg-white text-brand-black;
+  }
+
+  .product-image-bg {
+    background: radial-gradient(
+      ellipse at 50% 80%,
+      #2a2a2a 0%,
+      #111111 50%,
+      #090909 100%
+    );
+  }
+
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-yellow px-6 py-3 text-sm font-semibold text-brand-black transition-colors duration-200 hover:bg-brand-yellow-hover active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-yellow px-6 py-3 text-sm font-bold text-brand-black shadow-[0_0_20px_rgba(255,212,0,0.25)] transition-all duration-200 hover:bg-brand-yellow-hover hover:shadow-[0_0_28px_rgba(255,212,0,0.4)] active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-black px-6 py-3 text-sm font-semibold text-brand-white transition-colors duration-200 hover:bg-brand-dark active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:border-brand-yellow hover:bg-brand-yellow/10 hover:text-brand-yellow active:scale-[0.98];
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-brand-border bg-transparent px-6 py-3 text-sm font-semibold text-brand-black transition-colors duration-200 hover:border-brand-black active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-brand-black bg-transparent px-6 py-3 text-sm font-semibold text-brand-black transition-all duration-200 hover:bg-brand-black hover:text-white active:scale-[0.98];
+  }
+
+  .btn-outline-light {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-brand-yellow hover:text-brand-yellow active:scale-[0.98];
   }
 
   .card-product {
-    @apply overflow-hidden rounded-2xl border border-brand-border bg-brand-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)];
+    @apply overflow-hidden rounded-2xl border border-brand-border-light bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-brand-yellow/60 hover:shadow-[0_12px_40px_rgba(255,212,0,0.12)];
+  }
+
+  .card-product-dark {
+    @apply overflow-hidden rounded-2xl border border-brand-border bg-brand-surface transition-all duration-300 hover:-translate-y-1 hover:border-brand-yellow/50 hover:shadow-[0_12px_40px_rgba(255,212,0,0.1)];
   }
 
   .badge-sale {
-    @apply rounded-md bg-brand-yellow px-2 py-0.5 text-xs font-bold text-brand-black;
+    @apply rounded-md bg-brand-yellow px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-brand-black;
   }
 
   .badge-new {
-    @apply rounded-md bg-brand-black px-2 py-0.5 text-xs font-bold text-brand-white;
+    @apply rounded-md bg-brand-black px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-yellow ring-1 ring-brand-yellow/30;
   }
 
   .badge-bestseller {
-    @apply rounded-md bg-brand-light px-2 py-0.5 text-xs font-bold text-brand-black ring-1 ring-brand-border;
+    @apply rounded-md bg-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white ring-1 ring-white/20;
+  }
+
+  .accent-line {
+    @apply h-1 w-12 rounded-full bg-brand-yellow;
+  }
+
+  .glow-yellow {
+    box-shadow: 0 0 40px rgba(255, 212, 0, 0.15);
   }
 
   .fade-in {
-    animation: fade-in 0.35s var(--ease-smooth) forwards;
+    animation: fade-in 0.4s var(--ease-smooth) forwards;
   }
 
   .marquee {
-    animation: marquee 20s linear infinite;
+    animation: marquee 22s linear infinite;
   }
 
   .scrollbar-hide {
@@ -87,7 +134,7 @@
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;

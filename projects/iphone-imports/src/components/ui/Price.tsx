@@ -7,6 +7,7 @@ interface PriceProps {
   installment?: string;
   size?: "sm" | "md" | "lg";
   className?: string;
+  dark?: boolean;
 }
 
 export function Price({
@@ -15,13 +16,14 @@ export function Price({
   installment,
   size = "md",
   className,
+  dark,
 }: PriceProps) {
   const discount = calculateDiscountPercent(price, oldPrice);
 
   const sizeClasses = {
-    sm: { current: "text-sm font-bold", old: "text-xs" },
-    md: { current: "text-lg font-bold", old: "text-sm" },
-    lg: { current: "text-2xl font-bold", old: "text-base" },
+    sm: { current: "text-base font-black", old: "text-xs" },
+    md: { current: "text-xl font-black", old: "text-sm" },
+    lg: { current: "text-3xl font-black", old: "text-base" },
   };
 
   return (
@@ -30,22 +32,28 @@ export function Price({
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "text-brand-gray line-through",
+              "line-through",
+              dark ? "text-brand-gray" : "text-brand-muted",
               sizeClasses[size].old
             )}
           >
             {formatCurrency(oldPrice)}
           </span>
-          {discount && (
-            <span className="badge-sale">{discount}% OFF</span>
-          )}
+          {discount && <span className="badge-sale">{discount}% OFF</span>}
         </div>
       )}
-      <span className={cn("text-brand-black", sizeClasses[size].current)}>
+      <span
+        className={cn(
+          dark ? "text-brand-yellow" : "text-brand-black",
+          sizeClasses[size].current
+        )}
+      >
         {formatCurrency(price)}
       </span>
       {installment && (
-        <span className="text-xs text-brand-gray">{installment}</span>
+        <span className={cn("text-xs", dark ? "text-brand-gray" : "text-brand-muted")}>
+          {installment}
+        </span>
       )}
     </div>
   );
