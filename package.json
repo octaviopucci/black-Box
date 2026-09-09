@@ -18,6 +18,7 @@
     "dev:harmonie": "npm --prefix apps/clinica-harmonie run dev",
     "dev:pucci": "npm --prefix apps/octavio-pucci run dev",
     "dev:na": "npm --prefix projects/na-veiculos run dev",
+    "dev:iphone-imports": "npm --prefix projects/iphone-imports run dev",
     "dev:matsubara": "npm --prefix apps/clinica-matsubara run dev",
     "dev:danielle": "npm --prefix apps/danielle-matsubara run dev",
     "dev:gl": "npm --prefix apps/gl-locacoes run dev",
