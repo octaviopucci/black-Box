@@ -24,28 +24,36 @@ async function api<T>(path: string, options: RequestInit = {}): Promise<{ ok: bo
   return { ok: res.ok, status: res.status, data }
 }
 
+const STORE_SLUG_FALLBACKS = ['iphone-imports', 'iphone-imports-9c11']
+
 export const cloudSync = {
   async login(username: string, password: string, store?: string) {
-    const res = await api<{
-      token?: string
-      session?: SessionUser
-      database?: OrgDatabase
-      error?: string
-      stores?: { slug: string; name: string }[]
-    }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password, store }),
-    })
-    if (res.status === 409) {
-      throw new Error(res.data.error || 'Informe o código da loja.')
+    const slugCandidates = [...new Set([store, ...STORE_SLUG_FALLBACKS].filter(Boolean))] as string[]
+
+    let lastError = 'Login inválido.'
+    for (const slug of slugCandidates) {
+      const res = await api<{
+        token?: string
+        session?: SessionUser
+        database?: OrgDatabase
+        error?: string
+        stores?: { slug: string; name: string }[]
+      }>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password, store: slug }),
+      })
+      if (res.status === 409) {
+        throw new Error(res.data.error || 'Informe o código da loja.')
+      }
+      if (res.ok && res.data.token && res.data.database) {
+        setCloudToken(res.data.token)
+        saveDatabase(res.data.database)
+        markSynced(res.data.database.version)
+        return res.data
+      }
+      lastError = res.data.error || lastError
     }
-    if (!res.ok || !res.data.token || !res.data.database) {
-      throw new Error(res.data.error || 'Login inválido.')
-    }
-    setCloudToken(res.data.token)
-    saveDatabase(res.data.database)
-    markSynced(res.data.database.version)
-    return res.data
+    throw new Error(lastError)
   },
 
   async register(input: {
