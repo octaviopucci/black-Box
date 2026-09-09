@@ -4,16 +4,16 @@ Projeto unificado em `projects/iphone-imports/`:
 
 | Parte | URL em produção |
 |-------|-----------------|
-| Loja | `https://iphoneimports.vercel.app/` |
-| Gestor | `https://iphoneimports.vercel.app/gestor/` |
-| API | `https://iphoneimports.vercel.app/api/iphone-imports` |
+| Loja | `https://loja-iphoneimports.vercel.app/` |
+| Gestor | `https://loja-iphoneimports.vercel.app/gestor/` |
+| API | `https://loja-iphoneimports.vercel.app/api/iphone-imports` |
 
 ## Vercel (recomendado)
 
 1. Projeto Vercel com **Root Directory** = `projects/iphone-imports`
-2. Domínio: `iphoneimports.vercel.app`
+2. Domínio: `loja-iphoneimports.vercel.app`
 3. Variáveis de ambiente (opcional):
-   - `BLOB_READ_WRITE_TOKEN` — persistência na nuvem (multi-dispositivo)
+   - `BLOB_READ_WRITE_TOKEN` — persistência na nuvem (recomendado em produção)
    - `NEXT_PUBLIC_STORE_SLUG` — slug da loja no catálogo (padrão: `iphone-imports`)
 
 O `vercel.json` já configura build, API serverless e SPA do gestor.
@@ -24,17 +24,21 @@ O `vercel.json` já configura build, API serverless e SPA do gestor.
 cd projects/iphone-imports
 npm ci --include=dev
 npm --prefix gestor ci --include=dev
-npm run build:deploy
+npm run vercel-build
 ```
 
-Saída: `out/` (loja + `out/gestor/`)
+Saída: `out/` (loja + `out/gestor/`) + `api/dist/handler.cjs`
 
-## Primeiro uso do gestor
+## Login do gestor (loja única)
 
-1. Acesse `/gestor/cadastro`
-2. Crie a loja (anote o **código/slug**)
-3. Configure `NEXT_PUBLIC_STORE_SLUG` no Vercel com esse slug (se diferente de `iphone-imports`)
-4. Cadastre produtos → adicione unidades no estoque → aparecem na loja automaticamente
+| Campo | Valor |
+|-------|-------|
+| Usuário | `admin` |
+| Senha | `adminimports123` |
+| Código da loja | `iphone-imports` |
+
+O catálogo do site é populado automaticamente com os 37 produtos do seed.
+Alterações no estoque pelo gestor refletem na loja em até 15 segundos.
 
 ## Testes
 

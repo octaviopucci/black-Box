@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Apple } from 'lucide-react'
 import { cloudSync } from '@/services/sync'
 import { setSession } from '@/services/database'
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [store, setStore] = useState('')
+  const [username, setUsername] = useState('admin')
+  const [password, setPassword] = useState('adminimports123')
+  const [store, setStore] = useState('iphone-imports')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -43,8 +43,8 @@ export function LoginPage() {
         <button type="submit" className="btn-primary w-full" disabled={loading}>
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
-        <p className="text-center text-sm text-brand-gray">
-          Não tem conta? <Link to="/cadastro" className="text-brand-yellow">Cadastrar loja</Link>
+        <p className="text-center text-xs text-brand-gray">
+          Loja única: iPhone Imports · código <span className="text-brand-yellow">iphone-imports</span>
         </p>
       </form>
     </div>

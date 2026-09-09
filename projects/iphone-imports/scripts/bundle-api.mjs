@@ -12,6 +12,7 @@ await esbuild.build({
   format: 'cjs',
   sourcemap: true,
   external: ['@vercel/blob'],
+  loader: { '.json': 'json' },
 })
 
 console.log('api/dist/handler.cjs gerado')

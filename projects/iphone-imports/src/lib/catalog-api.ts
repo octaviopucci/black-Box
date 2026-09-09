@@ -18,7 +18,7 @@ const API_BASE =
     ? `${window.location.origin}/api/iphone-imports`
     : "/api/iphone-imports");
 
-const STORE_SLUG = process.env.NEXT_PUBLIC_STORE_SLUG || "iphone-imports";
+export const STORE_SLUG = process.env.NEXT_PUBLIC_STORE_SLUG || "iphone-imports";
 
 export async function fetchLiveCatalog(storeSlug = STORE_SLUG): Promise<LiveCatalog | null> {
   try {

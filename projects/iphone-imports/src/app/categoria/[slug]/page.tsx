@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCategoryBySlug } from "@/data/categories";
-import { getProductsByCategory, products } from "@/lib/products";
+import { products } from "@/lib/products";
 import { CategoryPageClient } from "@/components/product/CategoryPage";
 import { storeConfig } from "@/config/store";
 
@@ -48,7 +48,5 @@ export default async function CategoryPage({ params }: PageProps) {
   const category = getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const categoryProducts = getProductsByCategory(slug);
-
-  return <CategoryPageClient category={category} products={categoryProducts} />;
+  return <CategoryPageClient category={category} />;
 }

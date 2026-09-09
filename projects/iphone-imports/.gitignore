@@ -21,6 +21,7 @@
 /gestor/dist
 /gestor/node_modules
 /data
+/api/dist
 *.zip
 
 # misc

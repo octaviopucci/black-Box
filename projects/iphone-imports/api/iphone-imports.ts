@@ -5,11 +5,9 @@ import {
   hashPassword,
   issueToken,
   safeEqual,
-  type CloudOrg,
-  type CloudUser,
 } from './_iphone-imports/store'
-import { buildEmptyStoreDatabase } from './_iphone-imports/tenant'
 import { buildPublicCatalog, getPublicProductBySlug } from './_iphone-imports/catalog'
+import { ensureIphoneImportsStore, STORE_SLUG } from './_iphone-imports/seed'
 import type { OrgDatabase } from './_iphone-imports/types'
 
 function resolvePath(req: VercelRequest): string {
@@ -48,12 +46,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const store = await getStore()
     const path = resolvePath(req)
 
+    if (req.method === 'POST' && path === '/init') {
+      const body = (req.body || {}) as { force?: boolean }
+      const result = await ensureIphoneImportsStore(store, { force: Boolean(body.force) })
+      return json(res, 200, { ok: true, slug: STORE_SLUG, ...result })
+    }
+
+    await ensureIphoneImportsStore(store)
+
     if (req.method === 'GET' && (path === '/health' || path === '/')) {
+      const org = store.findOrgBySlug(STORE_SLUG)
+      const rec = org ? store.data().databases[org.id] : null
+      const db = rec?.data as OrgDatabase | undefined
       return json(res, 200, {
         ok: true,
         service: 'iphone-imports',
         blob: blobConfigured(),
-        orgs: Object.keys(store.data().organizations).length,
+        slug: STORE_SLUG,
+        products: db?.products.length ?? 0,
+        inventory: db?.inventory.filter((u) => u.status === 'available').length ?? 0,
       })
     }
 
@@ -87,86 +98,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 200, product)
     }
 
-    // ---- Auth ----
+    // ---- Auth (loja única) ----
     if (req.method === 'POST' && path === '/auth/register') {
-      const body = (req.body || {}) as {
-        storeName?: string
-        ownerName?: string
-        username?: string
-        password?: string
-        city?: string
-        phone?: string
-      }
-      const storeName = String(body.storeName || '').trim()
-      const ownerName = String(body.ownerName || '').trim()
-      const username = String(body.username || '').trim().toLowerCase()
-      const password = String(body.password || '')
-      const city = String(body.city || '').trim()
-      const phone = String(body.phone || '').trim()
-
-      if (storeName.length < 2) return json(res, 400, { error: 'Informe o nome da loja.' })
-      if (ownerName.length < 2) return json(res, 400, { error: 'Informe o seu nome.' })
-      if (!/^[a-z0-9._-]{3,32}$/.test(username)) {
-        return json(res, 400, { error: 'Usuário: 3–32 caracteres (letras, números, ponto, _ ou -).' })
-      }
-      if (password.length < 6) return json(res, 400, { error: 'Senha com pelo menos 6 caracteres.' })
-
-      const slug = store.uniqueSlug(storeName)
-      const orgId = `org_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
-      const userId = `user_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
-
-      const org: CloudOrg = {
-        id: orgId,
-        name: storeName,
-        slug,
-        createdAt: new Date().toISOString(),
-      }
-      store.data().organizations[orgId] = org
-      store.data().users[userId] = {
-        id: userId,
-        organizationId: orgId,
-        username,
-        passwordHash: hashPassword(password),
-        nome: ownerName,
-        role: 'admin',
-        active: true,
-      }
-
-      const database = buildEmptyStoreDatabase({
-        orgId,
-        orgName: storeName,
-        slug,
-        userId,
-        username,
-        password,
-        ownerName,
-        city,
-        phone,
+      return json(res, 403, {
+        error: 'Cadastro desativado. Use o login admin da iPhone Imports.',
+        slug: STORE_SLUG,
       })
-      store.data().databases[orgId] = {
-        version: 1,
-        updatedAt: new Date().toISOString(),
-        data: database,
-      }
-
-      const token = issueToken()
-      store.data().tokens[token] = {
-        organizationId: orgId,
-        userId,
-        createdAt: new Date().toISOString(),
-      }
-      store.markDirty()
-      await store.persist()
-
-      const session = store.toSession(store.data().users[userId])
-      return json(res, 201, { token, session, database, version: 1, slug })
     }
 
     if (req.method === 'POST' && path === '/auth/login') {
       const body = (req.body || {}) as { username?: string; password?: string; store?: string }
-      const username = String(body.username || '').trim()
+      const username = String(body.username || '').trim().toLowerCase()
       const password = String(body.password || '')
-      const storeSlug = String(body.store || '').trim()
+      const storeSlug = String(body.store || STORE_SLUG).trim()
       if (!username || !password) {
         return json(res, 400, { error: 'Informe usuário e senha.' })
       }

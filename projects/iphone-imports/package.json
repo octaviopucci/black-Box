@@ -8,7 +8,7 @@
     "build": "next build",
     "build:gestor": "VITE_BASE=/gestor/ npm --prefix gestor run build && node scripts/copy-gestor.mjs",
     "build:deploy": "npm run build && npm run build:gestor",
-    "vercel-build": "npm run build:deploy && node scripts/bundle-api.mjs",
+    "vercel-build": "npx tsx scripts/generate-seed-data.mjs && npm run build:deploy && node scripts/bundle-api.mjs",
     "test:api": "npx --yes tsx api/_iphone-imports/catalog.test.ts && npx --yes tsx api/_iphone-imports/integration.test.ts",
     "start": "next start",
     "lint": "eslint"
@@ -33,6 +33,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }

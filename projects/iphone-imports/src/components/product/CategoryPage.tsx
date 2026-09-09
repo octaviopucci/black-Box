@@ -7,15 +7,19 @@ import { ProductFiltersPanel } from "./ProductFilters";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Package } from "lucide-react";
 import { filterAndSortProducts, getPriceRange } from "@/lib/products";
+import { useCatalog } from "@/components/catalog/CatalogProvider";
+import { products as staticProducts } from "@/data/products";
 import type { Category } from "@/types";
-import type { Product, ProductFilters, SortOption } from "@/types";
+import type { ProductFilters, SortOption } from "@/types";
 
 interface CategoryPageProps {
   category: Category;
-  products: Product[];
 }
 
-export function CategoryPageClient({ category, products: initialProducts }: CategoryPageProps) {
+export function CategoryPageClient({ category }: CategoryPageProps) {
+  const { products: catalogProducts, live } = useCatalog();
+  const source = live ? catalogProducts : staticProducts;
+  const initialProducts = source.filter((p) => p.categorySlug === category.slug);
   const [filters, setFilters] = useState<ProductFilters>({
     brands: [],
     colors: [],
