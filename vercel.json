@@ -38,6 +38,11 @@
       "memory": 1024,
       "maxDuration": 60,
       "includeFiles": "api/_traco/**"
+    },
+    "api/iphone-imports.ts": {
+      "memory": 512,
+      "maxDuration": 30,
+      "includeFiles": "api/_iphone-imports/**"
     }
   },
   "rewrites": [
@@ -49,6 +54,8 @@
     { "source": "/api/chama/(.*)", "destination": "/api/chama?path=$1" },
     { "source": "/api/traco", "destination": "/api/traco?path=health" },
     { "source": "/api/traco/(.*)", "destination": "/api/traco?path=$1" },
+    { "source": "/api/iphone-imports", "destination": "/api/iphone-imports?path=health" },
+    { "source": "/api/iphone-imports/(.*)", "destination": "/api/iphone-imports?path=$1" },
     { "source": "/assets/(.*)", "destination": "/lpgestor/assets/$1", "has": [{ "type": "host", "value": "lpgestor.com.br" }] },
     { "source": "/favicon.svg", "destination": "/lpgestor/favicon.svg", "has": [{ "type": "host", "value": "lpgestor.com.br" }] },
     { "source": "/((?!api(?:/|$)|assets(?:/|$)|favicon\\.svg$).*)", "destination": "/lpgestor/index.html", "has": [{ "type": "host", "value": "lpgestor.com.br" }] },
@@ -66,6 +73,8 @@
     { "source": "/clinica-harmonie/(.*)", "destination": "/clinica-harmonie/index.html" },
     { "source": "/octavio-pucci/(.*)", "destination": "/octavio-pucci/index.html" },
     { "source": "/na-veiculos/(.*)", "destination": "/na-veiculos/index.html" },
+    { "source": "/iphone-imports/(.*)", "destination": "/iphone-imports/index.html" },
+    { "source": "/iphone-imports-gestor/(.*)", "destination": "/iphone-imports-gestor/index.html" },
     { "source": "/clinica-matsubara/(.*)", "destination": "/clinica-matsubara/index.html" },
     { "source": "/danielle-matsubara/(.*)", "destination": "/danielle-matsubara/index.html" },
     { "source": "/gl-locacoes/(.*)", "destination": "/gl-locacoes/index.html" },
@@ -81,7 +90,7 @@
     { "source": "/dra-laila-correa/(.*)", "destination": "/dra-laila-correa/index.html" },
     { "source": "/dra-barbara-alencar/(.*)", "destination": "/dra-barbara-alencar/index.html" },
     { "source": "/nutri-luiza-rimoli/(.*)", "destination": "/nutri-luiza-rimoli/index.html" },
-    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|clinica-matsubara|danielle-matsubara|gl-locacoes|lais-felicia|dra-nathalia-rigo|protocolo-pav|rian|chama|traco|heitor-da-gelsa|estudio-clow|dra-laila-correa|dra-barbara-alencar|nutri-luiza-rimoli|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
+    { "source": "/((?!api(?:/|$)|pix(?:/|$)|lp-motors-x|lp-motors|maciel-motors-x|maciel-motors|porthal-imoveis|marcio-mariano|sogov|clinica-dna|dr-marcelo-prado|clinica-harmonie|octavio-pucci|na-veiculos|iphone-imports-gestor|iphone-imports|clinica-matsubara|danielle-matsubara|gl-locacoes|lais-felicia|dra-nathalia-rigo|protocolo-pav|rian|chama|traco|heitor-da-gelsa|estudio-clow|dra-laila-correa|dra-barbara-alencar|nutri-luiza-rimoli|cbx|assets|favicon|icons).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
