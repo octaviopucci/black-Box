@@ -3,6 +3,8 @@ import { storeConfig } from "@/config/store";
 import { products } from "@/data/products";
 import { categories } from "@/data/categories";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = storeConfig.siteUrl;
 
