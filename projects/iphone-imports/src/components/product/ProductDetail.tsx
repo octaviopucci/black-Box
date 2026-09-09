@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { MessageCircle, ShoppingCart, Heart } from "lucide-react";
 import { ProductGallery } from "./ProductGallery";
+import { LiveStockBadge } from "./LiveStockBadge";
 import { Price } from "@/components/ui/Price";
 import { Rating } from "@/components/ui/Rating";
 import { Button } from "@/components/ui/Button";
@@ -109,11 +110,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
           </div>
 
           <p className="mt-2 text-sm">
-            {product.stock ? (
-              <span className="text-green-600 font-medium">Disponível</span>
-            ) : (
-              <span className="text-red-500 font-medium">Indisponível</span>
-            )}
+            <LiveStockBadge slug={product.slug} fallbackStock={product.stock} />
           </p>
 
           {product.colors && product.colors.length > 0 && (

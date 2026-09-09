@@ -18,6 +18,7 @@ export interface Product {
   new?: boolean;
   sale?: boolean;
   stock: boolean;
+  stockQuantity?: number;
   rating?: number;
   reviews?: number;
   specs?: Record<string, string>;

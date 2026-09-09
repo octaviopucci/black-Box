@@ -1,3 +1,4 @@
+import { LiveCatalogSections } from "@/components/catalog/LiveCatalogSections";
 import { Hero } from "@/components/home/Hero";
 import { Benefits } from "@/components/home/Benefits";
 import { MaintenanceServices } from "@/components/home/MaintenanceServices";
@@ -32,6 +33,8 @@ export default function HomePage() {
       <Benefits />
       <MaintenanceServices />
       <PromoBar />
+
+      <LiveCatalogSections />
 
       <section className="section-white py-14 md:py-20">
         <div className="container-store">
