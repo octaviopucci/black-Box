@@ -22,7 +22,33 @@ async function login(slug) {
     body: JSON.stringify({ username, password, store: slug }),
   })
   const data = await res.json()
+  if (res.status === 409 && data.stores?.length) {
+    const retry = await fetch(`${baseUrl}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, store: data.stores[0].slug }),
+    })
+    const retryData = await retry.json()
+    if (!retry.ok) throw new Error(retryData.error || `Login falhou (${retry.status})`)
+    return retryData
+  }
   if (!res.ok) throw new Error(data.error || `Login falhou (${res.status})`)
+  return data
+}
+
+async function register() {
+  const res = await fetch(`${baseUrl}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      storeName: 'iPhone Imports',
+      ownerName: 'Administrador',
+      username,
+      password,
+    }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || `Registro falhou (${res.status})`)
   return data
 }
 
@@ -47,10 +73,13 @@ async function main() {
   let session
   try {
     session = await login(storeSlug)
-  } catch (err) {
-    console.error('Login com slug fixo falhou:', err.message)
-    console.log('Tentando descobrir slug via registro/login sem loja...')
-    session = await login('')
+  } catch {
+    try {
+      session = await login('')
+    } catch {
+      console.log('Registrando loja iPhone Imports...')
+      session = await register()
+    }
   }
 
   const orgId = session.session.organizationId

@@ -24,7 +24,22 @@ async function api<T>(path: string, options: RequestInit = {}): Promise<{ ok: bo
   return { ok: res.ok, status: res.status, data }
 }
 
-const STORE_SLUG_FALLBACKS = ['iphone-imports', 'iphone-imports-9c11']
+const STORE_SLUG_FALLBACKS = ['iphone-imports']
+
+type LoginResponse = {
+  token?: string
+  session?: SessionUser
+  database?: OrgDatabase
+  error?: string
+  stores?: { slug: string; name: string }[]
+}
+
+async function attemptLogin(username: string, password: string, storeSlug?: string) {
+  return api<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password, store: storeSlug }),
+  })
+}
 
 export const cloudSync = {
   async login(username: string, password: string, store?: string) {
@@ -32,19 +47,7 @@ export const cloudSync = {
 
     let lastError = 'Login inválido.'
     for (const slug of slugCandidates) {
-      const res = await api<{
-        token?: string
-        session?: SessionUser
-        database?: OrgDatabase
-        error?: string
-        stores?: { slug: string; name: string }[]
-      }>('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ username, password, store: slug }),
-      })
-      if (res.status === 409) {
-        throw new Error(res.data.error || 'Informe o código da loja.')
-      }
+      const res = await attemptLogin(username, password, slug)
       if (res.ok && res.data.token && res.data.database) {
         setCloudToken(res.data.token)
         saveDatabase(res.data.database)
@@ -53,6 +56,20 @@ export const cloudSync = {
       }
       lastError = res.data.error || lastError
     }
+
+    const ambiguous = await attemptLogin(username, password)
+    if (ambiguous.status === 409 && ambiguous.data.stores?.length) {
+      for (const option of ambiguous.data.stores) {
+        const res = await attemptLogin(username, password, option.slug)
+        if (res.ok && res.data.token && res.data.database) {
+          setCloudToken(res.data.token)
+          saveDatabase(res.data.database)
+          markSynced(res.data.database.version)
+          return res.data
+        }
+      }
+    }
+
     throw new Error(lastError)
   },
 
