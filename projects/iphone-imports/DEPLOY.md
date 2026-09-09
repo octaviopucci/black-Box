@@ -1,21 +1,42 @@
-# Deploy na Netlify — iPhone Imports
+# Deploy na Netlify — iPhone Imports (sem ZIP)
 
-## Opção 1 — Arrastar e soltar (mais rápido)
+> **Não use ZIP baixado de link externo.** Antivírus costumam marcar builds Next.js (muitos arquivos `.js`) como falso positivo. O site é só HTML/CSS/JS estático — não há executáveis.
 
-1. Baixe o ZIP **`iphone-imports-netlify-site.zip`** (pasta `out` já compilada).
-2. Acesse [app.netlify.com/drop](https://app.netlify.com/drop).
-3. Arraste o ZIP ou a pasta descompactada para a área de upload.
-4. Pronto — o site ficará no ar em segundos.
+## Opção recomendada — Netlify + GitHub
 
-## Opção 2 — Projeto completo (build na Netlify)
+1. Acesse [app.netlify.com](https://app.netlify.com) → **Add new site** → **Import an existing project**
+2. Conecte o repositório **black-Box** no GitHub
+3. Escolha o branch `cursor/iphone-imports-ecommerce-bbb9` (ou `main` após merge do PR)
+4. Configure:
 
-1. Baixe o ZIP **`iphone-imports-projeto.zip`**.
-2. No Netlify: **Add new site → Deploy manually** ou conecte um repositório Git.
-3. Se fizer upload manual do projeto:
-   - **Build command:** `npm ci && npm run build`
-   - **Publish directory:** `out`
-   - **Node version:** 22
+| Campo | Valor |
+|-------|--------|
+| **Base directory** | `projects/iphone-imports` |
+| **Build command** | `npm ci && npm run build` |
+| **Publish directory** | `out` |
+| **Node version** | 22 |
+
+5. Deploy. Cada push no branch refaz o build automaticamente.
+
+## Opção 2 — Build no seu computador
+
+```bash
+git clone https://github.com/octaviopucci/black-Box.git
+cd black-Box/projects/iphone-imports
+npm install
+npm run build
+```
+
+A pasta `out/` é o site pronto. No Netlify Drop, arraste **só essa pasta** (gerada por você — não baixe ZIP de terceiros).
+
+## Opção 3 — Netlify CLI
+
+```bash
+cd projects/iphone-imports
+npm ci && npm run build
+npx netlify-cli deploy --prod --dir=out
+```
 
 ## Depois do deploy
 
-Edite `src/config/store.ts` (WhatsApp, Instagram, etc.) e faça novo build/upload.
+Edite `src/config/store.ts` (WhatsApp, Instagram, etc.), commit e push — o Netlify rebuilda sozinho se estiver ligado ao Git.
