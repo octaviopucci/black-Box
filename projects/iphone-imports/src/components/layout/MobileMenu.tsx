@@ -4,6 +4,7 @@ import Link from "next/link";
 import { X } from "lucide-react";
 import { categories } from "@/data/categories";
 import { SearchBar } from "./SearchBar";
+import { Logo } from "./Logo";
 
 interface MobileMenuProps {
   open: boolean;
@@ -18,10 +19,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className="absolute left-0 top-0 bottom-0 w-[min(320px,88vw)] overflow-y-auto bg-brand-black text-white">
         <div className="flex items-center justify-between border-b border-brand-border p-4">
-          <span className="text-lg font-black">
-            <span className="text-white">iPhone </span>
-            <span className="text-brand-yellow">Imports</span>
-          </span>
+          <Logo asLink={false} />
           <button onClick={onClose} aria-label="Fechar menu" className="rounded-lg p-1 hover:bg-white/10">
             <X className="h-5 w-5" />
           </button>

@@ -1,5 +1,6 @@
 import { Hero } from "@/components/home/Hero";
 import { Benefits } from "@/components/home/Benefits";
+import { MaintenanceServices } from "@/components/home/MaintenanceServices";
 import { CategoryCard } from "@/components/home/CategoryCard";
 import { PromoBanner } from "@/components/home/PromoBanner";
 import { PromoBar } from "@/components/home/PromoBar";
@@ -29,6 +30,7 @@ export default function HomePage() {
     <>
       <Hero />
       <Benefits />
+      <MaintenanceServices />
       <PromoBar />
 
       <section className="section-white py-14 md:py-20">

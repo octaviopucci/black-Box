@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Shield, Zap } from "lucide-react";
-import { heroImages } from "@/data/images";
+import { heroImages, heroBackground } from "@/data/images";
 
 const floating = [
   { src: heroImages.iphone, alt: "iPhone", className: "right-[2%] top-[5%] w-[52%] z-20", priority: true },
@@ -13,14 +13,24 @@ const floating = [
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-brand-black text-white">
-      <div className="absolute inset-0 grid-pattern opacity-60" />
-      <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand-yellow/10 blur-3xl" />
-      <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand-yellow/5 blur-3xl" />
+      <Image
+        src={heroBackground}
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
+        aria-hidden
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-brand-black via-brand-black/92 to-brand-black/75" />
+      <div className="absolute inset-0 bg-gradient-to-t from-brand-black/80 via-transparent to-brand-black/40" />
+      <div className="absolute inset-0 grid-pattern opacity-40" />
+      <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand-yellow/8 blur-3xl" />
 
-      <div className="container-store relative">
+      <div className="container-store relative z-10">
         <div className="grid items-center gap-10 py-14 md:grid-cols-2 md:py-20 lg:py-28">
           <div className="fade-in">
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-yellow/30 bg-brand-yellow/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-yellow">
+            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-yellow/30 bg-brand-yellow/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-yellow backdrop-blur-sm">
               <Zap className="h-3.5 w-3.5" />
               Ofertas da semana
             </span>
@@ -34,8 +44,8 @@ export function Hero() {
             </h1>
 
             <p className="mt-5 max-w-md text-base leading-relaxed text-brand-gray md:text-lg">
-              iPhones, acessórios e eletrônicos selecionados. Atendimento rápido
-              pelo WhatsApp e condições especiais.
+              iPhones, acessórios, eletrônicos e manutenção especializada.
+              Atendimento rápido pelo WhatsApp.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -71,11 +81,10 @@ export function Hero() {
           </div>
 
           <div className="relative mx-auto aspect-square w-full max-w-lg">
-            <div className="absolute inset-4 rounded-[2rem] border border-brand-yellow/20 bg-brand-surface/50 glow-yellow" />
-            <div className="absolute inset-0 rounded-[2rem] product-image-bg opacity-40" />
+            <div className="absolute inset-4 rounded-[2rem] border border-brand-yellow/20 bg-brand-black/40 glow-yellow backdrop-blur-sm" />
             {floating.map((item) => (
               <div key={item.alt} className={`absolute ${item.className}`}>
-                <div className="rounded-2xl bg-brand-surface/80 p-3 ring-1 ring-white/10 backdrop-blur-sm">
+                <div className="rounded-2xl bg-brand-surface/90 p-3 ring-1 ring-white/10 backdrop-blur-md">
                   <Image
                     src={item.src}
                     alt={item.alt}

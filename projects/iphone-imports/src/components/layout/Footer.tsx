@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { storeConfig } from "@/config/store";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { Logo } from "./Logo";
 
 const institutional = [
   { label: "Sobre nós", href: "/sobre" },
@@ -29,10 +30,9 @@ export function Footer() {
       <div className="container-store py-12 md:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h3 className="mb-4 text-lg font-black">
-              <span className="text-white">iPhone </span>
-              <span className="text-brand-yellow">Imports</span>
-            </h3>
+            <div className="mb-4">
+              <Logo asLink={false} className="text-lg" />
+            </div>
             <p className="text-sm leading-relaxed text-brand-gray">
               {storeConfig.description}
             </p>

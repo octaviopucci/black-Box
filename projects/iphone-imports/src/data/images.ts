@@ -32,3 +32,7 @@ export const heroImages = {
   watch: u("1434493789847-2f02dc6ca35d", 600),
   charger: u("1588872657578-7efd1f1555ed", 500),
 };
+
+/** Fundo hero — paleta escura, tema tecnologia/iPhone */
+export const heroBackground =
+  "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=1920&h=1080&fit=crop&auto=format&q=80";

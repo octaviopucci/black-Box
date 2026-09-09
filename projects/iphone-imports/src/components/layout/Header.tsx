@@ -8,6 +8,7 @@ import { categories } from "@/data/categories";
 import { useCartStore } from "@/store/cart";
 import { SearchBar } from "./SearchBar";
 import { MobileMenu } from "./MobileMenu";
+import { Logo } from "./Logo";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -30,10 +31,7 @@ export function Header() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <Link href="/" className="shrink-0 text-lg font-black tracking-tight md:text-xl">
-              <span className="text-white">iPhone </span>
-              <span className="text-brand-yellow">Imports</span>
-            </Link>
+            <Logo />
 
             <div className="hidden flex-1 lg:block lg:mx-6 lg:max-w-lg">
               <SearchBar variant="dark" />
