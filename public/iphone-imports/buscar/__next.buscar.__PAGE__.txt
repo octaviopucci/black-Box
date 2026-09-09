@@ -1,0 +1,23 @@
+1:"$Sreact.fragment"
+2:I[16543,["/iphone-imports/_next/static/chunks/3mgv_k5q00y5s.js","/iphone-imports/_next/static/chunks/3f91dm6odjyqi.js","/iphone-imports/_next/static/chunks/3xb5jump5xpmj.js"],"ClientPageRoot"]
+3:I[67301,["/iphone-imports/_next/static/chunks/3mgv_k5q00y5s.js","/iphone-imports/_next/static/chunks/3f91dm6odjyqi.js","/iphone-imports/_next/static/chunks/3xb5jump5xpmj.js","/iphone-imports/_next/static/chunks/085dk48wmfi-l.js"],"default"]
+6:I[50325,["/iphone-imports/_next/static/chunks/3mgv_k5q00y5s.js","/iphone-imports/_next/static/chunks/3f91dm6odjyqi.js","/iphone-imports/_next/static/chunks/3xb5jump5xpmj.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+b:I[50325,["/iphone-imports/_next/static/chunks/3mgv_k5q00y5s.js","/iphone-imports/_next/static/chunks/3f91dm6odjyqi.js","/iphone-imports/_next/static/chunks/3xb5jump5xpmj.js"],"ViewportBoundary"]
+c:I[50325,["/iphone-imports/_next/static/chunks/3mgv_k5q00y5s.js","/iphone-imports/_next/static/chunks/3f91dm6odjyqi.js","/iphone-imports/_next/static/chunks/3xb5jump5xpmj.js"],"MetadataBoundary"]
+e:I[60772,["/iphone-imports/_next/static/chunks/3mgv_k5q00y5s.js","/iphone-imports/_next/static/chunks/3f91dm6odjyqi.js","/iphone-imports/_next/static/chunks/3xb5jump5xpmj.js"],"default"]
+f:I[84829,["/iphone-imports/_next/static/chunks/3mgv_k5q00y5s.js","/iphone-imports/_next/static/chunks/3f91dm6odjyqi.js","/iphone-imports/_next/static/chunks/3xb5jump5xpmj.js"],"default"]
+a:X
+11:X
+11:C
+0:{"buildId":"FWDyo1MZ40GCwse5u3dU9","data":[{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/iphone-imports/_next/static/chunks/085dk48wmfi-l.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":"$@9","staleTime":"$a","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$Lb",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$Lc",null,{"children":["$","$7",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"iPhones e Acessórios | iPhone Imports"}],["$","meta","1",{"name":"description","content":"iPhones, smartphones, acessórios e eletrônicos com atendimento rápido."}],["$","meta","2",{"name":"robots","content":"index, follow"}],["$","meta","3",{"property":"og:title","content":"iPhone Imports"}],["$","meta","4",{"property":"og:description","content":"iPhones, smartphones, acessórios e eletrônicos com atendimento rápido."}],["$","meta","5",{"property":"og:site_name","content":"iPhone Imports"}],["$","meta","6",{"property":"og:locale","content":"pt_BR"}],["$","meta","7",{"property":"og:type","content":"website"}],["$","meta","8",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","9",{"name":"twitter:title","content":"iPhone Imports"}],["$","meta","10",{"name":"twitter:description","content":"iPhones, smartphones, acessórios e eletrônicos com atendimento rápido."}]]}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"isPartial":"$@d","staleTime":"$a","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Le",null,{"parallelRouterKey":"children","template":["$","$Lf",null,{}]}]]}],"isPartial":"$@10","staleTime":"$a","varyParams":"$11"}],"isUpgradeableISRFallback":false,"a":"$@12","rootVaryParams":null,"needsRuntimeRequest":"$@13"}
+4:{}
+5:"$0:data:0:rsc:props:children:0:props:serverProvidedParams:params"
+8:null
+13:true
+a:300
+a:C
+12:0
+d:"$undefined"
+10:"$undefined"
+9:"$undefined"

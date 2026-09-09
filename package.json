@@ -47,6 +47,7 @@
     "build:harmonie": "npm --prefix apps/clinica-harmonie ci --include=dev && VITE_BASE=/clinica-harmonie/ VITE_OUT_DIR=dist npm --prefix apps/clinica-harmonie run build",
     "build:pucci": "npm --prefix apps/octavio-pucci ci --include=dev && VITE_BASE=/octavio-pucci/ VITE_OUT_DIR=dist npm --prefix apps/octavio-pucci run build",
     "build:na": "npm --prefix projects/na-veiculos ci --include=dev && NEXT_BASE_PATH=/na-veiculos NEXT_PUBLIC_BASE_PATH=/na-veiculos npm --prefix projects/na-veiculos run build && node scripts/publish-project-site.mjs na-veiculos",
+    "build:iphone-imports": "npm --prefix projects/iphone-imports ci --include=dev && NEXT_BASE_PATH=/iphone-imports NEXT_PUBLIC_BASE_PATH=/iphone-imports npm --prefix projects/iphone-imports run build && node scripts/publish-project-site.mjs iphone-imports",
     "build:matsubara": "npm --prefix apps/clinica-matsubara ci --include=dev && VITE_BASE=/clinica-matsubara/ VITE_OUT_DIR=dist npm --prefix apps/clinica-matsubara run build",
     "build:danielle": "npm --prefix apps/danielle-matsubara ci --include=dev && VITE_BASE=/danielle-matsubara/ VITE_OUT_DIR=dist npm --prefix apps/danielle-matsubara run build",
     "build:gl": "npm --prefix apps/gl-locacoes ci --include=dev && VITE_BASE=/gl-locacoes/ VITE_OUT_DIR=dist npm --prefix apps/gl-locacoes run build",
