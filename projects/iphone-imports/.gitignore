@@ -18,6 +18,9 @@
 # production
 /build
 /dist
+/gestor/dist
+/gestor/node_modules
+/data
 *.zip
 
 # misc
@@ -36,3 +39,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.vercel

@@ -1,0 +1,29 @@
+{
+  "buildCommand": "npm run build:deploy",
+  "outputDirectory": "out",
+  "installCommand": "npm ci --include=dev && npm --prefix gestor ci --include=dev",
+  "framework": null,
+  "functions": {
+    "api/iphone-imports.ts": {
+      "memory": 512,
+      "maxDuration": 30,
+      "includeFiles": "api/_iphone-imports/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/iphone-imports", "destination": "/api/iphone-imports?path=health" },
+    { "source": "/api/iphone-imports/(.*)", "destination": "/api/iphone-imports?path=$1" },
+    { "source": "/gestor", "destination": "/gestor/index.html" },
+    { "source": "/gestor/(.*)", "destination": "/gestor/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
+    }
+  ]
+}

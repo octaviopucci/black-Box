@@ -1,42 +1,43 @@
-# Deploy na Netlify — iPhone Imports (sem ZIP)
+# Deploy — iPhone Imports (site + gestor + API)
 
-> **Não use ZIP baixado de link externo.** Antivírus costumam marcar builds Next.js (muitos arquivos `.js`) como falso positivo. O site é só HTML/CSS/JS estático — não há executáveis.
+Projeto unificado em `projects/iphone-imports/`:
 
-## Opção recomendada — Netlify + GitHub
+| Parte | URL em produção |
+|-------|-----------------|
+| Loja | `https://iphoneimports.vercel.app/` |
+| Gestor | `https://iphoneimports.vercel.app/gestor/` |
+| API | `https://iphoneimports.vercel.app/api/iphone-imports` |
 
-1. Acesse [app.netlify.com](https://app.netlify.com) → **Add new site** → **Import an existing project**
-2. Conecte o repositório **black-Box** no GitHub
-3. Escolha o branch `cursor/iphone-imports-ecommerce-bbb9` (ou `main` após merge do PR)
-4. Configure:
+## Vercel (recomendado)
 
-| Campo | Valor |
-|-------|--------|
-| **Base directory** | `projects/iphone-imports` |
-| **Build command** | `npm ci && npm run build` |
-| **Publish directory** | `out` |
-| **Node version** | 22 |
+1. Projeto Vercel com **Root Directory** = `projects/iphone-imports`
+2. Domínio: `iphoneimports.vercel.app`
+3. Variáveis de ambiente (opcional):
+   - `BLOB_READ_WRITE_TOKEN` — persistência na nuvem (multi-dispositivo)
+   - `NEXT_PUBLIC_STORE_SLUG` — slug da loja no catálogo (padrão: `iphone-imports`)
 
-5. Deploy. Cada push no branch refaz o build automaticamente.
+O `vercel.json` já configura build, API serverless e SPA do gestor.
 
-## Opção 2 — Build no seu computador
-
-```bash
-git clone https://github.com/octaviopucci/black-Box.git
-cd black-Box/projects/iphone-imports
-npm install
-npm run build
-```
-
-A pasta `out/` é o site pronto. No Netlify Drop, arraste **só essa pasta** (gerada por você — não baixe ZIP de terceiros).
-
-## Opção 3 — Netlify CLI
+## Build local
 
 ```bash
 cd projects/iphone-imports
-npm ci && npm run build
-npx netlify-cli deploy --prod --dir=out
+npm ci --include=dev
+npm --prefix gestor ci --include=dev
+npm run build:deploy
 ```
 
-## Depois do deploy
+Saída: `out/` (loja + `out/gestor/`)
 
-Edite `src/config/store.ts` (WhatsApp, Instagram, etc.), commit e push — o Netlify rebuilda sozinho se estiver ligado ao Git.
+## Primeiro uso do gestor
+
+1. Acesse `/gestor/cadastro`
+2. Crie a loja (anote o **código/slug**)
+3. Configure `NEXT_PUBLIC_STORE_SLUG` no Vercel com esse slug (se diferente de `iphone-imports`)
+4. Cadastre produtos → adicione unidades no estoque → aparecem na loja automaticamente
+
+## Testes
+
+```bash
+npm run test:api   # 13 testes estoque ↔ catálogo
+```
