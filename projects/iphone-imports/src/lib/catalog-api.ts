@@ -20,7 +20,7 @@ const API_BASE =
 
 export const STORE_SLUG = process.env.NEXT_PUBLIC_STORE_SLUG || "iphone-imports";
 
-const FALLBACK_SLUGS = ["iphone-imports", "iphone-imports-9c11"];
+const FALLBACK_SLUGS = ["iphone-imports"];
 
 async function fetchCatalogForSlug(storeSlug: string): Promise<LiveCatalog | null> {
   const res = await fetch(`${API_BASE}/catalog/${storeSlug}`, { cache: "no-store" });
@@ -28,8 +28,20 @@ async function fetchCatalogForSlug(storeSlug: string): Promise<LiveCatalog | nul
   return (await res.json()) as LiveCatalog;
 }
 
+async function discoverStoreSlug(): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_BASE}/health`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const health = (await res.json()) as { slug?: string };
+    return health.slug || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchLiveCatalog(storeSlug = STORE_SLUG): Promise<LiveCatalog | null> {
-  const slugs = [storeSlug, ...FALLBACK_SLUGS.filter((s) => s !== storeSlug)];
+  const discovered = await discoverStoreSlug();
+  const slugs = [...new Set([discovered, storeSlug, ...FALLBACK_SLUGS].filter(Boolean))] as string[];
   for (const slug of slugs) {
     try {
       const data = await fetchCatalogForSlug(slug);
