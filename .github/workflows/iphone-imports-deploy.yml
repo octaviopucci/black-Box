@@ -1,0 +1,37 @@
+name: Deploy iPhone Imports (loja)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'projects/iphone-imports/**'
+      - '.github/workflows/iphone-imports-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy hook (loja-iphoneimports)
+        env:
+          HOOK: ${{ secrets.IPHONE_IMPORTS_VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$HOOK" ]; then
+            curl -fsS -X POST "$HOOK"
+            echo "Deploy hook triggered for loja-iphoneimports."
+          else
+            echo "IPHONE_IMPORTS_VERCEL_DEPLOY_HOOK not configured — skipping."
+            echo "Configure em: Vercel → loja-iphoneimports → Settings → Git ou Deploy Hooks"
+          fi
+
+      - name: Build verify
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: projects/iphone-imports/package-lock.json
+      - run: npm --prefix projects/iphone-imports ci --include=dev
+      - run: npm --prefix projects/iphone-imports/gestor ci --include=dev
+      - run: npm --prefix projects/iphone-imports run vercel-build
+      - run: npm --prefix projects/iphone-imports run test:api
