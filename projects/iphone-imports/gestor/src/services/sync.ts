@@ -11,6 +11,31 @@ import {
 
 const API_BASE = '/api/iphone-imports'
 
+export type SyncState = 'idle' | 'syncing' | 'synced' | 'error' | 'offline'
+
+type SyncListener = (state: SyncState, message?: string) => void
+
+let syncState: SyncState = 'idle'
+let syncMessage: string | undefined
+const listeners = new Set<SyncListener>()
+let pushTimer: ReturnType<typeof setTimeout> | null = null
+
+function setSyncState(state: SyncState, message?: string) {
+  syncState = state
+  syncMessage = message
+  for (const listener of listeners) listener(state, message)
+}
+
+export function getSyncState(): { state: SyncState; message?: string } {
+  return { state: syncState, message: syncMessage }
+}
+
+export function onSyncStateChange(listener: SyncListener): () => void {
+  listeners.add(listener)
+  listener(syncState, syncMessage)
+  return () => listeners.delete(listener)
+}
+
 async function api<T>(path: string, options: RequestInit = {}): Promise<{ ok: boolean; status: number; data: T }> {
   const token = getCloudToken()
   const headers: Record<string, string> = {
@@ -52,6 +77,7 @@ export const cloudSync = {
         setCloudToken(res.data.token)
         saveDatabase(res.data.database)
         markSynced(res.data.database.version)
+        setSyncState('synced', 'Conectado à nuvem')
         return res.data
       }
       lastError = res.data.error || lastError
@@ -65,6 +91,7 @@ export const cloudSync = {
           setCloudToken(res.data.token)
           saveDatabase(res.data.database)
           markSynced(res.data.database.version)
+          setSyncState('synced', 'Conectado à nuvem')
           return res.data
         }
       }
@@ -94,36 +121,62 @@ export const cloudSync = {
     setCloudToken(res.data.token)
     saveDatabase(res.data.database)
     markSynced(1)
+    setSyncState('synced', 'Loja criada e sincronizada')
     return res.data
   },
 
-  async push(db?: OrgDatabase) {
+  async push(db?: OrgDatabase): Promise<{ ok: boolean; message: string }> {
     const payload = db || loadDatabase()
     if (!payload) return { ok: false, message: 'Sem dados locais.' }
+    if (!getCloudToken()) {
+      setSyncState('offline', 'Faça login para sincronizar com o site')
+      return { ok: false, message: 'Sem token de sessão. Faça login novamente.' }
+    }
+
+    setSyncState('syncing', 'Enviando para o site...')
     const res = await api<{ version?: number; error?: string }>('/db', {
       method: 'PUT',
       body: JSON.stringify({ database: payload, clientVersion: getSyncVersion() }),
     })
-    if (!res.ok) return { ok: false, message: res.data.error || 'Falha ao sincronizar' }
-    markSynced(res.data.version || getSyncVersion() + 1)
-    return { ok: true }
+
+    if (!res.ok) {
+      const message = res.data.error || `Falha ao sincronizar (HTTP ${res.status})`
+      setSyncState('error', message)
+      return { ok: false, message }
+    }
+
+    const nextVersion = res.data.version || getSyncVersion() + 1
+    payload.version = nextVersion
+    saveDatabase(payload)
+    markSynced(nextVersion)
+    setSyncState('synced', 'Site atualizado')
+    return { ok: true, message: 'Sincronizado com o site' }
   },
 
   async pull() {
+    if (!getCloudToken()) return null
     const res = await api<{ database?: OrgDatabase; version?: number }>('/db')
     if (!res.ok || !res.data.database) return null
     saveDatabase(res.data.database)
     markSynced(res.data.version || getSyncVersion())
+    setSyncState('synced', 'Dados carregados da nuvem')
     return res.data.database
   },
 
   schedulePush(db?: OrgDatabase) {
-    if (!getCloudToken()) return
-    setTimeout(() => void cloudSync.push(db), 500)
+    if (!getCloudToken()) {
+      setSyncState('offline', 'Alteração salva localmente — faça login para enviar ao site')
+      return
+    }
+    if (pushTimer) clearTimeout(pushTimer)
+    pushTimer = setTimeout(() => {
+      void cloudSync.push(db)
+    }, 400)
   },
 }
 
-export function persist(db: OrgDatabase): OrgDatabase {
+export async function persist(db: OrgDatabase): Promise<OrgDatabase> {
+  db.version = (db.version || 0) + 1
   saveDatabase(db)
   cloudSync.schedulePush(db)
   return db

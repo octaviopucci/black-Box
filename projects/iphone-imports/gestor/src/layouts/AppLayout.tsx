@@ -9,6 +9,7 @@ import {
   LogOut,
   Apple,
 } from 'lucide-react'
+import { SyncStatus } from '@/components/SyncStatus'
 import { clearSession, getSession, loadDatabase } from '@/services/database'
 
 const nav = [
@@ -53,7 +54,8 @@ export function AppLayout() {
           })}
         </nav>
         <div className="mt-4 border-t border-brand-border pt-4">
-          <p className="px-2 text-xs text-brand-gray">{session?.nome}</p>
+          <SyncStatus />
+          <p className="mt-2 px-2 text-xs text-brand-gray">{session?.nome}</p>
           <p className="px-2 text-[10px] text-brand-gray">{db?.settings.storeName}</p>
           <button
             onClick={() => {

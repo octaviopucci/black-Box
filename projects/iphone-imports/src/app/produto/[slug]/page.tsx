@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { getProductBySlug, getRelatedProducts, products } from "@/lib/products";
-import { ProductDetail } from "@/components/product/ProductDetail";
+import { products } from "@/lib/products";
+import { LiveProductPage } from "@/components/product/LiveProductPage";
+import { getProductBySlug } from "@/lib/products";
 import { storeConfig } from "@/config/store";
 
 interface PageProps {
@@ -9,13 +9,16 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+  const slugs = products.map((p) => ({ slug: p.slug }));
+  return [...slugs, { slug: "__live__" }];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = getProductBySlug(slug);
-  if (!product) return { title: "Produto não encontrado" };
+  if (!product) {
+    return { title: "Produto | iPhone Imports" };
+  }
 
   return {
     title: product.name,
@@ -30,42 +33,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
-  if (!product) notFound();
-
-  const related = getRelatedProducts(product);
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.shortDescription,
-    image: product.images,
-    brand: { "@type": "Brand", name: product.brand },
-    offers: {
-      "@type": "Offer",
-      price: product.price,
-      priceCurrency: "BRL",
-      availability: product.stock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-    },
-    ...(product.rating && {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: product.rating,
-        reviewCount: product.reviews ?? 1,
-      },
-    }),
-  };
-
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <ProductDetail product={product} related={related} />
-    </>
-  );
+  return <LiveProductPage slug={slug} />;
 }
