@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { notFound } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { notFound, usePathname } from "next/navigation";
 import { ProductDetail } from "./ProductDetail";
 import { fetchLiveProduct } from "@/lib/catalog-api";
 import { getProductBySlug, getRelatedProducts } from "@/lib/products";
@@ -12,7 +12,16 @@ interface LiveProductPageProps {
   slug: string;
 }
 
-export function LiveProductPage({ slug }: LiveProductPageProps) {
+function slugFromPathname(pathname: string, fallback: string): string {
+  const match = pathname.match(/\/produto\/([^/]+)/);
+  const fromUrl = match?.[1];
+  if (fromUrl && fromUrl !== "__live__") return decodeURIComponent(fromUrl);
+  return fallback;
+}
+
+export function LiveProductPage({ slug: slugProp }: LiveProductPageProps) {
+  const pathname = usePathname();
+  const slug = useMemo(() => slugFromPathname(pathname, slugProp), [pathname, slugProp]);
   const { products: catalogProducts, live, loading: catalogLoading } = useCatalog();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
