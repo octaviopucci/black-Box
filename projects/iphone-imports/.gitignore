@@ -22,7 +22,6 @@
 /gestor/node_modules
 /data
 /api/dist
-/api/iphone-imports.js
 /api/iphone-imports.js.map
 *.zip
 

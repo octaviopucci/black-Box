@@ -4,11 +4,10 @@ await esbuild.build({
   entryPoints: ['api/_iphone-imports/handler.ts'],
   bundle: true,
   platform: 'node',
-  target: 'node22',
+  target: 'node20',
   outfile: 'api/iphone-imports.js',
   format: 'cjs',
   sourcemap: true,
-  external: ['@vercel/blob'],
   loader: { '.json': 'json' },
 })
 
