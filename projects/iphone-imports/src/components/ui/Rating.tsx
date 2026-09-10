@@ -18,7 +18,7 @@ export function Rating({ value, reviews, demo, className }: RatingProps) {
             className={cn(
               "h-3.5 w-3.5",
               i < Math.floor(value)
-                ? "fill-brand-yellow text-brand-yellow"
+                ? "fill-brand-silver text-brand-silver"
                 : "fill-brand-border text-brand-border"
             )}
           />

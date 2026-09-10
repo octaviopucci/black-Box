@@ -72,7 +72,7 @@ export function ProductFiltersPanel({
                 type="checkbox"
                 checked={filters.brands.includes(brand)}
                 onChange={() => toggleBrand(brand)}
-                className="accent-brand-yellow"
+                className="accent-brand-silver"
               />
               {brand}
             </label>
@@ -91,7 +91,7 @@ export function ProductFiltersPanel({
                 className={cn(
                   "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
                   filters.colors.includes(color)
-                    ? "border-brand-yellow bg-brand-yellow/10"
+                    ? "border-brand-silver bg-brand-silver/10"
                     : "border-brand-border hover:border-brand-black"
                 )}
               >
@@ -113,7 +113,7 @@ export function ProductFiltersPanel({
                 className={cn(
                   "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
                   filters.storage.includes(s)
-                    ? "border-brand-yellow bg-brand-yellow/10"
+                    ? "border-brand-silver bg-brand-silver/10"
                     : "border-brand-border hover:border-brand-black"
                 )}
               >
@@ -162,7 +162,7 @@ export function ProductFiltersPanel({
             onChange={(e) =>
               onFiltersChange({ ...filters, inStock: e.target.checked || undefined })
             }
-            className="accent-brand-yellow"
+            className="accent-brand-silver"
           />
           Apenas disponíveis
         </label>
@@ -173,7 +173,7 @@ export function ProductFiltersPanel({
             onChange={(e) =>
               onFiltersChange({ ...filters, onSale: e.target.checked || undefined })
             }
-            className="accent-brand-yellow"
+            className="accent-brand-silver"
           />
           Em promoção
         </label>

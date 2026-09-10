@@ -35,7 +35,7 @@ export function LiveHome() {
   return (
     <>
       {live && (
-        <div className="border-b border-brand-yellow/20 bg-brand-yellow/5 py-2 text-center text-xs font-medium text-brand-yellow">
+        <div className="border-b border-brand-silver/20 bg-brand-silver/5 py-2 text-center text-xs font-medium text-brand-silver">
           Estoque sincronizado · atualiza automaticamente a cada 15s
         </div>
       )}
@@ -77,7 +77,7 @@ export function LiveHome() {
           description="Capinhas, películas, carregadores e muito mais."
           ctaLabel="Ver acessórios"
           ctaHref="/categoria/capinhas"
-          variant="yellow"
+          variant="silver"
         />
       </section>
 

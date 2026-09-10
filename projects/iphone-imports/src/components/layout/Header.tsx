@@ -20,7 +20,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-brand-yellow/20 bg-brand-black/95 text-white backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-brand-silver/20 bg-brand-black/95 text-white backdrop-blur-md">
         <div className="container-store">
           <div className="flex h-16 items-center gap-4 md:h-[72px]">
             <button
@@ -42,7 +42,7 @@ export function Header() {
                 <button
                   onMouseEnter={() => setMegaOpen(true)}
                   onMouseLeave={() => setMegaOpen(false)}
-                  className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-brand-yellow"
+                  className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-brand-silver"
                 >
                   Categorias
                   <ChevronDown className="h-4 w-4" />
@@ -58,7 +58,7 @@ export function Header() {
                         <Link
                           key={cat.slug}
                           href={cat.slug === "ofertas" ? "/ofertas" : `/categoria/${cat.slug}`}
-                          className="rounded-lg px-3 py-2.5 text-sm text-white/80 transition-colors hover:bg-brand-yellow/10 hover:text-brand-yellow"
+                          className="rounded-lg px-3 py-2.5 text-sm text-white/80 transition-colors hover:bg-brand-silver/10 hover:text-brand-silver"
                         >
                           {cat.name}
                         </Link>
@@ -71,7 +71,7 @@ export function Header() {
                 <Link
                   key={cat.slug}
                   href={cat.slug === "ofertas" ? "/ofertas" : `/categoria/${cat.slug}`}
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:text-brand-yellow"
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:text-brand-silver"
                 >
                   {cat.name}
                 </Link>
@@ -107,7 +107,7 @@ export function Header() {
               >
                 <ShoppingBag className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-yellow text-[10px] font-black text-brand-black">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-silver text-[10px] font-black text-brand-black">
                     {itemCount > 9 ? "9+" : itemCount}
                   </span>
                 )}

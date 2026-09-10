@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center bg-brand-black px-4 py-16 text-center">
       <div className="grid-pattern absolute inset-0 opacity-20" />
-      <p className="relative text-8xl font-black text-brand-yellow">404</p>
+      <p className="relative text-8xl font-black text-brand-silver">404</p>
       <h1 className="relative mt-4 text-2xl font-black text-white">
         Ops! Essa página saiu de estoque.
       </h1>

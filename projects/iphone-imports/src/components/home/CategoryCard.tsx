@@ -14,7 +14,7 @@ export function CategoryCard({ name, slug, image }: CategoryCardProps) {
   return (
     <Link
       href={href}
-      className="group relative overflow-hidden rounded-2xl border border-brand-border-light bg-white transition-all duration-300 hover:-translate-y-1 hover:border-brand-yellow hover:shadow-[0_12px_40px_rgba(255,212,0,0.15)]"
+      className="group relative overflow-hidden rounded-2xl border border-brand-border-light bg-white transition-all duration-300 hover:-translate-y-1 hover:border-brand-silver hover:shadow-[0_12px_40px_rgba(209,213,219,0.15)]"
     >
       <div className="relative aspect-[4/3] product-image-bg overflow-hidden">
         <Image
@@ -28,7 +28,7 @@ export function CategoryCard({ name, slug, image }: CategoryCardProps) {
       </div>
       <div className="flex items-center justify-between p-4">
         <h3 className="text-sm font-bold text-brand-black">{name}</h3>
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-light text-brand-black transition-colors group-hover:bg-brand-yellow">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-light text-brand-black transition-colors group-hover:bg-brand-silver">
           <ArrowUpRight className="h-4 w-4" />
         </span>
       </div>

@@ -44,7 +44,7 @@ export function Price({
       )}
       <span
         className={cn(
-          dark ? "text-brand-yellow" : "text-brand-black",
+          dark ? "text-brand-silver" : "text-brand-black",
           sizeClasses[size].current
         )}
       >

@@ -33,7 +33,7 @@ export function Testimonials() {
           {testimonials.map((t) => (
             <div
               key={t.name}
-              className="rounded-2xl border border-brand-border-light bg-brand-light p-6 transition-all hover:border-brand-yellow/50 hover:shadow-[0_8px_30px_rgba(255,212,0,0.1)]"
+              className="rounded-2xl border border-brand-border-light bg-brand-light p-6 transition-all hover:border-brand-silver/50 hover:shadow-[0_8px_30px_rgba(209,213,219,0.1)]"
             >
               <Rating value={t.rating} demo className="mb-4" />
               <p className="mb-4 text-sm leading-relaxed text-brand-muted">

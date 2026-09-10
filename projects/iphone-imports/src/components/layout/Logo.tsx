@@ -12,12 +12,12 @@ export function Logo({ className, iconClassName, asLink = true }: LogoProps) {
   const content = (
     <span className={cn("inline-flex items-center gap-1.5 font-black tracking-tight", className)}>
       <Apple
-        className={cn("h-5 w-5 shrink-0 text-brand-yellow md:h-6 md:w-6", iconClassName)}
+        className={cn("h-5 w-5 shrink-0 text-brand-silver md:h-6 md:w-6", iconClassName)}
         aria-hidden
       />
       <span>
         <span className="text-white">iPhone </span>
-        <span className="text-brand-yellow">Imports</span>
+        <span className="text-brand-silver">Imports</span>
       </span>
     </span>
   );

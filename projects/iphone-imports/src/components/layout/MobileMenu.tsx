@@ -28,7 +28,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           <SearchBar variant="dark" onClose={onClose} />
         </div>
         <nav className="px-4 pb-8">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-brand-yellow">
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-brand-silver">
             Categorias
           </p>
           <ul className="space-y-0.5">
@@ -37,7 +37,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 <Link
                   href={cat.slug === "ofertas" ? "/ofertas" : `/categoria/${cat.slug}`}
                   onClick={onClose}
-                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-brand-yellow/10 hover:text-brand-yellow"
+                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-brand-silver/10 hover:text-brand-silver"
                 >
                   {cat.name}
                 </Link>

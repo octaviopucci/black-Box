@@ -57,11 +57,11 @@ export function MaintenanceServices() {
           {services.map((service) => (
             <div
               key={service.title}
-              className="group rounded-2xl border border-brand-border bg-brand-surface/80 p-6 transition-all duration-300 hover:border-brand-yellow/50 hover:shadow-[0_8px_32px_rgba(255,212,0,0.08)]"
+              className="group rounded-2xl border border-brand-border bg-brand-surface/80 p-6 transition-all duration-300 hover:border-brand-silver/50 hover:shadow-[0_8px_32px_rgba(209,213,219,0.08)]"
             >
               <div className="mb-4 flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-yellow/15 transition-colors group-hover:bg-brand-yellow/25">
-                  <service.icon className="h-6 w-6 text-brand-yellow" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-silver/15 transition-colors group-hover:bg-brand-silver/25">
+                  <service.icon className="h-6 w-6 text-brand-silver" />
                 </div>
                 <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-gray">
                   {service.tag}
@@ -75,7 +75,7 @@ export function MaintenanceServices() {
           ))}
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-6 rounded-2xl border border-brand-yellow/20 bg-brand-yellow/5 p-6 md:flex-row md:p-8">
+        <div className="mt-10 flex flex-col items-center justify-between gap-6 rounded-2xl border border-brand-silver/20 bg-brand-silver/5 p-6 md:flex-row md:p-8">
           <div className="text-center md:text-left">
             <p className="text-lg font-bold text-white">
               Precisa de manutenção?
