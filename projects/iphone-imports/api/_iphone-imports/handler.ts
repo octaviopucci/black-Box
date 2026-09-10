@@ -5,10 +5,10 @@ import {
   hashPassword,
   issueToken,
   safeEqual,
-} from './_iphone-imports/store'
-import { buildPublicCatalog, getPublicProductBySlug } from './_iphone-imports/catalog'
-import { ensureIphoneImportsStore, STORE_SLUG } from './_iphone-imports/seed'
-import type { OrgDatabase } from './_iphone-imports/types'
+} from './store'
+import { buildPublicCatalog, getPublicProductBySlug } from './catalog'
+import { ensureIphoneImportsStore, STORE_SLUG } from './seed'
+import type { OrgDatabase } from './types'
 
 function resolvePath(req: VercelRequest): string {
   const q = req.query?.path

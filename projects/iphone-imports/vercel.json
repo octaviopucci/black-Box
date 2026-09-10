@@ -6,11 +6,6 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "out" }
-    },
-    {
-      "src": "api/iphone-imports.ts",
-      "use": "@vercel/node",
-      "config": { "includeFiles": "api/_iphone-imports/**" }
     }
   ],
   "routes": [
