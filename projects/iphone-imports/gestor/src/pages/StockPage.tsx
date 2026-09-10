@@ -2,10 +2,12 @@ import { useState } from 'react'
 import type { DeviceCondition, InventoryUnit, InventoryStatus } from '@/types'
 import { useDatabase } from '@/hooks/useDatabase'
 import { persist } from '@/services/sync'
-import { generateId, nowISO } from '@/utils'
+import { formatCurrency, generateId, nowISO } from '@/utils'
 
 export function StockPage() {
   const [refresh, setRefresh] = useState(0)
+  const [saleModal, setSaleModal] = useState<{ unitId: string; defaultPrice: number } | null>(null)
+  const [salePriceInput, setSalePriceInput] = useState('')
   const db = useDatabase()
 
   const products = db.products
@@ -42,9 +44,36 @@ export function StockPage() {
     setRefresh((r) => r + 1)
   }
 
+  function openSaleModal(unitId: string) {
+    const unit = db.inventory.find((u) => u.id === unitId)
+    if (!unit) return
+    const product = products.find((p) => p.id === unit.productId)
+    const defaultPrice = product?.price ?? 0
+    setSalePriceInput(String(defaultPrice))
+    setSaleModal({ unitId, defaultPrice })
+  }
+
+  function confirmSale() {
+    if (!saleModal) return
+    const unit = db.inventory.find((u) => u.id === saleModal.unitId)
+    if (!unit) return
+    const price = Number(salePriceInput) || saleModal.defaultPrice
+    unit.status = 'sold'
+    unit.salePrice = price
+    unit.soldAt = nowISO()
+    unit.updatedAt = nowISO()
+    persist(db)
+    setSaleModal(null)
+    setRefresh((r) => r + 1)
+  }
+
   function setStatus(unitId: string, status: InventoryStatus) {
     const unit = db.inventory.find((u) => u.id === unitId)
     if (!unit) return
+    if (status === 'sold') {
+      openSaleModal(unitId)
+      return
+    }
     unit.status = status
     unit.updatedAt = nowISO()
     persist(db)
@@ -56,6 +85,35 @@ export function StockPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-black">Estoque por unidade</h1>
+
+      {saleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="card w-full max-w-sm space-y-4">
+            <h2 className="font-bold">Registrar venda</h2>
+            <p className="text-sm text-brand-gray">Informe o valor da venda para o dashboard.</p>
+            <div>
+              <label className="mb-1 block text-xs text-brand-muted">Valor da venda (R$)</label>
+              <input
+                className="input"
+                type="number"
+                step="0.01"
+                min={0}
+                value={salePriceInput}
+                onChange={(e) => setSalePriceInput(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-2">
+              <button type="button" className="btn-primary flex-1" onClick={confirmSale}>
+                Confirmar venda
+              </button>
+              <button type="button" className="btn-secondary flex-1" onClick={() => setSaleModal(null)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={addUnit} className="card grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <h2 className="col-span-full font-bold">Entrada de aparelho</h2>
@@ -95,6 +153,7 @@ export function StockPage() {
               <th className="p-3">Cor / GB</th>
               <th className="p-3">Bateria</th>
               <th className="p-3">Status</th>
+              <th className="p-3">Venda</th>
               <th className="p-3">Ações</th>
             </tr>
           </thead>
@@ -111,15 +170,18 @@ export function StockPage() {
                   <td className="p-3">{u.batteryHealth ? `${u.batteryHealth}%` : '—'}</td>
                   <td className="p-3">
                     <span className={`rounded px-2 py-0.5 text-xs font-bold ${
-                      u.status === 'available' ? 'bg-green-500/20 text-green-400' :
-                      u.status === 'sold' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                      u.status === 'available' ? 'bg-emerald-500/20 text-emerald-400' :
+                      u.status === 'sold' ? 'bg-brand-muted/30 text-brand-silver' : 'bg-brand-border text-brand-gray'
                     }`}>
                       {u.status}
                     </span>
                   </td>
+                  <td className="p-3 text-xs text-brand-gray">
+                    {u.status === 'sold' && u.salePrice ? formatCurrency(u.salePrice) : '—'}
+                  </td>
                   <td className="p-3">
                     {u.status === 'available' && (
-                      <button onClick={() => setStatus(u.id, 'sold')} className="text-xs text-red-400 hover:underline">
+                      <button onClick={() => setStatus(u.id, 'sold')} className="text-xs text-brand-silver hover:underline">
                         Marcar vendido
                       </button>
                     )}

@@ -33,7 +33,7 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <form onSubmit={handleSubmit} className="card w-full max-w-md space-y-4">
         <div className="flex items-center gap-2">
-          <Apple className="h-8 w-8 text-brand-yellow" />
+          <Apple className="h-8 w-8 text-brand-silver" />
           <h1 className="text-xl font-black">Gestor iPhone Imports</h1>
         </div>
         {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
@@ -44,7 +44,7 @@ export function LoginPage() {
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
         <p className="text-center text-xs text-brand-gray">
-          Loja única: iPhone Imports · código <span className="text-brand-yellow">iphone-imports</span>
+          Loja única: iPhone Imports · código <span className="text-brand-silver">iphone-imports</span>
         </p>
       </form>
     </div>

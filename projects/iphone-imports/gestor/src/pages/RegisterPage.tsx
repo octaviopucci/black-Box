@@ -39,7 +39,7 @@ export function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <form onSubmit={handleSubmit} className="card w-full max-w-md space-y-3">
         <h1 className="text-xl font-black">Cadastrar loja</h1>
-        {slug && <p className="text-sm text-brand-yellow">Código da loja: {slug}</p>}
+        {slug && <p className="text-sm text-brand-silver">Código da loja: {slug}</p>}
         {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
         {(['storeName', 'ownerName', 'username', 'password', 'phone', 'city'] as const).map((field) => (
           <input
@@ -65,7 +65,7 @@ export function RegisterPage() {
           {loading ? 'Criando...' : 'Criar loja'}
         </button>
         <p className="text-center text-sm text-brand-gray">
-          Já tem conta? <Link to="/login" className="text-brand-yellow">Entrar</Link>
+          Já tem conta? <Link to="/login" className="text-brand-silver hover:text-brand-accent">Entrar</Link>
         </p>
       </form>
     </div>

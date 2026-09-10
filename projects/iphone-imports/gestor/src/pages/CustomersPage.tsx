@@ -68,7 +68,7 @@ export function CustomersPage() {
             <button
               key={c.id}
               onClick={() => setSelectedId(c.id)}
-              className={`card w-full text-left transition ${selectedId === c.id ? 'border-brand-yellow' : ''}`}
+              className={`card w-full text-left transition ${selectedId === c.id ? 'border-brand-silver' : ''}`}
             >
               <p className="font-bold">{c.name}</p>
               <p className="text-sm text-brand-gray">{c.phone}</p>
@@ -93,7 +93,7 @@ export function CustomersPage() {
             <div className="space-y-2">
               {interactions.map((i) => (
                 <div key={i.id} className="rounded-lg bg-black/30 p-2 text-sm">
-                  <span className="text-xs font-bold text-brand-yellow">{i.type}</span>
+                  <span className="text-xs font-bold text-brand-silver">{i.type}</span>
                   <p>{i.description}</p>
                   <p className="text-[10px] text-brand-gray">{new Date(i.createdAt).toLocaleString('pt-BR')}</p>
                 </div>
