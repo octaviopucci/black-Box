@@ -51,8 +51,9 @@ curl https://loja-iphoneimports.vercel.app/api/iphone-imports/health
 # Deve retornar: "slug":"iphone-imports", "products":37, "inventory":37
 ```
 
-O `vercel.json` usa `api/iphone-imports.ts` como função serverless (sem bundle `builds[]`).
-Rewrites encaminham `/api/iphone-imports/*` para a função com `?path=`.
+O build gera `api/iphone-imports.js` (bundle CJS) durante `vercel-build`.
+O Vercel publica esse arquivo como função serverless junto com o site estático em `out/`.
+Rotas encaminham `/api/iphone-imports/*` para a função com `?path=`.
 
 ## Build local
 
