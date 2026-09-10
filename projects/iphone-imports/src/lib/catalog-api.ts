@@ -23,17 +23,27 @@ export const STORE_SLUG = process.env.NEXT_PUBLIC_STORE_SLUG || "iphone-imports"
 const FALLBACK_SLUGS = ["iphone-imports"];
 
 async function fetchCatalogForSlug(storeSlug: string): Promise<LiveCatalog | null> {
-  const res = await fetch(`${API_BASE}/catalog/${storeSlug}`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return (await res.json()) as LiveCatalog;
+  try {
+    const res = await fetch(`${API_BASE}/catalog/${storeSlug}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = (await res.json()) as LiveCatalog;
+    if (!data?.storeSlug) return null;
+    return {
+      ...data,
+      products: data.products ?? [],
+      categories: data.categories ?? [],
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function discoverStoreSlug(): Promise<string | null> {
   try {
     const res = await fetch(`${API_BASE}/health`, { cache: "no-store" });
     if (!res.ok) return null;
-    const health = (await res.json()) as { slug?: string };
-    return health.slug || null;
+    const health = (await res.json()) as { slug?: string; ok?: boolean };
+    return health.ok && health.slug ? health.slug : null;
   } catch {
     return null;
   }
@@ -41,14 +51,12 @@ async function discoverStoreSlug(): Promise<string | null> {
 
 export async function fetchLiveCatalog(storeSlug = STORE_SLUG): Promise<LiveCatalog | null> {
   const discovered = await discoverStoreSlug();
+  if (!discovered) return null;
+
   const slugs = [...new Set([discovered, storeSlug, ...FALLBACK_SLUGS].filter(Boolean))] as string[];
   for (const slug of slugs) {
-    try {
-      const data = await fetchCatalogForSlug(slug);
-      if (data?.products?.length) return data;
-    } catch {
-      /* tenta próximo slug */
-    }
+    const data = await fetchCatalogForSlug(slug);
+    if (data) return data;
   }
   return null;
 }

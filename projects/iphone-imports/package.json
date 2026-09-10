@@ -10,7 +10,7 @@
     "build:gestor": "VITE_BASE=/gestor/ npm --prefix gestor run build && node scripts/copy-gestor.mjs",
     "build:deploy": "npm run build && npm run build:gestor",
     "vercel-build": "npm --prefix gestor ci --include=dev && npx tsx scripts/generate-seed-data.mjs && npm run build:deploy && node scripts/bundle-api.mjs",
-    "test:api": "npx --yes tsx api/_iphone-imports/catalog.test.ts && npx --yes tsx api/_iphone-imports/integration.test.ts",
+    "test:api": "npx tsx api/_iphone-imports/catalog.test.ts && npx tsx api/_iphone-imports/integration.test.ts && npx tsx api/_iphone-imports/seed.test.ts",
     "seed:production": "node scripts/seed-production.mjs",
     "start": "next start",
     "lint": "eslint"

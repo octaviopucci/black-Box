@@ -84,7 +84,9 @@ export function ProductsPage() {
           </div>
         ))}
       </div>
-      <p className="text-xs text-brand-gray" key={refresh}>Produtos publicados com estoque aparecem no site automaticamente.</p>
+      <p className="text-xs text-brand-gray" key={refresh}>
+        Produtos <strong>publicados</strong> com pelo menos <strong>1 unidade disponível</strong> no estoque aparecem no site após sincronizar (ícone de nuvem na barra lateral).
+      </p>
     </div>
   )
 }

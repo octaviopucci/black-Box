@@ -13,6 +13,7 @@
     { "source": "/api/iphone-imports", "destination": "/api/iphone-imports?path=health" },
     { "source": "/api/iphone-imports/(.*)", "destination": "/api/iphone-imports?path=$1" },
     { "source": "/gestor", "destination": "/gestor/index.html" },
-    { "source": "/gestor/((?!assets/).*)", "destination": "/gestor/index.html" }
+    { "source": "/gestor/((?!assets/).*)", "destination": "/gestor/index.html" },
+    { "source": "/produto/:slug", "destination": "/produto/__live__/index.html" }
   ]
 }
