@@ -1,13 +1,22 @@
-import { cpSync, mkdirSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const root = '.vercel/output'
+const staticDir = join(root, 'static')
 
-mkdirSync(join(root, 'static'), { recursive: true })
+mkdirSync(staticDir, { recursive: true })
 mkdirSync(join(root, 'functions/api/iphone-imports.func'), { recursive: true })
 
-cpSync('out', join(root, 'static'), { recursive: true })
-cpSync('api/iphone-imports.js', join(root, 'functions/api/iphone-imports.func/index.js'))
+// Copia conteúdo de out/ para static/ (não out/ como subpasta)
+for (const entry of readdirSync('out')) {
+  cpSync(join('out', entry), join(staticDir, entry), { recursive: true })
+}
+const funcDir = join(root, 'functions/api/iphone-imports.func')
+cpSync('api/iphone-imports.js', join(funcDir, 'index.js'))
+writeFileSync(
+  join(funcDir, '.vc-config.json'),
+  JSON.stringify({ runtime: 'nodejs22.x', memory: 512, maxDuration: 30 }, null, 2),
+)
 
 writeFileSync(
   join(root, 'config.json'),
