@@ -51,12 +51,9 @@ curl https://loja-iphoneimports.vercel.app/api/iphone-imports/health
 # Deve retornar: "slug":"iphone-imports", "products":37, "inventory":37
 ```
 
-O build gera:
-1. `out/` — site estático + gestor
-2. `api/iphone-imports.js` — bundle da API
-3. `.vercel/output/` — Build Output API (static + `api/iphone-imports.func`)
-
-**Não use `builds[]`** — publica só `out/` e a API retorna 404.
+O build gera `out/` (site + gestor) e `api/iphone-imports.js` (API).
+Config: `outputDirectory: out` + `functions.api/iphone-imports.js` + `rewrites`.
+**Não use `builds[]` nem Build Output API** — causam 404 no site e na API.
 
 ## Build local
 
