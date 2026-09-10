@@ -26,7 +26,7 @@ export function Footer() {
   );
 
   return (
-    <footer className="border-t border-brand-yellow/20 bg-brand-black text-white">
+    <footer className="border-t border-brand-silver/20 bg-brand-black text-white">
       <div className="container-store py-12 md:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -84,7 +84,7 @@ export function Footer() {
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors hover:text-brand-yellow"
+                  className="transition-colors hover:text-brand-silver"
                 >
                   WhatsApp
                 </a>
@@ -95,7 +95,7 @@ export function Footer() {
                     href={storeConfig.instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="transition-colors hover:text-brand-yellow"
+                    className="transition-colors hover:text-brand-silver"
                   >
                     Instagram {storeConfig.instagram}
                   </a>

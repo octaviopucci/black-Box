@@ -26,7 +26,7 @@ export default function ContactPage() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand-black underline hover:text-brand-yellow"
+            className="text-brand-black underline hover:text-brand-silver"
           >
             Clique para conversar
           </a>
@@ -38,7 +38,7 @@ export default function ContactPage() {
               href={storeConfig.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="underline hover:text-brand-yellow"
+              className="underline hover:text-brand-silver"
             >
               {storeConfig.instagram}
             </a>

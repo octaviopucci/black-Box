@@ -45,8 +45,8 @@ export function SectionHeader({
           className={cn(
             "hidden shrink-0 items-center gap-1 text-sm font-bold transition-colors sm:flex",
             isDark
-              ? "text-brand-yellow hover:text-brand-yellow-hover"
-              : "text-brand-black hover:text-brand-yellow"
+              ? "text-brand-silver hover:text-brand-silver-hover"
+              : "text-brand-black hover:text-brand-silver"
           )}
         >
           {linkLabel}

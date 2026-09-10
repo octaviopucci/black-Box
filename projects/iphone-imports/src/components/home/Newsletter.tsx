@@ -10,10 +10,10 @@ export function Newsletter() {
   return (
     <section className="relative overflow-hidden bg-brand-black py-16 md:py-20">
       <div className="absolute inset-0 grid-pattern opacity-30" />
-      <div className="absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-brand-yellow/50 to-transparent" />
+      <div className="absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-brand-silver/50 to-transparent" />
 
       <div className="container-store relative text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-yellow shadow-[0_0_30px_rgba(255,212,0,0.4)]">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-silver shadow-[0_0_30px_rgba(209,213,219,0.4)]">
           <MessageCircle className="h-7 w-7 text-brand-black" />
         </div>
         <h2 className="text-2xl font-black text-white md:text-4xl">

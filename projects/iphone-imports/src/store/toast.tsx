@@ -48,7 +48,7 @@ export function ToastContainer() {
             "animate-in fade-in slide-in-from-bottom-2 duration-300"
           )}
         >
-          <CheckCircle className="h-5 w-5 shrink-0 text-brand-yellow" />
+          <CheckCircle className="h-5 w-5 shrink-0 text-brand-silver" />
           <span className="text-sm font-medium text-brand-black">{toast.message}</span>
           <button
             onClick={() => remove(toast.id)}

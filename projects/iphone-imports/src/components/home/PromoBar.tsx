@@ -8,7 +8,7 @@ export function PromoBar() {
       <div className="container-store flex items-center justify-center gap-2">
         <Link
           href="/ofertas"
-          className="flex items-center gap-2 text-sm font-bold text-brand-yellow transition-opacity hover:opacity-80"
+          className="flex items-center gap-2 text-sm font-bold text-brand-silver transition-opacity hover:opacity-80"
         >
           {storeConfig.promoBarMessage}
           <ArrowRight className="h-4 w-4" />

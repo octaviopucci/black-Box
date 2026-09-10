@@ -32,7 +32,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
               onClick={() => setActive(i)}
               className={cn(
                 "relative h-16 w-16 shrink-0 overflow-hidden rounded-xl product-image-bg ring-2 transition-all",
-                active === i ? "ring-brand-yellow" : "ring-transparent"
+                active === i ? "ring-brand-silver" : "ring-transparent"
               )}
               aria-label={`Ver imagem ${i + 1}`}
             >

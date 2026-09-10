@@ -124,7 +124,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
                     className={cn(
                       "rounded-lg border px-4 py-2 text-sm transition-colors",
                       color === c
-                        ? "border-brand-yellow bg-brand-yellow/10 font-semibold"
+                        ? "border-brand-silver bg-brand-silver/10 font-semibold"
                         : "border-brand-border hover:border-brand-black"
                     )}
                   >
@@ -146,7 +146,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
                     className={cn(
                       "rounded-lg border px-4 py-2 text-sm transition-colors",
                       storage === s
-                        ? "border-brand-yellow bg-brand-yellow/10 font-semibold"
+                        ? "border-brand-silver bg-brand-silver/10 font-semibold"
                         : "border-brand-border hover:border-brand-black"
                     )}
                   >
