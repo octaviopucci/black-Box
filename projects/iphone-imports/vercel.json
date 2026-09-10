@@ -1,18 +1,5 @@
 {
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "npm run vercel-build && node scripts/vercel-output.mjs",
   "installCommand": "npm ci --include=dev && npm --prefix gestor ci --include=dev",
-  "outputDirectory": "out",
-  "framework": null,
-  "functions": {
-    "api/iphone-imports.js": {
-      "memory": 512,
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [
-    { "source": "/api/iphone-imports", "destination": "/api/iphone-imports?path=health" },
-    { "source": "/api/iphone-imports/(.*)", "destination": "/api/iphone-imports?path=$1" },
-    { "source": "/gestor", "destination": "/gestor/index.html" },
-    { "source": "/gestor/(.*)", "destination": "/gestor/index.html" }
-  ]
+  "framework": null
 }
