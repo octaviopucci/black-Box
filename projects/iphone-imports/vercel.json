@@ -4,23 +4,17 @@
   "outputDirectory": "out",
   "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
   "framework": null,
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "out" }
-    },
-    {
-      "src": "api/dist/handler.cjs",
-      "use": "@vercel/node"
+  "functions": {
+    "api/iphone-imports.ts": {
+      "memory": 512,
+      "maxDuration": 30,
+      "includeFiles": "api/_iphone-imports/**"
     }
-  ],
-  "routes": [
-    { "src": "/api/iphone-imports", "dest": "/api/dist/handler.cjs" },
-    { "src": "/api/iphone-imports/(.*)", "dest": "/api/dist/handler.cjs?path=$1" },
-    { "handle": "filesystem" },
-    { "src": "/gestor", "dest": "/gestor/index.html" },
-    { "src": "/gestor/(.*)", "dest": "/gestor/index.html" }
+  },
+  "rewrites": [
+    { "source": "/api/iphone-imports", "destination": "/api/iphone-imports?path=health" },
+    { "source": "/api/iphone-imports/(.*)", "destination": "/api/iphone-imports?path=$1" },
+    { "source": "/gestor", "destination": "/gestor/index.html" },
+    { "source": "/gestor/(.*)", "destination": "/gestor/index.html" }
   ]
 }
