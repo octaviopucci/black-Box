@@ -52,8 +52,8 @@ curl https://loja-iphoneimports.vercel.app/api/iphone-imports/health
 ```
 
 O build gera `api/iphone-imports.js` (bundle CJS) durante `vercel-build`.
-O Vercel publica esse arquivo como função serverless junto com o site estático em `out/`.
-Rotas encaminham `/api/iphone-imports/*` para a função com `?path=`.
+**Não use `builds[]` no vercel.json** — ele faz o Vercel publicar só `out/` e a API some (404).
+Formato correto: `outputDirectory: out` + `functions.api/iphone-imports.js` + `rewrites`.
 
 ## Build local
 
