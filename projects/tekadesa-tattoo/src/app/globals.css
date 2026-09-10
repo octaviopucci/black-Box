@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-mute: var(--mute);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --paper: #faf7f7;
+  --surface: #eceaeb;
+  --elevated: #ffffff;
+  --line: #d8c4ce;
+  --ink: #321f28;
+  --accent: #8a707d;
+  --accent-soft: #d8c4ce;
+  --mute: #633e50;
+  --brand-gradient: linear-gradient(90deg, #8a707d 0%, #d8c4ce 100%);
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth font-sans;
+  }
+
+  body {
+    @apply bg-paper text-ink antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in oklab, var(--accent-soft) 35%, transparent), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, color-mix(in oklab, var(--accent-soft) 20%, transparent), transparent);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 35%, transparent);
+    color: var(--ink);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .section-divider {
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in oklab, var(--line) 100%, transparent)
+    );
+  }
+
+  .hairline-x {
+    background: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in oklab, var(--line) 100%, transparent),
+      transparent
+    );
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.8s var(--ease-premium),
+      transform 0.8s var(--ease-premium);
+  }
+
+  .reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center border border-accent bg-accent px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors hover:bg-transparent hover:text-accent;
+  }
+
+  .btn-pill-primary {
+    @apply inline-flex items-center justify-center rounded-full border border-accent bg-accent px-6 py-2.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-white transition-colors hover:bg-transparent hover:text-accent;
+  }
+
+  .btn-pill-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-line bg-transparent px-6 py-2.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-ink transition-colors hover:border-accent hover:text-accent;
+  }
+
+  .portfolio-frame {
+    @apply overflow-hidden bg-surface;
+  }
+
+  .portfolio-img {
+    @apply object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.03];
+  }
+
+  .editorial-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.35em] text-mute;
+  }
+
+  .hero-enter-item {
+    animation: hero-fade-up 0.8s var(--ease-premium) forwards;
+    opacity: 0;
+  }
+
+  .headline-line-inner {
+    animation: headline-rise 0.9s var(--ease-premium) forwards;
+    transform: translateY(110%);
+  }
+
+  .photo-roll-up {
+    animation: roll-up 48s linear infinite;
+  }
+
+  .photo-roll-down {
+    animation: roll-down 52s linear infinite;
+  }
+
+  .lightbox-open {
+    animation: fade-in 0.25s ease-out;
+  }
+
+  .marquee-track {
+    animation: marquee-scroll 42s linear infinite;
+  }
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes headline-rise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes roll-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes roll-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter-item,
+  .headline-line-inner,
+  .photo-roll-up,
+  .photo-roll-down,
+  .reveal,
+  .marquee-track {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
