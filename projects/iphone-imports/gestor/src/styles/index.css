@@ -7,17 +7,25 @@ body {
 }
 
 .input {
-  @apply w-full rounded-lg border border-brand-border bg-brand-surface px-3 py-2 text-sm outline-none focus:border-brand-yellow;
+  @apply w-full rounded-lg border border-brand-border bg-brand-elevated px-3 py-2 text-sm outline-none focus:border-brand-silver;
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-yellow px-4 py-2 text-sm font-bold text-brand-black transition hover:brightness-110 disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-silver px-4 py-2 text-sm font-bold text-brand-black transition hover:bg-brand-accent disabled:opacity-50;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg border border-brand-border bg-brand-surface px-4 py-2 text-sm font-semibold transition hover:border-brand-yellow;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg border border-brand-border bg-brand-surface px-4 py-2 text-sm font-semibold transition hover:border-brand-silver hover:text-brand-silver;
 }
 
 .card {
   @apply rounded-xl border border-brand-border bg-brand-surface p-4;
+}
+
+.stat-value {
+  @apply text-3xl font-black text-brand-silver;
+}
+
+.stat-label {
+  @apply text-sm text-brand-gray;
 }

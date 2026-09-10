@@ -61,6 +61,9 @@ export interface InventoryUnit {
   batteryHealth?: number
   condition: DeviceCondition
   purchasePrice?: number
+  salePrice?: number
+  soldAt?: string
+  customerId?: string
   notes?: string
   createdAt: string
   updatedAt: string

@@ -29,7 +29,7 @@ export function AppLayout() {
     <div className="flex min-h-screen">
       <aside className="flex w-60 shrink-0 flex-col border-r border-brand-border bg-brand-surface p-4">
         <div className="mb-8 flex items-center gap-2 px-2">
-          <Apple className="h-6 w-6 text-brand-yellow" />
+          <Apple className="h-6 w-6 text-brand-silver" />
           <div>
             <p className="text-sm font-black">iPhone Imports</p>
             <p className="text-[10px] text-brand-gray">Gestor</p>
@@ -43,7 +43,7 @@ export function AppLayout() {
                 key={item.to}
                 to={item.to}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  active ? 'bg-brand-yellow text-brand-black' : 'text-brand-gray hover:bg-white/5 hover:text-white'
+                  active ? 'bg-brand-silver text-brand-black' : 'text-brand-gray hover:bg-white/5 hover:text-white'
                 }`}
               >
                 <item.icon className="h-4 w-4" />

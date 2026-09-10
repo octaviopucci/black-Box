@@ -5,11 +5,14 @@ export default {
     extend: {
       colors: {
         brand: {
-          yellow: '#FFD400',
           black: '#0a0a0a',
-          surface: '#141414',
-          border: '#2a2a2a',
-          gray: '#a0a0a0',
+          surface: '#121212',
+          elevated: '#1a1a1a',
+          border: '#2e2e2e',
+          muted: '#6b6b6b',
+          gray: '#9ca3af',
+          silver: '#d1d5db',
+          accent: '#e5e7eb',
         },
       },
     },
