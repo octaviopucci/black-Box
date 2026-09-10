@@ -1,0 +1,36 @@
+name: Deploy W-Tube (loja)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'projects/w-tube/**'
+      - '.github/workflows/w-tube-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy hook (w-tube)
+        env:
+          HOOK: ${{ secrets.W_TUBE_VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$HOOK" ]; then
+            curl -fsS -X POST "$HOOK"
+            echo "Deploy hook triggered for w-tube.vercel.app."
+          else
+            echo "W_TUBE_VERCEL_DEPLOY_HOOK not configured — skipping."
+            echo "Configure em: Vercel → w-tube → Settings → Deploy Hooks"
+          fi
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: projects/w-tube/package-lock.json
+      - run: npm --prefix projects/w-tube ci --include=dev
+      - run: npm --prefix projects/w-tube/gestor ci --include=dev
+      - run: npm --prefix projects/w-tube run vercel-build
+      - run: npm --prefix projects/w-tube run test:api

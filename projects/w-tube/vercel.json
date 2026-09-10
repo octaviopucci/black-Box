@@ -1,0 +1,19 @@
+{
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm ci --include=dev && npm --prefix gestor ci --include=dev",
+  "outputDirectory": "out",
+  "framework": null,
+  "functions": {
+    "api/w-tube.js": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    { "source": "/api/w-tube", "destination": "/api/w-tube?path=health" },
+    { "source": "/api/w-tube/(.*)", "destination": "/api/w-tube?path=$1" },
+    { "source": "/gestor", "destination": "/gestor/index.html" },
+    { "source": "/gestor/((?!assets/).*)", "destination": "/gestor/index.html" },
+    { "source": "/produto/:slug", "destination": "/produto/__live__/index.html" }
+  ]
+}
