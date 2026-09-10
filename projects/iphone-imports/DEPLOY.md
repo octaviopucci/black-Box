@@ -19,11 +19,16 @@ Projeto unificado em `projects/iphone-imports/`:
 |-------|-------|
 | **Root Directory** | `projects/iphone-imports` |
 | Framework Preset | Other |
-| Build Command | `npm run vercel-build` |
-| Output Directory | `out` |
-| Install Command | `npm ci --include=dev && npm --prefix gestor ci --include=dev` |
+| Build Command | *(deixar vazio — vem do `vercel.json` do projeto)* |
+| Output Directory | *(deixar vazio — vem do `vercel.json`)* |
+| Install Command | *(deixar vazio — vem do `vercel.json`)* |
+| **Ignored Build Step** | *(vazio ou `bash scripts/vercel-ignore-build.sh`)* |
 
-> Sem o Root Directory correto, o Vercel usa o `vercel.json` do monorepo (errado).
+> **Erro comum:** `bash scripts/vercel-ignore-build.sh: No such file or directory`  
+> Significa que o Root Directory ainda está na **raiz do monorepo** (`.`) em vez de `projects/iphone-imports`.  
+> O script `scripts/vercel-ignore-build.sh` só existe na raiz do black-Box — não use no projeto loja-iphoneimports.
+
+Depois de alterar o Root Directory: **Deployments → Redeploy** (usar Project Settings, não overrides antigos).
 
 ### 3. Domínio
 - `loja-iphoneimports.vercel.app`

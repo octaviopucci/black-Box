@@ -1,4 +1,9 @@
 {
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm ci --include=dev && npm --prefix gestor ci --include=dev",
+  "outputDirectory": "out",
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
+  "framework": null,
   "version": 2,
   "builds": [
     {
