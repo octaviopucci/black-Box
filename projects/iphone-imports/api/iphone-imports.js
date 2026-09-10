@@ -46414,7 +46414,7 @@ async function ensureIphoneImportsStore(store, options) {
   const existing = store.findOrgBySlug(STORE_SLUG);
   const rec = existing ? store.data().databases[existing.id] : null;
   const db = rec?.data;
-  const needsSeed = options?.force || !existing || !db || db.products.length === 0 || db.inventory.length === 0;
+  const needsSeed = options?.force || !existing || !rec || !db;
   if (!needsSeed) {
     return {
       created: false,
