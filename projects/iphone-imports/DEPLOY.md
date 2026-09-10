@@ -51,7 +51,8 @@ curl https://loja-iphoneimports.vercel.app/api/iphone-imports/health
 # Deve retornar: "slug":"iphone-imports", "products":37, "inventory":37
 ```
 
-O `vercel.json` do projeto já configura API serverless e SPA do gestor.
+O `vercel.json` usa `api/iphone-imports.ts` como função serverless (sem bundle `builds[]`).
+Rewrites encaminham `/api/iphone-imports/*` para a função com `?path=`.
 
 ## Build local
 
