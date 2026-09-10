@@ -28,7 +28,9 @@ Projeto unificado em `projects/iphone-imports/`:
 > Significa que o Root Directory ainda está na **raiz do monorepo** (`.`) em vez de `projects/iphone-imports`.  
 > O script `scripts/vercel-ignore-build.sh` só existe na raiz do black-Box — não use no projeto loja-iphoneimports.
 
-Depois de alterar o Root Directory: **Deployments → Redeploy** (usar Project Settings, não overrides antigos).
+Depois de alterar o Root Directory: **Deployments → Redeploy** no **último commit da `main`** (não redeploy de commit antigo).
+
+> No log deve aparecer `npm --prefix gestor ci` antes do build. Se o commit for antigo (ex. `4fb2b18`), o gestor não instala deps e o build falha.
 
 ### 3. Domínio
 - `loja-iphoneimports.vercel.app`
