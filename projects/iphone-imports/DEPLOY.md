@@ -4,9 +4,12 @@ Projeto unificado em `projects/iphone-imports/`:
 
 | Parte | URL em produção |
 |-------|-----------------|
-| Loja | `https://loja-iphoneimports.vercel.app/` |
-| Gestor | `https://loja-iphoneimports.vercel.app/gestor/` |
-| API | `https://loja-iphoneimports.vercel.app/api/iphone-imports` |
+| Loja iPhone Imports | `https://loja-iphoneimports.vercel.app/` |
+| Gestor iPhone Imports | `https://loja-iphoneimports.vercel.app/gestor/` |
+| API iPhone Imports | `https://loja-iphoneimports.vercel.app/api/iphone-imports` |
+| Loja W-Tube | `https://loja-iphoneimports.vercel.app/w-tube` |
+| Gestor W-Tube | `https://loja-iphoneimports.vercel.app/w-tube/gestor/` |
+| API W-Tube | `https://loja-iphoneimports.vercel.app/api/w-tube` |
 
 ## Vercel — checklist (loja-iphoneimports)
 
@@ -49,9 +52,12 @@ Para forçar agora: **Deployments → Redeploy** no último commit.
 ```bash
 curl https://loja-iphoneimports.vercel.app/api/iphone-imports/health
 # Deve retornar: "slug":"iphone-imports", "products":37, "inventory":37
+
+curl https://loja-iphoneimports.vercel.app/api/w-tube/health
+# Deve retornar: "slug":"w-tube"
 ```
 
-O build gera `out/` (site + gestor) e `api/iphone-imports.js` (bundle CJS da API).
+O build gera `out/` (iPhone Imports + `out/gestor/`), `out/w-tube/` (W-Tube + gestor) e os bundles `api/iphone-imports.js` + `api/w-tube.js`.
 Config: `outputDirectory: out` + auto-detect `api/iphone-imports.js` + `rewrites`.
 **Não use `functions` apontando para `.js` gerado** — o Vercel valida antes do build.
 **Não use `api/iphone-imports.ts` sem bundle** — causa `FUNCTION_INVOCATION_FAILED` em produção.
@@ -67,13 +73,23 @@ npm run vercel-build
 
 Saída: `out/` (loja + `out/gestor/`) + `api/dist/handler.cjs`
 
-## Login do gestor (loja única)
+## Login do gestor
+
+### iPhone Imports
 
 | Campo | Valor |
 |-------|-------|
 | Usuário | `admin` |
 | Senha | `adminimports123` |
 | Código da loja | `iphone-imports` |
+
+### W-Tube (`/w-tube/gestor/`)
+
+| Campo | Valor |
+|-------|-------|
+| Usuário | `admin` |
+| Senha | `wtubeadmin123` |
+| Código da loja | `w-tube` |
 
 O catálogo do site é populado automaticamente com os 37 produtos do seed.
 Alterações no estoque pelo gestor refletem na loja em até 15 segundos.

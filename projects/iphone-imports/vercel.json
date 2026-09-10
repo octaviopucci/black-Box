@@ -1,10 +1,14 @@
 {
   "buildCommand": "npm run vercel-build",
-  "installCommand": "npm ci --include=dev && npm --prefix gestor ci --include=dev",
+  "installCommand": "npm ci --include=dev && npm --prefix gestor ci --include=dev && npm --prefix ../w-tube ci --include=dev && npm --prefix ../w-tube/gestor ci --include=dev",
   "outputDirectory": "out",
   "framework": null,
   "functions": {
     "api/iphone-imports.js": {
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "api/w-tube.js": {
       "memory": 512,
       "maxDuration": 30
     }
@@ -12,7 +16,13 @@
   "rewrites": [
     { "source": "/api/iphone-imports", "destination": "/api/iphone-imports?path=health" },
     { "source": "/api/iphone-imports/(.*)", "destination": "/api/iphone-imports?path=$1" },
+    { "source": "/api/w-tube", "destination": "/api/w-tube?path=health" },
+    { "source": "/api/w-tube/(.*)", "destination": "/api/w-tube?path=$1" },
     { "source": "/gestor", "destination": "/gestor/index.html" },
-    { "source": "/gestor/((?!assets/).*)", "destination": "/gestor/index.html" }
+    { "source": "/gestor/((?!assets/).*)", "destination": "/gestor/index.html" },
+    { "source": "/w-tube", "destination": "/w-tube/index.html" },
+    { "source": "/w-tube/gestor", "destination": "/w-tube/gestor/index.html" },
+    { "source": "/w-tube/gestor/((?!assets/).*)", "destination": "/w-tube/gestor/index.html" },
+    { "source": "/w-tube/produto/:slug", "destination": "/w-tube/produto/__live__/index.html" }
   ]
 }
