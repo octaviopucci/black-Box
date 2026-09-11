@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proposta Comercial — Presença Digital</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 20mm 16mm;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Inter, Arial, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.55;
+      color: #1a1a2e;
+      background: #fff;
+    }
+
+    .page {
+      page-break-after: always;
+      min-height: 255mm;
+    }
+
+    .page:last-child { page-break-after: auto; }
+
+    /* Capa */
+    .cover {
+      min-height: 255mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8mm 0 0;
+    }
+
+    .cover-top {
+      border-top: 6px solid #2563eb;
+      padding-top: 18mm;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 14mm;
+    }
+
+    .cover h1 {
+      font-size: 28pt;
+      line-height: 1.15;
+      font-weight: 800;
+      color: #0f172a;
+      max-width: 90%;
+      margin-bottom: 6mm;
+    }
+
+    .cover .subtitle {
+      font-size: 13pt;
+      color: #475569;
+      max-width: 85%;
+      margin-bottom: 20mm;
+    }
+
+    .cover-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8mm;
+      margin-top: 10mm;
+    }
+
+    .meta-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 5mm 6mm;
+      background: #f8fafc;
+    }
+
+    .meta-box label {
+      display: block;
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748b;
+      font-weight: 700;
+      margin-bottom: 2mm;
+    }
+
+    .meta-box .value {
+      font-size: 11pt;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .cover-footer {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 6mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 9pt;
+      color: #64748b;
+    }
+
+    .agency-name {
+      font-size: 12pt;
+      font-weight: 800;
+      color: #2563eb;
+    }
+
+    /* Conteúdo interno */
+    .section {
+      margin-bottom: 7mm;
+    }
+
+    h2 {
+      font-size: 14pt;
+      color: #0f172a;
+      margin-bottom: 4mm;
+      padding-bottom: 2mm;
+      border-bottom: 2px solid #2563eb;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 11pt;
+      color: #1e293b;
+      margin: 4mm 0 2mm;
+      page-break-after: avoid;
+    }
+
+    p { margin-bottom: 3mm; color: #334155; }
+
+    .highlight-box {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 4mm 5mm;
+      border-radius: 0 8px 8px 0;
+      margin: 4mm 0;
+    }
+
+    .highlight-box strong { color: #1d4ed8; }
+
+    ul, ol {
+      margin: 2mm 0 4mm 6mm;
+      color: #334155;
+    }
+
+    li { margin-bottom: 1.5mm; }
+
+    .placeholder {
+      background: #fef9c3;
+      border-bottom: 1px dashed #ca8a04;
+      padding: 0 3px;
+      font-weight: 600;
+      color: #854d0e;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 4mm 0;
+      font-size: 9.5pt;
+    }
+
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 3mm 4mm;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4mm;
+      margin: 5mm 0;
+    }
+
+    .plan {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 4mm;
+      background: #fff;
+    }
+
+    .plan.featured {
+      border: 2px solid #2563eb;
+      background: #f8fbff;
+      position: relative;
+    }
+
+    .plan-tag {
+      font-size: 7.5pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #2563eb;
+      margin-bottom: 2mm;
+    }
+
+    .plan h4 {
+      font-size: 11pt;
+      margin-bottom: 2mm;
+      color: #0f172a;
+    }
+
+    .plan .price {
+      font-size: 16pt;
+      font-weight: 800;
+      color: #2563eb;
+      margin-bottom: 3mm;
+    }
+
+    .plan ul {
+      margin-left: 4mm;
+      font-size: 8.8pt;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 3mm;
+      margin: 4mm 0;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 28mm 1fr;
+      gap: 4mm;
+      align-items: start;
+    }
+
+    .timeline-day {
+      background: #2563eb;
+      color: #fff;
+      font-size: 8pt;
+      font-weight: 700;
+      text-align: center;
+      padding: 2mm;
+      border-radius: 6px;
+    }
+
+    .signature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12mm;
+      margin-top: 18mm;
+    }
+
+    .signature-line {
+      border-top: 1px solid #94a3b8;
+      padding-top: 3mm;
+      font-size: 9pt;
+      color: #475569;
+    }
+
+    .small {
+      font-size: 8.5pt;
+      color: #64748b;
+    }
+
+    .guide-page {
+      background: #fafafa;
+    }
+
+    .guide-page h2 { border-color: #ca8a04; }
+
+    .guide-table td:first-child {
+      font-weight: 700;
+      white-space: nowrap;
+      width: 35%;
+      color: #854d0e;
+    }
+
+    .footer-note {
+      margin-top: 8mm;
+      padding-top: 4mm;
+      border-top: 1px solid #e2e8f0;
+      font-size: 8pt;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PÁGINA 0: GUIA DE ADAPTAÇÃO (remova antes de enviar ao cliente) -->
+<div class="page guide-page">
+  <div class="cover-top">
+    <span class="badge" style="background:#fef9c3;color:#854d0e;">Uso interno — não enviar ao cliente</span>
+    <h1 style="font-size:22pt;">Guia rápido de adaptação</h1>
+    <p class="subtitle">Substitua os campos em amarelo (<span class="placeholder">[ASSIM]</span>) antes de gerar o PDF final para o cliente. Depois, apague esta página.</p>
+  </div>
+
+  <div class="section">
+    <h2>Campos principais</h2>
+    <table class="guide-table">
+      <tr><td>[NOME DO SEU NEGÓCIO]</td><td>Sua marca / agência / nome profissional</td></tr>
+      <tr><td>[NOME DO CLIENTE / EMPRESA]</td><td>Razão social ou nome fantasia do cliente</td></tr>
+      <tr><td>[NOME DO CONTATO]</td><td>Pessoa que vai receber a proposta</td></tr>
+      <tr><td>[NICHO / SEGMENTO]</td><td>Ex.: estética, odontologia, advocacia, construção</td></tr>
+      <tr><td>[CIDADE / REGIÃO]</td><td>Ex.: Sorocaba-SP e região</td></tr>
+      <tr><td>[DATA]</td><td>Data de emissão da proposta</td></tr>
+      <tr><td>[VALIDADE]</td><td>Ex.: 7 dias, 15 dias</td></tr>
+      <tr><td>[SEU WHATSAPP / E-MAIL]</td><td>Contato para retorno</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Personalização por nicho</h2>
+    <table>
+      <tr><th>Nicho</th><th>Destaque na proposta</th><th>Entregáveis extras sugeridos</th></tr>
+      <tr><td>Estética / Beleza</td><td>Agendamento, antes/depois, confiança</td><td>Galeria, depoimentos, botão WhatsApp</td></tr>
+      <tr><td>Odontologia / Saúde</td><td>Credibilidade, convênios, localização</td><td>Lista de procedimentos, equipe, mapa</td></tr>
+      <tr><td>Advocacia / Contabilidade</td><td>Seriedade, áreas de atuação</td><td>Institucional, formulário, blog básico</td></tr>
+      <tr><td>Construção / Reforma</td><td>Portfólio, orçamento rápido</td><td>Galeria de obras, CTA orçamento</td></tr>
+      <tr><td>Restaurante / Food</td><td>Cardápio, delivery, horários</td><td>Cardápio digital, link pedidos</td></tr>
+      <tr><td>Imobiliária</td><td>Vitrine, captura de leads</td><td>Listagem de imóveis, filtros básicos</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Faixas de preço sugeridas (ajuste ao seu mercado)</h2>
+    <ul>
+      <li><strong>Essencial:</strong> R$ 997 – R$ 1.497 (landing page, 1 página)</li>
+      <li><strong>Profissional:</strong> R$ 1.997 – R$ 2.997 (multi-seções + SEO básico)</li>
+      <li><strong>Completo:</strong> R$ 3.497 – R$ 5.997 (site completo + integrações)</li>
+      <li><strong>Manutenção mensal:</strong> R$ 97 – R$ 297/mês</li>
+    </ul>
+  </div>
+
+  <p class="small" style="margin-top:8mm;">Dica: exporte novamente em PDF após remover esta página. No Chrome: Arquivo → Imprimir → Salvar como PDF.</p>
+</div>
+
+<!-- CAPA -->
+<div class="page cover">
+  <div class="cover-top">
+    <span class="badge">Proposta Comercial</span>
+    <h1>Presença Digital para <span class="placeholder">[NOME DO CLIENTE / EMPRESA]</span></h1>
+    <p class="subtitle">Projeto de website profissional para <span class="placeholder">[NICHO / SEGMENTO]</span> em <span class="placeholder">[CIDADE / REGIÃO]</span> — estratégia, escopo, prazo e investimento.</p>
+
+    <div class="cover-meta">
+      <div class="meta-box">
+        <label>Preparado para</label>
+        <div class="value"><span class="placeholder">[NOME DO CONTATO]</span></div>
+        <div class="small" style="margin-top:2mm;"><span class="placeholder">[NOME DO CLIENTE / EMPRESA]</span></div>
+      </div>
+      <div class="meta-box">
+        <label>Preparado por</label>
+        <div class="value"><span class="placeholder">[NOME DO SEU NEGÓCIO]</span></div>
+        <div class="small" style="margin-top:2mm;"><span class="placeholder">[SEU NOME COMPLETO]</span></div>
+      </div>
+      <div class="meta-box">
+        <label>Data de emissão</label>
+        <div class="value"><span class="placeholder">[DATA — ex.: 18/08/2026]</span></div>
+      </div>
+      <div class="meta-box">
+        <label>Validade da proposta</label>
+        <div class="value"><span class="placeholder">[VALIDADE — ex.: 15 dias]</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <div>
+      <div class="agency-name"><span class="placeholder">[NOME DO SEU NEGÓCIO]</span></div>
+      <div><span class="placeholder">[SEU WHATSAPP]</span> · <span class="placeholder">[SEU E-MAIL]</span></div>
+      <div><span class="placeholder">[SEU INSTAGRAM / SITE — opcional]</span></div>
+    </div>
+    <div style="text-align:right;">
+      <div>Documento confidencial</div>
+      <div>Versão 1.0</div>
+    </div>
+  </div>
+</div>
+
+<!-- SUMÁRIO EXECUTIVO -->
+<div class="page">
+  <h2>1. Sumário executivo</h2>
+  <p>Esta proposta apresenta um plano de <strong>presença digital</strong> para a <span class="placeholder">[NOME DO CLIENTE / EMPRESA]</span>, empresa do segmento de <span class="placeholder">[NICHO / SEGMENTO]</span>, com foco em <strong>gerar mais contatos qualificados</strong>, <strong>transmitir credibilidade</strong> e <strong>facilitar o agendamento / orçamento</strong> dos clientes.</p>
+
+  <div class="highlight-box">
+    <strong>Objetivo principal:</strong> criar um site profissional, responsivo (mobile) e otimizado para buscas locais, integrado ao WhatsApp e alinhado à identidade da marca — para que clientes em <span class="placeholder">[CIDADE / REGIÃO]</span> encontrem e escolham <span class="placeholder">[NOME DO CLIENTE / EMPRESA]</span> com mais facilidade.
+  </div>
+
+  <h3>Por que investir agora?</h3>
+  <ul>
+    <li><span class="placeholder">[X]%</span> dos consumidores pesquisam no Google antes de contratar serviços locais</li>
+    <li>Negócios com site + Google Meu Negócio convertem mais do que perfis isolados no Instagram</li>
+    <li>Concorrentes em <span class="placeholder">[CIDADE / REGIÃO]</span> já estão capturando clientes pela busca online</li>
+    <li>Um site profissional aumenta confiança, especialmente em serviços de <span class="placeholder">[NICHO / SEGMENTO]</span></li>
+  </ul>
+
+  <h2>2. Diagnóstico da situação atual</h2>
+  <p>Com base na análise inicial da presença digital da <span class="placeholder">[NOME DO CLIENTE / EMPRESA]</span>:</p>
+
+  <table>
+    <tr><th>Aspecto</th><th>Situação atual</th><th>Oportunidade</th></tr>
+    <tr>
+      <td>Website</td>
+      <td><span class="placeholder">[Ex.: Não possui site / Site desatualizado / Site não responsivo]</span></td>
+      <td>Criar/atualizar presença profissional 24h</td>
+    </tr>
+    <tr>
+      <td>Google Maps</td>
+      <td><span class="placeholder">[Ex.: Perfil ativo com X estrelas, sem link de site]</span></td>
+      <td>Vincular site e aumentar conversão do perfil</td>
+    </tr>
+    <tr>
+      <td>Redes sociais</td>
+      <td><span class="placeholder">[Ex.: Instagram ativo, sem integração com site]</span></td>
+      <td>Centralizar informações e CTAs</td>
+    </tr>
+    <tr>
+      <td>Captação de leads</td>
+      <td><span class="placeholder">[Ex.: Apenas WhatsApp manual / sem formulário]</span></td>
+      <td>Botões estratégicos + formulário simples</td>
+    </tr>
+  </table>
+
+  <h2>3. Solução proposta</h2>
+  <p>Desenvolvimento de um <strong>site institucional / landing page profissional</strong>, pensado especificamente para o mercado de <span class="placeholder">[NICHO / SEGMENTO]</span>, com foco em:</p>
+  <ol>
+    <li><strong>Conversão:</strong> botões de WhatsApp e chamadas para ação claros</li>
+    <li><strong>Confiança:</strong> apresentação profissional, depoimentos e prova social</li>
+    <li><strong>Visibilidade:</strong> estrutura preparada para SEO local em <span class="placeholder">[CIDADE / REGIÃO]</span></li>
+    <li><strong>Praticidade:</strong> fácil de atualizar e compatível com celular</li>
+  </ol>
+</div>
+
+<!-- ESCOPO E PLANOS -->
+<div class="page">
+  <h2>4. Escopo do projeto</h2>
+
+  <h3>4.1 Entregáveis incluídos</h3>
+  <table>
+    <tr><th>Item</th><th>Descrição</th></tr>
+    <tr><td>Design responsivo</td><td>Layout adaptado para celular, tablet e desktop</td></tr>
+    <tr><td>Página inicial</td><td>Hero, proposta de valor, CTAs e destaque de serviços</td></tr>
+    <tr><td>Página de serviços</td><td><span class="placeholder">[Listar 3–8 serviços principais do nicho]</span></td></tr>
+    <tr><td>Sobre / Quem somos</td><td>História, diferenciais e credenciais da empresa</td></tr>
+    <tr><td>Depoimentos</td><td>Seção de avaliações / prova social (quando disponível)</td></tr>
+    <tr><td>Contato</td><td>WhatsApp, telefone, e-mail, mapa e horário de funcionamento</td></tr>
+    <tr><td>Integração WhatsApp</td><td>Botão flutuante com mensagem pré-definida</td></tr>
+    <tr><td>SEO básico</td><td>Títulos, descrições e estrutura para buscas locais</td></tr>
+    <tr><td>Google Maps</td><td>Mapa incorporado com endereço da empresa</td></tr>
+    <tr><td>Publicação</td><td>Site no ar com domínio e hospedagem configurados</td></tr>
+  </table>
+
+  <h3>4.2 Opcionais (sob consulta)</h3>
+  <ul>
+    <li>Blog / artigos para SEO (<span class="placeholder">[R$ XXX/mês ou pacote avulso]</span>)</li>
+    <li>Google Meu Negócio — otimização completa (<span class="placeholder">[R$ XXX]</span>)</li>
+    <li>Tráfego pago — Google Ads / Meta Ads (<span class="placeholder">[gestão R$ XXX/mês + mídia]</span>)</li>
+    <li>Identidade visual / logo (<span class="placeholder">[R$ XXX]</span>)</li>
+    <li>Sessão de fotos profissionais (<span class="placeholder">[R$ XXX ou indicação]</span>)</li>
+    <li>Manutenção e suporte mensal (<span class="placeholder">[R$ XXX/mês]</span>)</li>
+  </ul>
+
+  <h2>5. Planos e investimento</h2>
+  <p>Escolha o plano mais adequado à fase atual do negócio. Valores abaixo são referência — personalize antes de enviar.</p>
+
+  <div class="pricing-grid">
+    <div class="plan">
+      <div class="plan-tag">Plano 1</div>
+      <h4>Essencial</h4>
+      <div class="price"><span class="placeholder">[R$ 997]</span></div>
+      <ul>
+        <li>1 página (landing page)</li>
+        <li>Até 5 seções</li>
+        <li>WhatsApp integrado</li>
+        <li>Responsivo (mobile)</li>
+        <li>1 rodada de revisão</li>
+        <li>Entrega em <span class="placeholder">[7 dias úteis]</span></li>
+      </ul>
+    </div>
+    <div class="plan featured">
+      <div class="plan-tag">★ Recomendado</div>
+      <h4>Profissional</h4>
+      <div class="price"><span class="placeholder">[R$ 1.997]</span></div>
+      <ul>
+        <li>Até 5 páginas</li>
+        <li>Serviços + Sobre + Contato</li>
+        <li>Depoimentos / galeria</li>
+        <li>SEO local básico</li>
+        <li>2 rodadas de revisão</li>
+        <li>Entrega em <span class="placeholder">[10 dias úteis]</span></li>
+      </ul>
+    </div>
+    <div class="plan">
+      <div class="plan-tag">Plano 3</div>
+      <h4>Completo</h4>
+      <div class="price"><span class="placeholder">[R$ 2.997]</span></div>
+      <ul>
+        <li>Site completo (até 8 páginas)</li>
+        <li>SEO local avançado</li>
+        <li>Google Meu Negócio otimizado</li>
+        <li>Formulário de contato</li>
+        <li>3 rodadas de revisão</li>
+        <li>Entrega em <span class="placeholder">[15 dias úteis]</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="small"><strong>Plano indicado para <span class="placeholder">[NOME DO CLIENTE / EMPRESA]</span>:</strong> <span class="placeholder">[Essencial / Profissional / Completo — justifique em 1 linha]</span></p>
+</div>
+
+<!-- CRONOGRAMA E PAGAMENTO -->
+<div class="page">
+  <h2>6. Cronograma de execução</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-day">Dia 1–2</div>
+      <div><strong>Briefing e coleta de materiais</strong><br/>Logo, fotos, textos, serviços, contatos e referências visuais.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-day">Dia 3–5</div>
+      <div><strong>Design e desenvolvimento</strong><br/>Layout, estrutura das páginas e integrações (WhatsApp, mapa).</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-day">Dia 6–8</div>
+      <div><strong>Revisão e ajustes</strong><br/>Cliente valida conteúdo e solicita alterações conforme plano.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-day">Dia 9–10</div>
+      <div><strong>Publicação e entrega</strong><br/>Site no ar, domínio configurado e orientações de uso.</div>
+    </div>
+  </div>
+  <p class="small">* Prazos referentes ao plano Profissional. Ajuste conforme o plano escolhido.</p>
+
+  <h2>7. Condições comerciais</h2>
+  <table>
+    <tr><th>Item</th><th>Condição</th></tr>
+    <tr><td>Forma de pagamento</td><td><span class="placeholder">[Ex.: 50% na aprovação + 50% na entrega / PIX / cartão em até 3x]</span></td></tr>
+    <tr><td>Validade</td><td>Proposta válida por <span class="placeholder">[VALIDADE]</span> a partir de <span class="placeholder">[DATA]</span></td></tr>
+    <tr><td>Início</td><td>Até <span class="placeholder">[X dias úteis]</span> após confirmação do pagamento inicial</td></tr>
+    <tr><td>Revisões</td><td>Conforme plano contratado. Alterações fora do escopo serão orçadas à parte</td></tr>
+    <tr><td>Hospedagem / domínio</td><td><span class="placeholder">[Incluso 1º ano / Não incluso — detalhar valores]</span></td></tr>
+    <tr><td>Garantia</td><td><span class="placeholder">[Ex.: 30 dias de suporte pós-entrega para correções]</span></td></tr>
+  </table>
+
+  <h2>8. O que precisamos do cliente</h2>
+  <ul>
+    <li>Logo em alta resolução (PNG ou SVG)</li>
+    <li>Fotos do negócio, equipe ou portfólio</li>
+    <li>Lista de serviços / produtos com descrições</li>
+    <li>Textos institucionais (ou autorização para adaptarmos)</li>
+    <li>Endereço, telefone, WhatsApp, horários e redes sociais</li>
+    <li>Depoimentos ou autorização para usar avaliações do Google</li>
+    <li>Preferência de domínio (<span class="placeholder">[ex.: nomedaempresa.com.br]</span>)</li>
+  </ul>
+
+  <h2>9. Resultados esperados</h2>
+  <div class="highlight-box">
+    Ao final do projeto, a <span class="placeholder">[NOME DO CLIENTE / EMPRESA]</span> terá uma presença digital profissional, acessível 24 horas por dia, preparada para converter visitantes em contatos via WhatsApp e fortalecer a marca no mercado de <span class="placeholder">[NICHO / SEGMENTO]</span> em <span class="placeholder">[CIDADE / REGIÃO]</span>.
+  </div>
+  <ul>
+    <li>Mais credibilidade na primeira impressão</li>
+    <li>Maior visibilidade em buscas locais</li>
+    <li>Centralização de informações (serviços, contato, localização)</li>
+    <li>Base sólida para marketing digital futuro</li>
+  </ul>
+</div>
+
+<!-- ACEITE E TERMOS -->
+<div class="page">
+  <h2>10. Próximos passos</h2>
+  <ol>
+    <li>Cliente aprova proposta e plano escolhido</li>
+    <li>Assinatura do aceite (digital ou físico) + pagamento inicial</li>
+    <li>Envio do briefing e materiais (checklist acima)</li>
+    <li>Início do desenvolvimento conforme cronograma</li>
+    <li>Entrega, publicação e suporte pós-lançamento</li>
+  </ol>
+
+  <div class="highlight-box" style="margin-top:6mm;">
+    <strong>Para aprovar esta proposta, entre em contato:</strong><br/>
+    WhatsApp: <span class="placeholder">[SEU WHATSAPP]</span> · E-mail: <span class="placeholder">[SEU E-MAIL]</span>
+  </div>
+
+  <h2>11. Termos gerais</h2>
+  <ul class="small">
+    <li>O prazo começa após recebimento do pagamento inicial e de todos os materiais necessários.</li>
+    <li>Atrasos no envio de conteúdo pelo cliente podem postergar a entrega.</li>
+    <li>O cliente garante possuir direitos sobre textos, imagens e materiais fornecidos.</li>
+    <li>Funcionalidades não descritas nesta proposta serão orçadas separadamente.</li>
+    <li>Após a entrega, alterações de conteúdo podem ser contratadas via plano de manutenção.</li>
+    <li>Domínio e hospedagem permanecem registrados conforme acordado na cláusula comercial.</li>
+  </ul>
+
+  <h2>12. Aceite da proposta</h2>
+  <p>Ao assinar abaixo, o cliente declara concordar com escopo, prazos, investimento e termos descritos neste documento.</p>
+
+  <table style="margin-top:5mm;">
+    <tr><td><strong>Plano escolhido</strong></td><td><span class="placeholder">[ Essencial / Profissional / Completo ]</span></td></tr>
+    <tr><td><strong>Investimento total</strong></td><td><span class="placeholder">[R$ X.XXX,XX]</span></td></tr>
+    <tr><td><strong>Forma de pagamento</strong></td><td><span class="placeholder">[Detalhar]</span></td></tr>
+  </table>
+
+  <div class="signature-grid">
+    <div>
+      <div class="signature-line">
+        <strong><span class="placeholder">[NOME DO CLIENTE / EMPRESA]</span></strong><br/>
+        <span class="placeholder">[NOME DO CONTATO]</span><br/>
+        Data: ____ / ____ / ______
+      </div>
+    </div>
+    <div>
+      <div class="signature-line">
+        <strong><span class="placeholder">[NOME DO SEU NEGÓCIO]</span></strong><br/>
+        <span class="placeholder">[SEU NOME COMPLETO]</span><br/>
+        Data: ____ / ____ / ______
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <span class="placeholder">[NOME DO SEU NEGÓCIO]</span> · <span class="placeholder">[SEU WHATSAPP]</span> · <span class="placeholder">[SEU E-MAIL]</span><br/>
+    Proposta comercial — Documento gerado em <span class="placeholder">[DATA]</span>
+  </div>
+</div>
+
+</body>
+</html>
