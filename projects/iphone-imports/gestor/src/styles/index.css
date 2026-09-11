@@ -2,8 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   @apply bg-brand-black text-white antialiased;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+.page-title {
+  @apply text-xl font-black sm:text-2xl;
+}
+
+.table-wrap {
+  @apply overflow-x-auto rounded-xl border border-brand-border;
+}
+
+.table-wrap table {
+  @apply w-full min-w-[640px] text-left text-sm;
 }
 
 .input {

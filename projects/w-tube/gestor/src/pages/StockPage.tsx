@@ -84,7 +84,7 @@ export function StockPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Estoque por unidade</h1>
+      <h1 className="page-title">Estoque por unidade</h1>
 
       {saleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
@@ -143,8 +143,54 @@ export function StockPage() {
         <button type="submit" className="btn-primary sm:col-span-2 lg:col-span-3">Adicionar ao estoque</button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-brand-border">
-        <table className="w-full text-left text-sm">
+      <div className="space-y-3 md:hidden">
+        {units.map((u) => {
+          const product = products.find((p) => p.id === u.productId)
+          const store = db.stores.find((s) => s.id === u.storeId)
+          return (
+            <div key={u.id} className="card space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-bold leading-snug">{product?.name || u.productId}</p>
+                <span
+                  className={`shrink-0 rounded px-2 py-0.5 text-[10px] font-bold uppercase ${
+                    u.status === 'available'
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : u.status === 'sold'
+                        ? 'bg-brand-muted/30 text-brand-purple'
+                        : 'bg-brand-border text-brand-gray'
+                  }`}
+                >
+                  {u.status}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-brand-gray">
+                <span>Loja: {store?.name || '—'}</span>
+                <span>Bateria: {u.batteryHealth ? `${u.batteryHealth}%` : '—'}</span>
+                <span className="col-span-2">IMEI: {u.imei || '—'}</span>
+                <span className="col-span-2">Cor/GB: {u.color || '—'} / {u.storage || '—'}</span>
+                {u.status === 'sold' && u.salePrice && (
+                  <span className="col-span-2 font-semibold text-brand-glow">
+                    Venda: {formatCurrency(u.salePrice)}
+                  </span>
+                )}
+              </div>
+              {u.status === 'available' && (
+                <button
+                  type="button"
+                  onClick={() => setStatus(u.id, 'sold')}
+                  className="btn-secondary w-full text-xs"
+                >
+                  Marcar vendido
+                </button>
+              )}
+            </div>
+          )
+        })}
+        {units.length === 0 && <p className="text-center text-sm text-brand-gray">Nenhuma unidade cadastrada.</p>}
+      </div>
+
+      <div className="table-wrap hidden md:block">
+        <table>
           <thead className="bg-brand-surface text-brand-gray">
             <tr>
               <th className="p-3">Produto</th>

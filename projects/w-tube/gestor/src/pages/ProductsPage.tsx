@@ -77,7 +77,7 @@ export function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Produtos (catálogo)</h1>
+      <h1 className="page-title">Produtos (catálogo)</h1>
 
       {feedback && (
         <p className={`rounded-lg px-3 py-2 text-sm ${feedback.type === 'ok' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>

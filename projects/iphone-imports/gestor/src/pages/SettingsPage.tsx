@@ -43,7 +43,7 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Configurações</h1>
+      <h1 className="page-title">Configurações</h1>
 
       <form onSubmit={saveSettings} className="card space-y-3">
         <h2 className="font-bold">Dados da loja</h2>

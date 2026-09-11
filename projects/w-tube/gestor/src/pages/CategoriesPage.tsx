@@ -31,7 +31,7 @@ export function CategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Categorias</h1>
+      <h1 className="page-title">Categorias</h1>
       <form onSubmit={addCategory} className="card grid gap-3 sm:grid-cols-2">
         <input name="name" className="input" placeholder="Nome da categoria" required />
         <input name="description" className="input" placeholder="Descrição" />

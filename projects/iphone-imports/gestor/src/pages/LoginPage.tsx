@@ -30,7 +30,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen min-h-dvh items-center justify-center p-4 sm:p-6">
       <form onSubmit={handleSubmit} className="card w-full max-w-md space-y-4">
         <div className="flex items-center gap-2">
           <Apple className="h-8 w-8 text-brand-silver" />

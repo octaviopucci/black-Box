@@ -48,7 +48,7 @@ export function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Produtos (catálogo)</h1>
+      <h1 className="page-title">Produtos (catálogo)</h1>
 
       <form onSubmit={addProduct} className="card grid gap-3 sm:grid-cols-2">
         <h2 className="col-span-full font-bold">Novo produto</h2>

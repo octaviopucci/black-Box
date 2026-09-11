@@ -105,7 +105,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-black text-brand-accent">{db.settings.storeName}</h1>
+        <h1 className="page-title text-brand-accent">{db.settings.storeName}</h1>
         <p className="text-brand-gray">Dashboard completo · vendas, estoque e CRM</p>
       </div>
 
@@ -181,8 +181,8 @@ export function DashboardPage() {
             Hoje, ontem, semana, mês, trimestre, semestre, ano e histórico completo
           </p>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+        <div className="table-wrap">
+          <table className="min-w-[720px]">
             <thead className="bg-brand-elevated text-brand-gray">
               <tr>
                 <th className="p-3">Período</th>
@@ -316,8 +316,8 @@ export function DashboardPage() {
         <div className="border-b border-brand-border p-4">
           <h2 className="font-bold">Últimas vendas</h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+        <div className="table-wrap">
+          <table>
             <thead className="bg-brand-elevated text-brand-gray">
               <tr>
                 <th className="p-3">Data</th>
