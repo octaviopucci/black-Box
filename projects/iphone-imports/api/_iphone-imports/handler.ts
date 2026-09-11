@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { issueSessionToken } from './auth-token'
 import {
   blobDiagnostics,
   getStore,
   hashPassword,
-  issueToken,
   probeBlobStorage,
   safeEqual,
   setRuntimeOidcToken,
@@ -155,21 +155,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return json(res, 401, { error: 'Usuário, senha ou loja inválidos.' })
       }
 
-      const token = issueToken()
-      store.data().tokens[token] = {
-        organizationId: user.organizationId,
-        userId: user.id,
-        createdAt: new Date().toISOString(),
-      }
-      store.markDirty()
-      await store.persist()
-
+      const session = store.toSession(user)
+      const token = issueSessionToken(session)
       const dbRec = store.data().databases[user.organizationId]
+      const storage = blobDiagnostics(hasOidcHeader)
       return json(res, 200, {
         token,
-        session: store.toSession(user),
+        session,
         database: dbRec?.data || null,
         version: dbRec?.version || 0,
+        storage,
       })
     }
 

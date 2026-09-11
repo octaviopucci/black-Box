@@ -1,5 +1,6 @@
 import type { OrgDatabase } from '@/types'
 import {
+  clearSession,
   getCloudToken,
   getSyncVersion,
   loadDatabase,
@@ -27,6 +28,13 @@ function setSyncState(state: SyncState, message?: string) {
   for (const listener of listeners) listener(state, message)
 }
 
+function handleAuthExpired(message = 'Sessão expirada. Faça login novamente.') {
+  clearSession()
+  setSyncState('error', message)
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+  window.location.href = `${base}/login?expired=1`
+}
+
 export function getSyncState(): { state: SyncState; message?: string } {
   return { state: syncState, message: syncMessage }
 }
@@ -47,6 +55,11 @@ async function api<T>(path: string, options: RequestInit = {}): Promise<{ ok: bo
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers })
   const data = (await res.json().catch(() => ({}))) as T
+
+  if (res.status === 401 && token) {
+    handleAuthExpired((data as { error?: string }).error || 'Sessão expirada. Faça login novamente.')
+  }
+
   return { ok: res.ok, status: res.status, data }
 }
 
@@ -185,6 +198,12 @@ export const cloudSync = {
     markSynced(res.data.version || getSyncVersion())
     setSyncState('synced', 'Dados carregados da nuvem')
     return res.data.database
+  },
+
+  async validateSession() {
+    if (!getCloudToken()) return false
+    const res = await api<{ database?: OrgDatabase }>('/db')
+    return res.ok
   },
 
   schedulePush(db?: OrgDatabase) {

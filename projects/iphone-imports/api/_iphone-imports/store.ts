@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { list, put } from '@vercel/blob'
+import { verifySessionToken } from './auth-token'
 
 const BLOB_PATHNAME = 'iphone-imports/store.json'
 const FILE_PATH =
@@ -341,6 +342,9 @@ export class JsonStore {
   }
 
   resolveToken(token: string): CloudSession | null {
+    const jwtSession = verifySessionToken(token)
+    if (jwtSession) return jwtSession
+
     const entry = this.store.tokens[token]
     if (!entry) return null
     const user = this.store.users[entry.userId]

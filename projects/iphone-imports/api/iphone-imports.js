@@ -19646,8 +19646,8 @@ var require_timing_safe_equal = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     var node_crypto_1 = require("node:crypto");
-    var timingSafeEqual2 = node_crypto_1.timingSafeEqual;
-    exports2.default = timingSafeEqual2;
+    var timingSafeEqual3 = node_crypto_1.timingSafeEqual;
+    exports2.default = timingSafeEqual3;
   }
 });
 
@@ -21975,7 +21975,7 @@ var require_sign = __commonJS({
     var node_key_js_1 = require_node_key();
     var get_sign_verify_key_js_1 = require_get_sign_verify_key();
     var oneShotSign = (0, node_util_1.promisify)(crypto2.sign);
-    var sign = async (alg, key, data) => {
+    var sign2 = async (alg, key, data) => {
       const k = (0, get_sign_verify_key_js_1.default)(alg, key, "sign");
       if (alg.startsWith("HS")) {
         const hmac = crypto2.createHmac((0, hmac_digest_js_1.default)(alg), k);
@@ -21984,7 +21984,7 @@ var require_sign = __commonJS({
       }
       return oneShotSign((0, dsa_digest_js_1.default)(alg), data, (0, node_key_js_1.default)(alg, k));
     };
-    exports2.default = sign;
+    exports2.default = sign2;
   }
 });
 
@@ -42891,10 +42891,49 @@ __export(handler_exports, {
 });
 module.exports = __toCommonJS(handler_exports);
 
+// api/_iphone-imports/auth-token.ts
+var import_node_crypto = require("node:crypto");
+var SECRET = process.env.IPHONE_IMPORTS_JWT_SECRET || process.env.JWT_SECRET || "iphone-imports-loja-iphoneimports-session-v1";
+var TTL_MS = 30 * 24 * 60 * 60 * 1e3;
+function sign(payload) {
+  return (0, import_node_crypto.createHmac)("sha256", SECRET).update(payload).digest("base64url");
+}
+function issueSessionToken(session) {
+  const payload = Buffer.from(
+    JSON.stringify({ ...session, exp: Date.now() + TTL_MS })
+  ).toString("base64url");
+  return `${payload}.${sign(payload)}`;
+}
+function verifySessionToken(token) {
+  const dot = token.lastIndexOf(".");
+  if (dot <= 0) return null;
+  const payload = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+  const expected = sign(payload);
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !(0, import_node_crypto.timingSafeEqual)(a, b)) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString());
+    if (!data.exp || data.exp < Date.now()) return null;
+    return {
+      userId: data.userId,
+      username: data.username,
+      nome: data.nome,
+      role: data.role,
+      organizationId: data.organizationId,
+      organizationName: data.organizationName,
+      organizationSlug: data.organizationSlug
+    };
+  } catch {
+    return null;
+  }
+}
+
 // api/_iphone-imports/store.ts
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
-var import_node_crypto = require("node:crypto");
+var import_node_crypto2 = require("node:crypto");
 
 // node_modules/is-node-process/lib/index.mjs
 function isNodeProcess() {
@@ -44565,13 +44604,13 @@ function emptyStore() {
   };
 }
 function hashPassword(password) {
-  return (0, import_node_crypto.createHash)("sha256").update(`iphone-imports:${password}`).digest("hex");
+  return (0, import_node_crypto2.createHash)("sha256").update(`iphone-imports:${password}`).digest("hex");
 }
 function safeEqual(a, b) {
   const ba = Buffer.from(a);
   const bb = Buffer.from(b);
   if (ba.length !== bb.length) return false;
-  return (0, import_node_crypto.timingSafeEqual)(ba, bb);
+  return (0, import_node_crypto2.timingSafeEqual)(ba, bb);
 }
 function slugifyStoreName(name) {
   const base = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
@@ -44589,9 +44628,6 @@ var RESERVED_SLUGS = /* @__PURE__ */ new Set([
 ]);
 function isReservedSlug(slug) {
   return RESERVED_SLUGS.has(slug);
-}
-function issueToken() {
-  return (0, import_node_crypto.randomBytes)(24).toString("hex");
 }
 var cached = null;
 var JsonStore = class _JsonStore {
@@ -44688,7 +44724,7 @@ var JsonStore = class _JsonStore {
   uniqueSlug(fromName) {
     let slug = slugifyStoreName(fromName);
     if (isReservedSlug(slug) || this.findOrgBySlug(slug)) {
-      slug = `${slug}-${(0, import_node_crypto.randomBytes)(2).toString("hex")}`;
+      slug = `${slug}-${(0, import_node_crypto2.randomBytes)(2).toString("hex")}`;
     }
     let n = 2;
     while (this.findOrgBySlug(slug) || isReservedSlug(slug)) {
@@ -44724,6 +44760,8 @@ var JsonStore = class _JsonStore {
     };
   }
   resolveToken(token) {
+    const jwtSession = verifySessionToken(token);
+    if (jwtSession) return jwtSession;
     const entry = this.store.tokens[token];
     if (!entry) return null;
     const user = this.store.users[entry.userId];
@@ -44824,7 +44862,7 @@ var seed_data_default = {
     id: "org_iphone_imports",
     name: "iPhone Imports",
     slug: "iphone-imports",
-    createdAt: "2026-09-11T17:33:19.579Z"
+    createdAt: "2026-09-11T17:38:37.089Z"
   },
   stores: [
     {
@@ -44832,7 +44870,7 @@ var seed_data_default = {
       organizationId: "org_iphone_imports",
       name: "iPhone Imports \u2014 Matriz",
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z"
     }
   ],
   categories: [
@@ -44845,8 +44883,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_smartphones",
@@ -44857,8 +44895,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_airpods-fones",
@@ -44869,8 +44907,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_smartwatches",
@@ -44881,8 +44919,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_capinhas",
@@ -44893,8 +44931,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_peliculas",
@@ -44905,8 +44943,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_carregadores",
@@ -44917,8 +44955,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_cabos",
@@ -44929,8 +44967,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_fontes",
@@ -44941,8 +44979,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_power-banks",
@@ -44953,8 +44991,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_suportes",
@@ -44965,8 +45003,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_acessorios-carro",
@@ -44977,8 +45015,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_audio",
@@ -44989,8 +45027,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_eletronicos",
@@ -45001,8 +45039,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "cat_ofertas",
@@ -45013,8 +45051,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     }
   ],
   products: [
@@ -45065,8 +45103,8 @@ var seed_data_default = {
         "Documenta\xE7\xE3o"
       ],
       warranty: "Garantia conforme condi\xE7\xF5es informadas no atendimento.",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ip17p",
@@ -45101,8 +45139,8 @@ var seed_data_default = {
         "iphone 17",
         "pro"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ip17",
@@ -45135,8 +45173,8 @@ var seed_data_default = {
       keywords: [
         "iphone 17"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ip16pm",
@@ -45171,8 +45209,8 @@ var seed_data_default = {
         "iphone 16",
         "pro max"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ip16p",
@@ -45206,8 +45244,8 @@ var seed_data_default = {
         "iphone 16",
         "pro"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ip16",
@@ -45239,8 +45277,8 @@ var seed_data_default = {
       keywords: [
         "iphone 16"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ip15",
@@ -45273,8 +45311,8 @@ var seed_data_default = {
       keywords: [
         "iphone 15"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ip14",
@@ -45304,8 +45342,8 @@ var seed_data_default = {
       keywords: [
         "iphone 14"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ip13",
@@ -45337,8 +45375,8 @@ var seed_data_default = {
       keywords: [
         "iphone 13"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_ap4",
@@ -45362,8 +45400,8 @@ var seed_data_default = {
         "fone",
         "sem fio"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_app2",
@@ -45389,8 +45427,8 @@ var seed_data_default = {
         "fone",
         "anc"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_apm",
@@ -45411,8 +45449,8 @@ var seed_data_default = {
         "airpods max",
         "headphone"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_bt-fone",
@@ -45436,8 +45474,8 @@ var seed_data_default = {
         "bluetooth",
         "tws"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_aws10",
@@ -45465,8 +45503,8 @@ var seed_data_default = {
         "apple watch",
         "series 10"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_awse",
@@ -45490,8 +45528,8 @@ var seed_data_default = {
         "apple watch",
         "se"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_sw-compat",
@@ -45512,8 +45550,8 @@ var seed_data_default = {
         "smartwatch",
         "relogio"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_cap-trans",
@@ -45539,8 +45577,8 @@ var seed_data_default = {
         "transparente",
         "case"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_cap-sil",
@@ -45567,8 +45605,8 @@ var seed_data_default = {
         "capinha",
         "silicone"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_cap-mag",
@@ -45595,8 +45633,8 @@ var seed_data_default = {
         "capinha",
         "magsafe"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_cap-ref",
@@ -45622,8 +45660,8 @@ var seed_data_default = {
         "reforcada",
         "protecao"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_pel-vidro",
@@ -45645,8 +45683,8 @@ var seed_data_default = {
         "pelicula",
         "vidro"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_pel-priv",
@@ -45667,8 +45705,8 @@ var seed_data_default = {
         "pelicula",
         "privacidade"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_pel-cam",
@@ -45689,8 +45727,8 @@ var seed_data_default = {
         "pelicula",
         "camera"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_chg-20w",
@@ -45716,8 +45754,8 @@ var seed_data_default = {
         "20w",
         "usb-c"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_chg-mag",
@@ -45738,8 +45776,8 @@ var seed_data_default = {
         "magsafe",
         "carregador"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_chg-car",
@@ -45761,8 +45799,8 @@ var seed_data_default = {
         "veicular",
         "carro"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_cabo-cc",
@@ -45784,8 +45822,8 @@ var seed_data_default = {
         "cabo",
         "usb-c"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_cabo-cl",
@@ -45807,8 +45845,8 @@ var seed_data_default = {
         "lightning",
         "usb-c"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_cabo-ref",
@@ -45832,8 +45870,8 @@ var seed_data_default = {
         "reforcado",
         "nylon"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_pb-10k",
@@ -45856,8 +45894,8 @@ var seed_data_default = {
         "power bank",
         "bateria"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_pb-20k",
@@ -45878,8 +45916,8 @@ var seed_data_default = {
         "power bank",
         "bateria"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_sup-mesa",
@@ -45900,8 +45938,8 @@ var seed_data_default = {
         "suporte",
         "mesa"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_sup-carro",
@@ -45923,8 +45961,8 @@ var seed_data_default = {
         "carro",
         "veicular"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_cx-bt",
@@ -45948,8 +45986,8 @@ var seed_data_default = {
         "bluetooth",
         "som"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_hub-usb",
@@ -45971,8 +46009,8 @@ var seed_data_default = {
         "usb-c",
         "adaptador"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_adaptador",
@@ -45994,8 +46032,8 @@ var seed_data_default = {
         "usb-c",
         "lightning"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "prod_sm-android",
@@ -46027,8 +46065,8 @@ var seed_data_default = {
         "android",
         "samsung"
       ],
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     }
   ],
   inventory: [
@@ -46041,8 +46079,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Natural",
       storage: "256GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ip17p",
@@ -46053,8 +46091,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Natural",
       storage: "128GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ip17",
@@ -46065,8 +46103,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ip16pm",
@@ -46077,8 +46115,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Deserto",
       storage: "256GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ip16p",
@@ -46089,8 +46127,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Preto",
       storage: "128GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ip16",
@@ -46101,8 +46139,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Rosa",
       storage: "128GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ip15",
@@ -46113,8 +46151,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ip14",
@@ -46125,8 +46163,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ip13",
@@ -46137,8 +46175,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Meia-noite",
       storage: "128GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_ap4",
@@ -46147,8 +46185,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_app2",
@@ -46157,8 +46195,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_apm",
@@ -46167,8 +46205,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_bt-fone",
@@ -46177,8 +46215,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_aws10",
@@ -46188,8 +46226,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Rosa",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_awse",
@@ -46198,8 +46236,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_sw-compat",
@@ -46208,8 +46246,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_cap-trans",
@@ -46219,8 +46257,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Transparente",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_cap-sil",
@@ -46230,8 +46268,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_cap-mag",
@@ -46241,8 +46279,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_cap-ref",
@@ -46252,8 +46290,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_pel-vidro",
@@ -46262,8 +46300,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_pel-priv",
@@ -46272,8 +46310,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_pel-cam",
@@ -46282,8 +46320,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_chg-20w",
@@ -46292,8 +46330,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_chg-mag",
@@ -46302,8 +46340,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_chg-car",
@@ -46312,8 +46350,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_cabo-cc",
@@ -46322,8 +46360,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_cabo-cl",
@@ -46332,8 +46370,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_cabo-ref",
@@ -46342,8 +46380,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_pb-10k",
@@ -46352,8 +46390,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_pb-20k",
@@ -46362,8 +46400,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_sup-mesa",
@@ -46372,8 +46410,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_sup-carro",
@@ -46382,8 +46420,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_cx-bt",
@@ -46392,8 +46430,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_hub-usb",
@@ -46402,8 +46440,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_adaptador",
@@ -46412,8 +46450,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     },
     {
       id: "unit_sm-android",
@@ -46424,8 +46462,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Preto",
       storage: "128GB",
-      createdAt: "2026-09-11T17:33:19.579Z",
-      updatedAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z",
+      updatedAt: "2026-09-11T17:38:37.089Z"
     }
   ],
   customers: [],
@@ -46438,7 +46476,7 @@ var seed_data_default = {
     hours: "Seg\u2013Sex 9h\u201318h \xB7 S\xE1b 9h\u201313h",
     topBarMessage: "\u{1F525} Ofertas especiais toda semana \u2022 Atendimento r\xE1pido pelo WhatsApp",
     promoBarMessage: "\u{1F525} Semana iPhone Imports \u2014 confira nossas ofertas",
-    updatedAt: "2026-09-11T17:33:19.579Z"
+    updatedAt: "2026-09-11T17:38:37.089Z"
   },
   users: [
     {
@@ -46449,7 +46487,7 @@ var seed_data_default = {
       nome: "Administrador",
       role: "admin",
       active: true,
-      createdAt: "2026-09-11T17:33:19.579Z"
+      createdAt: "2026-09-11T17:38:37.089Z"
     }
   ],
   auditLogs: []
@@ -46629,20 +46667,16 @@ async function handler(req, res) {
       if (!user || !safeEqual(user.passwordHash, hashPassword(password))) {
         return json(res, 401, { error: "Usu\xE1rio, senha ou loja inv\xE1lidos." });
       }
-      const token2 = issueToken();
-      store.data().tokens[token2] = {
-        organizationId: user.organizationId,
-        userId: user.id,
-        createdAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      store.markDirty();
-      await store.persist();
+      const session2 = store.toSession(user);
+      const token2 = issueSessionToken(session2);
       const dbRec = store.data().databases[user.organizationId];
+      const storage = blobDiagnostics(hasOidcHeader);
       return json(res, 200, {
         token: token2,
-        session: store.toSession(user),
+        session: session2,
         database: dbRec?.data || null,
-        version: dbRec?.version || 0
+        version: dbRec?.version || 0,
+        storage
       });
     }
     const token = readBearer(req);
