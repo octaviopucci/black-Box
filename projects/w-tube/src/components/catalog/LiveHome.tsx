@@ -7,7 +7,6 @@ import { PromoBanner } from "@/components/home/PromoBanner";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Testimonials } from "@/components/home/Testimonials";
 import { Newsletter } from "@/components/home/Newsletter";
-import { HomeHighlightImages } from "@/components/home/HomeHighlightImages";
 
 export function LiveHome() {
   const { loading, live, products, categories } = useCatalog();
@@ -37,8 +36,6 @@ export function LiveHome() {
 
   return (
     <>
-      <HomeHighlightImages />
-
       {featuredCategories.length > 0 && (
         <section className="section-white py-14 md:py-20">
           <div className="container-store">

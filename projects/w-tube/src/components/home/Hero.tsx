@@ -2,7 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Shield, Star, Wrench } from "lucide-react";
 import { storeConfig } from "@/config/store";
-import { brandAssets } from "@/data/images";
+import { brandAssets, heroImages } from "@/data/images";
+
+const floating = [
+  { src: heroImages.iphone, alt: "iPhone", className: "right-[2%] top-[5%] w-[52%] z-20", priority: true },
+  { src: heroImages.airpods, alt: "AirPods", className: "left-[0%] bottom-[18%] w-[34%] z-30" },
+  { src: heroImages.watch, alt: "Apple Watch", className: "right-[18%] bottom-[8%] w-[30%] z-30" },
+  { src: heroImages.charger, alt: "Carregador", className: "left-[12%] top-[22%] w-[24%] z-10" },
+];
 
 export function Hero() {
   return (
@@ -92,18 +99,22 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="relative mx-auto aspect-square w-full max-w-md">
-            <div className="absolute inset-0 rounded-[2rem] border border-brand-neon/30 bg-brand-black/30 backdrop-blur-sm glow-purple" />
-            <div className="absolute inset-6 flex items-center justify-center">
-              <Image
-                src={brandAssets.logo}
-                alt=""
-                width={320}
-                height={320}
-                className="h-auto w-full max-w-[280px] object-contain drop-shadow-[0_0_40px_rgba(188,0,255,0.35)]"
-                aria-hidden
-              />
-            </div>
+          <div className="relative mx-auto aspect-square w-full max-w-lg">
+            <div className="absolute inset-4 rounded-[2rem] border border-brand-neon/30 bg-brand-black/40 glow-purple backdrop-blur-sm" />
+            {floating.map((item) => (
+              <div key={item.alt} className={`absolute ${item.className}`}>
+                <div className="rounded-2xl bg-brand-surface/90 p-3 ring-1 ring-brand-neon/20 backdrop-blur-md">
+                  <Image
+                    src={item.src}
+                    alt={item.alt}
+                    width={400}
+                    height={400}
+                    className="h-auto w-full drop-shadow-2xl"
+                    priority={item.priority}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
