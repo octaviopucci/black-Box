@@ -50,11 +50,18 @@ Sem Blob, produtos somem após deploy/reinício (`/api/w-tube/health` → `blob:
 4. Marque **Production**, **Preview** e **Development**
 5. **Deployments** → **Redeploy** no último commit da `main`
 
-**Opção B — token manual (se A não injetar variáveis):**
-1. Storage → seu Blob store → **Settings** → crie token **Read-Write**
-2. **loja-iphoneimports** → **Settings** → **Environment Variables**
-3. Nome: `BLOB_READ_WRITE_TOKEN` · valor: o token copiado · ambientes: Production + Preview + Development
-4. **Redeploy**
+**Opção B — token manual (obrigatório se o health continuar `blob: false` após redeploy):**
+
+> Mesmo com o store conectado em Storage → Projects, as functions `api/w-tube.js` e `api/iphone-imports.js` **às vezes não recebem** `BLOB_STORE_ID` via OIDC. O token manual resolve de forma confiável.
+
+1. **Storage** → `loja-iphoneimports-blob` → **Settings**
+2. Em **Tokens**, crie ou revele um token **Read-Write** (começa com `vercel_blob_rw_`)
+3. Projeto **loja-iphoneimports** → **Settings** → **Environment Variables** → **Add**
+   - Nome: `BLOB_READ_WRITE_TOKEN`
+   - Valor: cole o token inteiro
+   - Ambientes: **Production** + **Preview** (+ Development se quiser local)
+4. **Deployments** → **Redeploy** (obrigatório após salvar a variável)
+5. **Não revogue** o token em Storage até o `/health` retornar `blob: true`
 
 **Validar:**
 ```bash

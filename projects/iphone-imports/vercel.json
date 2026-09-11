@@ -5,6 +5,7 @@
   "cleanUrls": true,
   "ignoreCommand": "bash ./scripts/vercel-ignore-build.sh",
   "framework": null,
+  "fluid": true,
   "functions": {
     "api/iphone-imports.js": {
       "memory": 512,
