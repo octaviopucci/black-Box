@@ -41,6 +41,8 @@ export interface CatalogProduct {
   colors?: string[]
   storage?: string[]
   featured?: boolean
+  bestSeller?: boolean
+  new?: boolean
   sale?: boolean
   published: boolean
   specs?: Record<string, string>

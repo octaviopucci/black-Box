@@ -2,6 +2,7 @@
   "buildCommand": "npm run vercel-build",
   "installCommand": "npm ci --include=dev && npm --prefix gestor ci --include=dev && npm --prefix ../w-tube ci --include=dev && npm --prefix ../w-tube/gestor ci --include=dev",
   "outputDirectory": "out",
+  "cleanUrls": true,
   "framework": null,
   "functions": {
     "api/iphone-imports.js": {
@@ -20,10 +21,10 @@
     { "source": "/api/w-tube/(.*)", "destination": "/api/w-tube?path=$1" },
     { "source": "/gestor", "destination": "/gestor/index.html" },
     { "source": "/gestor/((?!assets/).*)", "destination": "/gestor/index.html" },
-    { "source": "/produto/:slug", "destination": "/produto/__live__/index.html" },
+    { "source": "/produto/:slug", "destination": "/produto/__live__.html" },
     { "source": "/w-tube", "destination": "/w-tube/index.html" },
     { "source": "/w-tube/gestor", "destination": "/w-tube/gestor/index.html" },
     { "source": "/w-tube/gestor/((?!assets/).*)", "destination": "/w-tube/gestor/index.html" },
-    { "source": "/w-tube/produto/:slug", "destination": "/w-tube/produto/__live__/index.html" }
+    { "source": "/w-tube/produto/:slug", "destination": "/w-tube/produto/__live__.html" }
   ]
 }

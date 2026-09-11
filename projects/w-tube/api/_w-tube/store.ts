@@ -9,10 +9,28 @@ const FILE_PATH =
     ? '/tmp/w-tube-store.json'
     : './data/w-tube-store.json'
 
+export interface BlobDiagnostics {
+  configured: boolean
+  hasToken: boolean
+  hasStoreId: boolean
+  onVercel: boolean
+}
+
+/** Blob ativo via token clássico OU OIDC moderno (BLOB_STORE_ID na Vercel). */
 export function blobConfigured(): boolean {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)
 }
 
+export function blobDiagnostics(): BlobDiagnostics {
+  return {
+    configured: blobConfigured(),
+    hasToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    hasStoreId: Boolean(process.env.BLOB_STORE_ID),
+    onVercel: Boolean(process.env.VERCEL),
+  }
+}
+
+/** Só passa `token` quando existe — senão o SDK usa OIDC + BLOB_STORE_ID. */
 function blobAuthOptions(): { token?: string } {
   const token = process.env.BLOB_READ_WRITE_TOKEN
   return token ? { token } : {}
