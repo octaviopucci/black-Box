@@ -25,11 +25,12 @@ Projeto unificado em `projects/iphone-imports/`:
 | Build Command | *(deixar vazio — vem do `vercel.json` do projeto)* |
 | Output Directory | *(deixar vazio — vem do `vercel.json`)* |
 | Install Command | *(deixar vazio — vem do `vercel.json`)* |
-| **Ignored Build Step** | *(vazio ou `bash scripts/vercel-ignore-build.sh`)* |
+| **Ignored Build Step** | *(deixar vazio — vem do `vercel.json` do projeto)* |
 
 > **Erro comum:** `bash scripts/vercel-ignore-build.sh: No such file or directory`  
-> Significa que o Root Directory ainda está na **raiz do monorepo** (`.`) em vez de `projects/iphone-imports`.  
-> O script `scripts/vercel-ignore-build.sh` só existe na raiz do black-Box — não use no projeto loja-iphoneimports.
+> O dashboard está com Ignored Build Step manual apontando para o script da **raiz do monorepo**.  
+> **Correção:** Settings → Build → limpe o campo *Ignored Build Step* (o `projects/iphone-imports/vercel.json` já define `ignoreCommand`).  
+> Confirme também **Root Directory** = `projects/iphone-imports`.
 
 Depois de alterar o Root Directory: **Deployments → Redeploy** no **último commit da `main`** (não redeploy de commit antigo).
 

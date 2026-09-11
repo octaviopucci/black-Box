@@ -3,6 +3,7 @@
   "installCommand": "npm ci --include=dev && npm --prefix gestor ci --include=dev && npm --prefix ../w-tube ci --include=dev && npm --prefix ../w-tube/gestor ci --include=dev",
   "outputDirectory": "out",
   "cleanUrls": true,
+  "ignoreCommand": "bash ./scripts/vercel-ignore-build.sh",
   "framework": null,
   "functions": {
     "api/iphone-imports.js": {
