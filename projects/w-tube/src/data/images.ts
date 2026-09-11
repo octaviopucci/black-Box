@@ -1,10 +1,12 @@
+import { asset } from "@/lib/assets";
+
 const u = (id: string, w = 800) =>
   `https://images.unsplash.com/photo-${id}?w=${w}&h=${w}&fit=crop&auto=format&q=80`;
 
 /** Assets oficiais (Bitly / WebTube Acessórios) */
 export const brandAssets = {
-  logo: "/brand/logo.png",
-  heroBackground: "/brand/hero-bg.png",
+  logo: asset("/brand/logo.png"),
+  heroBackground: asset("/brand/hero-bg.png"),
 };
 
 /** URLs verificadas (Unsplash) — substitua por fotos próprias em src/data/products.ts */
