@@ -27,6 +27,13 @@ interface CatalogContextValue {
 
 const CatalogContext = createContext<CatalogContextValue | null>(null);
 
+function mergeCatalog(staticList: Product[], liveList: Product[]): Product[] {
+  const bySlug = new Map<string, Product>();
+  for (const p of staticList) bySlug.set(p.slug, p);
+  for (const p of liveList) bySlug.set(p.slug, p);
+  return [...bySlug.values()];
+}
+
 export function CatalogProvider({ children }: { children: ReactNode }) {
   const [catalog, setCatalog] = useState<LiveCatalog | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,12 +60,13 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
         refresh: load,
       };
     }
+
     return {
       loading,
       live: true,
       storeName: catalog.storeName,
-      products: catalog.products,
-      categories: catalog.categories,
+      products: mergeCatalog(staticProducts, catalog.products),
+      categories: catalog.categories.length > 0 ? catalog.categories : staticCategories,
       refresh: load,
     };
   }, [catalog, loading, load]);

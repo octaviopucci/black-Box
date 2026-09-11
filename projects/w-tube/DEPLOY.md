@@ -36,6 +36,19 @@ NEXT_BASE_PATH=/w-tube npm run dev
 VITE_BASE=/w-tube/gestor/ npm run dev:gestor
 ```
 
-## Blob
+## Blob (obrigatório para sync gestor → site)
 
-Use o mesmo `BLOB_READ_WRITE_TOKEN` do projeto `loja-iphoneimports` (store separado: `w-tube/store.json`).
+Sem Blob, cada instância serverless da API perde os dados do gestor.
+
+1. Vercel → projeto **loja-iphoneimports** → **Storage** → **Blob** → Create
+2. Conectar ao projeto
+3. Confirme `BLOB_READ_WRITE_TOKEN` em Environment Variables
+
+Store separado: `w-tube/store.json` (iPhone Imports usa `iphone-imports/store.json`).
+
+Validar após configurar:
+
+```bash
+curl https://loja-iphoneimports.vercel.app/api/w-tube/health
+# blob: true
+```

@@ -269,5 +269,9 @@ export class JsonStore {
 }
 
 export async function getStore(): Promise<JsonStore> {
+  // Em serverless, recarrega do blob/disco a cada request para não servir cache vazio.
+  if (process.env.VERCEL) {
+    JsonStore.resetCache()
+  }
   return JsonStore.open()
 }

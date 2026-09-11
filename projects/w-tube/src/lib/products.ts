@@ -25,8 +25,8 @@ export function getNewProducts(): Product[] {
   return products.filter((p) => p.new);
 }
 
-export function getRelatedProducts(product: Product, limit = 4): Product[] {
-  return products
+export function getRelatedProducts(product: Product, source = products, limit = 4): Product[] {
+  return source
     .filter((p) => p.categorySlug === product.categorySlug && p.id !== product.id)
     .slice(0, limit);
 }

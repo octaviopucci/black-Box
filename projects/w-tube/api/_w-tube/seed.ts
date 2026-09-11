@@ -22,6 +22,8 @@ export async function ensureIphoneImportsStore(
   const rec = existing ? store.data().databases[existing.id] : null
   const db = rec?.data as OrgDatabase | undefined
 
+  // Só faz seed inicial quando a organização/DB ainda não existe.
+  // Não re-seed por catálogo vazio — isso apagaria alterações do gestor.
   const needsSeed = options?.force || !existing || !rec || !db
 
   if (!needsSeed) {

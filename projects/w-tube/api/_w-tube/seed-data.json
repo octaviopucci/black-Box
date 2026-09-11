@@ -4,7 +4,7 @@
     "id": "org_w_tube",
     "name": "W-Tube",
     "slug": "w-tube",
-    "createdAt": "2026-09-10T18:04:12.390Z"
+    "createdAt": "2026-09-11T00:30:26.421Z"
   },
   "stores": [
     {
@@ -12,7 +12,7 @@
       "organizationId": "org_w_tube",
       "name": "W-Tube — Matriz",
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z"
     }
   ],
   "categories": [
@@ -25,8 +25,8 @@
       "image": "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": true,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_smartphones",
@@ -37,8 +37,8 @@
       "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_airpods-fones",
@@ -49,8 +49,8 @@
       "image": "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": true,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_smartwatches",
@@ -61,8 +61,8 @@
       "image": "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": true,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_capinhas",
@@ -73,8 +73,8 @@
       "image": "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": true,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_peliculas",
@@ -85,8 +85,8 @@
       "image": "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_carregadores",
@@ -97,8 +97,8 @@
       "image": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": true,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_cabos",
@@ -109,8 +109,8 @@
       "image": "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_fontes",
@@ -121,8 +121,8 @@
       "image": "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_power-banks",
@@ -133,8 +133,8 @@
       "image": "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_suportes",
@@ -145,8 +145,8 @@
       "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_acessorios-carro",
@@ -157,8 +157,8 @@
       "image": "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_audio",
@@ -169,8 +169,8 @@
       "image": "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_eletronicos",
@@ -181,8 +181,8 @@
       "image": "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": false,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "cat_ofertas",
@@ -193,8 +193,8 @@
       "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=800&fit=crop&auto=format&q=80",
       "featured": true,
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     }
   ],
   "products": [
@@ -245,8 +245,8 @@
         "Documentação"
       ],
       "warranty": "Garantia conforme condições informadas no atendimento.",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ip17p",
@@ -281,8 +281,8 @@
         "iphone 17",
         "pro"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ip17",
@@ -315,8 +315,8 @@
       "keywords": [
         "iphone 17"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ip16pm",
@@ -351,8 +351,8 @@
         "iphone 16",
         "pro max"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ip16p",
@@ -386,8 +386,8 @@
         "iphone 16",
         "pro"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ip16",
@@ -419,8 +419,8 @@
       "keywords": [
         "iphone 16"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ip15",
@@ -453,8 +453,8 @@
       "keywords": [
         "iphone 15"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ip14",
@@ -484,8 +484,8 @@
       "keywords": [
         "iphone 14"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ip13",
@@ -517,8 +517,8 @@
       "keywords": [
         "iphone 13"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_ap4",
@@ -542,8 +542,8 @@
         "fone",
         "sem fio"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_app2",
@@ -569,8 +569,8 @@
         "fone",
         "anc"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_apm",
@@ -591,8 +591,8 @@
         "airpods max",
         "headphone"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_bt-fone",
@@ -616,8 +616,8 @@
         "bluetooth",
         "tws"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_aws10",
@@ -645,8 +645,8 @@
         "apple watch",
         "series 10"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_awse",
@@ -670,8 +670,8 @@
         "apple watch",
         "se"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_sw-compat",
@@ -692,8 +692,8 @@
         "smartwatch",
         "relogio"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_cap-trans",
@@ -719,8 +719,8 @@
         "transparente",
         "case"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_cap-sil",
@@ -747,8 +747,8 @@
         "capinha",
         "silicone"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_cap-mag",
@@ -775,8 +775,8 @@
         "capinha",
         "magsafe"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_cap-ref",
@@ -802,8 +802,8 @@
         "reforcada",
         "protecao"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_pel-vidro",
@@ -825,8 +825,8 @@
         "pelicula",
         "vidro"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_pel-priv",
@@ -847,8 +847,8 @@
         "pelicula",
         "privacidade"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_pel-cam",
@@ -869,8 +869,8 @@
         "pelicula",
         "camera"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_chg-20w",
@@ -896,8 +896,8 @@
         "20w",
         "usb-c"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_chg-mag",
@@ -918,8 +918,8 @@
         "magsafe",
         "carregador"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_chg-car",
@@ -941,8 +941,8 @@
         "veicular",
         "carro"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_cabo-cc",
@@ -964,8 +964,8 @@
         "cabo",
         "usb-c"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_cabo-cl",
@@ -987,8 +987,8 @@
         "lightning",
         "usb-c"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_cabo-ref",
@@ -1012,8 +1012,8 @@
         "reforcado",
         "nylon"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_pb-10k",
@@ -1036,8 +1036,8 @@
         "power bank",
         "bateria"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_pb-20k",
@@ -1058,8 +1058,8 @@
         "power bank",
         "bateria"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_sup-mesa",
@@ -1080,8 +1080,8 @@
         "suporte",
         "mesa"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_sup-carro",
@@ -1103,8 +1103,8 @@
         "carro",
         "veicular"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_cx-bt",
@@ -1128,8 +1128,8 @@
         "bluetooth",
         "som"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_hub-usb",
@@ -1151,8 +1151,8 @@
         "usb-c",
         "adaptador"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_adaptador",
@@ -1174,8 +1174,8 @@
         "usb-c",
         "lightning"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "prod_sm-android",
@@ -1207,8 +1207,8 @@
         "android",
         "samsung"
       ],
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     }
   ],
   "inventory": [
@@ -1221,8 +1221,8 @@
       "condition": "novo",
       "color": "Titânio Natural",
       "storage": "256GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ip17p",
@@ -1233,8 +1233,8 @@
       "condition": "novo",
       "color": "Titânio Natural",
       "storage": "128GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ip17",
@@ -1245,8 +1245,8 @@
       "condition": "novo",
       "color": "Azul",
       "storage": "128GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ip16pm",
@@ -1257,8 +1257,8 @@
       "condition": "novo",
       "color": "Titânio Deserto",
       "storage": "256GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ip16p",
@@ -1269,8 +1269,8 @@
       "condition": "novo",
       "color": "Titânio Preto",
       "storage": "128GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ip16",
@@ -1281,8 +1281,8 @@
       "condition": "novo",
       "color": "Rosa",
       "storage": "128GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ip15",
@@ -1293,8 +1293,8 @@
       "condition": "novo",
       "color": "Azul",
       "storage": "128GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ip14",
@@ -1305,8 +1305,8 @@
       "condition": "novo",
       "color": "Azul",
       "storage": "128GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ip13",
@@ -1317,8 +1317,8 @@
       "condition": "novo",
       "color": "Meia-noite",
       "storage": "128GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_ap4",
@@ -1327,8 +1327,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_app2",
@@ -1337,8 +1337,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_apm",
@@ -1347,8 +1347,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_bt-fone",
@@ -1357,8 +1357,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_aws10",
@@ -1368,8 +1368,8 @@
       "status": "available",
       "condition": "novo",
       "color": "Rosa",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_awse",
@@ -1378,8 +1378,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_sw-compat",
@@ -1388,8 +1388,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_cap-trans",
@@ -1399,8 +1399,8 @@
       "status": "available",
       "condition": "novo",
       "color": "Transparente",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_cap-sil",
@@ -1410,8 +1410,8 @@
       "status": "available",
       "condition": "novo",
       "color": "Preto",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_cap-mag",
@@ -1421,8 +1421,8 @@
       "status": "available",
       "condition": "novo",
       "color": "Preto",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_cap-ref",
@@ -1432,8 +1432,8 @@
       "status": "available",
       "condition": "novo",
       "color": "Preto",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_pel-vidro",
@@ -1442,8 +1442,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_pel-priv",
@@ -1452,8 +1452,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_pel-cam",
@@ -1462,8 +1462,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_chg-20w",
@@ -1472,8 +1472,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_chg-mag",
@@ -1482,8 +1482,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_chg-car",
@@ -1492,8 +1492,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_cabo-cc",
@@ -1502,8 +1502,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_cabo-cl",
@@ -1512,8 +1512,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_cabo-ref",
@@ -1522,8 +1522,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_pb-10k",
@@ -1532,8 +1532,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_pb-20k",
@@ -1542,8 +1542,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_sup-mesa",
@@ -1552,8 +1552,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_sup-carro",
@@ -1562,8 +1562,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_cx-bt",
@@ -1572,8 +1572,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_hub-usb",
@@ -1582,8 +1582,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_adaptador",
@@ -1592,8 +1592,8 @@
       "storeId": "store_matriz",
       "status": "available",
       "condition": "novo",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     },
     {
       "id": "unit_sm-android",
@@ -1604,8 +1604,8 @@
       "condition": "novo",
       "color": "Preto",
       "storage": "128GB",
-      "createdAt": "2026-09-10T18:04:12.390Z",
-      "updatedAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z",
+      "updatedAt": "2026-09-11T00:30:26.421Z"
     }
   ],
   "customers": [],
@@ -1618,7 +1618,7 @@
     "hours": "Seg–Sex 9h–18h · Sáb 9h–13h",
     "topBarMessage": "⚡ W-Tube — lançamentos e ofertas toda semana",
     "promoBarMessage": "💜 Semana W-Tube — confira as ofertas",
-    "updatedAt": "2026-09-10T18:04:12.390Z"
+    "updatedAt": "2026-09-11T00:30:26.421Z"
   },
   "users": [
     {
@@ -1629,7 +1629,7 @@
       "nome": "Administrador",
       "role": "admin",
       "active": true,
-      "createdAt": "2026-09-10T18:04:12.390Z"
+      "createdAt": "2026-09-11T00:30:26.421Z"
     }
   ],
   "auditLogs": []

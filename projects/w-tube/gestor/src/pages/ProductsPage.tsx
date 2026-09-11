@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { CatalogProduct } from '@/types'
+import type { CatalogProduct, InventoryUnit } from '@/types'
 import { useDatabase } from '@/hooks/useDatabase'
 import { persist } from '@/services/sync'
 import { generateId, nowISO, slugify } from '@/utils'
@@ -29,6 +29,22 @@ export function ProductsPage() {
       updatedAt: nowISO(),
     }
     db.products.unshift(product)
+
+    const defaultStore = db.stores.find((s) => s.active)
+    if (defaultStore) {
+      const unit: InventoryUnit = {
+        id: generateId('unit'),
+        organizationId: db.organization.id,
+        productId: product.id,
+        storeId: defaultStore.id,
+        status: 'available',
+        condition: 'novo',
+        createdAt: nowISO(),
+        updatedAt: nowISO(),
+      }
+      db.inventory.unshift(unit)
+    }
+
     persist(db)
     e.currentTarget.reset()
     setRefresh((r) => r + 1)
@@ -84,7 +100,9 @@ export function ProductsPage() {
           </div>
         ))}
       </div>
-      <p className="text-xs text-brand-gray" key={refresh}>Produtos publicados com estoque aparecem no site automaticamente.</p>
+      <p className="text-xs text-brand-gray" key={refresh}>
+        Novos produtos entram com 1 unidade em estoque. Confira o status de sync no menu lateral — deve mostrar &quot;Sincronizado&quot;.
+      </p>
     </div>
   )
 }
