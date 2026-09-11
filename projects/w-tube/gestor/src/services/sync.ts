@@ -18,7 +18,8 @@ type SyncListener = (state: SyncState, message?: string) => void
 let syncState: SyncState = 'idle'
 let syncMessage: string | undefined
 const listeners = new Set<SyncListener>()
-let pushTimer: ReturnType<typeof setTimeout> | null = null
+let pendingDb: OrgDatabase | null = null
+let pushInFlight = false
 
 function setSyncState(state: SyncState, message?: string) {
   syncState = state
@@ -126,31 +127,48 @@ export const cloudSync = {
   },
 
   async push(db?: OrgDatabase): Promise<{ ok: boolean; message: string }> {
-    const payload = db || loadDatabase()
+    const payload = db || pendingDb || loadDatabase()
     if (!payload) return { ok: false, message: 'Sem dados locais.' }
     if (!getCloudToken()) {
       setSyncState('offline', 'Faça login para sincronizar com o site')
       return { ok: false, message: 'Sem token de sessão. Faça login novamente.' }
     }
 
-    setSyncState('syncing', 'Enviando para o site...')
-    const res = await api<{ version?: number; error?: string }>('/db', {
-      method: 'PUT',
-      body: JSON.stringify({ database: payload, clientVersion: getSyncVersion() }),
-    })
-
-    if (!res.ok) {
-      const message = res.data.error || `Falha ao sincronizar (HTTP ${res.status})`
-      setSyncState('error', message)
-      return { ok: false, message }
+    if (pushInFlight) {
+      pendingDb = payload
+      return { ok: false, message: 'Sincronização em andamento...' }
     }
 
-    const nextVersion = res.data.version || getSyncVersion() + 1
-    payload.version = nextVersion
-    saveDatabase(payload)
-    markSynced(nextVersion)
-    setSyncState('synced', 'Site atualizado')
-    return { ok: true, message: 'Sincronizado com o site' }
+    pushInFlight = true
+    setSyncState('syncing', 'Enviando para o site...')
+
+    try {
+      const res = await api<{ version?: number; error?: string }>('/db', {
+        method: 'PUT',
+        body: JSON.stringify({ database: payload, clientVersion: getSyncVersion() }),
+      })
+
+      if (!res.ok) {
+        const message = res.data.error || `Falha ao sincronizar (HTTP ${res.status})`
+        setSyncState('error', message)
+        return { ok: false, message }
+      }
+
+      const nextVersion = res.data.version || getSyncVersion() + 1
+      payload.version = nextVersion
+      saveDatabase(payload)
+      markSynced(nextVersion)
+      pendingDb = null
+      setSyncState('synced', 'Site atualizado')
+      return { ok: true, message: 'Sincronizado com o site' }
+    } finally {
+      pushInFlight = false
+      if (pendingDb) {
+        const next = pendingDb
+        pendingDb = null
+        void cloudSync.push(next)
+      }
+    }
   },
 
   async pull() {
@@ -163,21 +181,36 @@ export const cloudSync = {
     return res.data.database
   },
 
+  /** Envia imediatamente — não usar debounce (perdia dados ao sair da página). */
   schedulePush(db?: OrgDatabase) {
     if (!getCloudToken()) {
       setSyncState('offline', 'Alteração salva localmente — faça login para enviar ao site')
       return
     }
-    if (pushTimer) clearTimeout(pushTimer)
-    pushTimer = setTimeout(() => {
-      void cloudSync.push(db)
-    }, 400)
+    void cloudSync.push(db)
   },
 }
 
-export async function persist(db: OrgDatabase): Promise<OrgDatabase> {
+export async function persist(db: OrgDatabase): Promise<{ ok: boolean; message: string }> {
   db.version = (db.version || 0) + 1
   saveDatabase(db)
-  cloudSync.schedulePush(db)
-  return db
+  return cloudSync.push(db)
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    if (!pendingDb || !getCloudToken()) return
+    const payload = pendingDb
+    const token = getCloudToken()
+    if (!token) return
+    void fetch(`${API_BASE}/db`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ database: payload, clientVersion: getSyncVersion() }),
+      keepalive: true,
+    })
+  })
 }

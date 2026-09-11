@@ -7,10 +7,14 @@ import { formatCurrency } from '@/utils'
 
 export function ProductsPage() {
   const [refresh, setRefresh] = useState(0)
+  const [saving, setSaving] = useState(false)
+  const [feedback, setFeedback] = useState<{ type: 'ok' | 'error'; text: string } | null>(null)
   const db = useDatabase()
 
-  function addProduct(e: React.FormEvent<HTMLFormElement>) {
+  async function addProduct(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setSaving(true)
+    setFeedback(null)
     const fd = new FormData(e.currentTarget)
     const name = String(fd.get('name'))
     const product: CatalogProduct = {
@@ -47,17 +51,24 @@ export function ProductsPage() {
       db.inventory.unshift(unit)
     }
 
-    persist(db)
-    e.currentTarget.reset()
+    const result = await persist(db)
+    setSaving(false)
+    if (result.ok) {
+      setFeedback({ type: 'ok', text: `“${name}” enviado ao site. Veja em /w-tube/categoria/${db.categories.find((c) => c.id === product.categoryId)?.slug || 'iphones'}` })
+      e.currentTarget.reset()
+    } else {
+      setFeedback({ type: 'error', text: result.message })
+    }
     setRefresh((r) => r + 1)
   }
 
-  function togglePublished(id: string) {
+  async function togglePublished(id: string) {
     const p = db.products.find((x) => x.id === id)
     if (!p) return
     p.published = !p.published
     p.updatedAt = nowISO()
-    persist(db)
+    const result = await persist(db)
+    if (!result.ok) setFeedback({ type: 'error', text: result.message })
     setRefresh((r) => r + 1)
   }
 
@@ -67,6 +78,12 @@ export function ProductsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-black">Produtos (catálogo)</h1>
+
+      {feedback && (
+        <p className={`rounded-lg px-3 py-2 text-sm ${feedback.type === 'ok' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+          {feedback.text}
+        </p>
+      )}
 
       <form onSubmit={addProduct} className="card grid gap-3 sm:grid-cols-2">
         <h2 className="col-span-full font-bold">Novo produto</h2>
@@ -81,7 +98,9 @@ export function ProductsPage() {
         <input name="image" className="input sm:col-span-2" placeholder="URL da imagem" />
         <input name="shortDescription" className="input sm:col-span-2" placeholder="Descrição curta" />
         <textarea name="description" className="input sm:col-span-2" placeholder="Descrição completa" rows={2} />
-        <button type="submit" className="btn-primary sm:col-span-2">Criar produto</button>
+        <button type="submit" className="btn-primary sm:col-span-2" disabled={saving}>
+          {saving ? 'Enviando ao site...' : 'Criar produto'}
+        </button>
       </form>
 
       <div className="grid gap-3">

@@ -45,6 +45,8 @@ export function LoginPage() {
         </button>
         <p className="text-center text-xs text-brand-gray">
           Loja: WebTube Acessórios · código <span className="text-brand-glow">w-tube</span>
+          <br />
+          URL correta: <span className="text-brand-glow">/w-tube/gestor</span> (não use /gestor)
         </p>
       </form>
     </div>

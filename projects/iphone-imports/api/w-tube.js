@@ -44566,7 +44566,7 @@ var JsonStore = class _JsonStore {
     (0, import_node_fs.mkdirSync)((0, import_node_path.dirname)(FILE_PATH), { recursive: true });
     let store = emptyStore();
     let hydratedFromBlob = false;
-    if (blobConfigured()) {
+    if (blobConfigured() || process.env.VERCEL) {
       try {
         const listed = await list({
           prefix: BLOB_PATHNAME,
@@ -44612,7 +44612,7 @@ var JsonStore = class _JsonStore {
   async persist() {
     if (!this.dirty) return;
     (0, import_node_fs.writeFileSync)(FILE_PATH, JSON.stringify(this.store));
-    if (blobConfigured()) {
+    if (blobConfigured() || process.env.VERCEL) {
       try {
         await put(BLOB_PATHNAME, JSON.stringify(this.store), {
           access: "public",
