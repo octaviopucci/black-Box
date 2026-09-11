@@ -13,27 +13,85 @@ export interface BlobDiagnostics {
   configured: boolean
   hasToken: boolean
   hasStoreId: boolean
+  hasOidc: boolean
+  hasOidcHeader: boolean
   onVercel: boolean
+  vercelProjectId?: string
+  vercelEnv?: string
+  blobEnvKeys: string[]
+}
+
+export interface PersistResult {
+  disk: boolean
+  blob: boolean
+  blobError?: string
+}
+
+let runtimeOidcToken: string | undefined
+
+export function setRuntimeOidcToken(token: string | undefined): void {
+  runtimeOidcToken = token?.trim() || undefined
+}
+
+function blobReadWriteToken(): string | undefined {
+  return process.env.BLOB_READ_WRITE_TOKEN || process.env.IPHONE_IMPORTS_BLOB_READ_WRITE_TOKEN
+}
+
+function blobStoreId(): string | undefined {
+  return process.env.BLOB_STORE_ID || process.env.IPHONE_IMPORTS_BLOB_STORE_ID
+}
+
+export function blobAuthOptions(): {
+  token?: string
+  storeId?: string
+  oidcToken?: string
+} {
+  const token = blobReadWriteToken()
+  if (token) return { token }
+
+  const storeId = blobStoreId()
+  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN
+  if (oidcToken && storeId) return { oidcToken, storeId }
+  if (storeId) return { storeId }
+  if (oidcToken) return { oidcToken }
+  return {}
 }
 
 /** Blob ativo via token clássico OU OIDC moderno (BLOB_STORE_ID na Vercel). */
 export function blobConfigured(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)
+  if (blobReadWriteToken()) return true
+  if (blobStoreId()) return true
+  return Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN)
 }
 
-export function blobDiagnostics(): BlobDiagnostics {
+export function blobDiagnostics(hasOidcHeader = false): BlobDiagnostics {
+  const blobEnvKeys = Object.keys(process.env).filter(
+    (k) => k.includes('BLOB') || k.includes('OIDC'),
+  )
   return {
     configured: blobConfigured(),
-    hasToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-    hasStoreId: Boolean(process.env.BLOB_STORE_ID),
+    hasToken: Boolean(blobReadWriteToken()),
+    hasStoreId: Boolean(blobStoreId()),
+    hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
+    hasOidcHeader,
     onVercel: Boolean(process.env.VERCEL),
+    vercelProjectId: process.env.VERCEL_PROJECT_ID,
+    vercelEnv: process.env.VERCEL_ENV,
+    blobEnvKeys,
   }
 }
 
-/** Só passa `token` quando existe — senão o SDK usa OIDC + BLOB_STORE_ID. */
-function blobAuthOptions(): { token?: string } {
-  const token = process.env.BLOB_READ_WRITE_TOKEN
-  return token ? { token } : {}
+export async function probeBlobStorage(): Promise<{ ok: boolean; error?: string }> {
+  if (!process.env.VERCEL) return { ok: false, error: 'local' }
+  try {
+    await list({ prefix: BLOB_PATHNAME, limit: 1, ...blobAuthOptions() })
+    return { ok: true }
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'blob unreachable',
+    }
+  }
 }
 
 export interface CloudSession {
@@ -142,7 +200,7 @@ export class JsonStore {
     let store = emptyStore()
     let hydratedFromBlob = false
 
-    if (blobConfigured()) {
+    if (blobConfigured() || process.env.VERCEL) {
       try {
         const listed = await list({
           prefix: BLOB_PATHNAME,
@@ -193,10 +251,12 @@ export class JsonStore {
     this.dirty = true
   }
 
-  async persist(): Promise<void> {
-    if (!this.dirty) return
+  async persist(): Promise<PersistResult> {
+    if (!this.dirty) return { disk: true, blob: false }
     writeFileSync(FILE_PATH, JSON.stringify(this.store))
-    if (blobConfigured()) {
+    let blobOk = false
+    let blobError: string | undefined
+    if (blobConfigured() || process.env.VERCEL) {
       try {
         await put(BLOB_PATHNAME, JSON.stringify(this.store), {
           access: 'public',
@@ -205,11 +265,14 @@ export class JsonStore {
           contentType: 'application/json',
           ...blobAuthOptions(),
         })
+        blobOk = true
       } catch (err) {
+        blobError = err instanceof Error ? err.message : 'blob persist failed'
         console.warn('[iphone-imports] blob persist failed', err)
       }
     }
     this.dirty = false
+    return { disk: true, blob: blobOk, blobError }
   }
 
   findUserByUsername(username: string): CloudUser | null {
@@ -287,5 +350,8 @@ export class JsonStore {
 }
 
 export async function getStore(): Promise<JsonStore> {
+  if (process.env.VERCEL) {
+    JsonStore.resetCache()
+  }
   return JsonStore.open()
 }

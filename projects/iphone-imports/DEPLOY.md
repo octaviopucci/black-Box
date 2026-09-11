@@ -39,9 +39,21 @@ Depois de alterar o Root Directory: **Deployments → Redeploy** no **último co
 ### 3. Domínio
 - `loja-iphoneimports.vercel.app`
 
-### 4. Vercel Blob — **obrigatório para o gestor W-Tube persistir**
+### 4. Vercel Blob — **obrigatório para os dois gestores persistirem**
 
-Sem Blob, produtos somem após deploy/reinício (`/api/w-tube/health` → `blob: false`).
+Sem Blob, produtos somem após deploy/reinício. A mesma variável `BLOB_STORE_ID` serve **as duas APIs** no mesmo projeto:
+
+| API | Arquivo no Blob | Gestor | Site |
+|-----|-----------------|--------|------|
+| W-Tube | `w-tube/store.json` | `/w-tube/gestor/` | `/w-tube` |
+| iPhone Imports | `iphone-imports/store.json` | `/gestor/` | `/` |
+
+Validar ambas:
+```bash
+curl https://loja-iphoneimports.vercel.app/api/w-tube/health
+curl https://loja-iphoneimports.vercel.app/api/iphone-imports/health
+# blob: true em ambas
+```
 
 **Opção A — conectar pelo dashboard (recomendado):**
 1. Vercel → projeto **loja-iphoneimports** (não o monorepo `cbx`)

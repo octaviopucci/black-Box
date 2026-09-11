@@ -1,11 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
-  blobConfigured,
   blobDiagnostics,
   getStore,
   hashPassword,
   issueToken,
+  probeBlobStorage,
   safeEqual,
+  setRuntimeOidcToken,
 } from './store'
 import { buildPublicCatalog, getPublicProductBySlug } from './catalog'
 import { ensureIphoneImportsStore, STORE_SLUG } from './seed'
@@ -38,7 +39,23 @@ function json(res: VercelResponse, status: number, body: unknown) {
   res.send(JSON.stringify(body))
 }
 
+function readOidcHeader(req: VercelRequest): string | undefined {
+  const raw = req.headers['x-vercel-oidc-token']
+  if (typeof raw === 'string' && raw.trim()) return raw.trim()
+  if (Array.isArray(raw) && raw[0]?.trim()) return raw[0].trim()
+  return undefined
+}
+
+function blobSetupHint(storage: ReturnType<typeof blobDiagnostics>): string {
+  if (storage.hasToken) return ''
+  if (storage.hasStoreId) return ''
+  return 'Adicione BLOB_STORE_ID nas env vars do projeto loja-iphoneimports e faça redeploy.'
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const hasOidcHeader = Boolean(readOidcHeader(req))
+  setRuntimeOidcToken(readOidcHeader(req))
+
   if (req.method === 'OPTIONS') {
     return json(res, 204, {})
   }
@@ -59,12 +76,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const org = store.findOrgBySlug(STORE_SLUG)
       const rec = org ? store.data().databases[org.id] : null
       const db = rec?.data as OrgDatabase | undefined
-      const storage = blobDiagnostics()
+      const storage = blobDiagnostics(hasOidcHeader)
+      const probe = await probeBlobStorage()
+      const blobOk = probe.ok || (storage.hasToken && storage.configured)
       return json(res, 200, {
         ok: true,
         service: 'iphone-imports',
-        blob: storage.configured,
-        storage,
+        blob: blobOk,
+        storage: { ...storage, probe },
+        setup: blobOk ? undefined : blobSetupHint(storage),
         slug: STORE_SLUG,
         products: db?.products.length ?? 0,
         inventory: db?.inventory.filter((u) => u.status === 'available').length ?? 0,
@@ -181,8 +201,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         data: body.database,
       }
       store.markDirty()
-      await store.persist()
-      return json(res, 200, { ok: true, version: nextVersion })
+      const persisted = await store.persist()
+      const storage = blobDiagnostics(hasOidcHeader)
+      const warning =
+        process.env.VERCEL && !persisted.blob
+          ? `Dados salvos só nesta instância. ${blobSetupHint(storage)}`
+          : undefined
+      return json(res, 200, { ok: true, version: nextVersion, persisted, storage, warning })
     }
 
     return json(res, 404, { error: `Rota não encontrada: ${path}` })
