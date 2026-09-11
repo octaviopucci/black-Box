@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
   blobConfigured,
+  blobDiagnostics,
   getStore,
   hashPassword,
   issueToken,
@@ -58,13 +59,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const org = store.findOrgBySlug(STORE_SLUG)
       const rec = org ? store.data().databases[org.id] : null
       const db = rec?.data as OrgDatabase | undefined
+      const storage = blobDiagnostics()
       return json(res, 200, {
         ok: true,
         service: 'w-tube',
-        blob: blobConfigured(),
+        blob: storage.configured,
+        storage,
         slug: STORE_SLUG,
         products: db?.products.length ?? 0,
         inventory: db?.inventory.filter((u) => u.status === 'available').length ?? 0,
+        updatedAt: rec?.updatedAt,
       })
     }
 

@@ -25,6 +25,8 @@ export function ProductsPage() {
       price: Number(fd.get('price')),
       images: [String(fd.get('image') || 'https://images.unsplash.com/photo-1592286927505-4eed024c85d2?w=800&q=80')],
       published: true,
+      new: true,
+      featured: true,
       createdAt: nowISO(),
       updatedAt: nowISO(),
     }

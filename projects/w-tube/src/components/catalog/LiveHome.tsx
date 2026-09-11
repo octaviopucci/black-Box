@@ -20,6 +20,7 @@ export function LiveHome() {
   }
 
   const featuredCategories = categories.filter((c) => c.featured).slice(0, 6);
+  const newArrivals = products.filter((p) => p.new && p.stock).slice(0, 4);
   const saleProducts = products.filter((p) => p.sale).slice(0, 4);
   const iphones = products.filter((p) => p.categorySlug === "iphones").slice(0, 4);
   const bestSellers = products.filter((p) => p.bestSeller).slice(0, 4);
@@ -49,6 +50,15 @@ export function LiveHome() {
                 <CategoryCard key={cat.slug} name={cat.name} slug={cat.slug} image={cat.image} />
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {newArrivals.length > 0 && (
+        <section className="section-light py-14 md:py-20">
+          <div className="container-store">
+            <SectionHeader title="Novidades" subtitle="Recém adicionados ao catálogo" />
+            <ProductGrid products={newArrivals} priorityCount={2} />
           </div>
         </section>
       )}
