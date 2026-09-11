@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'projects/iphone-imports/**'
+      - 'projects/w-tube/**'
       - '.github/workflows/iphone-imports-deploy.yml'
   workflow_dispatch:
 
