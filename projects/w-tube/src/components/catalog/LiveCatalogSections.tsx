@@ -28,12 +28,6 @@ export function LiveCatalogSections() {
 
   return (
     <>
-      {live && (
-        <div className="border-b border-brand-purple/20 bg-brand-purple/5 py-2 text-center text-xs font-medium text-brand-purple">
-          Catálogo sincronizado com o estoque · atualiza automaticamente
-        </div>
-      )}
-
       {featuredCategories.length > 0 && (
         <section className="section-white py-14 md:py-20">
           <div className="container-store">
