@@ -36,7 +36,8 @@ export function AppLayout() {
       const health = await fetchStorageHealth()
       if (!health.configured) {
         setStorageWarning(
-          'Armazenamento na nuvem não configurado. Conecte Vercel Blob ao projeto loja-iphoneimports (Settings → Storage) e faça redeploy — sem isso os produtos podem sumir após deploy.',
+          health.setup ||
+            'Armazenamento na nuvem não configurado. O Blob pode estar conectado a outro projeto Vercel — em Storage → seu Blob → Projects, conecte loja-iphoneimports (Production). Ou adicione BLOB_READ_WRITE_TOKEN nas env vars e redeploy.',
         )
       }
     })()

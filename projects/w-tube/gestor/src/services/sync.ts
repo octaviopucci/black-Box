@@ -90,17 +90,24 @@ async function attemptLogin(username: string, password: string, storeSlug?: stri
   })
 }
 
-export async function fetchStorageHealth(): Promise<{ configured: boolean; products: number }> {
+export async function fetchStorageHealth(): Promise<{
+  configured: boolean
+  products: number
+  setup?: string
+}> {
   try {
     const res = await fetch(`${API_BASE}/health`, { cache: 'no-store' })
     if (!res.ok) return { configured: false, products: 0 }
     const data = (await res.json()) as {
+      blob?: boolean
+      setup?: string
       storage?: { configured?: boolean }
       products?: number
     }
     return {
-      configured: Boolean(data.storage?.configured),
+      configured: Boolean(data.blob ?? data.storage?.configured),
       products: data.products ?? 0,
+      setup: data.setup,
     }
   } catch {
     return { configured: false, products: 0 }

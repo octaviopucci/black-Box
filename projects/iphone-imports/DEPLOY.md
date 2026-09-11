@@ -62,6 +62,19 @@ curl https://loja-iphoneimports.vercel.app/api/w-tube/health
 # blob: true  ·  storage.hasToken ou storage.hasStoreId: true
 ```
 
+**Blob “conectado” mas `blob: false` (diagnóstico):**
+
+O health agora expõe `storage.blobEnvKeys`, `storage.vercelProjectId` e `setup` com a causa provável.
+
+| Sintoma no `/health` | Causa | Correção |
+|------------------------|-------|----------|
+| `blobEnvKeys: []` | Blob **não** ligado ao projeto `loja-iphoneimports` | Storage → Blob → ⋯ → **Update Project Connection** → marque **loja-iphoneimports** + **Production** → Redeploy |
+| `hasOidcHeader: true`, `hasStoreId: false` | Store em outro projeto | Mesmo passo — reconectar ao projeto certo |
+| `hasStoreId: true`, sem OIDC | Redeploy pendente ou function antiga | Redeploy do último commit da `main` |
+| Tudo false após conectar | Token manual mais confiável | Storage → Blob → Settings → token Read-Write → env `BLOB_READ_WRITE_TOKEN` em **loja-iphoneimports** → Redeploy |
+
+> O Blob pode existir na conta há meses ligado ao monorepo **cbx** ou a outro app — isso **não** injeta variáveis no `loja-iphoneimports`. Confira em **Settings → Environment Variables** se `BLOB_READ_WRITE_TOKEN` ou `BLOB_STORE_ID` aparecem neste projeto.
+
 ### 5. Outras variáveis (Settings → Environment Variables)
 | Variável | Obrigatório | Descrição |
 |----------|-------------|-----------|

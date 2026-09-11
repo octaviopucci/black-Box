@@ -43124,12 +43124,12 @@ async function resolveBlobAuth(options) {
         storeId: normalizeStoreId(manualStoreId)
       };
     }
-    const blobStoreId = readEnv("BLOB_STORE_ID");
-    if (blobStoreId) {
+    const blobStoreId2 = readEnv("BLOB_STORE_ID");
+    if (blobStoreId2) {
       return {
         kind: "oidc",
         token: oidcToken,
-        storeId: normalizeStoreId(blobStoreId)
+        storeId: normalizeStoreId(blobStoreId2)
       };
     }
     if (manualOidcToken) {
@@ -44542,21 +44542,58 @@ var completeMultipartUpload2 = createCompleteMultipartUploadMethod({
 // ../w-tube/api/_w-tube/store.ts
 var BLOB_PATHNAME = "w-tube/store.json";
 var FILE_PATH = process.env.VERCEL || process.env.VERCEL_ENV ? "/tmp/w-tube-store.json" : "./data/w-tube-store.json";
-function blobConfigured() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+var runtimeOidcToken;
+function setRuntimeOidcToken(token) {
+  runtimeOidcToken = token?.trim() || void 0;
 }
-function blobDiagnostics() {
-  return {
-    configured: blobConfigured(),
-    hasToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-    hasStoreId: Boolean(process.env.BLOB_STORE_ID),
-    hasOidc: Boolean(process.env.VERCEL_OIDC_TOKEN),
-    onVercel: Boolean(process.env.VERCEL)
-  };
+function blobReadWriteToken() {
+  return process.env.BLOB_READ_WRITE_TOKEN || process.env.W_TUBE_BLOB_READ_WRITE_TOKEN;
+}
+function blobStoreId() {
+  return process.env.BLOB_STORE_ID || process.env.W_TUBE_BLOB_STORE_ID;
 }
 function blobAuthOptions() {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  return token ? { token } : {};
+  const token = blobReadWriteToken();
+  if (token) return { token };
+  const storeId = blobStoreId();
+  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
+  if (oidcToken && storeId) return { oidcToken, storeId };
+  if (storeId) return { storeId };
+  if (oidcToken) return { oidcToken };
+  return {};
+}
+function blobConfigured() {
+  if (blobReadWriteToken()) return true;
+  if (blobStoreId()) return true;
+  return Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN);
+}
+function blobDiagnostics(hasOidcHeader = false) {
+  const blobEnvKeys = Object.keys(process.env).filter(
+    (k) => k.includes("BLOB") || k.includes("OIDC")
+  );
+  return {
+    configured: blobConfigured(),
+    hasToken: Boolean(blobReadWriteToken()),
+    hasStoreId: Boolean(blobStoreId()),
+    hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
+    hasOidcHeader,
+    onVercel: Boolean(process.env.VERCEL),
+    vercelProjectId: process.env.VERCEL_PROJECT_ID,
+    vercelEnv: process.env.VERCEL_ENV,
+    blobEnvKeys
+  };
+}
+async function probeBlobStorage() {
+  if (!process.env.VERCEL) return { ok: false, error: "local" };
+  try {
+    await list({ prefix: BLOB_PATHNAME, limit: 1, ...blobAuthOptions() });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "blob unreachable"
+    };
+  }
 }
 function emptyStore() {
   return {
@@ -44825,7 +44862,7 @@ var seed_data_default = {
     id: "org_w_tube",
     name: "W-Tube",
     slug: "w-tube",
-    createdAt: "2026-09-11T02:10:25.521Z"
+    createdAt: "2026-09-11T16:49:45.821Z"
   },
   stores: [
     {
@@ -44833,7 +44870,7 @@ var seed_data_default = {
       organizationId: "org_w_tube",
       name: "W-Tube \u2014 Matriz",
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z"
     }
   ],
   categories: [
@@ -44846,8 +44883,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_smartphones",
@@ -44858,8 +44895,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_airpods-fones",
@@ -44870,8 +44907,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_smartwatches",
@@ -44882,8 +44919,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_capinhas",
@@ -44894,8 +44931,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_peliculas",
@@ -44906,8 +44943,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_carregadores",
@@ -44918,8 +44955,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_cabos",
@@ -44930,8 +44967,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_fontes",
@@ -44942,8 +44979,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_power-banks",
@@ -44954,8 +44991,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_suportes",
@@ -44966,8 +45003,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_acessorios-carro",
@@ -44978,8 +45015,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_audio",
@@ -44990,8 +45027,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_eletronicos",
@@ -45002,8 +45039,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=800&fit=crop&auto=format&q=80",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "cat_ofertas",
@@ -45014,8 +45051,8 @@ var seed_data_default = {
       image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=800&fit=crop&auto=format&q=80",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     }
   ],
   products: [
@@ -45066,8 +45103,8 @@ var seed_data_default = {
         "Documenta\xE7\xE3o"
       ],
       warranty: "Garantia conforme condi\xE7\xF5es informadas no atendimento.",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ip17p",
@@ -45102,8 +45139,8 @@ var seed_data_default = {
         "iphone 17",
         "pro"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ip17",
@@ -45136,8 +45173,8 @@ var seed_data_default = {
       keywords: [
         "iphone 17"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ip16pm",
@@ -45172,8 +45209,8 @@ var seed_data_default = {
         "iphone 16",
         "pro max"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ip16p",
@@ -45207,8 +45244,8 @@ var seed_data_default = {
         "iphone 16",
         "pro"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ip16",
@@ -45240,8 +45277,8 @@ var seed_data_default = {
       keywords: [
         "iphone 16"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ip15",
@@ -45274,8 +45311,8 @@ var seed_data_default = {
       keywords: [
         "iphone 15"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ip14",
@@ -45305,8 +45342,8 @@ var seed_data_default = {
       keywords: [
         "iphone 14"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ip13",
@@ -45338,8 +45375,8 @@ var seed_data_default = {
       keywords: [
         "iphone 13"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_ap4",
@@ -45363,8 +45400,8 @@ var seed_data_default = {
         "fone",
         "sem fio"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_app2",
@@ -45390,8 +45427,8 @@ var seed_data_default = {
         "fone",
         "anc"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_apm",
@@ -45412,8 +45449,8 @@ var seed_data_default = {
         "airpods max",
         "headphone"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_bt-fone",
@@ -45437,8 +45474,8 @@ var seed_data_default = {
         "bluetooth",
         "tws"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_aws10",
@@ -45466,8 +45503,8 @@ var seed_data_default = {
         "apple watch",
         "series 10"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_awse",
@@ -45491,8 +45528,8 @@ var seed_data_default = {
         "apple watch",
         "se"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_sw-compat",
@@ -45513,8 +45550,8 @@ var seed_data_default = {
         "smartwatch",
         "relogio"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_cap-trans",
@@ -45540,8 +45577,8 @@ var seed_data_default = {
         "transparente",
         "case"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_cap-sil",
@@ -45568,8 +45605,8 @@ var seed_data_default = {
         "capinha",
         "silicone"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_cap-mag",
@@ -45596,8 +45633,8 @@ var seed_data_default = {
         "capinha",
         "magsafe"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_cap-ref",
@@ -45623,8 +45660,8 @@ var seed_data_default = {
         "reforcada",
         "protecao"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_pel-vidro",
@@ -45646,8 +45683,8 @@ var seed_data_default = {
         "pelicula",
         "vidro"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_pel-priv",
@@ -45668,8 +45705,8 @@ var seed_data_default = {
         "pelicula",
         "privacidade"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_pel-cam",
@@ -45690,8 +45727,8 @@ var seed_data_default = {
         "pelicula",
         "camera"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_chg-20w",
@@ -45717,8 +45754,8 @@ var seed_data_default = {
         "20w",
         "usb-c"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_chg-mag",
@@ -45739,8 +45776,8 @@ var seed_data_default = {
         "magsafe",
         "carregador"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_chg-car",
@@ -45762,8 +45799,8 @@ var seed_data_default = {
         "veicular",
         "carro"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_cabo-cc",
@@ -45785,8 +45822,8 @@ var seed_data_default = {
         "cabo",
         "usb-c"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_cabo-cl",
@@ -45808,8 +45845,8 @@ var seed_data_default = {
         "lightning",
         "usb-c"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_cabo-ref",
@@ -45833,8 +45870,8 @@ var seed_data_default = {
         "reforcado",
         "nylon"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_pb-10k",
@@ -45857,8 +45894,8 @@ var seed_data_default = {
         "power bank",
         "bateria"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_pb-20k",
@@ -45879,8 +45916,8 @@ var seed_data_default = {
         "power bank",
         "bateria"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_sup-mesa",
@@ -45901,8 +45938,8 @@ var seed_data_default = {
         "suporte",
         "mesa"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_sup-carro",
@@ -45924,8 +45961,8 @@ var seed_data_default = {
         "carro",
         "veicular"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_cx-bt",
@@ -45949,8 +45986,8 @@ var seed_data_default = {
         "bluetooth",
         "som"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_hub-usb",
@@ -45972,8 +46009,8 @@ var seed_data_default = {
         "usb-c",
         "adaptador"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_adaptador",
@@ -45995,8 +46032,8 @@ var seed_data_default = {
         "usb-c",
         "lightning"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "prod_sm-android",
@@ -46028,8 +46065,8 @@ var seed_data_default = {
         "android",
         "samsung"
       ],
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     }
   ],
   inventory: [
@@ -46042,8 +46079,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Natural",
       storage: "256GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ip17p",
@@ -46054,8 +46091,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Natural",
       storage: "128GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ip17",
@@ -46066,8 +46103,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ip16pm",
@@ -46078,8 +46115,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Deserto",
       storage: "256GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ip16p",
@@ -46090,8 +46127,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Preto",
       storage: "128GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ip16",
@@ -46102,8 +46139,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Rosa",
       storage: "128GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ip15",
@@ -46114,8 +46151,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ip14",
@@ -46126,8 +46163,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ip13",
@@ -46138,8 +46175,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Meia-noite",
       storage: "128GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_ap4",
@@ -46148,8 +46185,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_app2",
@@ -46158,8 +46195,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_apm",
@@ -46168,8 +46205,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_bt-fone",
@@ -46178,8 +46215,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_aws10",
@@ -46189,8 +46226,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Rosa",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_awse",
@@ -46199,8 +46236,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_sw-compat",
@@ -46209,8 +46246,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_cap-trans",
@@ -46220,8 +46257,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Transparente",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_cap-sil",
@@ -46231,8 +46268,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_cap-mag",
@@ -46242,8 +46279,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_cap-ref",
@@ -46253,8 +46290,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_pel-vidro",
@@ -46263,8 +46300,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_pel-priv",
@@ -46273,8 +46310,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_pel-cam",
@@ -46283,8 +46320,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_chg-20w",
@@ -46293,8 +46330,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_chg-mag",
@@ -46303,8 +46340,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_chg-car",
@@ -46313,8 +46350,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_cabo-cc",
@@ -46323,8 +46360,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_cabo-cl",
@@ -46333,8 +46370,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_cabo-ref",
@@ -46343,8 +46380,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_pb-10k",
@@ -46353,8 +46390,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_pb-20k",
@@ -46363,8 +46400,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_sup-mesa",
@@ -46373,8 +46410,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_sup-carro",
@@ -46383,8 +46420,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_cx-bt",
@@ -46393,8 +46430,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_hub-usb",
@@ -46403,8 +46440,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_adaptador",
@@ -46413,8 +46450,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     },
     {
       id: "unit_sm-android",
@@ -46425,8 +46462,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Preto",
       storage: "128GB",
-      createdAt: "2026-09-11T02:10:25.521Z",
-      updatedAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z",
+      updatedAt: "2026-09-11T16:49:45.821Z"
     }
   ],
   customers: [],
@@ -46439,7 +46476,7 @@ var seed_data_default = {
     hours: "Seg\u2013Sex 9h\u201318h \xB7 S\xE1b 9h\u201313h",
     topBarMessage: "\u26A1 W-Tube \u2014 lan\xE7amentos e ofertas toda semana",
     promoBarMessage: "\u{1F49C} Semana W-Tube \u2014 confira as ofertas",
-    updatedAt: "2026-09-11T02:10:25.521Z"
+    updatedAt: "2026-09-11T16:49:45.821Z"
   },
   users: [
     {
@@ -46450,7 +46487,7 @@ var seed_data_default = {
       nome: "Administrador",
       role: "admin",
       active: true,
-      createdAt: "2026-09-11T02:10:25.521Z"
+      createdAt: "2026-09-11T16:49:45.821Z"
     }
   ],
   auditLogs: []
@@ -46533,7 +46570,28 @@ function json(res, status, body) {
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
   res.send(JSON.stringify(body));
 }
+function readOidcHeader(req) {
+  const raw = req.headers["x-vercel-oidc-token"];
+  if (typeof raw === "string" && raw.trim()) return raw.trim();
+  if (Array.isArray(raw) && raw[0]?.trim()) return raw[0].trim();
+  return void 0;
+}
+function blobSetupHint(storage) {
+  if (storage.hasToken) return "";
+  if (storage.hasStoreId && !storage.hasOidc && !storage.hasOidcHeader) {
+    return "BLOB_STORE_ID existe mas OIDC n\xE3o chegou na function. Fa\xE7a Redeploy ou adicione BLOB_READ_WRITE_TOKEN manualmente.";
+  }
+  if ((storage.hasOidc || storage.hasOidcHeader) && !storage.hasStoreId) {
+    return "OIDC ok mas BLOB_STORE_ID ausente \u2014 o Blob provavelmente est\xE1 conectado a OUTRO projeto Vercel. Em Storage \u2192 seu Blob \u2192 Projects \u2192 conecte loja-iphoneimports (Production + Preview).";
+  }
+  if (storage.blobEnvKeys.length === 0) {
+    return "Nenhuma vari\xE1vel BLOB/OIDC nesta function. Storage \u2192 Blob \u2192 \u22EF \u2192 Update Project Connection \u2192 loja-iphoneimports. Ou adicione BLOB_READ_WRITE_TOKEN em Environment Variables e redeploy.";
+  }
+  return "Vercel \u2192 loja-iphoneimports \u2192 Storage \u2192 Blob \u2192 Connect. Depois Redeploy. Ou adicione BLOB_READ_WRITE_TOKEN em Environment Variables.";
+}
 async function handler(req, res) {
+  const hasOidcHeader = Boolean(readOidcHeader(req));
+  setRuntimeOidcToken(readOidcHeader(req));
   if (req.method === "OPTIONS") {
     return json(res, 204, {});
   }
@@ -46550,12 +46608,15 @@ async function handler(req, res) {
       const org = store.findOrgBySlug(STORE_SLUG);
       const rec = org ? store.data().databases[org.id] : null;
       const db = rec?.data;
-      const storage = blobDiagnostics();
+      const storage = blobDiagnostics(hasOidcHeader);
+      const probe = await probeBlobStorage();
+      const blobOk = probe.ok || storage.hasToken && storage.configured;
       return json(res, 200, {
         ok: true,
         service: "w-tube",
-        blob: storage.configured,
-        storage,
+        blob: blobOk,
+        storage: { ...storage, probe },
+        setup: blobOk ? void 0 : blobSetupHint(storage),
         slug: STORE_SLUG,
         products: db?.products.length ?? 0,
         inventory: db?.inventory.filter((u) => u.status === "available").length ?? 0,
@@ -46617,7 +46678,7 @@ async function handler(req, res) {
       const session2 = store.toSession(user);
       const token2 = issueSessionToken(session2);
       const dbRec = store.data().databases[user.organizationId];
-      const storage = blobDiagnostics();
+      const storage = blobDiagnostics(hasOidcHeader);
       return json(res, 200, {
         token: token2,
         session: session2,
@@ -46651,8 +46712,8 @@ async function handler(req, res) {
       };
       store.markDirty();
       const persisted = await store.persist();
-      const storage = blobDiagnostics();
-      const warning = process.env.VERCEL && !persisted.blob ? "Dados salvos s\xF3 nesta inst\xE2ncia. Conecte Vercel Blob ao projeto loja-iphoneimports e fa\xE7a redeploy." : void 0;
+      const storage = blobDiagnostics(hasOidcHeader);
+      const warning = process.env.VERCEL && !persisted.blob ? `Dados salvos s\xF3 nesta inst\xE2ncia. ${blobSetupHint(storage)}` : void 0;
       return json(res, 200, {
         ok: true,
         version: nextVersion,

@@ -15,7 +15,11 @@ export interface BlobDiagnostics {
   hasToken: boolean
   hasStoreId: boolean
   hasOidc: boolean
+  hasOidcHeader: boolean
   onVercel: boolean
+  vercelProjectId?: string
+  vercelEnv?: string
+  blobEnvKeys: string[]
 }
 
 export interface PersistResult {
@@ -24,22 +28,59 @@ export interface PersistResult {
   blobError?: string
 }
 
+let runtimeOidcToken: string | undefined
+
+/** OIDC da request (header x-vercel-oidc-token) — necessário em serverless standalone. */
+export function setRuntimeOidcToken(token: string | undefined): void {
+  runtimeOidcToken = token?.trim() || undefined
+}
+
 function blobReadWriteToken(): string | undefined {
   return process.env.BLOB_READ_WRITE_TOKEN || process.env.W_TUBE_BLOB_READ_WRITE_TOKEN
 }
 
-/** Blob ativo via token clássico OU OIDC moderno (BLOB_STORE_ID na Vercel). */
-export function blobConfigured(): boolean {
-  return Boolean(blobReadWriteToken() || process.env.BLOB_STORE_ID)
+function blobStoreId(): string | undefined {
+  return process.env.BLOB_STORE_ID || process.env.W_TUBE_BLOB_STORE_ID
 }
 
-export function blobDiagnostics(): BlobDiagnostics {
+/** Opções de auth para @vercel/blob — token manual, ou OIDC + storeId. */
+export function blobAuthOptions(): {
+  token?: string
+  storeId?: string
+  oidcToken?: string
+} {
+  const token = blobReadWriteToken()
+  if (token) return { token }
+
+  const storeId = blobStoreId()
+  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN
+  if (oidcToken && storeId) return { oidcToken, storeId }
+  if (storeId) return { storeId }
+  if (oidcToken) return { oidcToken }
+  return {}
+}
+
+/** Blob ativo via token clássico OU OIDC moderno (BLOB_STORE_ID na Vercel). */
+export function blobConfigured(): boolean {
+  if (blobReadWriteToken()) return true
+  if (blobStoreId()) return true
+  return Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN)
+}
+
+export function blobDiagnostics(hasOidcHeader = false): BlobDiagnostics {
+  const blobEnvKeys = Object.keys(process.env).filter(
+    (k) => k.includes('BLOB') || k.includes('OIDC'),
+  )
   return {
     configured: blobConfigured(),
     hasToken: Boolean(blobReadWriteToken()),
-    hasStoreId: Boolean(process.env.BLOB_STORE_ID),
-    hasOidc: Boolean(process.env.VERCEL_OIDC_TOKEN),
+    hasStoreId: Boolean(blobStoreId()),
+    hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
+    hasOidcHeader,
     onVercel: Boolean(process.env.VERCEL),
+    vercelProjectId: process.env.VERCEL_PROJECT_ID,
+    vercelEnv: process.env.VERCEL_ENV,
+    blobEnvKeys,
   }
 }
 
@@ -47,7 +88,7 @@ export function blobDiagnostics(): BlobDiagnostics {
 export async function probeBlobStorage(): Promise<{ ok: boolean; error?: string }> {
   if (!process.env.VERCEL) return { ok: false, error: 'local' }
   try {
-    await list({ prefix: BLOB_PATHNAME, limit: 1 })
+    await list({ prefix: BLOB_PATHNAME, limit: 1, ...blobAuthOptions() })
     return { ok: true }
   } catch (err) {
     return {
@@ -168,6 +209,7 @@ export class JsonStore {
         const listed = await list({
           prefix: BLOB_PATHNAME,
           limit: 1,
+          ...blobAuthOptions(),
         })
         const blob = listed.blobs.find((b) => b.pathname === BLOB_PATHNAME)
         if (blob) {
@@ -225,6 +267,7 @@ export class JsonStore {
           addRandomSuffix: false,
           allowOverwrite: true,
           contentType: 'application/json',
+          ...blobAuthOptions(),
         })
         blobOk = true
       } catch (err) {

@@ -7,6 +7,7 @@ import {
   hashPassword,
   probeBlobStorage,
   safeEqual,
+  setRuntimeOidcToken,
 } from './store'
 import { buildPublicCatalog, getPublicProductBySlug } from './catalog'
 import { ensureIphoneImportsStore, STORE_SLUG } from './seed'
@@ -39,7 +40,31 @@ function json(res: VercelResponse, status: number, body: unknown) {
   res.send(JSON.stringify(body))
 }
 
+function readOidcHeader(req: VercelRequest): string | undefined {
+  const raw = req.headers['x-vercel-oidc-token']
+  if (typeof raw === 'string' && raw.trim()) return raw.trim()
+  if (Array.isArray(raw) && raw[0]?.trim()) return raw[0].trim()
+  return undefined
+}
+
+function blobSetupHint(storage: ReturnType<typeof blobDiagnostics>): string {
+  if (storage.hasToken) return ''
+  if (storage.hasStoreId && !storage.hasOidc && !storage.hasOidcHeader) {
+    return 'BLOB_STORE_ID existe mas OIDC não chegou na function. Faça Redeploy ou adicione BLOB_READ_WRITE_TOKEN manualmente.'
+  }
+  if ((storage.hasOidc || storage.hasOidcHeader) && !storage.hasStoreId) {
+    return 'OIDC ok mas BLOB_STORE_ID ausente — o Blob provavelmente está conectado a OUTRO projeto Vercel. Em Storage → seu Blob → Projects → conecte loja-iphoneimports (Production + Preview).'
+  }
+  if (storage.blobEnvKeys.length === 0) {
+    return 'Nenhuma variável BLOB/OIDC nesta function. Storage → Blob → ⋯ → Update Project Connection → loja-iphoneimports. Ou adicione BLOB_READ_WRITE_TOKEN em Environment Variables e redeploy.'
+  }
+  return 'Vercel → loja-iphoneimports → Storage → Blob → Connect. Depois Redeploy. Ou adicione BLOB_READ_WRITE_TOKEN em Environment Variables.'
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const hasOidcHeader = Boolean(readOidcHeader(req))
+  setRuntimeOidcToken(readOidcHeader(req))
+
   if (req.method === 'OPTIONS') {
     return json(res, 204, {})
   }
@@ -60,18 +85,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const org = store.findOrgBySlug(STORE_SLUG)
       const rec = org ? store.data().databases[org.id] : null
       const db = rec?.data as OrgDatabase | undefined
-      const storage = blobDiagnostics()
+      const storage = blobDiagnostics(hasOidcHeader)
       const probe = await probeBlobStorage()
-      const blobOk = storage.configured || probe.ok
+      const blobOk = probe.ok || (storage.hasToken && storage.configured)
       return json(res, 200, {
         ok: true,
         service: 'w-tube',
         blob: blobOk,
         storage: { ...storage, probe },
-        setup:
-          blobOk
-            ? undefined
-            : 'Vercel → loja-iphoneimports → Storage → Blob → Connect. Depois Redeploy. Ou adicione BLOB_READ_WRITE_TOKEN em Environment Variables.',
+        setup: blobOk ? undefined : blobSetupHint(storage),
         slug: STORE_SLUG,
         products: db?.products.length ?? 0,
         inventory: db?.inventory.filter((u) => u.status === 'available').length ?? 0,
@@ -145,7 +167,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const session = store.toSession(user)
       const token = issueSessionToken(session)
       const dbRec = store.data().databases[user.organizationId]
-      const storage = blobDiagnostics()
+      const storage = blobDiagnostics(hasOidcHeader)
       return json(res, 200, {
         token,
         session,
@@ -184,10 +206,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       store.markDirty()
       const persisted = await store.persist()
-      const storage = blobDiagnostics()
+      const storage = blobDiagnostics(hasOidcHeader)
       const warning =
         process.env.VERCEL && !persisted.blob
-          ? 'Dados salvos só nesta instância. Conecte Vercel Blob ao projeto loja-iphoneimports e faça redeploy.'
+          ? `Dados salvos só nesta instância. ${blobSetupHint(storage)}`
           : undefined
       return json(res, 200, {
         ok: true,
