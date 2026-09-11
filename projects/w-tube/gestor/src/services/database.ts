@@ -47,6 +47,7 @@ export function setSession(session: SessionUser, remember = true): void {
 export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY)
   localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(SYNC_KEY)
 }
 
 export function getCloudToken(): string | null {

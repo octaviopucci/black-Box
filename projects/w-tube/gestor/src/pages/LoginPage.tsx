@@ -36,6 +36,11 @@ export function LoginPage() {
           <Play className="h-8 w-8 fill-brand-purple text-brand-purple" />
           <h1 className="text-xl font-black">Gestor WebTube Acessórios</h1>
         </div>
+        {new URLSearchParams(window.location.search).get('expired') && (
+          <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+            Sua sessão expirou. Faça login de novo para enviar produtos ao site.
+          </p>
+        )}
         {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
         <input className="input" placeholder="Usuário" value={username} onChange={(e) => setUsername(e.target.value)} required />
         <input className="input" type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} required />

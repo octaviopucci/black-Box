@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { issueSessionToken } from './auth-token'
 import {
   blobConfigured,
   blobDiagnostics,
   getStore,
   hashPassword,
-  issueToken,
   safeEqual,
 } from './store'
 import { buildPublicCatalog, getPublicProductBySlug } from './catalog'
@@ -135,21 +135,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return json(res, 401, { error: 'Usuário, senha ou loja inválidos.' })
       }
 
-      const token = issueToken()
-      store.data().tokens[token] = {
-        organizationId: user.organizationId,
-        userId: user.id,
-        createdAt: new Date().toISOString(),
-      }
-      store.markDirty()
-      await store.persist()
-
+      const session = store.toSession(user)
+      const token = issueSessionToken(session)
       const dbRec = store.data().databases[user.organizationId]
+      const storage = blobDiagnostics()
       return json(res, 200, {
         token,
-        session: store.toSession(user),
+        session,
         database: dbRec?.data || null,
         version: dbRec?.version || 0,
+        storage,
       })
     }
 
@@ -181,8 +176,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         data: body.database,
       }
       store.markDirty()
-      await store.persist()
-      return json(res, 200, { ok: true, version: nextVersion })
+      const persisted = await store.persist()
+      const storage = blobDiagnostics()
+      const warning =
+        process.env.VERCEL && !persisted.blob
+          ? 'Dados salvos só nesta instância. Conecte Vercel Blob ao projeto loja-iphoneimports e faça redeploy.'
+          : undefined
+      return json(res, 200, {
+        ok: true,
+        version: nextVersion,
+        persisted,
+        storage,
+        warning,
+      })
     }
 
     return json(res, 404, { error: `Rota não encontrada: ${path}` })

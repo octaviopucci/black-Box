@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { list, put } from '@vercel/blob'
+import { verifySessionToken } from './auth-token'
 
 const BLOB_PATHNAME = 'w-tube/store.json'
 const FILE_PATH =
@@ -13,7 +14,14 @@ export interface BlobDiagnostics {
   configured: boolean
   hasToken: boolean
   hasStoreId: boolean
+  hasOidc: boolean
   onVercel: boolean
+}
+
+export interface PersistResult {
+  disk: boolean
+  blob: boolean
+  blobError?: string
 }
 
 /** Blob ativo via token clássico OU OIDC moderno (BLOB_STORE_ID na Vercel). */
@@ -26,6 +34,7 @@ export function blobDiagnostics(): BlobDiagnostics {
     configured: blobConfigured(),
     hasToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
     hasStoreId: Boolean(process.env.BLOB_STORE_ID),
+    hasOidc: Boolean(process.env.VERCEL_OIDC_TOKEN),
     onVercel: Boolean(process.env.VERCEL),
   }
 }
@@ -193,9 +202,11 @@ export class JsonStore {
     this.dirty = true
   }
 
-  async persist(): Promise<void> {
-    if (!this.dirty) return
+  async persist(): Promise<PersistResult> {
+    if (!this.dirty) return { disk: true, blob: false }
     writeFileSync(FILE_PATH, JSON.stringify(this.store))
+    let blobOk = false
+    let blobError: string | undefined
     if (blobConfigured() || process.env.VERCEL) {
       try {
         await put(BLOB_PATHNAME, JSON.stringify(this.store), {
@@ -205,11 +216,14 @@ export class JsonStore {
           contentType: 'application/json',
           ...blobAuthOptions(),
         })
+        blobOk = true
       } catch (err) {
+        blobError = err instanceof Error ? err.message : 'blob persist failed'
         console.warn('[w-tube] blob persist failed', err)
       }
     }
     this.dirty = false
+    return { disk: true, blob: blobOk, blobError }
   }
 
   findUserByUsername(username: string): CloudUser | null {
@@ -278,6 +292,9 @@ export class JsonStore {
   }
 
   resolveToken(token: string): CloudSession | null {
+    const jwtSession = verifySessionToken(token)
+    if (jwtSession) return jwtSession
+
     const entry = this.store.tokens[token]
     if (!entry) return null
     const user = this.store.users[entry.userId]

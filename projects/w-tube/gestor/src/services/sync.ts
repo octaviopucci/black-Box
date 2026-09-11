@@ -1,7 +1,9 @@
 import type { OrgDatabase } from '@/types'
 import {
+  clearSession,
   getCloudToken,
   getSyncVersion,
+  isDirty,
   loadDatabase,
   markSynced,
   saveDatabase,
@@ -37,6 +39,13 @@ export function onSyncStateChange(listener: SyncListener): () => void {
   return () => listeners.delete(listener)
 }
 
+function handleAuthExpired(message = 'Sessão expirada. Faça login novamente.') {
+  clearSession()
+  setSyncState('error', message)
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+  window.location.href = `${base}/login?expired=1`
+}
+
 async function api<T>(path: string, options: RequestInit = {}): Promise<{ ok: boolean; status: number; data: T }> {
   const token = getCloudToken()
   const headers: Record<string, string> = {
@@ -47,6 +56,11 @@ async function api<T>(path: string, options: RequestInit = {}): Promise<{ ok: bo
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers })
   const data = (await res.json().catch(() => ({}))) as T
+
+  if (res.status === 401 && token) {
+    handleAuthExpired((data as { error?: string }).error || 'Sessão expirada. Faça login novamente.')
+  }
+
   return { ok: res.ok, status: res.status, data }
 }
 
@@ -58,6 +72,15 @@ type LoginResponse = {
   database?: OrgDatabase
   error?: string
   stores?: { slug: string; name: string }[]
+  storage?: { configured?: boolean }
+}
+
+type PushResponse = {
+  version?: number
+  error?: string
+  warning?: string
+  persisted?: { blob?: boolean; blobError?: string }
+  storage?: { configured?: boolean }
 }
 
 async function attemptLogin(username: string, password: string, storeSlug?: string) {
@@ -65,6 +88,23 @@ async function attemptLogin(username: string, password: string, storeSlug?: stri
     method: 'POST',
     body: JSON.stringify({ username, password, store: storeSlug }),
   })
+}
+
+export async function fetchStorageHealth(): Promise<{ configured: boolean; products: number }> {
+  try {
+    const res = await fetch(`${API_BASE}/health`, { cache: 'no-store' })
+    if (!res.ok) return { configured: false, products: 0 }
+    const data = (await res.json()) as {
+      storage?: { configured?: boolean }
+      products?: number
+    }
+    return {
+      configured: Boolean(data.storage?.configured),
+      products: data.products ?? 0,
+    }
+  } catch {
+    return { configured: false, products: 0 }
+  }
 }
 
 export const cloudSync = {
@@ -78,7 +118,10 @@ export const cloudSync = {
         setCloudToken(res.data.token)
         saveDatabase(res.data.database)
         markSynced(res.data.database.version)
-        setSyncState('synced', 'Conectado à nuvem')
+        const storageMsg = res.data.storage?.configured
+          ? 'Conectado à nuvem'
+          : 'Conectado — configure Vercel Blob para persistir entre deploys'
+        setSyncState('synced', storageMsg)
         return res.data
       }
       lastError = res.data.error || lastError
@@ -143,7 +186,7 @@ export const cloudSync = {
     setSyncState('syncing', 'Enviando para o site...')
 
     try {
-      const res = await api<{ version?: number; error?: string }>('/db', {
+      const res = await api<PushResponse>('/db', {
         method: 'PUT',
         body: JSON.stringify({ database: payload, clientVersion: getSyncVersion() }),
       })
@@ -159,6 +202,12 @@ export const cloudSync = {
       saveDatabase(payload)
       markSynced(nextVersion)
       pendingDb = null
+
+      if (res.data.warning) {
+        setSyncState('error', res.data.warning)
+        return { ok: true, message: res.data.warning }
+      }
+
       setSyncState('synced', 'Site atualizado')
       return { ok: true, message: 'Sincronizado com o site' }
     } finally {
@@ -181,7 +230,17 @@ export const cloudSync = {
     return res.data.database
   },
 
-  /** Envia imediatamente — não usar debounce (perdia dados ao sair da página). */
+  async validateSession() {
+    if (!getCloudToken()) return false
+    const res = await api<{ database?: OrgDatabase }>('/db')
+    if (res.status === 401) return false
+    if (res.ok && res.data.database && !isDirty()) {
+      saveDatabase(res.data.database)
+      markSynced(res.data.database.version)
+    }
+    return res.ok
+  },
+
   schedulePush(db?: OrgDatabase) {
     if (!getCloudToken()) {
       setSyncState('offline', 'Alteração salva localmente — faça login para enviar ao site')
