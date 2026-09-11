@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
+import { cloudSync } from '@/services/sync'
 import {
   LayoutDashboard,
   Package,
@@ -25,6 +27,10 @@ export function AppLayout() {
   const { pathname } = useLocation()
   const session = getSession()
   const db = loadDatabase()
+
+  useEffect(() => {
+    void cloudSync.pull()
+  }, [])
 
   return (
     <div className="flex min-h-screen">
@@ -70,6 +76,11 @@ export function AppLayout() {
         </div>
       </aside>
       <main className="flex-1 overflow-auto p-6">
+        <div className="mb-4 rounded-lg border border-brand-purple/30 bg-brand-purple/10 px-4 py-2 text-xs text-brand-glow">
+          Este gestor atualiza o site{' '}
+          <strong className="text-white">/w-tube</strong> — não confunda com{' '}
+          <strong className="text-white">/gestor</strong> (iPhone Imports).
+        </div>
         <Outlet />
       </main>
     </div>

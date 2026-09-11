@@ -142,7 +142,7 @@ export class JsonStore {
     let store = emptyStore()
     let hydratedFromBlob = false
 
-    if (blobConfigured()) {
+    if (blobConfigured() || process.env.VERCEL) {
       try {
         const listed = await list({
           prefix: BLOB_PATHNAME,
@@ -196,7 +196,7 @@ export class JsonStore {
   async persist(): Promise<void> {
     if (!this.dirty) return
     writeFileSync(FILE_PATH, JSON.stringify(this.store))
-    if (blobConfigured()) {
+    if (blobConfigured() || process.env.VERCEL) {
       try {
         await put(BLOB_PATHNAME, JSON.stringify(this.store), {
           access: 'public',

@@ -1,8 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom'
-import { getSession } from '@/services/database'
+import { getCloudToken, getSession } from '@/services/database'
 
 export function ProtectedRoute() {
-  if (!getSession()) return <Navigate to="/login" replace />
+  if (!getSession() || !getCloudToken()) return <Navigate to="/login" replace />
   return <Outlet />
 }
 

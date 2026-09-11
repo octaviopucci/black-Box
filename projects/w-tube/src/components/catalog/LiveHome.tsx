@@ -20,7 +20,8 @@ export function LiveHome() {
   }
 
   const featuredCategories = categories.filter((c) => c.featured).slice(0, 6);
-  const newArrivals = products.filter((p) => p.new && p.stock).slice(0, 4);
+  const newArrivals = products.filter((p) => p.new && p.stock).slice(0, 8);
+  const inStock = products.filter((p) => p.stock);
   const saleProducts = products.filter((p) => p.sale).slice(0, 4);
   const iphones = products.filter((p) => p.categorySlug === "iphones").slice(0, 4);
   const bestSellers = products.filter((p) => p.bestSeller).slice(0, 4);
@@ -54,8 +55,20 @@ export function LiveHome() {
         </section>
       )}
 
-      {newArrivals.length > 0 && (
+      {live && inStock.length > 0 && (
         <section className="section-light py-14 md:py-20">
+          <div className="container-store">
+            <SectionHeader
+              title="Catálogo em estoque"
+              subtitle={`${inStock.length} produto${inStock.length !== 1 ? 's' : ''} disponíveis agora`}
+            />
+            <ProductGrid products={inStock.slice(0, 8)} priorityCount={2} />
+          </div>
+        </section>
+      )}
+
+      {newArrivals.length > 0 && (
+        <section className="section-white py-14 md:py-20">
           <div className="container-store">
             <SectionHeader title="Novidades" subtitle="Recém adicionados ao catálogo" />
             <ProductGrid products={newArrivals} priorityCount={2} />
