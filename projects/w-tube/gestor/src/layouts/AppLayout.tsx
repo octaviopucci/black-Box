@@ -58,7 +58,7 @@ export function AppLayout() {
           <button
             onClick={() => {
               clearSession()
-              window.location.href = '/login'
+              window.location.href = `${import.meta.env.BASE_URL}login`
             }}
             className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
           >

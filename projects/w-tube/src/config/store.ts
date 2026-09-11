@@ -12,5 +12,5 @@ export const storeConfig = {
   hours: "Seg–Sex 9h–18h · Sáb 9h–13h",
   topBarMessage: "⚡ W-Tube — lançamentos e ofertas toda semana",
   promoBarMessage: "💜 Semana W-Tube — confira as ofertas",
-  siteUrl: "https://w-tube.vercel.app",
+  siteUrl: "https://loja-iphoneimports.vercel.app/w-tube",
 };
