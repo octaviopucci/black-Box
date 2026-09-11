@@ -24,25 +24,37 @@ export interface PersistResult {
   blobError?: string
 }
 
+function blobReadWriteToken(): string | undefined {
+  return process.env.BLOB_READ_WRITE_TOKEN || process.env.W_TUBE_BLOB_READ_WRITE_TOKEN
+}
+
 /** Blob ativo via token clássico OU OIDC moderno (BLOB_STORE_ID na Vercel). */
 export function blobConfigured(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)
+  return Boolean(blobReadWriteToken() || process.env.BLOB_STORE_ID)
 }
 
 export function blobDiagnostics(): BlobDiagnostics {
   return {
     configured: blobConfigured(),
-    hasToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    hasToken: Boolean(blobReadWriteToken()),
     hasStoreId: Boolean(process.env.BLOB_STORE_ID),
     hasOidc: Boolean(process.env.VERCEL_OIDC_TOKEN),
     onVercel: Boolean(process.env.VERCEL),
   }
 }
 
-/** Só passa `token` quando existe — senão o SDK usa OIDC + BLOB_STORE_ID. */
-function blobAuthOptions(): { token?: string } {
-  const token = process.env.BLOB_READ_WRITE_TOKEN
-  return token ? { token } : {}
+/** Testa leitura real no Blob (OIDC automático na Vercel). */
+export async function probeBlobStorage(): Promise<{ ok: boolean; error?: string }> {
+  if (!process.env.VERCEL) return { ok: false, error: 'local' }
+  try {
+    await list({ prefix: BLOB_PATHNAME, limit: 1 })
+    return { ok: true }
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'blob unreachable',
+    }
+  }
 }
 
 export interface CloudSession {
@@ -156,7 +168,6 @@ export class JsonStore {
         const listed = await list({
           prefix: BLOB_PATHNAME,
           limit: 1,
-          ...blobAuthOptions(),
         })
         const blob = listed.blobs.find((b) => b.pathname === BLOB_PATHNAME)
         if (blob) {
@@ -214,7 +225,6 @@ export class JsonStore {
           addRandomSuffix: false,
           allowOverwrite: true,
           contentType: 'application/json',
-          ...blobAuthOptions(),
         })
         blobOk = true
       } catch (err) {

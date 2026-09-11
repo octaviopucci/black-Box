@@ -19646,8 +19646,8 @@ var require_timing_safe_equal = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     var node_crypto_1 = require("node:crypto");
-    var timingSafeEqual2 = node_crypto_1.timingSafeEqual;
-    exports2.default = timingSafeEqual2;
+    var timingSafeEqual3 = node_crypto_1.timingSafeEqual;
+    exports2.default = timingSafeEqual3;
   }
 });
 
@@ -21975,7 +21975,7 @@ var require_sign = __commonJS({
     var node_key_js_1 = require_node_key();
     var get_sign_verify_key_js_1 = require_get_sign_verify_key();
     var oneShotSign = (0, node_util_1.promisify)(crypto2.sign);
-    var sign = async (alg, key, data) => {
+    var sign2 = async (alg, key, data) => {
       const k = (0, get_sign_verify_key_js_1.default)(alg, key, "sign");
       if (alg.startsWith("HS")) {
         const hmac = crypto2.createHmac((0, hmac_digest_js_1.default)(alg), k);
@@ -21984,7 +21984,7 @@ var require_sign = __commonJS({
       }
       return oneShotSign((0, dsa_digest_js_1.default)(alg), data, (0, node_key_js_1.default)(alg, k));
     };
-    exports2.default = sign;
+    exports2.default = sign2;
   }
 });
 
@@ -42891,10 +42891,49 @@ __export(handler_exports, {
 });
 module.exports = __toCommonJS(handler_exports);
 
+// ../w-tube/api/_w-tube/auth-token.ts
+var import_node_crypto = require("node:crypto");
+var SECRET = process.env.W_TUBE_JWT_SECRET || process.env.JWT_SECRET || "w-tube-loja-iphoneimports-session-v1";
+var TTL_MS = 30 * 24 * 60 * 60 * 1e3;
+function sign(payload) {
+  return (0, import_node_crypto.createHmac)("sha256", SECRET).update(payload).digest("base64url");
+}
+function issueSessionToken(session) {
+  const payload = Buffer.from(
+    JSON.stringify({ ...session, exp: Date.now() + TTL_MS })
+  ).toString("base64url");
+  return `${payload}.${sign(payload)}`;
+}
+function verifySessionToken(token) {
+  const dot = token.lastIndexOf(".");
+  if (dot <= 0) return null;
+  const payload = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+  const expected = sign(payload);
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !(0, import_node_crypto.timingSafeEqual)(a, b)) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString());
+    if (!data.exp || data.exp < Date.now()) return null;
+    return {
+      userId: data.userId,
+      username: data.username,
+      nome: data.nome,
+      role: data.role,
+      organizationId: data.organizationId,
+      organizationName: data.organizationName,
+      organizationSlug: data.organizationSlug
+    };
+  } catch {
+    return null;
+  }
+}
+
 // ../w-tube/api/_w-tube/store.ts
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
-var import_node_crypto = require("node:crypto");
+var import_node_crypto2 = require("node:crypto");
 
 // ../w-tube/node_modules/is-node-process/lib/index.mjs
 function isNodeProcess() {
@@ -44511,6 +44550,7 @@ function blobDiagnostics() {
     configured: blobConfigured(),
     hasToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
     hasStoreId: Boolean(process.env.BLOB_STORE_ID),
+    hasOidc: Boolean(process.env.VERCEL_OIDC_TOKEN),
     onVercel: Boolean(process.env.VERCEL)
   };
 }
@@ -44527,13 +44567,13 @@ function emptyStore() {
   };
 }
 function hashPassword(password) {
-  return (0, import_node_crypto.createHash)("sha256").update(`w-tube:${password}`).digest("hex");
+  return (0, import_node_crypto2.createHash)("sha256").update(`w-tube:${password}`).digest("hex");
 }
 function safeEqual(a, b) {
   const ba = Buffer.from(a);
   const bb = Buffer.from(b);
   if (ba.length !== bb.length) return false;
-  return (0, import_node_crypto.timingSafeEqual)(ba, bb);
+  return (0, import_node_crypto2.timingSafeEqual)(ba, bb);
 }
 function slugifyStoreName(name) {
   const base = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
@@ -44551,9 +44591,6 @@ var RESERVED_SLUGS = /* @__PURE__ */ new Set([
 ]);
 function isReservedSlug(slug) {
   return RESERVED_SLUGS.has(slug);
-}
-function issueToken() {
-  return (0, import_node_crypto.randomBytes)(24).toString("hex");
 }
 var cached = null;
 var JsonStore = class _JsonStore {
@@ -44610,8 +44647,10 @@ var JsonStore = class _JsonStore {
     this.dirty = true;
   }
   async persist() {
-    if (!this.dirty) return;
+    if (!this.dirty) return { disk: true, blob: false };
     (0, import_node_fs.writeFileSync)(FILE_PATH, JSON.stringify(this.store));
+    let blobOk = false;
+    let blobError;
     if (blobConfigured() || process.env.VERCEL) {
       try {
         await put(BLOB_PATHNAME, JSON.stringify(this.store), {
@@ -44621,11 +44660,14 @@ var JsonStore = class _JsonStore {
           contentType: "application/json",
           ...blobAuthOptions()
         });
+        blobOk = true;
       } catch (err) {
+        blobError = err instanceof Error ? err.message : "blob persist failed";
         console.warn("[w-tube] blob persist failed", err);
       }
     }
     this.dirty = false;
+    return { disk: true, blob: blobOk, blobError };
   }
   findUserByUsername(username) {
     const key = username.toLowerCase();
@@ -44645,7 +44687,7 @@ var JsonStore = class _JsonStore {
   uniqueSlug(fromName) {
     let slug = slugifyStoreName(fromName);
     if (isReservedSlug(slug) || this.findOrgBySlug(slug)) {
-      slug = `${slug}-${(0, import_node_crypto.randomBytes)(2).toString("hex")}`;
+      slug = `${slug}-${(0, import_node_crypto2.randomBytes)(2).toString("hex")}`;
     }
     let n = 2;
     while (this.findOrgBySlug(slug) || isReservedSlug(slug)) {
@@ -44681,6 +44723,8 @@ var JsonStore = class _JsonStore {
     };
   }
   resolveToken(token) {
+    const jwtSession = verifySessionToken(token);
+    if (jwtSession) return jwtSession;
     const entry = this.store.tokens[token];
     if (!entry) return null;
     const user = this.store.users[entry.userId];
@@ -46570,20 +46614,16 @@ async function handler(req, res) {
       if (!user || !safeEqual(user.passwordHash, hashPassword(password))) {
         return json(res, 401, { error: "Usu\xE1rio, senha ou loja inv\xE1lidos." });
       }
-      const token2 = issueToken();
-      store.data().tokens[token2] = {
-        organizationId: user.organizationId,
-        userId: user.id,
-        createdAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      store.markDirty();
-      await store.persist();
+      const session2 = store.toSession(user);
+      const token2 = issueSessionToken(session2);
       const dbRec = store.data().databases[user.organizationId];
+      const storage = blobDiagnostics();
       return json(res, 200, {
         token: token2,
-        session: store.toSession(user),
+        session: session2,
         database: dbRec?.data || null,
-        version: dbRec?.version || 0
+        version: dbRec?.version || 0,
+        storage
       });
     }
     const token = readBearer(req);
@@ -46610,8 +46650,16 @@ async function handler(req, res) {
         data: body.database
       };
       store.markDirty();
-      await store.persist();
-      return json(res, 200, { ok: true, version: nextVersion });
+      const persisted = await store.persist();
+      const storage = blobDiagnostics();
+      const warning = process.env.VERCEL && !persisted.blob ? "Dados salvos s\xF3 nesta inst\xE2ncia. Conecte Vercel Blob ao projeto loja-iphoneimports e fa\xE7a redeploy." : void 0;
+      return json(res, 200, {
+        ok: true,
+        version: nextVersion,
+        persisted,
+        storage,
+        warning
+      });
     }
     return json(res, 404, { error: `Rota n\xE3o encontrada: ${path}` });
   } catch (err) {

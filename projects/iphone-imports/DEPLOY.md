@@ -39,17 +39,39 @@ Depois de alterar o Root Directory: **Deployments → Redeploy** no **último co
 ### 3. Domínio
 - `loja-iphoneimports.vercel.app`
 
-### 4. Variáveis de ambiente (Settings → Environment Variables)
+### 4. Vercel Blob — **obrigatório para o gestor W-Tube persistir**
+
+Sem Blob, produtos somem após deploy/reinício (`/api/w-tube/health` → `blob: false`).
+
+**Opção A — conectar pelo dashboard (recomendado):**
+1. Vercel → projeto **loja-iphoneimports** (não o monorepo `cbx`)
+2. **Storage** → **Create Database** → **Blob** → nome ex.: `loja-iphoneimports-blob`
+3. **Connect to Project** → selecione **loja-iphoneimports**
+4. Marque **Production**, **Preview** e **Development**
+5. **Deployments** → **Redeploy** no último commit da `main`
+
+**Opção B — token manual (se A não injetar variáveis):**
+1. Storage → seu Blob store → **Settings** → crie token **Read-Write**
+2. **loja-iphoneimports** → **Settings** → **Environment Variables**
+3. Nome: `BLOB_READ_WRITE_TOKEN` · valor: o token copiado · ambientes: Production + Preview + Development
+4. **Redeploy**
+
+**Validar:**
+```bash
+curl https://loja-iphoneimports.vercel.app/api/w-tube/health
+# blob: true  ·  storage.hasToken ou storage.hasStoreId: true
+```
+
+### 5. Outras variáveis (Settings → Environment Variables)
 | Variável | Obrigatório | Descrição |
 |----------|-------------|-----------|
-| `BLOB_READ_WRITE_TOKEN` | Recomendado | Persiste estoque entre reinícios da API |
 | `NEXT_PUBLIC_STORE_SLUG` | Não | Padrão: `iphone-imports` |
 
-### 5. Após conectar o Git
+### 6. Após conectar o Git
 O Vercel dispara deploy automático no próximo push à `main`.
 Para forçar agora: **Deployments → Redeploy** no último commit.
 
-### 6. Validar deploy
+### 7. Validar deploy
 ```bash
 curl https://loja-iphoneimports.vercel.app/api/iphone-imports/health
 # Deve retornar: "slug":"iphone-imports", "products":37, "inventory":37

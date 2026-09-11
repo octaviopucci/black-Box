@@ -5,6 +5,7 @@ import {
   blobDiagnostics,
   getStore,
   hashPassword,
+  probeBlobStorage,
   safeEqual,
 } from './store'
 import { buildPublicCatalog, getPublicProductBySlug } from './catalog'
@@ -60,11 +61,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const rec = org ? store.data().databases[org.id] : null
       const db = rec?.data as OrgDatabase | undefined
       const storage = blobDiagnostics()
+      const probe = await probeBlobStorage()
+      const blobOk = storage.configured || probe.ok
       return json(res, 200, {
         ok: true,
         service: 'w-tube',
-        blob: storage.configured,
-        storage,
+        blob: blobOk,
+        storage: { ...storage, probe },
+        setup:
+          blobOk
+            ? undefined
+            : 'Vercel → loja-iphoneimports → Storage → Blob → Connect. Depois Redeploy. Ou adicione BLOB_READ_WRITE_TOKEN em Environment Variables.',
         slug: STORE_SLUG,
         products: db?.products.length ?? 0,
         inventory: db?.inventory.filter((u) => u.status === 'available').length ?? 0,
