@@ -1,22 +1,27 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-brand-black: #050505;
-  --color-brand-dark: #0a0a0f;
-  --color-brand-surface: #12101a;
-  --color-brand-elevated: #1a1525;
-  --color-brand-purple: #9333ea;
-  --color-brand-purple-hover: #a855f7;
-  --color-brand-purple-dim: #9333ea33;
-  --color-brand-purple-glow: #c084fc;
-  --color-brand-accent: #e9d5ff;
+  --color-brand-black: #0c0d0d;
+  --color-brand-dark: #121218;
+  --color-brand-surface: #1a1528;
+  --color-brand-elevated: #221c35;
+  --color-brand-blue: #385189;
+  --color-brand-purple: #520462;
+  --color-brand-purple-deep: #4b057a;
+  --color-brand-purple-hover: #6b0a84;
+  --color-brand-purple-dim: #52046233;
+  --color-brand-purple-glow: #e879f9;
+  --color-brand-neon: #bc00ff;
+  --color-brand-neon-cyan: #00d4ff;
+  --color-brand-accent: #f0e6ff;
   --color-brand-white: #ffffff;
-  --color-brand-light: #f5f3f9;
-  --color-brand-gray: #9ca3af;
-  --color-brand-muted: #6b7280;
+  --color-brand-light: #f3f4f8;
+  --color-brand-gray: #b8bcc8;
+  --color-brand-muted: #8b92a5;
   --color-brand-border: #2d2640;
   --color-brand-border-light: #e5e7eb;
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -30,12 +35,12 @@
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-brand-purple) 45%, black);
+    background: color-mix(in oklab, var(--color-brand-neon) 45%, black);
     color: white;
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-brand-purple;
+    @apply outline-2 outline-offset-2 outline-brand-neon;
   }
 }
 
@@ -44,11 +49,29 @@
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
+  .font-display {
+    font-family: var(--font-display), var(--font-sans), sans-serif;
+  }
+
   .grid-pattern {
     background-image:
-      linear-gradient(to right, rgba(147, 51, 234, 0.07) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(147, 51, 234, 0.07) 1px, transparent 1px);
+      linear-gradient(to right, rgba(188, 0, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(188, 0, 255, 0.06) 1px, transparent 1px);
     background-size: 48px 48px;
+  }
+
+  .brand-gradient-bg {
+    background: linear-gradient(225deg, #4b057a 0%, #0c0d0d 55%, #121218 100%);
+  }
+
+  .brand-header-bg {
+    background: linear-gradient(180deg, #385189 0%, #2a3d66 100%);
+  }
+
+  .neon-glow {
+    text-shadow:
+      0 0 8px rgba(188, 0, 255, 0.8),
+      0 0 20px rgba(188, 0, 255, 0.45);
   }
 
   .section-dark {
@@ -67,53 +90,53 @@
     background: radial-gradient(
       ellipse at 50% 80%,
       #2a1f3d 0%,
-      #12101a 50%,
-      #050505 100%
+      #1a1528 50%,
+      #0c0d0d 100%
     );
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white shadow-[0_0_24px_rgba(147,51,234,0.35)] transition-all duration-200 hover:bg-brand-purple-hover hover:shadow-[0_0_32px_rgba(168,85,247,0.45)] active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3 text-sm font-bold text-white shadow-[0_4px_24px_rgba(82,4,98,0.45)] transition-all duration-200 hover:bg-brand-purple-hover hover:shadow-[0_6px_32px_rgba(107,10,132,0.55)] active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:border-brand-purple hover:bg-brand-purple/10 hover:text-brand-purple-glow active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:border-brand-neon hover:bg-brand-purple/20 hover:text-white active:scale-[0.98];
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-brand-black bg-transparent px-6 py-3 text-sm font-semibold text-brand-black transition-all duration-200 hover:bg-brand-black hover:text-white active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-brand-black bg-transparent px-6 py-3 text-sm font-semibold text-brand-black transition-all duration-200 hover:bg-brand-black hover:text-white active:scale-[0.98];
   }
 
   .btn-outline-light {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-brand-purple hover:text-brand-purple-glow active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-brand-neon hover:text-brand-neon-cyan active:scale-[0.98];
   }
 
   .card-product {
-    @apply overflow-hidden rounded-2xl border border-brand-border-light bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/60 hover:shadow-[0_12px_40px_rgba(147,51,234,0.18)];
+    @apply overflow-hidden rounded-2xl border border-brand-border-light bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/60 hover:shadow-[0_12px_40px_rgba(82,4,98,0.18)];
   }
 
   .card-product-dark {
-    @apply overflow-hidden rounded-2xl border border-brand-border bg-brand-surface transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/50 hover:shadow-[0_12px_40px_rgba(147,51,234,0.15)];
+    @apply overflow-hidden rounded-2xl border border-brand-border bg-brand-surface transition-all duration-300 hover:-translate-y-1 hover:border-brand-neon/40 hover:shadow-[0_12px_40px_rgba(188,0,255,0.12)];
   }
 
   .badge-sale {
-    @apply rounded-md bg-brand-purple px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-white;
+    @apply rounded-full bg-brand-purple px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-white;
   }
 
   .badge-new {
-    @apply rounded-md bg-brand-black px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple-glow ring-1 ring-brand-purple/40;
+    @apply rounded-full bg-brand-black px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-neon ring-1 ring-brand-neon/40;
   }
 
   .badge-bestseller {
-    @apply rounded-md bg-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white ring-1 ring-white/20;
+    @apply rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white ring-1 ring-white/20;
   }
 
   .accent-line {
-    @apply h-1 w-12 rounded-full bg-brand-purple;
+    @apply h-1 w-12 rounded-full bg-brand-neon;
   }
 
   .glow-purple {
-    box-shadow: 0 0 40px rgba(147, 51, 234, 0.2);
+    box-shadow: 0 0 40px rgba(188, 0, 255, 0.25);
   }
 
   .fade-in {

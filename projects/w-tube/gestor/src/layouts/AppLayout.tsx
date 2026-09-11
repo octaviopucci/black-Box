@@ -31,7 +31,7 @@ export function AppLayout() {
         <div className="mb-8 flex items-center gap-2 px-2">
           <Play className="h-6 w-6 fill-brand-purple text-brand-purple" />
           <div>
-            <p className="text-sm font-black">W-Tube</p>
+            <p className="text-sm font-black">WebTube</p>
             <p className="text-[10px] text-brand-gray">Gestor</p>
           </div>
         </div>

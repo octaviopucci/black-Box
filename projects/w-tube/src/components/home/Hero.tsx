@@ -1,20 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MessageCircle, Shield, Zap } from "lucide-react";
-import { heroImages, heroBackground } from "@/data/images";
-
-const floating = [
-  { src: heroImages.iphone, alt: "Smartphone", className: "right-[2%] top-[5%] w-[52%] z-20", priority: true },
-  { src: heroImages.airpods, alt: "Fones", className: "left-[0%] bottom-[18%] w-[34%] z-30" },
-  { src: heroImages.watch, alt: "Smartwatch", className: "right-[18%] bottom-[8%] w-[30%] z-30" },
-  { src: heroImages.charger, alt: "Carregador", className: "left-[12%] top-[22%] w-[24%] z-10" },
-];
+import { ArrowRight, MessageCircle, Shield, Star, Wrench } from "lucide-react";
+import { storeConfig } from "@/config/store";
+import { brandAssets } from "@/data/images";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-brand-black text-white">
+    <section className="relative overflow-hidden text-white">
       <Image
-        src={heroBackground}
+        src={brandAssets.heroBackground}
         alt=""
         fill
         priority
@@ -22,81 +16,94 @@ export function Hero() {
         className="object-cover object-center"
         aria-hidden
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-brand-black via-brand-black/92 to-brand-black/75" />
-      <div className="absolute inset-0 bg-gradient-to-t from-brand-black/80 via-transparent to-brand-black/40" />
-      <div className="absolute inset-0 grid-pattern opacity-40" />
-      <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand-purple/15 blur-3xl" />
+      <div className="absolute inset-0 brand-gradient-bg opacity-90" />
+      <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-transparent to-brand-blue/30" />
+      <div className="absolute inset-0 grid-pattern opacity-25" />
+      <div className="absolute -right-24 top-0 h-80 w-80 rounded-full bg-brand-neon/20 blur-3xl" />
+      <div className="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-brand-blue/30 blur-3xl" />
 
       <div className="container-store relative z-10">
-        <div className="grid items-center gap-10 py-14 md:grid-cols-2 md:py-20 lg:py-28">
-          <div className="fade-in">
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-purple/40 bg-brand-purple/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-purple-glow backdrop-blur-sm">
-              <Zap className="h-3.5 w-3.5" />
-              W-Tube · tech premium
-            </span>
+        <div className="grid items-center gap-10 py-14 md:grid-cols-[1.1fr_0.9fr] md:py-20 lg:py-24">
+          <div className="fade-in text-center md:text-left">
+            <div className="mb-6 flex justify-center md:justify-start">
+              <Image
+                src={brandAssets.logo}
+                alt={storeConfig.name}
+                width={200}
+                height={200}
+                priority
+                className="h-28 w-28 rounded-full object-cover ring-4 ring-brand-neon/40 glow-purple md:h-36 md:w-36"
+              />
+            </div>
 
-            <h1 className="text-4xl font-black leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
-              Tecnologia que
-              <br />
-              combina com{" "}
-              <span className="text-brand-purple">você</span>
-              <span className="text-brand-purple">.</span>
+            <h1 className="font-display text-5xl leading-[0.95] tracking-wide md:text-6xl lg:text-7xl neon-glow">
+              {storeConfig.name}
             </h1>
 
-            <p className="mt-5 max-w-md text-base leading-relaxed text-brand-gray md:text-lg">
-              Eletrônicos, acessórios e gadgets selecionados.
-              Atendimento rápido pelo WhatsApp.
+            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-white/85 md:mx-0 md:text-lg">
+              {storeConfig.description}
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/ofertas" className="btn-primary">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center md:justify-start">
+              <a href={storeConfig.whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
+                <MessageCircle className="h-4 w-4" />
+                Fale com a gente pelo WhatsApp
+              </a>
+              <a
+                href={storeConfig.googleReviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary"
+              >
+                <Star className="h-4 w-4" />
+                Avalie a loja no Google
+              </a>
+            </div>
+
+            <div className="mt-8 flex flex-wrap justify-center gap-4 md:justify-start">
+              <Link href="/ofertas" className="btn-outline-light text-sm">
                 Ver ofertas
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/categoria/eletronicos" className="btn-secondary">
+              <Link href="/categoria/eletronicos" className="btn-outline-light text-sm">
                 Explorar catálogo
               </Link>
             </div>
 
-            <div className="mt-10 flex flex-wrap gap-6 text-sm text-brand-gray">
+            <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm text-brand-gray md:justify-start">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-purple/15">
-                  <Shield className="h-5 w-5 text-brand-purple" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-purple/30 ring-1 ring-brand-neon/30">
+                  <Wrench className="h-5 w-5 text-brand-neon-cyan" />
                 </div>
-                <div>
-                  <p className="font-bold text-white">Garantia</p>
-                  <p className="text-xs">Produtos originais</p>
+                <div className="text-left">
+                  <p className="font-bold text-white">Assistência técnica</p>
+                  <p className="text-xs">iPhone e smartphones</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-purple/15">
-                  <MessageCircle className="h-5 w-5 text-brand-purple" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-purple/30 ring-1 ring-brand-neon/30">
+                  <Shield className="h-5 w-5 text-brand-neon" />
                 </div>
-                <div>
-                  <p className="font-bold text-white">WhatsApp</p>
-                  <p className="text-xs">Resposta rápida</p>
+                <div className="text-left">
+                  <p className="font-bold text-white">Acessórios</p>
+                  <p className="text-xs">Peças e gadgets selecionados</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="relative mx-auto aspect-square w-full max-w-lg">
-            <div className="absolute inset-4 rounded-[2rem] border border-brand-purple/25 bg-brand-black/40 glow-purple backdrop-blur-sm" />
-            {floating.map((item) => (
-              <div
-                key={item.alt}
-                className={`absolute drop-shadow-2xl transition-transform duration-500 hover:scale-105 ${item.className}`}
-              >
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  width={400}
-                  height={400}
-                  priority={item.priority}
-                  className="h-auto w-full object-contain"
-                />
-              </div>
-            ))}
+          <div className="relative mx-auto aspect-square w-full max-w-md">
+            <div className="absolute inset-0 rounded-[2rem] border border-brand-neon/30 bg-brand-black/30 backdrop-blur-sm glow-purple" />
+            <div className="absolute inset-6 flex items-center justify-center">
+              <Image
+                src={brandAssets.logo}
+                alt=""
+                width={320}
+                height={320}
+                className="h-auto w-full max-w-[280px] object-contain drop-shadow-[0_0_40px_rgba(188,0,255,0.35)]"
+                aria-hidden
+              />
+            </div>
           </div>
         </div>
       </div>

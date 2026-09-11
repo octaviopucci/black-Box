@@ -17,7 +17,7 @@ export function Benefits() {
               key={b.title}
               className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left md:gap-4"
             >
-              <div className="mb-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-purple shadow-[0_0_20px_rgba(147,51,234,0.3)] md:mb-0">
+              <div className="mb-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-purple shadow-[0_0_20px_rgba(188,0,255,0.25)] md:mb-0">
                 <b.icon className="h-5 w-5 text-brand-black" />
               </div>
               <div>

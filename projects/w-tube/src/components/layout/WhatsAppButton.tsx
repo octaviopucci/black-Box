@@ -2,12 +2,9 @@
 
 import { MessageCircle } from "lucide-react";
 import { storeConfig } from "@/config/store";
-import { getWhatsAppUrl } from "@/lib/whatsapp";
 
 export function WhatsAppButton() {
-  const url = getWhatsAppUrl(
-    `Olá! Gostaria de mais informações sobre a ${storeConfig.name}.`
-  );
+  const url = storeConfig.whatsappUrl;
 
   return (
     <a

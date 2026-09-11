@@ -1,31 +1,47 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { storeConfig } from "@/config/store";
+import { brandAssets } from "@/data/images";
 
 interface LogoProps {
   className?: string;
-  iconClassName?: string;
+  imageClassName?: string;
   asLink?: boolean;
+  showText?: boolean;
 }
 
-export function Logo({ className, iconClassName, asLink = true }: LogoProps) {
+export function Logo({
+  className,
+  imageClassName,
+  asLink = true,
+  showText = true,
+}: LogoProps) {
   const content = (
-    <span className={cn("inline-flex items-center gap-1.5 font-black tracking-tight", className)}>
-      <Play
-        className={cn("h-5 w-5 shrink-0 fill-brand-purple text-brand-purple md:h-6 md:w-6", iconClassName)}
-        aria-hidden
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <Image
+        src={brandAssets.logo}
+        alt={storeConfig.name}
+        width={44}
+        height={44}
+        className={cn("h-10 w-10 rounded-full object-cover ring-2 ring-brand-neon/50 md:h-11 md:w-11", imageClassName)}
+        priority
       />
-      <span>
-        <span className="text-white">W-</span>
-        <span className="text-brand-purple">Tube</span>
-      </span>
+      {showText && (
+        <span className="font-display text-xl leading-none tracking-wide text-white md:text-2xl">
+          {storeConfig.shortName}
+          <span className="ml-1 text-sm font-sans font-medium normal-case tracking-normal text-brand-neon-cyan">
+            acess
+          </span>
+        </span>
+      )}
     </span>
   );
 
   if (!asLink) return content;
 
   return (
-    <Link href="/" className="shrink-0 text-lg md:text-xl">
+    <Link href="/" className="shrink-0">
       {content}
     </Link>
   );

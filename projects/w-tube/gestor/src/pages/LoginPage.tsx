@@ -34,7 +34,7 @@ export function LoginPage() {
       <form onSubmit={handleSubmit} className="card w-full max-w-md space-y-4">
         <div className="flex items-center gap-2">
           <Play className="h-8 w-8 fill-brand-purple text-brand-purple" />
-          <h1 className="text-xl font-black">Gestor W-Tube</h1>
+          <h1 className="text-xl font-black">Gestor WebTube Acessórios</h1>
         </div>
         {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
         <input className="input" placeholder="Usuário" value={username} onChange={(e) => setUsername(e.target.value)} required />
@@ -44,7 +44,7 @@ export function LoginPage() {
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
         <p className="text-center text-xs text-brand-gray">
-          Loja única: W-Tube · código <span className="text-brand-purple">w-tube</span>
+          Loja: WebTube Acessórios · código <span className="text-brand-glow">w-tube</span>
         </p>
       </form>
     </div>

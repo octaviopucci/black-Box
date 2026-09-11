@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Bebas_Neue, Inter } from "next/font/google";
 import { storeConfig } from "@/config/store";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
@@ -16,10 +16,17 @@ const inter = Inter({
   display: "swap",
 });
 
+const bebasNeue = Bebas_Neue({
+  variable: "--font-display",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(storeConfig.siteUrl),
   title: {
-    default: `Tecnologia e Eletrônicos | ${storeConfig.name}`,
+    default: `${storeConfig.name}`,
     template: `%s | ${storeConfig.name}`,
   },
   description: storeConfig.description,
@@ -40,7 +47,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={inter.variable}>
+    <html lang="pt-BR" className={`${inter.variable} ${bebasNeue.variable}`}>
       <body className="min-h-screen font-sans">
         <CatalogProvider>
           <TopBar />
