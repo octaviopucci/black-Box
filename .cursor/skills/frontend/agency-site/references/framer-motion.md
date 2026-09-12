@@ -4,6 +4,16 @@
 cd projects/<slug> && npm install framer-motion
 ```
 
+## Quando usar Framer vs GSAP
+
+| Caso | Ferramenta |
+|------|------------|
+| Hover/tap CTA, menu mobile, stagger no hero load | **Framer Motion** |
+| Pin, scrub, parallax scroll, crossfade pinned | **GSAP ScrollTrigger** — [premium-motion.md](premium-motion.md) |
+| Smooth scroll global | **Lenis** (premium) |
+
+Tier **Standard:** só Framer. Tier **Premium:** Framer para UI + GSAP para scroll craft.
+
 ## Regra App Router
 
 Todo componente com `motion.*` precisa `'use client'`.
@@ -73,4 +83,8 @@ if (reduce) return <StaticHero />
 
 ## Budget
 
-2–4 motions por landing. Scroll pesado → skill `scroll-cinematic` (GSAP, client only).
+**Standard:** 2–4 motions por landing.
+
+**Premium:** Framer só em 2–3 micro-interações; scroll principal →
+[premium-motion.md](premium-motion.md). Vídeo scrub / corridor → skill
+`scroll-cinematic`.
