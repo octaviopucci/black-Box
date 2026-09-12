@@ -103,6 +103,15 @@ type V2CoursePhoto = {
   featured?: boolean
 }
 
+const v2CourseGalleryExtras = courseGallery
+  .filter((item) => !['course-setup.jpg', 'cert.jpg', 'classroom.jpg'].includes(item.file))
+  .map((item) => ({
+    file: item.file,
+    alt: item.alt,
+    caption: item.alt,
+  }))
+
+/** Grid simétrico: par inicial → destaque → bloco central → material complementar no fim */
 export const v2CoursePhotos: readonly V2CoursePhoto[] = [
   {
     file: 'material-apoio.jpg',
@@ -111,20 +120,19 @@ export const v2CoursePhotos: readonly V2CoursePhoto[] = [
     v2: true,
   },
   {
+    file: 'classroom.jpg',
+    alt: 'Sala do curso presencial com alunas e kits',
+    caption: 'Sala do curso presencial com alunas e kits',
+  },
+  {
     file: 'curso-certificado.jpg',
     alt: 'Entrega de certificado de curso',
     caption: 'Certificado ao final da formação',
     v2: true,
-    objectPosition: 'center 42%',
+    objectPosition: 'center 28%',
     featured: true,
   },
-  ...courseGallery
-    .filter((item) => item.file !== 'course-setup.jpg' && item.file !== 'cert.jpg')
-    .map((item) => ({
-      file: item.file,
-      alt: item.alt,
-      caption: item.alt,
-    })),
+  ...v2CourseGalleryExtras,
   {
     file: 'material-complementar.jpg',
     alt: 'Material complementar — estações com kit, apostila e mimo',

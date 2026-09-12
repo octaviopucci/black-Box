@@ -1,14 +1,12 @@
 import { faqs } from '../../data/site'
 import { Reveal } from './Reveal'
+import { SectionIntro } from './SectionIntro'
 
 export function Faq() {
   return (
     <section id="faq" className="section-pad">
       <Reveal>
-        <div className="mb-12 text-center">
-          <p className="eyebrow">Perguntas frequentes</p>
-          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Dúvidas mais comuns</h2>
-        </div>
+        <SectionIntro eyebrow="Perguntas frequentes" title="Dúvidas mais comuns" />
       </Reveal>
 
       <div className="mx-auto max-w-3xl space-y-3.5">
