@@ -6,7 +6,7 @@ import { usePageMeta } from '@/lib/usePageMeta'
 export default function ContatoPage() {
   usePageMeta(
     'Contato · Dra. Nathalia Rigo',
-    'Agende pelo Instagram @dranathaliarigo. Consultório no Parque São Bento, Sorocaba.',
+    'Agende pelo Instagram, WhatsApp ou e-mail. Consultório no Parque São Bento, Sorocaba.',
   )
 
   return (
@@ -15,14 +15,13 @@ export default function ContatoPage() {
         <div>
           <p className="text-[11px] uppercase tracking-mark text-gold">Contato</p>
           <h1 className="display mt-4 text-[clamp(2.5rem,6vw,4rem)] font-semibold leading-tight">
-            {brand.cta}
+            {brand.ctaAlt}
           </h1>
           <p className="mt-6 leading-relaxed text-mute">
-            O agendamento é pelo Instagram — o mesmo canal da bio. Sem WhatsApp verificado neste
-            site.
+            Canais publicados no Instagram @dranathaliarigo e na página Facebook da profissional.
           </p>
 
-          <div className="mt-10 space-y-4 text-sm">
+          <div className="mt-10 space-y-6 text-sm">
             <p>
               <span className="text-[11px] uppercase tracking-mark text-gold">Instagram</span>
               <br />
@@ -33,6 +32,28 @@ export default function ContatoPage() {
                 className="text-lg text-ink underline decoration-gold/50 underline-offset-4"
               >
                 @{brand.instagramHandle}
+              </a>
+            </p>
+            <p>
+              <span className="text-[11px] uppercase tracking-mark text-gold">WhatsApp</span>
+              <br />
+              <a
+                href={brand.whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-lg text-ink underline decoration-gold/50 underline-offset-4"
+              >
+                {brand.phone}
+              </a>
+            </p>
+            <p>
+              <span className="text-[11px] uppercase tracking-mark text-gold">E-mail</span>
+              <br />
+              <a
+                href={`mailto:${brand.email}`}
+                className="text-lg text-ink underline decoration-gold/50 underline-offset-4"
+              >
+                {brand.email}
               </a>
             </p>
             <p>

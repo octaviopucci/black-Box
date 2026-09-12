@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Footer } from '@/components/Footer'
-import { brand, objections } from '@/data/site'
+import { brand, media, objections } from '@/data/site'
+import { asset } from '@/lib/asset'
 import { usePageMeta } from '@/lib/usePageMeta'
 
 export default function SobrePage() {
@@ -10,11 +11,23 @@ export default function SobrePage() {
   )
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-16 md:px-8 md:py-24">
-      <p className="text-[11px] uppercase tracking-mark text-gold">⚜ Sobre</p>
-      <h1 className="display mt-4 text-[clamp(2.5rem,6vw,4rem)] font-semibold leading-tight">
-        Dra. Nathalia Rigo
-      </h1>
+    <main>
+      <div className="relative min-h-[50vh] overflow-hidden bg-ink">
+        <img
+          src={asset(media.profissional)}
+          alt="Dra. Nathalia Rigo"
+          className="absolute inset-0 h-full w-full object-cover object-[center_18%] opacity-90"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/20" />
+        <div className="relative mx-auto max-w-3xl px-5 pb-14 pt-8 md:px-8">
+          <p className="text-[11px] uppercase tracking-mark text-gold-light/85">⚜ Sobre</p>
+          <h1 className="display mt-4 text-[clamp(2.5rem,6vw,4rem)] font-semibold leading-tight text-paper">
+            Dra. Nathalia Rigo
+          </h1>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-3xl px-5 py-16 md:px-8 md:py-20">
       <p className="mt-2 text-sm uppercase tracking-mark text-mute">
         {brand.profession} · {brand.experienceYears} anos · {brand.city}
       </p>
@@ -45,6 +58,7 @@ export default function SobrePage() {
       >
         Agendar pelo Instagram
       </Link>
+      </div>
       <Footer />
     </main>
   )

@@ -1,71 +1,109 @@
-import { motion, useReducedMotion } from 'framer-motion'
-import { brand } from '@/data/site'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { brand, media } from '@/data/site'
+import { asset } from '@/lib/asset'
 
 export function Hero() {
   const reduce = useReducedMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  })
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '14%'])
+  const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.15])
+  const brandY = useTransform(scrollYProgress, [0, 1], [0, -32])
 
   return (
-    <section className="relative overflow-hidden bg-paper">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(184,149,90,0.14),transparent_55%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(201,160,168,0.12),transparent_50%)]" />
+    <section ref={sectionRef} className="relative min-h-[100svh] overflow-hidden bg-ink text-paper">
+      <motion.div style={reduce ? undefined : { y, opacity }} className="absolute inset-0">
+        <img
+          src={asset(media.hero)}
+          alt={`${brand.name} no consultório de estética avançada em Sorocaba`}
+          className="h-full w-full scale-x-[-1] object-cover object-center"
+          fetchPriority="high"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-ink/25" />
+        <div className="grain absolute inset-0 opacity-35" aria-hidden />
+      </motion.div>
 
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-[1.1fr_0.9fr] md:items-center md:px-8 md:py-24">
-        <div>
-          <p className="text-[11px] uppercase tracking-mark text-gold">⚜ {brand.tagline}</p>
-          <h1 className="display mt-4 text-[clamp(3rem,8vw,5.5rem)] font-semibold leading-[0.92] tracking-[-0.02em]">
-            Dra. Nathalia
-            <span className="block text-gold">Rigo</span>
-          </h1>
-          <p className="mt-4 text-sm uppercase tracking-mark text-mute">{brand.subtitle}</p>
-
-          <div className="gold-line my-8 max-w-xs" />
-
-          <blockquote className="max-w-measure text-lg leading-relaxed md:text-xl">
-            ⚜ {brand.bioLines[0]} ⚜
-          </blockquote>
-          <p className="mt-4 text-sm text-mute">
-            {brand.bioLines[1]} · {brand.bioLines[2]}
-          </p>
-
-          <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href={brand.instagramDm}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex bg-ink px-7 py-4 text-[11px] font-semibold uppercase tracking-mark text-paper transition hover:bg-gold"
-            >
-              {brand.cta}
-            </a>
-            <a
-              href={brand.instagramUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex border border-ink/15 px-7 py-4 text-[11px] uppercase tracking-mark text-ink transition hover:border-gold hover:text-gold"
-            >
-              @{brand.instagramHandle}
-            </a>
-          </div>
-        </div>
+      <motion.div
+        style={reduce ? undefined : { y: brandY }}
+        className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-end px-5 pb-24 pt-28 sm:px-8 md:justify-center md:pb-20"
+      >
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="text-[11px] font-semibold uppercase tracking-mark text-gold-light/90"
+        >
+          ⚜ {brand.tagline}
+        </motion.p>
 
         <motion.div
-          initial={reduce ? false : { opacity: 0, y: 24 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mx-auto w-full max-w-sm"
+          transition={{ duration: 0.85, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className="display mt-5 leading-[0.88] tracking-[-0.02em]"
         >
-          <div className="aspect-[4/5] overflow-hidden rounded-sm border border-gold/25 bg-cream shadow-soft">
-            <iframe
-              title="Instagram Dra. Nathalia Rigo"
-              src={`https://www.instagram.com/${brand.instagramHandle}/embed`}
-              className="h-full w-full border-0"
-              loading="lazy"
-            />
-          </div>
-          <p className="mt-4 text-center text-xs text-mute">
-            Perfil oficial · resultados e novidades no Instagram
-          </p>
+          <span className="block text-[clamp(1.6rem,6vw,3.75rem)] font-semibold text-gold-light">
+            Dra. Nathalia
+          </span>
+          <span className="block text-[clamp(3.2rem,12vw,7.5rem)] font-semibold leading-[0.88] text-gold-light">
+            Rigo
+          </span>
         </motion.div>
-      </div>
+
+        <motion.h1
+          initial={reduce ? false : { opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.85, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          className="display mt-8 max-w-xl text-[clamp(1.45rem,3.2vw,2.15rem)] font-medium leading-[1.12] text-paper/88"
+        >
+          {brand.bioLines[0]}
+        </motion.h1>
+
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-5 max-w-measure text-sm uppercase tracking-[0.18em] text-paper/55"
+        >
+          {brand.bioLines[1]} · {brand.bioLines[2]}
+        </motion.p>
+
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-3 max-w-measure text-sm leading-relaxed text-paper/50"
+        >
+          {brand.bioLegacy}
+        </motion.p>
+
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-10 flex flex-wrap gap-4"
+        >
+          <a
+            href={brand.instagramDm}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex bg-gold px-7 py-4 text-[11px] font-semibold uppercase tracking-mark text-ink transition hover:bg-gold-light"
+          >
+            {brand.cta}
+          </a>
+          <a
+            href="#procedimentos"
+            className="inline-flex border border-paper/25 px-7 py-4 text-[11px] uppercase tracking-mark text-paper/80 transition hover:border-gold-light hover:text-gold-light"
+          >
+            Ver procedimentos
+          </a>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }
