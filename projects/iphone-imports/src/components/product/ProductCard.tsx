@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/product/ProductImage";
+import { getPrimaryImage } from "@/lib/product-image";
 import { Heart, ShoppingCart, Plus } from "lucide-react";
 import { Price } from "@/components/ui/Price";
 import { useCartStore } from "@/store/cart";
@@ -30,7 +31,7 @@ export function ProductCard({ product, priority, dark }: ProductCardProps) {
       productId: product.id,
       slug: product.slug,
       name: product.name,
-      image: product.images[0],
+      image: getPrimaryImage(product),
       price: product.price,
       oldPrice: product.oldPrice,
       color: product.colors?.[0],
@@ -53,10 +54,8 @@ export function ProductCard({ product, priority, dark }: ProductCardProps) {
     <article className={`${cardClass} group`}>
       <Link href={`/produto/${product.slug}`} className="block">
         <div className="relative aspect-square overflow-hidden product-image-bg">
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
+          <ProductImage
+            product={product}
             sizes="(max-width: 640px) 50vw, 25vw"
             className="object-contain p-5 transition-transform duration-500 group-hover:scale-105"
             priority={priority}

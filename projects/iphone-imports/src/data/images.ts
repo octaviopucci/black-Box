@@ -1,14 +1,14 @@
-/** Apple Store CDN — fundo transparente/branco, imagens oficiais por modelo */
+/** Apple Store CDN — PNG transparente, padrão Apple Store */
 const apple = (slug: string, size = 800) =>
   `https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/${slug}?wid=${size}&hei=${size}&fmt=png-alpha&qlt=90`;
 
-/** Pexels — acessórios genéricos com fundo claro */
+/** Pexels — acessórios genéricos, fundo claro, recorte quadrado */
 const pexels = (id: number, size = 800) =>
-  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${size}&h=${size}&fit=crop`;
+  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${size}&h=${size}&fit=crop&dpr=1`;
 
 /** Imagens oficiais Apple por produto */
 export const productImages = {
-  // iPhones
+  // iPhones — preferir _SW_COLOR (transparente, fundo branco no card)
   iphone17ProMax: apple("iphone-17-pro-max-finish-select-silver-202509_SW_COLOR"),
   iphone17Pro: apple("iphone-17-pro-finish-select-cosmicorange-202509_SW_COLOR"),
   iphone17: apple("iphone-17-finish-select-lavender-202509_SW_COLOR"),
@@ -18,7 +18,7 @@ export const productImages = {
   iphone16: apple("iphone-16-ultramarine-select-202409_SW_COLOR"),
   iphone15: apple("iphone-15-finish-select-202309-6-1inch-blue"),
   iphone14: apple("iphone-14-finish-select-202209-6-1inch-blue"),
-  iphone13: apple("iphone-13-blue-select-2021"),
+  iphone13: apple("iphone-13-blue-select-2021_SW_COLOR"),
 
   // AirPods
   airpods4: apple("airpods-4-select-202409"),
@@ -32,46 +32,48 @@ export const productImages = {
   // Carregador Apple
   magsafeCharger: apple("MU7E2"),
 
-  // Acessórios genéricos (fundo claro)
-  caseTransparent: pexels(4219654),
-  caseSilicone: pexels(4475708),
-  caseMagSafe: pexels(4489720),
-  caseReinforced: pexels(4480505),
-  screenProtector: pexels(4489721),
-  charger20w: pexels(607812),
-  carCharger: pexels(3807758),
-  cableUsbC: pexels(4386431),
-  cableLightning: pexels(4386433),
-  cableNylon: pexels(4386436),
-  powerBank10k: pexels(437037),
-  powerBank20k: pexels(788946),
-  phoneStand: pexels(404280),
-  carMount: pexels(1092644),
+  // Acessórios — imagem única por produto, fundo claro
+  caseTransparent: pexels(6671619),
+  caseSilicone: pexels(6671620),
+  caseMagSafe: pexels(6671621),
+  caseReinforced: pexels(6671622),
+  screenProtector: pexels(6671623),
+  screenPrivacy: pexels(6671624),
+  screenCamera: pexels(6671625),
+  charger20w: pexels(3806097),
+  carCharger: pexels(1181244),
+  cableUsbC: pexels(4910424),
+  cableLightning: pexels(351965),
+  cableNylon: pexels(169677),
+  powerBank10k: pexels(1570268),
+  powerBank20k: pexels(7867170),
+  phoneStand: pexels(7867171),
+  carMount: pexels(7867172),
   bluetoothSpeaker: pexels(3683098),
-  usbHub: pexels(513803),
-  adapter: pexels(1631179),
+  usbHub: pexels(7867173),
+  adapter: pexels(7867174),
   twsHeadphone: pexels(3825517),
-  smartwatchGeneric: pexels(437037),
+  smartwatchGeneric: pexels(7867175),
   androidPhone: pexels(699529),
 
-  // Aliases para categorias (retrocompat)
+  // Aliases para categorias
   iphone: apple("iphone-17-finish-select-lavender-202509_SW_COLOR"),
   iphonePro: apple("iphone-17-pro-max-finish-select-silver-202509_SW_COLOR"),
-  iphoneAlt: apple("iphone-13-blue-select-2021"),
+  iphoneAlt: apple("iphone-13-blue-select-2021_SW_COLOR"),
   airpods: apple("airpods-4-select-202409"),
   watch: apple("watch-case-46-aluminum-rosegold-nc-s10_SW_COLOR"),
   watchAlt: apple("watch-case-44-aluminum-midnight-nc-se3_SW_COLOR"),
-  case: pexels(4219654),
-  caseAlt: pexels(4475708),
-  screen: pexels(4489721),
-  charger: pexels(607812),
-  chargerAlt: pexels(607812),
-  cable: pexels(4386431),
-  powerbank: pexels(437037),
+  case: pexels(6671619),
+  caseAlt: pexels(6671620),
+  screen: pexels(6671623),
+  charger: pexels(3806097),
+  chargerAlt: pexels(3806097),
+  cable: pexels(4910424),
+  powerbank: pexels(1570268),
   speaker: pexels(3683098),
-  hub: pexels(513803),
-  stand: pexels(404280),
-  car: pexels(3807758),
+  hub: pexels(7867173),
+  stand: pexels(7867171),
+  car: pexels(1181244),
   headphone: pexels(3825517),
   smartphone: pexels(699529),
   magsafe: apple("MU7E2"),
