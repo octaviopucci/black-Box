@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { fetchLiveCatalog, type LiveCatalog } from "@/lib/catalog-api";
+import { mergeProductRecord } from "@/lib/product-image";
 import { products as staticProducts } from "@/data/products";
 import { categories as staticCategories } from "@/data/categories";
 import type { Product, Category } from "@/types";
@@ -28,9 +29,14 @@ interface CatalogContextValue {
 const CatalogContext = createContext<CatalogContextValue | null>(null);
 
 function mergeCatalog(staticList: Product[], liveList: Product[]): Product[] {
-  const bySlug = new Map<string, Product>();
-  for (const p of staticList) bySlug.set(p.slug, p);
-  for (const p of liveList) bySlug.set(p.slug, p);
+  const bySlug = new Map(staticList.map((p) => [p.slug, p]));
+  for (const live of liveList) {
+    const staticProduct = bySlug.get(live.slug);
+    bySlug.set(
+      live.slug,
+      staticProduct ? mergeProductRecord(staticProduct, live) : live,
+    );
+  }
   return [...bySlug.values()];
 }
 

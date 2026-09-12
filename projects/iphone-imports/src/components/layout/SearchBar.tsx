@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import Image from "next/image";
+import { getPrimaryImage } from "@/lib/product-image";
 import Link from "next/link";
 import { searchProducts } from "@/lib/products";
 import { formatCurrency } from "@/lib/formatCurrency";
@@ -103,7 +104,7 @@ export function SearchBar({ className, onClose, variant = "light" }: SearchBarPr
             >
               <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg product-image-bg">
                 <Image
-                  src={product.images[0]}
+                  src={getPrimaryImage(product)}
                   alt=""
                   fill
                   sizes="44px"

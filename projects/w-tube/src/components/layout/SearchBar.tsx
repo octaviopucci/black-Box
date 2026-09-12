@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import Image from "next/image";
+import { getPrimaryImage } from "@/lib/product-image";
 import Link from "next/link";
 import { searchProducts } from "@/lib/products";
 import { formatCurrency } from "@/lib/formatCurrency";
@@ -66,8 +67,8 @@ export function SearchBar({ className, onClose, variant = "light" }: SearchBarPr
           className={cn(
             "w-full rounded-xl py-2.5 pl-10 pr-10 text-sm transition-all focus:outline-none",
             isDark
-              ? "border border-white/10 bg-white/5 text-white placeholder:text-white/40 focus:border-brand-purple/50 focus:bg-white/10"
-              : "border border-brand-border-light bg-white text-brand-black focus:border-brand-purple"
+              ? "border border-white/10 bg-white/5 text-white placeholder:text-white/40 focus:border-brand-silver/50 focus:bg-white/10"
+              : "border border-brand-border-light bg-white text-brand-black focus:border-brand-silver"
           )}
           aria-label="Buscar produtos"
         />
@@ -99,7 +100,7 @@ export function SearchBar({ className, onClose, variant = "light" }: SearchBarPr
                 setOpen(false);
                 onClose?.();
               }}
-              className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-brand-purple/10"
+              className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-brand-silver/10"
             >
               <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg product-image-bg">
                 <Image
@@ -112,13 +113,13 @@ export function SearchBar({ className, onClose, variant = "light" }: SearchBarPr
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-white">{product.name}</p>
-                <p className="text-xs text-brand-purple">{formatCurrency(product.price)}</p>
+                <p className="text-xs text-brand-silver">{formatCurrency(product.price)}</p>
               </div>
             </Link>
           ))}
           <button
             onClick={handleSubmit}
-            className="w-full border-t border-brand-border px-4 py-3 text-center text-sm font-bold text-brand-purple hover:bg-brand-purple/5"
+            className="w-full border-t border-brand-border px-4 py-3 text-center text-sm font-bold text-brand-silver hover:bg-brand-silver/5"
           >
             Ver todos os resultados
           </button>

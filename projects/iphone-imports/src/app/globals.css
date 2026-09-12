@@ -63,12 +63,8 @@
   }
 
   .product-image-bg {
-    background: radial-gradient(
-      ellipse at 50% 80%,
-      #2a2a2a 0%,
-      #111111 50%,
-      #0a0a0a 100%
-    );
+    @apply bg-[#f5f5f7];
+    background-image: none;
   }
 
   .btn-primary {

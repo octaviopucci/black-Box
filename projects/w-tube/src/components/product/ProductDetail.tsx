@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { MessageCircle, ShoppingCart, Heart } from "lucide-react";
+import { getPrimaryImage } from "@/lib/product-image";
 import { ProductGallery } from "./ProductGallery";
 import { LiveStockBadge } from "./LiveStockBadge";
 import { Price } from "@/components/ui/Price";
@@ -124,7 +125,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
                     className={cn(
                       "rounded-lg border px-4 py-2 text-sm transition-colors",
                       color === c
-                        ? "border-brand-purple bg-brand-purple/10 font-semibold"
+                        ? "border-brand-silver bg-brand-silver/10 font-semibold"
                         : "border-brand-border hover:border-brand-black"
                     )}
                   >
@@ -146,7 +147,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
                     className={cn(
                       "rounded-lg border px-4 py-2 text-sm transition-colors",
                       storage === s
-                        ? "border-brand-purple bg-brand-purple/10 font-semibold"
+                        ? "border-brand-silver bg-brand-silver/10 font-semibold"
                         : "border-brand-border hover:border-brand-black"
                     )}
                   >

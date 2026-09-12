@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { MessageCircle, ShoppingCart, Heart } from "lucide-react";
+import { getPrimaryImage } from "@/lib/product-image";
 import { ProductGallery } from "./ProductGallery";
 import { LiveStockBadge } from "./LiveStockBadge";
 import { Price } from "@/components/ui/Price";
@@ -41,7 +42,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
       productId: product.id,
       slug: product.slug,
       name: product.name,
-      image: product.images[0],
+      image: getPrimaryImage(product),
       price: product.price,
       oldPrice: product.oldPrice,
       color,
