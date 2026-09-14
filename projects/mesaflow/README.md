@@ -23,6 +23,15 @@ npm run dev:mesaflow
 
 Porta padrão: **3010**
 
+## Deploy (Vercel)
+
+Projeto separado com **Root Directory** = `projects/mesaflow` (Next.js + API routes).
+
+1. Criar projeto na Vercel apontando para este monorepo
+2. Root Directory: `projects/mesaflow`
+3. Deploy Hook → secret `MESAFLOW_VERCEL_DEPLOY_HOOK` no GitHub
+4. Push em `main` dispara `.github/workflows/mesaflow-deploy.yml`
+
 ## Arquitetura MVP
 
 - **Next.js App Router** — cliente, admin e KDS
