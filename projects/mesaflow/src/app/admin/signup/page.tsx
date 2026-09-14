@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
+import { AuthLayout } from "@/components/ui/auth-layout";
 import { Button } from "@/components/ui/button";
+import { Input, Select } from "@/components/ui/input";
 import type { BusinessType } from "@/lib/types";
 
 const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
@@ -60,70 +62,47 @@ export default function AdminSignupPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-surface p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-md space-y-4 rounded-2xl border border-white/10 bg-surface-2 p-8">
-        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold">Criar conta MesaFlow</h1>
-        <p className="text-sm text-muted">Cadastre seu restaurante, lanchonete, padaria ou bar em minutos.</p>
-        {error && <p className="text-sm text-danger">{error}</p>}
-
-        <input
-          className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-sm"
-          placeholder="Nome do estabelecimento"
-          value={businessName}
-          onChange={(e) => setBusinessName(e.target.value)}
-          required
-        />
-        <select
-          className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-sm"
-          value={businessType}
-          onChange={(e) => setBusinessType(e.target.value as BusinessType)}
-        >
-          {BUSINESS_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>{t.label}</option>
-          ))}
-        </select>
-        <input
-          className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-sm"
-          placeholder="Seu nome (responsável)"
-          value={ownerName}
-          onChange={(e) => setOwnerName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-sm"
-          placeholder="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-sm"
-          placeholder="Senha (mín. 6 caracteres)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          minLength={6}
-          required
-        />
-        <label className="block text-sm text-muted">
-          Quantidade de mesas
-          <input
-            type="number"
-            min={3}
-            max={20}
-            className="mt-1 w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-sm"
-            value={tableCount}
-            onChange={(e) => setTableCount(Number(e.target.value))}
-          />
-        </label>
-
-        <Button type="submit" className="w-full" loading={loading}>Criar conta e entrar</Button>
+    <AuthLayout title="Crie sua conta" subtitle="Configure seu estabelecimento em poucos minutos">
+      <form onSubmit={onSubmit} className="space-y-4">
+        {error && (
+          <p className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">{error}</p>
+        )}
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Nome do estabelecimento</label>
+          <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} required />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Tipo de negócio</label>
+          <Select value={businessType} onChange={(e) => setBusinessType(e.target.value as BusinessType)}>
+            {BUSINESS_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Seu nome</label>
+          <Input value={ownerName} onChange={(e) => setOwnerName(e.target.value)} required />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">E-mail</label>
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Senha</label>
+          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Quantidade de mesas</label>
+          <Input type="number" min={3} max={20} value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} />
+        </div>
+        <Button type="submit" className="w-full shadow-lg shadow-brand/20" size="lg" loading={loading}>
+          Criar conta e entrar
+        </Button>
         <p className="text-center text-sm text-muted">
           Já tem conta?{" "}
-          <Link href="/admin/login" className="text-brand hover:underline">Entrar</Link>
+          <Link href="/admin/login" className="font-medium text-brand hover:underline">Entrar</Link>
         </p>
       </form>
-    </div>
+    </AuthLayout>
   );
 }

@@ -51,8 +51,9 @@
     { "source": "/mesaflow/admin/orders", "destination": "/mesaflow/admin/orders.html" },
     { "source": "/mesaflow/admin/tables", "destination": "/mesaflow/admin/tables.html" },
     { "source": "/mesaflow/admin/qrcodes", "destination": "/mesaflow/admin/qrcodes.html" },
-    { "source": "/mesaflow/kds/:sector", "destination": "/mesaflow/kds/:sector.html" },
-    { "source": "/mesaflow/m/:slug/:table", "destination": "/mesaflow/m/live?slug=:slug&table=:table" },
+    { "source": "/mesaflow/kds/live", "destination": "/mesaflow/kds/live.html" },
+    { "source": "/mesaflow/kds/:sector", "destination": "/mesaflow/kds/live.html?sector=:sector" },
+    { "source": "/mesaflow/m/:slug/:table", "destination": "/mesaflow/m/live.html?slug=:slug&table=:table" },
     { "source": "/mesaflow/m/live", "destination": "/mesaflow/m/live.html" }
   ]
 }

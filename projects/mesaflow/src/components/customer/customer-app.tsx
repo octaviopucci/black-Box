@@ -162,10 +162,15 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-surface text-muted">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-          <p>Carregando cardápio…</p>
+      <div className="min-h-dvh bg-surface">
+        <div className="mx-auto max-w-lg p-4">
+          <div className="skeleton mb-4 h-20 rounded-2xl" />
+          <div className="skeleton mb-6 h-11 rounded-xl" />
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="skeleton h-24 rounded-2xl" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -173,9 +178,12 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
   if (error || !data) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
-        <p className="text-lg font-semibold text-danger">{error || "Mesa inválida"}</p>
-        <Button onClick={load}>Tentar novamente</Button>
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-surface p-6 text-center">
+        <div className="glass-card max-w-sm p-8">
+          <p className="text-lg font-semibold text-danger">{error || "Mesa inválida"}</p>
+          <p className="mt-2 text-sm text-muted">Verifique o QR Code ou peça ajuda ao garçom.</p>
+          <Button className="mt-6" onClick={load}>Tentar novamente</Button>
+        </div>
       </div>
     );
   }
@@ -183,16 +191,19 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const { establishment, table, command, categories, orders, rodizio } = data;
 
   return (
-    <div className="mx-auto min-h-dvh max-w-lg bg-surface pb-28">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-surface/95 backdrop-blur-md">
+    <div className="relative mx-auto min-h-dvh max-w-lg bg-surface pb-28">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-brand/10 to-transparent" />
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-surface/80 backdrop-blur-xl">
         <div className="flex items-center gap-3 px-4 py-4">
-          <span className="text-3xl">{establishment.logo}</span>
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/15 text-2xl ring-1 ring-brand/20">
+            {establishment.logo}
+          </span>
           <div className="min-w-0 flex-1">
             <h1 className="truncate font-[family-name:var(--font-display)] text-lg font-bold">{establishment.name}</h1>
             <p className="text-xs text-muted">Mesa {table.number} · Comanda aberta</p>
           </div>
         </div>
-        <div className="flex gap-2 overflow-x-auto px-4 pb-3">
+        <div className="flex gap-2 overflow-x-auto px-4 pb-3 scrollbar-none">
           {(
             [
               ["menu", "Cardápio", Home],
@@ -206,7 +217,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               onClick={() => setTab(id)}
               className={cn(
                 "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold",
-                tab === id ? "bg-brand text-white" : "bg-surface-3 text-muted",
+                tab === id ? "bg-brand text-white shadow-md shadow-brand/25" : "bg-surface-3/80 text-muted",
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -221,7 +232,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <input
-              className="w-full rounded-xl border border-white/10 bg-surface-2 py-3 pl-10 pr-4 text-sm outline-none focus:border-brand"
+              className="w-full rounded-xl border border-white/10 bg-surface-2/80 py-3 pl-10 pr-4 text-sm outline-none backdrop-blur focus:border-brand/50 focus:ring-2 focus:ring-brand/20"
               placeholder="Buscar no cardápio…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -236,7 +247,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   <button
                     key={p.id}
                     onClick={() => setSelected(p)}
-                    className="w-36 shrink-0 overflow-hidden rounded-2xl bg-surface-2 text-left"
+                    className="w-36 shrink-0 overflow-hidden rounded-2xl bg-surface-2 text-left ring-1 ring-white/5 transition active:scale-[0.98]"
                   >
                     <ProductImage
                       src={p.image}
@@ -285,7 +296,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               <button
                 key={p.id}
                 onClick={() => setSelected(p)}
-                className="flex w-full gap-3 rounded-2xl bg-surface-2 p-3 text-left"
+                className="glass-card flex w-full gap-3 p-3 text-left transition active:scale-[0.99]"
               >
                 <ProductImage
                   src={p.image}
@@ -436,7 +447,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
         <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-lg safe-bottom">
           <button
             onClick={() => setCartOpen(true)}
-            className="mx-4 mb-4 flex w-[calc(100%-2rem)] items-center justify-between rounded-2xl bg-brand px-5 py-4 font-bold text-white shadow-lg"
+            className="mx-4 mb-4 flex w-[calc(100%-2rem)] items-center justify-between rounded-2xl bg-brand px-5 py-4 font-bold text-white shadow-xl shadow-brand/30"
           >
             <span className="flex items-center gap-2">
               <ShoppingBag className="h-5 w-5" />
@@ -449,7 +460,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
       {selected && (
         <div className="fixed inset-0 z-40 flex items-end bg-black/60 p-0 sm:items-center sm:justify-center sm:p-4">
-          <div className="max-h-[90dvh] w-full overflow-y-auto rounded-t-3xl bg-surface-2 p-5 sm:max-w-md sm:rounded-3xl">
+          <div className="max-h-[90dvh] w-full overflow-y-auto rounded-t-3xl border border-white/10 bg-surface-2 p-5 sm:max-w-md sm:rounded-3xl">
             <div className="mb-4 flex items-start justify-between">
               <h3 className="text-lg font-bold">{selected.name}</h3>
               <button onClick={() => setSelected(null)}><X className="h-5 w-5" /></button>

@@ -46,10 +46,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const kdsLinks = sectors.slice(0, 3);
 
   return (
-    <div className="flex min-h-dvh bg-[#0b0f14] text-ink">
-      <aside className="hidden w-60 shrink-0 border-r border-white/5 bg-surface p-4 lg:block">
-        <p className="mb-1 font-[family-name:var(--font-display)] text-lg font-bold text-brand">MesaFlow</p>
-        <p className="mb-6 truncate text-xs text-muted">{session?.establishment.name}</p>
+    <div className="flex min-h-dvh bg-surface text-ink">
+      <aside className="hidden w-64 shrink-0 border-r border-white/5 bg-surface-2/50 p-5 backdrop-blur lg:block">
+        <div className="mb-8 flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/15 ring-1 ring-brand/25 text-brand font-bold">M</span>
+          <div className="min-w-0">
+            <p className="font-[family-name:var(--font-display)] font-bold">MesaFlow</p>
+            <p className="truncate text-xs text-muted">{session?.establishment.name}</p>
+          </div>
+        </div>
         <nav className="space-y-1">
           {NAV.map(({ href, label, icon: Icon }) => (
             <Link
@@ -67,7 +72,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           {kdsLinks.map((s) => (
             <Link
               key={s.id}
-              href={`/kds/${s.id}?slug=${encodeURIComponent(session?.establishment.slug || "")}`}
+              href={`/kds/live?sector=${encodeURIComponent(s.id)}&slug=${encodeURIComponent(session?.establishment.slug || "")}`}
               className={cn(
                 "flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium",
                 pathname === `/kds/${s.id}` ? "bg-brand/20 text-brand" : "text-muted hover:bg-surface-2 hover:text-ink",

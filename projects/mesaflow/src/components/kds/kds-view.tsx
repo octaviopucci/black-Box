@@ -12,17 +12,19 @@ import { cn } from "@/lib/cn";
 
 export function KdsView({ sectorId }: { sectorId: string }) {
   const params = useSearchParams();
+  const resolvedSector = params.get("sector") || (sectorId !== "live" ? sectorId : "");
   const slug = params.get("slug") || DEMO_ESTABLISHMENT_SLUG;
   const [orders, setOrders] = useState<Order[]>([]);
   const [sectorName, setSectorName] = useState("KDS");
 
   const load = useCallback(async () => {
+    if (!resolvedSector) return;
     const res = await fetch(apiUrl(`/admin/dashboard?slug=${encodeURIComponent(slug)}`));
     const json = await res.json();
     setOrders(json.orders || []);
-    const sector = (json.sectors as Sector[] | undefined)?.find((s) => s.id === sectorId);
+    const sector = (json.sectors as Sector[] | undefined)?.find((s) => s.id === resolvedSector);
     if (sector) setSectorName(sector.name);
-  }, [slug, sectorId]);
+  }, [slug, resolvedSector]);
 
   useEffect(() => {
     load();
@@ -32,14 +34,15 @@ export function KdsView({ sectorId }: { sectorId: string }) {
   useRealtime(establishmentId, load);
 
   const tickets = useMemo(() => {
+    if (!resolvedSector) return [];
     return orders
       .filter((o) => !["ENTREGUE", "CANCELADO"].includes(o.status))
       .flatMap((order) => {
-        const items = order.items.filter((i) => i.sectorId === sectorId);
+        const items = order.items.filter((i) => i.sectorId === resolvedSector);
         if (!items.length) return [];
         return [{ order, items }];
       });
-  }, [orders, sectorId]);
+  }, [orders, resolvedSector]);
 
   async function setStatus(orderId: string, status: OrderStatus) {
     await fetch(apiUrl(`/orders/${orderId}`), {
@@ -50,11 +53,22 @@ export function KdsView({ sectorId }: { sectorId: string }) {
     load();
   }
 
+  if (!resolvedSector) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-[#0a0a0a] text-muted">
+        Setor não informado. Abra o KDS pelo painel admin.
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-dvh bg-[#111] p-4 text-white">
+    <div className="min-h-dvh bg-[#0a0a0a] p-4 text-white">
       <header className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-        <h1 className="text-3xl font-bold">{sectorName}</h1>
-        <span className="text-muted">{tickets.length} tickets</span>
+        <div>
+          <p className="text-xs uppercase tracking-widest text-brand">MesaFlow KDS</p>
+          <h1 className="text-3xl font-bold">{sectorName}</h1>
+        </div>
+        <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm">{tickets.length} tickets</span>
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -64,14 +78,14 @@ export function KdsView({ sectorId }: { sectorId: string }) {
             <div
               key={order.id}
               className={cn(
-                "rounded-2xl border-2 p-5",
-                late ? "border-danger bg-danger/10" : "border-white/10 bg-[#1a1a1a]",
+                "rounded-2xl border-2 p-5 transition",
+                late ? "border-danger bg-danger/10 shadow-lg shadow-danger/10" : "border-white/10 bg-[#141414]",
               )}
             >
               <div className="mb-4 flex items-baseline justify-between">
                 <div>
                   <p className="text-2xl font-black">MESA {order.tableNumber}</p>
-                  <p className="text-sm text-muted">Pedido #{order.number}</p>
+                  <p className="text-sm text-white/50">Pedido #{order.number}</p>
                 </div>
                 <p className={cn("text-lg font-bold", late && "text-danger animate-pulse-ring")}>
                   {minutesSince(order.createdAt)} min
@@ -106,7 +120,7 @@ export function KdsView({ sectorId }: { sectorId: string }) {
           );
         })}
         {tickets.length === 0 && (
-          <p className="col-span-full py-20 text-center text-2xl text-muted">Nenhum pedido no momento</p>
+          <p className="col-span-full py-20 text-center text-2xl text-white/40">Nenhum pedido no momento ✨</p>
         )}
       </div>
     </div>
