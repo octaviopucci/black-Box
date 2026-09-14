@@ -1,17 +1,12 @@
-import { getStore, hashPassword } from "@/lib/store";
+import { loginUser, publicUser } from "@/lib/store";
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
-  const store = getStore();
-  const user = Object.values(store.users).find(
-    (u) => u.email.toLowerCase() === String(email).toLowerCase() && u.active,
-  );
-  if (!user || user.passwordHash !== hashPassword(String(password))) {
-    return Response.json({ error: "E-mail ou senha inválidos." }, { status: 401 });
-  }
-  const establishment = store.establishments[user.establishmentId];
+  const result = loginUser(String(email), String(password));
+  if (result.error) return Response.json({ error: result.error }, { status: 401 });
   return Response.json({
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    establishment,
+    token: result.session!.token,
+    user: publicUser(result.user!),
+    establishment: result.establishment,
   });
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ClipboardList,
@@ -20,6 +19,7 @@ import { cn } from "@/lib/cn";
 import { formatCurrency, formatTime, orderStatusLabel } from "@/lib/format";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { ProductImage } from "@/components/ui/product-image";
 
 type Tab = "menu" | "orders" | "comanda" | "rodizio";
 
@@ -238,9 +238,14 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                     onClick={() => setSelected(p)}
                     className="w-36 shrink-0 overflow-hidden rounded-2xl bg-surface-2 text-left"
                   >
-                    {p.image && (
-                      <Image src={p.image} alt="" width={144} height={96} className="h-24 w-full object-cover" />
-                    )}
+                    <ProductImage
+                      src={p.image}
+                      alt={p.name}
+                      seed={p.id}
+                      width={144}
+                      height={96}
+                      className="h-24 w-full object-cover"
+                    />
                     <div className="p-2">
                       <p className="line-clamp-2 text-xs font-semibold">{p.name}</p>
                       <p className="text-xs text-brand">{formatCurrency(p.price)}</p>
@@ -282,9 +287,14 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 onClick={() => setSelected(p)}
                 className="flex w-full gap-3 rounded-2xl bg-surface-2 p-3 text-left"
               >
-                {p.image && (
-                  <Image src={p.image} alt="" width={80} height={80} className="h-20 w-20 shrink-0 rounded-xl object-cover" />
-                )}
+                <ProductImage
+                  src={p.image}
+                  alt={p.name}
+                  seed={p.id}
+                  width={80}
+                  height={80}
+                  className="h-20 w-20 shrink-0 rounded-xl object-cover"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{p.name}</p>
                   <p className="line-clamp-2 text-xs text-muted">{p.description}</p>
@@ -444,9 +454,14 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               <h3 className="text-lg font-bold">{selected.name}</h3>
               <button onClick={() => setSelected(null)}><X className="h-5 w-5" /></button>
             </div>
-            {selected.image && (
-              <Image src={selected.image} alt="" width={400} height={200} className="mb-4 h-40 w-full rounded-xl object-cover" />
-            )}
+            <ProductImage
+              src={selected.image}
+              alt={selected.name}
+              seed={selected.id}
+              width={400}
+              height={200}
+              className="mb-4 h-40 w-full rounded-xl object-cover"
+            />
             <p className="mb-4 text-sm text-muted">{selected.description}</p>
             <p className="mb-4 text-xl font-bold text-brand">{formatCurrency(selected.price)}</p>
             <Button

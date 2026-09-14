@@ -7,3 +7,7 @@ export function hashPassword(password: string) {
 export function id(prefix = "") {
   return `${prefix}${randomBytes(8).toString("hex")}`;
 }
+
+export function sessionToken() {
+  return randomBytes(32).toString("hex");
+}

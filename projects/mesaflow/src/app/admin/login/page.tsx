@@ -1,13 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { DEMO_LOGIN } from "@/lib/demo";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { setSession } = useAuth();
   const [email, setEmail] = useState(DEMO_LOGIN.email);
   const [password, setPassword] = useState(DEMO_LOGIN.password);
   const [error, setError] = useState("");
@@ -28,7 +31,11 @@ export default function AdminLoginPage() {
       setLoading(false);
       return;
     }
-    sessionStorage.setItem("mesaflow_admin", JSON.stringify(json));
+    setSession({
+      token: json.token,
+      user: json.user,
+      establishment: json.establishment,
+    });
     router.push("/admin");
   }
 
@@ -52,6 +59,10 @@ export default function AdminLoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <Button type="submit" className="w-full" loading={loading}>Entrar</Button>
+        <p className="text-center text-sm text-muted">
+          Novo estabelecimento?{" "}
+          <Link href="/admin/signup" className="text-brand hover:underline">Criar conta grátis</Link>
+        </p>
       </form>
     </div>
   );

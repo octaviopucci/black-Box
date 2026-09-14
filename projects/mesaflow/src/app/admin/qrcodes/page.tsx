@@ -1,39 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "qrcode";
-import { useRealtime } from "@/hooks/use-realtime";
-import { apiUrl } from "@/lib/api";
-import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
+import { useAdminData } from "@/hooks/use-admin-data";
 import type { Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 
+function menuUrl(slug: string, qrToken: string) {
+  const base = typeof window !== "undefined" ? window.location.origin : "";
+  const prefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  return `${base}${prefix}/m/live?slug=${encodeURIComponent(slug)}&table=${encodeURIComponent(qrToken)}`;
+}
+
 export default function QRCodesPage() {
+  const { data, establishment } = useAdminData<{ tables: Table[] }>();
   const [tables, setTables] = useState<Table[]>([]);
   const [qrs, setQrs] = useState<Record<string, string>>({});
 
-  const load = useCallback(async () => {
-    const res = await fetch(apiUrl(`/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`));
-    const json = await res.json();
-    setTables(json.tables || []);
-  }, []);
+  useEffect(() => {
+    if (data?.tables) setTables(data.tables);
+  }, [data]);
+
+  const slug = establishment?.slug || "";
 
   useEffect(() => {
-    load();
-  }, [load]);
-
-  useRealtime(DEMO_ESTABLISHMENT_ID, load);
-
-  useEffect(() => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    if (!slug || tables.length === 0) return;
     void Promise.all(
       tables.map(async (t) => {
-        const url = `${origin}/m/${DEMO_ESTABLISHMENT_SLUG}/${t.qrToken}`;
+        const url = menuUrl(slug, t.qrToken);
         const dataUrl = await QRCode.toDataURL(url, { margin: 1, width: 200 });
         return [t.id, dataUrl] as const;
       }),
     ).then((pairs) => setQrs(Object.fromEntries(pairs)));
-  }, [tables]);
+  }, [tables, slug]);
 
   function printAll() {
     window.print();
@@ -57,7 +56,7 @@ export default function QRCodesPage() {
             ) : (
               <div className="h-48 w-48 animate-pulse bg-gray-200" />
             )}
-            <p className="mt-2 text-xs text-gray-600">Ponto do Sabor · MesaFlow</p>
+            <p className="mt-2 text-xs text-gray-600">{establishment?.name} · MesaFlow</p>
           </div>
         ))}
       </div>

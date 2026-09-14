@@ -7,7 +7,11 @@ import {
   findTableByQr,
   getOrOpenCommand,
   getStore,
-  hashPassword,
+  loginUser,
+  publicUser,
+  registerEstablishment,
+  resolveAdminEstablishment,
+  validateSession,
   requestBill,
   updateOrderStatus,
 } from "../../../mesaflow/src/lib/store";
@@ -133,16 +137,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === "POST" && path === "/auth/login") {
       const body = (req.body || {}) as { email: string; password: string };
-      const user = Object.values(store.users).find(
-        (u) => u.email.toLowerCase() === String(body.email).toLowerCase() && u.active,
-      );
-      if (!user || user.passwordHash !== hashPassword(String(body.password))) {
-        return json(res, 401, { error: "E-mail ou senha inválidos." });
-      }
-      const establishment = store.establishments[user.establishmentId];
+      const result = loginUser(String(body.email), String(body.password));
+      if (result.error) return json(res, 401, { error: result.error });
       return json(res, 200, {
-        user: { id: user.id, name: user.name, email: user.email, role: user.role },
-        establishment,
+        token: result.session!.token,
+        user: publicUser(result.user!),
+        establishment: result.establishment,
+      });
+    }
+
+    if (req.method === "POST" && path === "/auth/register") {
+      const body = (req.body || {}) as {
+        businessName: string;
+        ownerName: string;
+        email: string;
+        password: string;
+        businessType: string;
+        tableCount?: number;
+      };
+      const result = registerEstablishment({
+        businessName: String(body.businessName || ""),
+        ownerName: String(body.ownerName || ""),
+        email: String(body.email || ""),
+        password: String(body.password || ""),
+        businessType: (body.businessType || "restaurante") as
+          | "restaurante"
+          | "lanchonete"
+          | "padaria"
+          | "bar"
+          | "cafeteria"
+          | "rodizio",
+        tableCount: Number(body.tableCount) || 5,
+      });
+      if (result.error) return json(res, 400, { error: result.error });
+      return json(res, 201, {
+        token: result.session!.token,
+        user: publicUser(result.user!),
+        establishment: result.establishment,
+      });
+    }
+
+    if (req.method === "GET" && path === "/auth/me") {
+      const auth = validateSession(req.headers.authorization?.replace(/^Bearer\s+/i, ""));
+      if (!auth) return json(res, 401, { error: "Sessão inválida." });
+      return json(res, 200, {
+        user: publicUser(auth.user),
+        establishment: auth.establishment,
       });
     }
 
@@ -158,20 +198,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === "GET" && path === "/admin/dashboard") {
       const slug = String(req.query?.slug || "");
-      if (!slug) return json(res, 400, { error: "slug required" });
-      const est = findEstablishmentBySlug(slug);
-      if (!est) return json(res, 404, { error: "not found" });
+      const est = resolveAdminEstablishment(slug, req.headers.authorization);
+      if (!est) return json(res, 401, { error: "Não autorizado." });
+      const auth = validateSession(req.headers.authorization?.replace(/^Bearer\s+/i, ""));
+      if (auth && auth.establishment.id !== est.id) {
+        return json(res, 403, { error: "Acesso negado a este estabelecimento." });
+      }
       const stats = dashboardStats(est.id);
       const orders = Object.values(store.orders)
         .filter((o) => o.establishmentId === est.id)
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       const tables = Object.values(store.tables).filter((t) => t.establishmentId === est.id);
+      const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id && s.active);
       const notifications = Object.values(store.notifications)
         .filter((n) => n.establishmentId === est.id)
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
         .slice(0, 20);
       const commands = Object.values(store.commands).filter((c) => c.establishmentId === est.id);
-      return json(res, 200, { establishment: est, stats, orders, tables, commands, notifications });
+      return json(res, 200, { establishment: est, stats, orders, tables, sectors, commands, notifications });
     }
 
     if (req.method === "POST" && path === "/rodizio/round") {

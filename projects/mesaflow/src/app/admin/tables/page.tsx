@@ -1,35 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRealtime } from "@/hooks/use-realtime";
-import { apiUrl } from "@/lib/api";
+import { useAdminData } from "@/hooks/use-admin-data";
 import { formatCurrency } from "@/lib/format";
-import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
 import type { Table } from "@/lib/types";
 import { cn } from "@/lib/cn";
 
 export default function AdminTablesPage() {
+  const { data, establishment } = useAdminData<{
+    tables: Table[];
+    commands: { id: string; total: number }[];
+  }>();
   const [tables, setTables] = useState<Table[]>([]);
   const [commands, setCommands] = useState<Record<string, { total: number }>>({});
 
-  const load = useCallback(async () => {
-    const res = await fetch(apiUrl(`/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`));
-    const json = await res.json();
-    setTables(json.tables || []);
+  useEffect(() => {
+    if (!data) return;
+    setTables(data.tables || []);
     const cmdMap: Record<string, { total: number }> = {};
-    for (const c of json.commands || []) {
-      const cmd = c as { id: string; total: number };
-      cmdMap[cmd.id] = { total: cmd.total };
+    for (const c of data.commands || []) {
+      cmdMap[c.id] = { total: c.total };
     }
     setCommands(cmdMap);
-  }, []);
+  }, [data]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  useRealtime(DEMO_ESTABLISHMENT_ID, load);
+  const slug = establishment?.slug || "";
 
   const statusColor: Record<string, string> = {
     LIVRE: "bg-success/20 text-success",
@@ -43,26 +39,25 @@ export default function AdminTablesPage() {
     <div>
       <h1 className="mb-6 font-[family-name:var(--font-display)] text-2xl font-bold">Mesas</h1>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {tables.map((t) => (
-          <div key={t.id} className="rounded-2xl border border-white/5 bg-surface-2 p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-lg font-bold">Mesa {t.number}</span>
-              <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusColor[t.status])}>
-                {t.status}
-              </span>
-            </div>
-            <p className="text-sm text-muted">Capacidade: {t.capacity}</p>
-            {t.commandId && commands[t.commandId] && (
-              <p className="mt-2 font-semibold text-brand">{formatCurrency(commands[t.commandId].total)}</p>
-            )}
+        {tables.map((t) => {
+          const total = t.commandId ? commands[t.commandId]?.total : 0;
+          return (
             <Link
-              href={`/m/${DEMO_ESTABLISHMENT_SLUG}/${t.qrToken}`}
-              className="mt-3 inline-block text-xs text-brand hover:underline"
+              key={t.id}
+              href={`/m/live?slug=${encodeURIComponent(slug)}&table=${encodeURIComponent(t.qrToken)}`}
+              className="rounded-2xl border border-white/5 bg-surface-2 p-5 transition hover:border-brand/30"
             >
-              Abrir cardápio demo →
+              <div className="flex items-center justify-between">
+                <p className="text-xl font-bold">Mesa {t.number}</p>
+                <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusColor[t.status])}>
+                  {t.status.replace(/_/g, " ")}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-muted">{t.capacity} lugares</p>
+              {total ? <p className="mt-1 font-semibold text-brand">{formatCurrency(total)}</p> : null}
             </Link>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

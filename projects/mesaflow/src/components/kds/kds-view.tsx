@@ -1,34 +1,35 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRealtime } from "@/hooks/use-realtime";
 import { apiUrl } from "@/lib/api";
-import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
+import { DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
 import { minutesSince } from "@/lib/format";
-import type { Order, OrderStatus } from "@/lib/types";
+import type { Order, OrderStatus, Sector } from "@/lib/types";
 import { cn } from "@/lib/cn";
 
-const SECTOR_NAMES: Record<string, string> = {
-  sec_cozinha: "Cozinha",
-  sec_balcao: "Balcão",
-  sec_bar: "Bar",
-};
-
 export function KdsView({ sectorId }: { sectorId: string }) {
+  const params = useSearchParams();
+  const slug = params.get("slug") || DEMO_ESTABLISHMENT_SLUG;
   const [orders, setOrders] = useState<Order[]>([]);
+  const [sectorName, setSectorName] = useState("KDS");
 
   const load = useCallback(async () => {
-    const res = await fetch(apiUrl(`/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`));
+    const res = await fetch(apiUrl(`/admin/dashboard?slug=${encodeURIComponent(slug)}`));
     const json = await res.json();
     setOrders(json.orders || []);
-  }, []);
+    const sector = (json.sectors as Sector[] | undefined)?.find((s) => s.id === sectorId);
+    if (sector) setSectorName(sector.name);
+  }, [slug, sectorId]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  useRealtime(DEMO_ESTABLISHMENT_ID, load);
+  const establishmentId = orders[0]?.establishmentId;
+  useRealtime(establishmentId, load);
 
   const tickets = useMemo(() => {
     return orders
@@ -52,7 +53,7 @@ export function KdsView({ sectorId }: { sectorId: string }) {
   return (
     <div className="min-h-dvh bg-[#111] p-4 text-white">
       <header className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-        <h1 className="text-3xl font-bold">{SECTOR_NAMES[sectorId] || "KDS"}</h1>
+        <h1 className="text-3xl font-bold">{sectorName}</h1>
         <span className="text-muted">{tickets.length} tickets</span>
       </header>
 

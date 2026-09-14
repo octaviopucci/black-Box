@@ -1,5 +1,13 @@
 export type UserRole = "OWNER" | "MANAGER" | "KITCHEN" | "COUNTER" | "WAITER";
 
+export type BusinessType =
+  | "restaurante"
+  | "lanchonete"
+  | "padaria"
+  | "bar"
+  | "cafeteria"
+  | "rodizio";
+
 export type TableStatus = "LIVRE" | "OCUPADA" | "AGUARDANDO_PAGAMENTO" | "RESERVADA" | "INATIVA";
 
 export type OrderStatus =
@@ -18,12 +26,21 @@ export interface Establishment {
   id: string;
   slug: string;
   name: string;
+  businessType?: BusinessType;
   logo?: string;
   tagline?: string;
   open: boolean;
   rodizioEnabled: boolean;
   settings: EstablishmentSettings;
   createdAt: string;
+}
+
+export interface Session {
+  token: string;
+  userId: string;
+  establishmentId: string;
+  createdAt: string;
+  expiresAt: string;
 }
 
 export interface EstablishmentSettings {
@@ -197,6 +214,7 @@ export interface Notification {
 export interface MesaFlowStore {
   establishments: Record<string, Establishment>;
   users: Record<string, User>;
+  sessions: Record<string, Session>;
   sectors: Record<string, Sector>;
   categories: Record<string, Category>;
   products: Record<string, Product>;

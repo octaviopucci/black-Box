@@ -1,10 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRealtime } from "@/hooks/use-realtime";
-import { apiUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
-import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
+import { useAdminData } from "@/hooks/use-admin-data";
 
 type Dash = {
   stats: {
@@ -21,21 +18,9 @@ type Dash = {
 };
 
 export default function AdminDashboardPage() {
-  const [data, setData] = useState<Dash | null>(null);
+  const { data, loading, establishment } = useAdminData<Dash>();
 
-  const load = useCallback(async () => {
-    const res = await fetch(apiUrl(`/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`));
-    const json = await res.json();
-    setData(json);
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  useRealtime(DEMO_ESTABLISHMENT_ID, load);
-
-  if (!data) return <p className="text-muted">Carregando dashboard…</p>;
+  if (loading || !data) return <p className="text-muted">Carregando dashboard…</p>;
 
   const s = data.stats;
   const cards = [
@@ -49,7 +34,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-6 font-[family-name:var(--font-display)] text-2xl font-bold">Dashboard</h1>
+      <h1 className="mb-2 font-[family-name:var(--font-display)] text-2xl font-bold">Dashboard</h1>
+      <p className="mb-6 text-sm text-muted">{establishment?.name}</p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => (
           <div key={c.label} className="rounded-2xl border border-white/5 bg-surface-2 p-5">

@@ -1,12 +1,10 @@
 import { hashPassword, id } from "./crypto-utils";
 import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "./demo";
+import { productImage } from "./product-images";
 import type { Command, MesaFlowStore, Order, OrderItem, OrderStatus, Product } from "./types";
 
 const EST_ID = DEMO_ESTABLISHMENT_ID;
 const DEMO_SLUG = DEMO_ESTABLISHMENT_SLUG;
-
-const img = (seed: string) =>
-  `https://images.unsplash.com/photo-${seed}?w=800&q=80&auto=format&fit=crop`;
 
 export function buildDemoStore(): MesaFlowStore {
   const now = new Date().toISOString();
@@ -55,7 +53,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "X-Burger Artesanal",
       description: "Blend 180g, queijo prato, molho da casa e pão brioche.",
       price: 32.9,
-      image: img("1568901716194-d49b35ccf59f"),
+      image: productImage("p_xburger"),
       tags: ["destaque"],
       prepMinutes: 18,
       availability: "AMBOS",
@@ -79,7 +77,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "X-Salada Premium",
       description: "Hambúrguer com salada fresca, tomate e cebola roxa.",
       price: 36.9,
-      image: img("1550547660-b9eea9836a88"),
+      image: productImage("p_xsalada"),
       tags: [],
       prepMinutes: 20,
       availability: "AMBOS",
@@ -97,7 +95,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Pizza Calabresa",
       description: "Massa fina, calabresa fatiada e cebola.",
       price: 54.9,
-      image: img("1513104890138-7c749659a591"),
+      image: productImage("p_pizza_calabresa"),
       tags: ["rodízio"],
       prepMinutes: 25,
       availability: "AMBOS",
@@ -118,7 +116,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Frango com Catupiry",
       description: "Clássica da casa com frango desfiado.",
       price: 56.9,
-      image: img("1574071318508-1cdbab1a896f"),
+      image: productImage("p_pizza_frango"),
       tags: ["rodízio"],
       prepMinutes: 25,
       availability: "AMBOS",
@@ -137,7 +135,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Marguerita",
       description: "Molho de tomate, mussarela e manjericão.",
       price: 49.9,
-      image: img("1604382354936-07c5d9983bd3"),
+      image: productImage("p_pizza_marg"),
       tags: ["rodízio"],
       prepMinutes: 22,
       availability: "AMBOS",
@@ -155,7 +153,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Batata Frita Grande",
       description: "Porção generosa com alecrim e parmesão.",
       price: 28.9,
-      image: img("1573080496219-a418b8a838f6"),
+      image: productImage("p_batata"),
       tags: [],
       prepMinutes: 12,
       availability: "VITRINE",
@@ -173,7 +171,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Coxinha de Frango",
       description: "Massa crocante, recheio cremoso (unidade).",
       price: 9.9,
-      image: img("1608037375126-370c4aa7859e"),
+      image: productImage("p_coxinha"),
       tags: [],
       prepMinutes: 5,
       availability: "VITRINE",
@@ -191,7 +189,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Coca-Cola Lata",
       description: "350ml gelada.",
       price: 8.9,
-      image: img("1629203851122-3726ecdf080e"),
+      image: productImage("p_coca"),
       tags: [],
       prepMinutes: 1,
       availability: "VITRINE",
@@ -209,7 +207,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Cappuccino",
       description: "Espresso, leite vaporizado e espuma.",
       price: 14.9,
-      image: img("1572442383536-47c21b6ff7c5"),
+      image: productImage("p_cappuccino"),
       tags: [],
       prepMinutes: 6,
       availability: "SOB_DEMANDA",
@@ -233,7 +231,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Chopp Artesanal",
       description: "300ml da torneira.",
       price: 16.9,
-      image: img("1608272941294-597ded4a8af3"),
+      image: productImage("p_chopp"),
       tags: [],
       prepMinutes: 2,
       availability: "VITRINE",
@@ -251,7 +249,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Caipirinha",
       description: "Limão, cachaça e gelo.",
       price: 22.9,
-      image: img("1551539166-88256b0655f4"),
+      image: productImage("p_caipirinha"),
       tags: [],
       prepMinutes: 5,
       availability: "SOB_DEMANDA",
@@ -269,7 +267,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Pudim de Leite",
       description: "Receita da vó, calda caramelizada.",
       price: 18.9,
-      image: img("1586985289765-7b0e9e725bfe"),
+      image: productImage("p_pudim"),
       tags: [],
       prepMinutes: 3,
       availability: "VITRINE",
@@ -287,7 +285,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Brownie com Sorvete",
       description: "Chocolate belga e sorvete de creme.",
       price: 24.9,
-      image: img("1606313564204-75a0c8d0538f"),
+      image: productImage("p_brownie"),
       tags: [],
       prepMinutes: 5,
       availability: "SOB_DEMANDA",
@@ -305,7 +303,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Pizza Pepperoni",
       description: "Pepperoni importado e mussarela.",
       price: 59.9,
-      image: img("1628840040245-3fea7438c6a0"),
+      image: productImage("p_pizza_pepper"),
       tags: ["rodízio", "premium"],
       prepMinutes: 25,
       availability: "AMBOS",
@@ -324,7 +322,7 @@ export function buildDemoStore(): MesaFlowStore {
       name: "Salada da Casa",
       description: "Mix de folhas, tomate cereja e molho balsâmico.",
       price: 26.9,
-      image: img("1512621776951-a57141f2eefd"),
+      image: productImage("p_salada"),
       tags: [],
       prepMinutes: 8,
       availability: "AMBOS",
@@ -476,6 +474,7 @@ export function buildDemoStore(): MesaFlowStore {
         createdAt: now,
       },
     },
+    sessions: {},
     users: {
       user_owner: {
         id: "user_owner",

@@ -21,19 +21,25 @@ export default function HomePage() {
             Demo cliente · Mesa 08
           </Link>
           <Link
-            href="/admin"
+            href="/admin/login"
             className="rounded-2xl border border-white/10 bg-surface-2 px-6 py-4 font-semibold transition hover:bg-surface-3"
           >
-            Painel do estabelecimento
+            Entrar no painel
           </Link>
           <Link
-            href="/kds/sec_cozinha"
+            href="/admin/signup"
+            className="rounded-2xl border border-brand/40 bg-brand/10 px-6 py-4 font-semibold text-brand transition hover:bg-brand/20 sm:col-span-2"
+          >
+            Cadastrar restaurante / lanchonete / padaria
+          </Link>
+          <Link
+            href={`/kds/sec_cozinha?slug=${DEMO_ESTABLISHMENT_SLUG}`}
             className="rounded-2xl border border-white/10 bg-surface-2 px-6 py-4 font-semibold transition hover:bg-surface-3"
           >
             KDS Cozinha
           </Link>
           <Link
-            href="/kds/sec_balcao"
+            href={`/kds/sec_balcao?slug=${DEMO_ESTABLISHMENT_SLUG}`}
             className="rounded-2xl border border-white/10 bg-surface-2 px-6 py-4 font-semibold transition hover:bg-surface-3"
           >
             KDS Balcão

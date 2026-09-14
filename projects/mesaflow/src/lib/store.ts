@@ -1,19 +1,23 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
-import { hashPassword, id } from "./crypto-utils";
+import { hashPassword, id, sessionToken } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
+import { provisionEstablishment, type RegisterInput } from "./provision";
 import { buildDemoStore } from "./seed";
 import type {
   Command,
+  Establishment,
   MesaFlowStore,
   Notification,
   Order,
   OrderItem,
   OrderStatus,
   RodizioRound,
+  Session,
   StoreEvent,
   Table,
+  User,
 } from "./types";
 
 const DATA_PATH =
@@ -22,10 +26,13 @@ const DATA_PATH =
 
 let cache: MesaFlowStore | null = null;
 
+const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
 function emptyStore(): MesaFlowStore {
   return {
     establishments: {},
     users: {},
+    sessions: {},
     sectors: {},
     categories: {},
     products: {},
@@ -90,6 +97,110 @@ function notify(establishmentId: string, type: string, title: string, body: stri
 export function findEstablishmentBySlug(slug: string) {
   const store = getStore();
   return Object.values(store.establishments).find((e) => e.slug === slug) || null;
+}
+
+export function findUserByEmail(email: string) {
+  const store = getStore();
+  return (
+    Object.values(store.users).find(
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.active,
+    ) || null
+  );
+}
+
+function purgeExpiredSessions(store: MesaFlowStore) {
+  const now = Date.now();
+  for (const [token, session] of Object.entries(store.sessions)) {
+    if (new Date(session.expiresAt).getTime() <= now) {
+      delete store.sessions[token];
+    }
+  }
+}
+
+export function createSession(user: User): Session {
+  const store = getStore();
+  purgeExpiredSessions(store);
+  const now = new Date();
+  const session: Session = {
+    token: sessionToken(),
+    userId: user.id,
+    establishmentId: user.establishmentId,
+    createdAt: now.toISOString(),
+    expiresAt: new Date(now.getTime() + SESSION_TTL_MS).toISOString(),
+  };
+  store.sessions[session.token] = session;
+  saveStore(store);
+  return session;
+}
+
+export function validateSession(token: string | null | undefined) {
+  if (!token) return null;
+  const store = getStore();
+  purgeExpiredSessions(store);
+  const session = store.sessions[token];
+  if (!session) return null;
+  if (new Date(session.expiresAt).getTime() <= Date.now()) {
+    delete store.sessions[token];
+    saveStore(store);
+    return null;
+  }
+  const user = store.users[session.userId];
+  const establishment = store.establishments[session.establishmentId];
+  if (!user?.active || !establishment) return null;
+  return { session, user, establishment };
+}
+
+export function registerEstablishment(input: Omit<RegisterInput, "passwordHash"> & { password: string }) {
+  const store = getStore();
+  const email = input.email.toLowerCase().trim();
+  if (!email || !input.password || input.password.length < 6) {
+    return { error: "Preencha todos os campos. Senha com no mínimo 6 caracteres." };
+  }
+  if (findUserByEmail(email)) {
+    return { error: "Este e-mail já está cadastrado." };
+  }
+  if (!input.businessName.trim() || !input.ownerName.trim()) {
+    return { error: "Nome do negócio e responsável são obrigatórios." };
+  }
+
+  const { establishment, user } = provisionEstablishment(store, {
+    businessName: input.businessName.trim(),
+    ownerName: input.ownerName.trim(),
+    email,
+    passwordHash: hashPassword(input.password),
+    businessType: input.businessType,
+    tableCount: input.tableCount,
+  });
+  saveStore(store);
+  const session = createSession(user);
+  return { user, establishment, session };
+}
+
+export function loginUser(email: string, password: string) {
+  const user = findUserByEmail(email);
+  if (!user || user.passwordHash !== hashPassword(password)) {
+    return { error: "E-mail ou senha inválidos." };
+  }
+  const store = getStore();
+  const establishment = store.establishments[user.establishmentId];
+  if (!establishment) return { error: "Estabelecimento não encontrado." };
+  const session = createSession(user);
+  return { user, establishment, session };
+}
+
+export function publicUser(user: User) {
+  return { id: user.id, name: user.name, email: user.email, role: user.role };
+}
+
+export function resolveAdminEstablishment(
+  slug: string | undefined,
+  authHeader: string | undefined,
+): Establishment | null {
+  const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
+  const auth = validateSession(token);
+  if (auth) return auth.establishment;
+  if (slug) return findEstablishmentBySlug(slug);
+  return null;
 }
 
 export function findTableByQr(establishmentId: string, tableToken: string) {
