@@ -1,0 +1,33 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-crystal/30 text-ink;
+  }
+}
+
+@layer components {
+  .cta-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-crystal px-7 py-3.5 text-sm font-semibold tracking-wide text-ink transition-all duration-300 ease-smooth hover:bg-crystal-soft hover:shadow-editorial;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-paper/25 px-7 py-3.5 text-sm font-semibold text-paper transition-all duration-300 ease-smooth hover:border-paper/50 hover:bg-paper/5;
+  }
+}
