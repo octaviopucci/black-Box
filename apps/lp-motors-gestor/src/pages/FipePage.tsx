@@ -21,6 +21,7 @@ import { getMarketProvider } from '@/services/providers'
 import { BRAZIL_STATES } from '@/utils/constants'
 import { formatCurrency, maskPlate } from '@/utils'
 import { cn } from '@/utils'
+import { APP_SHORT } from '@/config/variant'
 
 const TYPES: { id: FipeType; label: string }[] = [
   { id: 'cars', label: 'Carros' },
@@ -214,7 +215,7 @@ export function FipePage() {
       )
       if (local) {
         setQuery(`${local.marca} ${local.modelo} ${local.anoModelo || local.ano}`)
-        toast('Placa no estoque LP Motors. Buscando FIPE do cadastro…', 'info')
+        toast(`Placa no estoque ${APP_SHORT}. Buscando FIPE do cadastro…`, 'info')
         const quote = await getMarketProvider().quote({
           brand: local.marca,
           model: local.modelo,

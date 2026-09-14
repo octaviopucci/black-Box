@@ -11,7 +11,7 @@ Projeto unificado em `projects/iphone-imports/`:
 | Gestor W-Tube | `https://loja-iphoneimports.vercel.app/w-tube/gestor/` |
 | API W-Tube | `https://loja-iphoneimports.vercel.app/api/w-tube` |
 | **Loja Pucci Motors** | `https://loja-iphoneimports.vercel.app/pucci-motors/` |
-| **Gestor LP Motors** (Pucci) | `https://loja-iphoneimports.vercel.app/lp-motors/` |
+| **B2 Gestor** (Pucci) | `https://loja-iphoneimports.vercel.app/b2-gestor/` |
 | **API LP Motors** | `https://loja-iphoneimports.vercel.app/api/lp-motors` |
 
 ## Vercel — checklist (loja-iphoneimports)
@@ -149,7 +149,7 @@ Saída: `out/` (loja + `out/gestor/`) + `api/dist/handler.cjs`
 | Senha | `wtubeadmin123` |
 | Código da loja | `w-tube` |
 
-### Pucci Motors (`/lp-motors/` + site `/pucci-motors/`)
+### Pucci Motors (`/b2-gestor/` + site `/pucci-motors/`)
 
 | Campo | Valor |
 |-------|-------|

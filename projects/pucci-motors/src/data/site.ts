@@ -23,7 +23,7 @@ export const site = {
     maps: "https://www.google.com/maps/search/?api=1&query=Cap%C3%A3o+Bonito+SP",
   },
   city: "Capão Bonito, SP",
-  gestorUrl: "/lp-motors/",
+  gestorUrl: "/b2-gestor/",
   assets: {
     logo: "/brand/logo.svg",
     ogImage: "/brand/logo.svg",

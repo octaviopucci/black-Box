@@ -42,6 +42,7 @@ import {
 import { loadDatabase } from '@/services/database'
 import { intelligenceService } from '@/services/intelligence'
 import { cloudSync, type CloudHealth, type SyncStatus } from '@/services/sync'
+import { APP_NAME } from '@/config/variant'
 import { applyBrandTheme } from '@/utils/brand'
 import type { SessionUser } from '@/services/database'
 
@@ -229,7 +230,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         setUser(result.user)
         refresh()
-        const storeName = result.user.organizationName || 'LP Motors Gestor'
+        const storeName = result.user.organizationName || APP_NAME
         toast(`Bem-vindo à ${storeName}`)
       })
     },
