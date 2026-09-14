@@ -14,24 +14,6 @@ export type Vehicle = {
   image: string;
 };
 
-/** Imagens estáticas para o hero (visual NA Veículos). */
-export const heroVehicleImages = [
-  "/vehicles/DbLlGXYjlkC.jpg",
-  "/vehicles/DbG3zhJmEU2.jpg",
-  "/vehicles/DbDpk4FDnxq.jpg",
-  "/vehicles/Da5GSBjjnIZ.jpg",
-  "/vehicles/DaOakpggUik.jpg",
-  "/vehicles/DaQ0nCRmB3U.jpg",
-  "/vehicles/Da08VsHOaw2.jpg",
-  "/vehicles/Da1BPs3BE_s.jpg",
-  "/vehicles/Da5F5FXlv_D.jpg",
-  "/vehicles/Da6HoEJh4yM.jpg",
-  "/vehicles/Dadogk_P3_6.jpg",
-  "/vehicles/DaiAtxjjomg.jpg",
-  "/vehicles/DaLQEgKOq0X.jpg",
-  "/vehicles/DangbypO5DK.jpg",
-];
-
 export function catalogVehicleToSite(v: PublicCatalogVehicle): Vehicle {
   return {
     id: v.id,
