@@ -6,25 +6,25 @@ import { tmpdir } from "node:os";
 const tempDir = mkdtempSync(join(tmpdir(), "mesaflow-admin-"));
 process.env.MESAFLOW_DATA = join(tempDir, "store.json");
 
-const {
-  createAdminProduct,
-  createAdminTable,
-  deleteAdminProduct,
-  deleteAdminTable,
-  findTableByQr,
-  getStore,
-  listAdminProducts,
-  regenerateAdminTableQr,
-  updateAdminProduct,
-  updateAdminSettings,
-} = await import("./store");
-
 function unwrap<T>(result: { value: T } | { error: string; status: number }): T {
   if ("error" in result) throw new Error(`${result.status}: ${result.error}`);
   return result.value;
 }
 
-try {
+async function run() {
+  const {
+    createAdminProduct,
+    createAdminTable,
+    deleteAdminProduct,
+    deleteAdminTable,
+    findTableByQr,
+    getStore,
+    listAdminProducts,
+    regenerateAdminTableQr,
+    updateAdminProduct,
+    updateAdminSettings,
+  } = await import("./store");
+
   const store = getStore();
   const establishment = Object.values(store.establishments)[0];
   assert.ok(establishment, "demo establishment must exist");
@@ -88,6 +88,8 @@ try {
   assert.equal(updated.settings.soundNotifications, false);
 
   console.log("✓ MesaFlow admin CRUD, tenant isolation and QR lifecycle passed");
-} finally {
-  rmSync(tempDir, { recursive: true, force: true });
 }
+
+run().finally(() => {
+  rmSync(tempDir, { recursive: true, force: true });
+});
