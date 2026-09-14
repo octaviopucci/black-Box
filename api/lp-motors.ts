@@ -20,6 +20,8 @@ import {
   plateFormats,
   type FipeVehicleType,
 } from './_lp-motors/fipe'
+import { buildPublicCatalog, getPublicVehicleById, type LpOrgDatabase } from './_lp-motors/catalog'
+import { ensurePucciMotorsDemo, PUCCI_DEMO_CREDENTIALS } from './_lp-motors/pucci-demo'
 
 function resolvePath(req: VercelRequest): string {
   const q = req.query?.path
@@ -174,6 +176,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const value = Number(body.value || 0)
       if (!value) return json(res, 400, { error: 'Informe o valor FIPE.' })
       return json(res, 200, estimateIpva(value, body.uf || 'SP'))
+    }
+
+    if (req.method === 'POST' && path === '/init/pucci-motors') {
+      const seeded = await ensurePucciMotorsDemo(store)
+      return json(res, 200, {
+        ok: true,
+        seeded,
+        credentials: PUCCI_DEMO_CREDENTIALS,
+        catalog: `/api/lp-motors/catalog/${PUCCI_DEMO_CREDENTIALS.store}`,
+      })
+    }
+
+    // ---- Catálogo público (site) ----
+    if (req.method === 'GET' && path.startsWith('/catalog/')) {
+      const slug = decodeURIComponent(path.replace(/^\/catalog\//, '').replace(/\/$/, ''))
+      if (slug === 'pucci-motors') {
+        await ensurePucciMotorsDemo(store)
+      }
+      const org = store.findOrgBySlug(slug)
+      if (!org) return json(res, 404, { error: 'Loja não encontrada.' })
+
+      const rec = store.data().databases[org.id]
+      if (!rec?.data) return json(res, 404, { error: 'Catálogo não configurado.' })
+
+      const catalog = buildPublicCatalog(rec.data as LpOrgDatabase, org.slug)
+      return json(res, 200, catalog)
+    }
+
+    if (req.method === 'GET' && path.startsWith('/vehicle/')) {
+      const parts = path.replace(/^\/vehicle\//, '').split('/')
+      const vehicleId = decodeURIComponent(parts[0] || '')
+      const storeSlug = decodeURIComponent(parts[1] || vehicleId)
+      const org = store.findOrgBySlug(storeSlug)
+      if (!org) return json(res, 404, { error: 'Loja não encontrada.' })
+
+      const rec = store.data().databases[org.id]
+      if (!rec?.data) return json(res, 404, { error: 'Veículo não encontrado.' })
+
+      const vehicle = getPublicVehicleById(rec.data as LpOrgDatabase, org.slug, vehicleId)
+      if (!vehicle) return json(res, 404, { error: 'Veículo não encontrado.' })
+      return json(res, 200, vehicle)
     }
 
     if (req.method === 'POST' && path === '/auth/register') {

@@ -1,0 +1,13 @@
+const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
+/** Prefixa paths de /public quando o site roda sob subpath (ex.: /na-veiculos). */
+export function asset(path: string) {
+  if (
+    path.startsWith("http://") ||
+    path.startsWith("https://") ||
+    path.startsWith("data:")
+  ) {
+    return path;
+  }
+  return `${base}${path}`;
+}
