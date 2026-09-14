@@ -40,4 +40,5 @@ jobs:
       - run: npm --prefix projects/iphone-imports ci --include=dev
       - run: npm --prefix projects/iphone-imports/gestor ci --include=dev
       - run: npm --prefix projects/iphone-imports run vercel-build
+      - run: node projects/iphone-imports/scripts/verify-mesaflow-deploy.mjs
       - run: npm --prefix projects/iphone-imports run test:api
