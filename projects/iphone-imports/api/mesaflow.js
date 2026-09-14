@@ -17,18 +17,19 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// api/_mesaflow/handler.ts
+// projects/iphone-imports/api/_mesaflow/handler.ts
 var handler_exports = {};
 __export(handler_exports, {
   default: () => handler
 });
 module.exports = __toCommonJS(handler_exports);
 
-// ../mesaflow/src/lib/store.ts
+// projects/mesaflow/src/lib/store.ts
 var import_fs = require("fs");
 var import_path = require("path");
+var import_blob = require("@vercel/blob");
 
-// ../mesaflow/src/lib/crypto-utils.ts
+// projects/mesaflow/src/lib/crypto-utils.ts
 var import_crypto = require("crypto");
 function hashPassword(password) {
   return (0, import_crypto.createHash)("sha256").update(`mesaflow:${password}`).digest("hex");
@@ -40,7 +41,7 @@ function sessionToken() {
   return (0, import_crypto.randomBytes)(32).toString("hex");
 }
 
-// ../mesaflow/src/lib/events.ts
+// projects/mesaflow/src/lib/events.ts
 var listeners = /* @__PURE__ */ new Map();
 function emit(event) {
   const set = listeners.get(event.establishmentId);
@@ -48,35 +49,95 @@ function emit(event) {
   for (const fn of set) fn(event);
 }
 
-// ../mesaflow/src/lib/order-math.ts
+// projects/mesaflow/src/lib/order-math.ts
 function lineTotal(item) {
   const addons = item.addons.reduce((s, a) => s + a.price * a.qty, 0);
   return item.qty * (item.unitPrice + item.variantDelta) + addons;
 }
 
-// ../mesaflow/src/lib/product-images.ts
+// projects/mesaflow/src/lib/product-images.ts
+var PEXELS_Q = "auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
+function pexels(id2, slug = "pexels-photo") {
+  return `https://images.pexels.com/photos/${id2}/${slug}-${id2}.jpeg?${PEXELS_Q}`;
+}
+function unsplash(id2) {
+  return `https://images.unsplash.com/photo-${id2}?w=800&h=600&q=80&auto=format&fit=crop`;
+}
 var PRODUCT_IMAGES = {
-  p_xburger: "https://picsum.photos/seed/mf-xburger/800/600",
-  p_xsalada: "https://picsum.photos/seed/mf-xsalada/800/600",
-  p_pizza_calabresa: "https://picsum.photos/seed/mf-pizza-calabresa/800/600",
-  p_pizza_frango: "https://picsum.photos/seed/mf-pizza-frango/800/600",
-  p_pizza_marg: "https://picsum.photos/seed/mf-pizza-marg/800/600",
-  p_pizza_pepper: "https://picsum.photos/seed/mf-pizza-pepper/800/600",
-  p_batata: "https://picsum.photos/seed/mf-batata/800/600",
-  p_coxinha: "https://picsum.photos/seed/mf-coxinha/800/600",
-  p_coca: "https://picsum.photos/seed/mf-coca/800/600",
-  p_cappuccino: "https://picsum.photos/seed/mf-cappuccino/800/600",
-  p_chopp: "https://picsum.photos/seed/mf-chopp/800/600",
-  p_caipirinha: "https://picsum.photos/seed/mf-caipirinha/800/600",
-  p_pudim: "https://picsum.photos/seed/mf-pudim/800/600",
-  p_brownie: "https://picsum.photos/seed/mf-brownie/800/600",
-  p_salada: "https://picsum.photos/seed/mf-salada/800/600"
+  p_xburger: pexels(1639562),
+  // hambúrguer artesanal
+  p_xsalada: pexels(1279330),
+  // burger com salada
+  p_pizza_calabresa: unsplash("1513104890138-7c749659a591"),
+  // pizza calabresa
+  p_pizza_frango: pexels(2983101),
+  // pizza de frango
+  p_pizza_marg: unsplash("1565299624946-b28f40a0ae38"),
+  // pizza margherita
+  p_pizza_pepper: unsplash("1604382354936-07c5d9983bd3"),
+  // pizza pepperoni
+  p_batata: pexels(1581384),
+  // batata frita
+  p_coxinha: pexels(4518843),
+  // salgado / coxinha
+  p_coca: pexels(50593, "coca-cola-cold-drink-soft-drink-coke"),
+  // coca-cola lata
+  p_cappuccino: unsplash("1572442388796-11668a67e53d"),
+  // cappuccino com latte art
+  p_chopp: pexels(15515325),
+  // chopp / cerveja na torneira
+  p_caipirinha: pexels(2097090),
+  // caipirinha / coquetel
+  p_pudim: unsplash("1551024506-0bccd828d307"),
+  // pudim de leite
+  p_brownie: pexels(1624487),
+  // brownie com sorvete
+  p_salada: unsplash("1512621776951-a57141f2eefd")
+  // salada fresca
 };
-function productImage(id2, fallbackSeed = "mesaflow-food") {
-  return PRODUCT_IMAGES[id2] || `https://picsum.photos/seed/${fallbackSeed}/800/600`;
+var FOOD_PRESETS = {
+  burger: pexels(1639562),
+  xsalada: pexels(1279330),
+  pizza: unsplash("1513104890138-7c749659a591"),
+  prato: unsplash("1504674900247-0877df9cc836"),
+  padaria: pexels(5632401),
+  porcao: pexels(1581384),
+  bebida: pexels(50593, "coca-cola-cold-drink-soft-drink-coke"),
+  cafe: unsplash("1495474472287-4d71bcdd2085"),
+  default: pexels(1893556)
+};
+function productImage(id2, fallback = "default") {
+  if (PRODUCT_IMAGES[id2]) return PRODUCT_IMAGES[id2];
+  if (fallback in FOOD_PRESETS) return FOOD_PRESETS[fallback];
+  return FOOD_PRESETS.default;
+}
+function productImageByName(name, preset = "default") {
+  const n = name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (n.includes("x-salada") || n.includes("x salada")) return FOOD_PRESETS.xsalada;
+  if (n.includes("burger") || n.includes("x-burger") || n.includes("hamburguer")) return FOOD_PRESETS.burger;
+  if (n.includes("pizza") || n.includes("calabresa") || n.includes("pepperoni") || n.includes("marguerita") || n.includes("margherita")) {
+    if (n.includes("pepperoni")) return PRODUCT_IMAGES.p_pizza_pepper;
+    if (n.includes("marguerita") || n.includes("margherita")) return PRODUCT_IMAGES.p_pizza_marg;
+    if (n.includes("frango")) return PRODUCT_IMAGES.p_pizza_frango;
+    return PRODUCT_IMAGES.p_pizza_calabresa;
+  }
+  if (n.includes("coxinha") || n.includes("salgado")) return PRODUCT_IMAGES.p_coxinha;
+  if (n.includes("pao") || n.includes("padaria") || n.includes("croissant")) return FOOD_PRESETS.padaria;
+  if (n.includes("batata") || n.includes("porcao")) return FOOD_PRESETS.porcao;
+  if (n.includes("refrigerante") || n.includes("coca") || n.includes("suco")) return FOOD_PRESETS.bebida;
+  if (n.includes("cappuccino") || n.includes("capuccino")) return PRODUCT_IMAGES.p_cappuccino;
+  if (n.includes("cafe") || n.includes("espresso") || n.includes("expresso") || n.includes("latte")) return FOOD_PRESETS.cafe;
+  if (n.includes("chopp") || n.includes("cerveja")) return pexels(15515325);
+  if (n.includes("caipirinha") || n.includes("drink")) return pexels(2097090);
+  if (n.includes("pudim") || n.includes("flan")) return PRODUCT_IMAGES.p_pudim;
+  if (n.includes("brownie") || n.includes("bolo") || n.includes("sobremesa") || n.includes("doce")) return PRODUCT_IMAGES.p_brownie;
+  if (n.includes("salada")) return unsplash("1512621776951-a57141f2eefd");
+  if (n.includes("prato")) return FOOD_PRESETS.prato;
+  return FOOD_PRESETS[preset] ?? FOOD_PRESETS.default;
 }
 
-// ../mesaflow/src/lib/provision.ts
+// projects/mesaflow/src/lib/provision.ts
+var import_crypto2 = require("crypto");
 function slugify(name) {
   return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
 }
@@ -88,6 +149,13 @@ function uniqueSlug(store, base) {
     slug = `${slugify(base)}-${n}`;
   }
   return slug;
+}
+function uniqueQrToken(store, pending) {
+  let token = (0, import_crypto2.randomBytes)(32).toString("hex");
+  while (Object.values(store.tables).some((table) => table.qrToken === token) || Object.values(pending).some((table) => table.qrToken === token)) {
+    token = (0, import_crypto2.randomBytes)(32).toString("hex");
+  }
+  return token;
 }
 var TYPE_LABELS = {
   restaurante: "Restaurante",
@@ -192,7 +260,7 @@ function provisionEstablishment(store, input) {
       name: input.businessType === "padaria" ? "P\xE3o na Chapa" : "Prato do Dia",
       description: "Edite este item no painel quando o CRUD estiver dispon\xEDvel.",
       price: 29.9,
-      image: productImage("p_xburger", p1),
+      image: input.businessType === "padaria" ? FOOD_PRESETS.padaria : productImage("p_xburger", "prato"),
       tags: ["destaque"],
       prepMinutes: 15,
       availability: "AMBOS",
@@ -210,7 +278,10 @@ function provisionEstablishment(store, input) {
       name: input.businessType === "lanchonete" ? "X-Salada" : "Por\xE7\xE3o Especial",
       description: "Item de exemplo \u2014 personalize no card\xE1pio.",
       price: 24.9,
-      image: productImage("p_batata", p2),
+      image: productImageByName(
+        input.businessType === "lanchonete" ? "X-Salada" : "Por\xE7\xE3o Especial",
+        "porcao"
+      ),
       tags: [],
       prepMinutes: 12,
       availability: "AMBOS",
@@ -228,7 +299,7 @@ function provisionEstablishment(store, input) {
       name: "Refrigerante Lata",
       description: "350ml gelado.",
       price: 8.9,
-      image: productImage("p_coca", p3),
+      image: FOOD_PRESETS.bebida,
       tags: [],
       prepMinutes: 1,
       availability: "VITRINE",
@@ -250,7 +321,7 @@ function provisionEstablishment(store, input) {
       name: `Mesa ${String(i).padStart(2, "0")}`,
       capacity: i <= 4 ? 4 : 6,
       status: "LIVRE",
-      qrToken: `mesa-${i}`
+      qrToken: uniqueQrToken(store, tables)
     };
   }
   const rodizios = {};
@@ -282,11 +353,11 @@ function provisionEstablishment(store, input) {
   return { establishment, user, slug };
 }
 
-// ../mesaflow/src/lib/demo.ts
+// projects/mesaflow/src/lib/demo.ts
 var DEMO_ESTABLISHMENT_SLUG = "ponto-do-sabor";
 var DEMO_ESTABLISHMENT_ID = "est_ponto_sabor";
 
-// ../mesaflow/src/lib/seed.ts
+// projects/mesaflow/src/lib/seed.ts
 var EST_ID = DEMO_ESTABLISHMENT_ID;
 var DEMO_SLUG = DEMO_ESTABLISHMENT_SLUG;
 function buildDemoStore() {
@@ -783,9 +854,12 @@ function buildDemoStore() {
   };
 }
 
-// ../mesaflow/src/lib/store.ts
+// projects/mesaflow/src/lib/store.ts
+var BLOB_PATHNAME = "mesaflow/store.json";
 var DATA_PATH = process.env.MESAFLOW_DATA || (process.env.VERCEL ? "/tmp/mesaflow-store.json" : (0, import_path.join)(process.cwd(), "data", "store.json"));
 var cache = null;
+var persistentDirty = false;
+var runtimeOidcToken;
 var SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
 function emptyStore() {
   return {
@@ -804,12 +878,26 @@ function emptyStore() {
     orderCounter: {}
   };
 }
+function migrateProductImages(store) {
+  let changed = false;
+  for (const product of Object.values(store.products)) {
+    const canonical = PRODUCT_IMAGES[product.id];
+    const next = canonical ?? productImageByName(product.name);
+    const stale = !product.image || product.image.includes("picsum.photos") || product.id === "p_cappuccino" && product.image.includes("1593508512255");
+    if (stale && next && product.image !== next) {
+      product.image = next;
+      changed = true;
+    }
+  }
+  if (changed) persist();
+}
 function load() {
   if (cache) return cache;
   (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });
   if ((0, import_fs.existsSync)(DATA_PATH)) {
     try {
       cache = { ...emptyStore(), ...JSON.parse((0, import_fs.readFileSync)(DATA_PATH, "utf8")) };
+      migrateProductImages(cache);
       return cache;
     } catch {
     }
@@ -821,6 +909,7 @@ function load() {
 function persist() {
   if (!cache) return;
   (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+  persistentDirty = true;
 }
 function getStore() {
   return load();
@@ -828,6 +917,70 @@ function getStore() {
 function saveStore(next) {
   cache = next;
   persist();
+}
+function blobAuthOptions() {
+  const token = process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+  if (token) return { token };
+  const storeId = process.env.MESAFLOW_BLOB_STORE_ID || process.env.BLOB_STORE_ID;
+  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
+  return {
+    ...storeId ? { storeId } : {},
+    ...oidcToken ? { oidcToken } : {}
+  };
+}
+function blobConfigured() {
+  const auth = blobAuthOptions();
+  return Boolean(auth.token || auth.storeId || auth.oidcToken);
+}
+function setPersistentStoreOidcToken(token) {
+  runtimeOidcToken = token?.trim() || void 0;
+}
+async function hydratePersistentStore() {
+  if (!process.env.VERCEL) {
+    getStore();
+    return;
+  }
+  (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });
+  if (blobConfigured()) {
+    try {
+      const listed = await (0, import_blob.list)({
+        prefix: BLOB_PATHNAME,
+        limit: 1,
+        ...blobAuthOptions()
+      });
+      const blob = listed.blobs.find((candidate) => candidate.pathname === BLOB_PATHNAME);
+      if (blob) {
+        const response = await fetch(blob.url);
+        if (!response.ok) throw new Error(`Blob read failed (${response.status})`);
+        cache = {
+          ...emptyStore(),
+          ...await response.json()
+        };
+        (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+        persistentDirty = false;
+        migrateProductImages(cache);
+        return;
+      }
+    } catch (error) {
+      console.warn("[mesaflow] blob hydrate failed", error);
+    }
+  }
+  cache = null;
+  getStore();
+}
+async function flushPersistentStore() {
+  if (!process.env.VERCEL || !persistentDirty || !cache) return;
+  if (!blobConfigured()) {
+    throw new Error("MesaFlow Blob persistence is not configured.");
+  }
+  await (0, import_blob.put)(BLOB_PATHNAME, JSON.stringify(cache), {
+    access: "public",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: "application/json",
+    ...blobAuthOptions()
+  });
+  persistentDirty = false;
 }
 function notify(establishmentId, type, title, body) {
   const store = getStore();
@@ -931,18 +1084,322 @@ function loginUser(email, password) {
 function publicUser(user) {
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
-function resolveAdminEstablishment(slug, authHeader) {
-  const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
-  const auth = validateSession(token);
-  if (auth) return auth.establishment;
-  if (slug) return findEstablishmentBySlug(slug);
-  return null;
-}
 function findTableByQr(establishmentId, tableToken) {
   const store = getStore();
   return Object.values(store.tables).find(
-    (t) => t.establishmentId === establishmentId && (t.qrToken === tableToken || t.number === tableToken)
+    (t) => t.establishmentId === establishmentId && t.qrToken === tableToken
   ) || null;
+}
+var PRODUCT_AVAILABILITIES = /* @__PURE__ */ new Set([
+  "VITRINE",
+  "SOB_DEMANDA",
+  "AMBOS"
+]);
+var TABLE_STATUSES = /* @__PURE__ */ new Set([
+  "LIVRE",
+  "OCUPADA",
+  "AGUARDANDO_PAGAMENTO",
+  "RESERVADA",
+  "INATIVA"
+]);
+function isRecord(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+function invalid(error, status = 400) {
+  return { error, status };
+}
+function validateProductFields(store, establishmentId, body, partial) {
+  if (!isRecord(body)) return invalid("Corpo inv\xE1lido.");
+  const fields = {};
+  const required = ["categoryId", "sectorId", "name", "description", "price", "prepMinutes", "availability"];
+  if (!partial && required.some((field) => body[field] === void 0)) {
+    return invalid("Preencha os campos obrigat\xF3rios do produto.");
+  }
+  if (body.categoryId !== void 0) {
+    if (typeof body.categoryId !== "string") return invalid("Categoria inv\xE1lida.");
+    const category = store.categories[body.categoryId];
+    if (!category || category.establishmentId !== establishmentId) {
+      return invalid("Categoria n\xE3o pertence ao estabelecimento.");
+    }
+    fields.categoryId = body.categoryId;
+  }
+  if (body.sectorId !== void 0) {
+    if (typeof body.sectorId !== "string") return invalid("Setor inv\xE1lido.");
+    const sector = store.sectors[body.sectorId];
+    if (!sector || sector.establishmentId !== establishmentId) {
+      return invalid("Setor n\xE3o pertence ao estabelecimento.");
+    }
+    fields.sectorId = body.sectorId;
+  }
+  if (body.name !== void 0) {
+    if (typeof body.name !== "string" || !body.name.trim() || body.name.trim().length > 120) {
+      return invalid("Nome deve ter entre 1 e 120 caracteres.");
+    }
+    fields.name = body.name.trim();
+  }
+  if (body.description !== void 0) {
+    if (typeof body.description !== "string" || body.description.length > 1e3) {
+      return invalid("Descri\xE7\xE3o deve ter no m\xE1ximo 1000 caracteres.");
+    }
+    fields.description = body.description.trim();
+  }
+  if (body.price !== void 0) {
+    if (typeof body.price !== "number" || !Number.isFinite(body.price) || body.price < 0 || body.price > 1e6) {
+      return invalid("Pre\xE7o deve estar entre 0 e 1000000.");
+    }
+    fields.price = body.price;
+  }
+  if (body.image !== void 0) {
+    if (body.image !== null && (typeof body.image !== "string" || body.image.length > 2048)) {
+      return invalid("Imagem inv\xE1lida.");
+    }
+    fields.image = body.image === null || body.image === "" ? void 0 : body.image;
+  }
+  if (body.tags !== void 0) {
+    if (!Array.isArray(body.tags) || body.tags.length > 20 || body.tags.some((tag) => typeof tag !== "string" || !tag.trim() || tag.length > 50)) {
+      return invalid("Tags inv\xE1lidas.");
+    }
+    fields.tags = body.tags.map((tag) => String(tag).trim());
+  }
+  if (body.prepMinutes !== void 0) {
+    if (!Number.isInteger(body.prepMinutes) || Number(body.prepMinutes) < 0 || Number(body.prepMinutes) > 1440) {
+      return invalid("Tempo de preparo deve ser inteiro entre 0 e 1440.");
+    }
+    fields.prepMinutes = Number(body.prepMinutes);
+  }
+  if (body.availability !== void 0) {
+    if (typeof body.availability !== "string" || !PRODUCT_AVAILABILITIES.has(body.availability)) {
+      return invalid("Disponibilidade inv\xE1lida.");
+    }
+    fields.availability = body.availability;
+  }
+  for (const field of ["featured", "active"]) {
+    if (body[field] !== void 0) {
+      if (typeof body[field] !== "boolean") return invalid(`${field} deve ser booleano.`);
+      fields[field] = body[field];
+    }
+  }
+  return { value: fields };
+}
+function listAdminProducts(establishmentId) {
+  const store = getStore();
+  return {
+    categories: Object.values(store.categories).filter((item) => item.establishmentId === establishmentId).sort((a, b) => a.sortOrder - b.sortOrder),
+    sectors: Object.values(store.sectors).filter(
+      (item) => item.establishmentId === establishmentId
+    ),
+    products: Object.values(store.products).filter(
+      (item) => item.establishmentId === establishmentId
+    )
+  };
+}
+function createAdminProduct(establishmentId, body) {
+  const store = getStore();
+  const parsed = validateProductFields(store, establishmentId, body, false);
+  if ("error" in parsed) return parsed;
+  const product = {
+    id: id("p_"),
+    establishmentId,
+    categoryId: parsed.value.categoryId,
+    sectorId: parsed.value.sectorId,
+    name: parsed.value.name,
+    description: parsed.value.description,
+    price: parsed.value.price,
+    image: parsed.value.image,
+    tags: parsed.value.tags || [],
+    prepMinutes: parsed.value.prepMinutes,
+    availability: parsed.value.availability,
+    featured: parsed.value.featured ?? false,
+    active: parsed.value.active ?? true,
+    variants: [],
+    addons: [],
+    rodizioIncluded: false
+  };
+  store.products[product.id] = product;
+  saveStore(store);
+  return { value: product };
+}
+function updateAdminProduct(establishmentId, productId, body) {
+  const store = getStore();
+  const product = store.products[productId];
+  if (!product || product.establishmentId !== establishmentId) {
+    return invalid("Produto n\xE3o encontrado.", 404);
+  }
+  const parsed = validateProductFields(store, establishmentId, body, true);
+  if ("error" in parsed) return parsed;
+  Object.assign(product, parsed.value);
+  saveStore(store);
+  return { value: product };
+}
+function deleteAdminProduct(establishmentId, productId) {
+  const store = getStore();
+  const product = store.products[productId];
+  if (!product || product.establishmentId !== establishmentId) {
+    return invalid("Produto n\xE3o encontrado.", 404);
+  }
+  product.active = false;
+  saveStore(store);
+  return { value: product };
+}
+function uniqueQrToken2(store) {
+  let token = sessionToken();
+  while (Object.values(store.tables).some((table) => table.qrToken === token)) {
+    token = sessionToken();
+  }
+  return token;
+}
+function validateTableFields(store, establishmentId, body, partial, currentId) {
+  if (!isRecord(body)) return invalid("Corpo inv\xE1lido.");
+  const fields = {};
+  if (!partial && ["number", "capacity"].some((field) => body[field] === void 0)) {
+    return invalid("Preencha os campos obrigat\xF3rios da mesa.");
+  }
+  if (body.number !== void 0) {
+    if (typeof body.number !== "string" || !body.number.trim() || body.number.trim().length > 20) {
+      return invalid("N\xFAmero deve ter entre 1 e 20 caracteres.");
+    }
+    const number = body.number.trim();
+    const duplicate = Object.values(store.tables).some(
+      (table) => table.establishmentId === establishmentId && table.id !== currentId && table.number === number
+    );
+    if (duplicate) return invalid("J\xE1 existe uma mesa com este n\xFAmero.", 409);
+    fields.number = number;
+  }
+  if (body.name !== void 0) {
+    if (typeof body.name !== "string" || body.name.trim().length > 80) {
+      return invalid("Nome deve ter no m\xE1ximo 80 caracteres.");
+    }
+    fields.name = body.name.trim();
+  }
+  if (body.capacity !== void 0) {
+    if (!Number.isInteger(body.capacity) || Number(body.capacity) < 1 || Number(body.capacity) > 100) {
+      return invalid("Capacidade deve ser inteira entre 1 e 100.");
+    }
+    fields.capacity = Number(body.capacity);
+  }
+  if (body.status !== void 0) {
+    if (typeof body.status !== "string" || !TABLE_STATUSES.has(body.status)) {
+      return invalid("Status de mesa inv\xE1lido.");
+    }
+    fields.status = body.status;
+  }
+  return { value: fields };
+}
+function listAdminTables(establishmentId) {
+  return Object.values(getStore().tables).filter(
+    (table) => table.establishmentId === establishmentId
+  );
+}
+function createAdminTable(establishmentId, body) {
+  const store = getStore();
+  const parsed = validateTableFields(store, establishmentId, body, false);
+  if ("error" in parsed) return parsed;
+  const table = {
+    id: id("tbl_"),
+    establishmentId,
+    number: parsed.value.number,
+    name: parsed.value.name || `Mesa ${parsed.value.number}`,
+    capacity: parsed.value.capacity,
+    status: parsed.value.status || "LIVRE",
+    qrToken: uniqueQrToken2(store)
+  };
+  store.tables[table.id] = table;
+  saveStore(store);
+  return { value: table };
+}
+function updateAdminTable(establishmentId, tableId, body) {
+  const store = getStore();
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa n\xE3o encontrada.", 404);
+  }
+  const parsed = validateTableFields(store, establishmentId, body, true, tableId);
+  if ("error" in parsed) return parsed;
+  Object.assign(table, parsed.value);
+  saveStore(store);
+  return { value: table };
+}
+function deleteAdminTable(establishmentId, tableId) {
+  const store = getStore();
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa n\xE3o encontrada.", 404);
+  }
+  const blockingCommand = Object.values(store.commands).some(
+    (command) => command.establishmentId === establishmentId && command.tableId === tableId && (command.status === "ABERTA" || command.status === "PAGAMENTO_SOLICITADO")
+  );
+  if (blockingCommand) {
+    return invalid("Mesa possui comanda aberta ou aguardando pagamento.", 409);
+  }
+  delete store.tables[tableId];
+  saveStore(store);
+  return { value: { id: tableId } };
+}
+function regenerateAdminTableQr(establishmentId, tableId) {
+  const store = getStore();
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa n\xE3o encontrada.", 404);
+  }
+  table.qrToken = uniqueQrToken2(store);
+  saveStore(store);
+  return { value: table };
+}
+function getAdminSettings(establishmentId) {
+  return getStore().establishments[establishmentId] || null;
+}
+function updateAdminSettings(establishmentId, body) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return invalid("Estabelecimento n\xE3o encontrado.", 404);
+  if (!isRecord(body)) return invalid("Corpo inv\xE1lido.");
+  const next = {
+    ...establishment,
+    settings: { ...establishment.settings }
+  };
+  if (body.settings !== void 0 && !isRecord(body.settings)) {
+    return invalid("Ajustes inv\xE1lidos.");
+  }
+  const settings = isRecord(body.settings) ? body.settings : body;
+  if (body.name !== void 0) {
+    if (typeof body.name !== "string" || !body.name.trim() || body.name.trim().length > 120) {
+      return invalid("Nome deve ter entre 1 e 120 caracteres.");
+    }
+    next.name = body.name.trim();
+  }
+  if (body.tagline !== void 0) {
+    if (typeof body.tagline !== "string" || body.tagline.length > 240) {
+      return invalid("Tagline deve ter no m\xE1ximo 240 caracteres.");
+    }
+    next.tagline = body.tagline.trim();
+  }
+  for (const field of ["open", "rodizioEnabled"]) {
+    if (body[field] !== void 0) {
+      if (typeof body[field] !== "boolean") return invalid(`${field} deve ser booleano.`);
+      next[field] = body[field];
+    }
+  }
+  if (settings.currency !== void 0) {
+    if (typeof settings.currency !== "string" || !/^[A-Za-z]{3}$/.test(settings.currency)) {
+      return invalid("Moeda deve usar c\xF3digo ISO de 3 letras.");
+    }
+    next.settings.currency = settings.currency.toUpperCase();
+  }
+  for (const field of ["allowEditAfterPrep", "soundNotifications"]) {
+    if (settings[field] !== void 0) {
+      if (typeof settings[field] !== "boolean") return invalid(`${field} deve ser booleano.`);
+      next.settings[field] = settings[field];
+    }
+  }
+  if (settings.minIntervalRodizioSec !== void 0) {
+    if (!Number.isInteger(settings.minIntervalRodizioSec) || Number(settings.minIntervalRodizioSec) < 0 || Number(settings.minIntervalRodizioSec) > 86400) {
+      return invalid("Intervalo do rod\xEDzio deve ser inteiro entre 0 e 86400.");
+    }
+    next.settings.minIntervalRodizioSec = Number(settings.minIntervalRodizioSec);
+  }
+  store.establishments[establishmentId] = next;
+  saveStore(store);
+  return { value: next };
 }
 function getOrOpenCommand(table) {
   const store = getStore();
@@ -1104,7 +1561,7 @@ function dashboardStats(establishmentId) {
   };
 }
 
-// api/_mesaflow/handler.ts
+// projects/iphone-imports/api/_mesaflow/handler.ts
 function resolvePath(req) {
   const q = req.query?.path;
   if (Array.isArray(q) && q.length > 0) return "/" + q.map(String).join("/");
@@ -1115,16 +1572,36 @@ function resolvePath(req) {
   const stripped = pathname.replace(/^\/api\/mesaflow\/?/, "/") || "/";
   return stripped.startsWith("/") ? stripped : `/${stripped}`;
 }
-function json(res, status, body) {
+async function json(res, status, body) {
+  try {
+    await flushPersistentStore();
+  } catch (error) {
+    console.error("[mesaflow] blob persist failed", error);
+    status = 500;
+    body = { error: "N\xE3o foi poss\xEDvel persistir a altera\xE7\xE3o." };
+  }
   res.status(status).setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   res.send(JSON.stringify(body));
 }
+function readOidcHeader(req) {
+  const value = req.headers["x-vercel-oidc-token"];
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (Array.isArray(value) && value[0]?.trim()) return value[0].trim();
+  return void 0;
+}
+function adminAuth(req) {
+  const authorization = req.headers.authorization;
+  const match = typeof authorization === "string" && authorization.match(/^Bearer\s+(.+)$/i);
+  return validateSession(match ? match[1].trim() : void 0);
+}
 async function handler(req, res) {
+  setPersistentStoreOidcToken(readOidcHeader(req));
   if (req.method === "OPTIONS") return json(res, 204, {});
   try {
+    await hydratePersistentStore();
     const path = resolvePath(req);
     const store = getStore();
     if (req.method === "GET" && path === "/health") {
@@ -1244,20 +1721,108 @@ async function handler(req, res) {
       return json(res, 200, { ok: true, command: cmd });
     }
     if (req.method === "GET" && path === "/admin/dashboard") {
-      const slug = String(req.query?.slug || "");
-      const est = resolveAdminEstablishment(slug, req.headers.authorization);
-      if (!est) return json(res, 401, { error: "N\xE3o autorizado." });
-      const auth = validateSession(req.headers.authorization?.replace(/^Bearer\s+/i, ""));
-      if (auth && auth.establishment.id !== est.id) {
-        return json(res, 403, { error: "Acesso negado a este estabelecimento." });
-      }
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const est = auth.establishment;
       const stats = dashboardStats(est.id);
       const orders = Object.values(store.orders).filter((o) => o.establishmentId === est.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       const tables = Object.values(store.tables).filter((t) => t.establishmentId === est.id);
       const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id && s.active);
       const notifications = Object.values(store.notifications).filter((n) => n.establishmentId === est.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20);
       const commands = Object.values(store.commands).filter((c) => c.establishmentId === est.id);
-      return json(res, 200, { establishment: est, stats, orders, tables, sectors, commands, notifications });
+      const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id);
+      const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
+      return json(res, 200, {
+        establishment: est,
+        stats,
+        orders,
+        tables,
+        sectors,
+        commands,
+        notifications,
+        categories,
+        products
+      });
+    }
+    if (path === "/admin/settings") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "GET") {
+        const establishment = getAdminSettings(auth.establishment.id);
+        if (!establishment) {
+          return json(res, 404, { error: "Estabelecimento n\xE3o encontrado." });
+        }
+        return json(res, 200, { establishment });
+      }
+      if (req.method === "PATCH") {
+        const result = updateAdminSettings(auth.establishment.id, req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { establishment: result.value });
+      }
+    }
+    if (path === "/admin/products") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "GET") {
+        return json(res, 200, listAdminProducts(auth.establishment.id));
+      }
+      if (req.method === "POST") {
+        const result = createAdminProduct(auth.establishment.id, req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, { product: result.value });
+      }
+    }
+    const adminProductMatch = path.match(/^\/admin\/products\/([^/]+)$/);
+    if (adminProductMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "PATCH") {
+        const result = updateAdminProduct(auth.establishment.id, adminProductMatch[1], req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { product: result.value });
+      }
+      if (req.method === "DELETE") {
+        const result = deleteAdminProduct(auth.establishment.id, adminProductMatch[1]);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { product: result.value });
+      }
+    }
+    if (path === "/admin/tables") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "GET") {
+        return json(res, 200, { tables: listAdminTables(auth.establishment.id) });
+      }
+      if (req.method === "POST") {
+        const result = createAdminTable(auth.establishment.id, req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, { table: result.value });
+      }
+    }
+    const regenerateQrMatch = path.match(/^\/admin\/tables\/([^/]+)\/regenerate-qr$/);
+    if (regenerateQrMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "POST") {
+        const result = regenerateAdminTableQr(auth.establishment.id, regenerateQrMatch[1]);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { table: result.value });
+      }
+    }
+    const adminTableMatch = path.match(/^\/admin\/tables\/([^/]+)$/);
+    if (adminTableMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "PATCH") {
+        const result = updateAdminTable(auth.establishment.id, adminTableMatch[1], req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { table: result.value });
+      }
+      if (req.method === "DELETE") {
+        const result = deleteAdminTable(auth.establishment.id, adminTableMatch[1]);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { deleted: result.value.id });
+      }
     }
     if (req.method === "POST" && path === "/rodizio/round") {
       const body = req.body || {};
