@@ -3,6 +3,7 @@ import { dirname, join } from "path";
 import { hashPassword, id, sessionToken } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
+import { PRODUCT_IMAGES, productImageByName } from "./product-images";
 import { provisionEstablishment, type RegisterInput } from "./provision";
 import { buildDemoStore } from "./seed";
 import type {
@@ -48,12 +49,30 @@ function emptyStore(): MesaFlowStore {
 
 export { hashPassword } from "./crypto-utils";
 
+function migrateProductImages(store: MesaFlowStore) {
+  let changed = false;
+  for (const product of Object.values(store.products)) {
+    const canonical = PRODUCT_IMAGES[product.id];
+    const next = canonical ?? productImageByName(product.name);
+    const stale =
+      !product.image ||
+      product.image.includes("picsum.photos") ||
+      (canonical && product.image !== canonical);
+    if (stale && next && product.image !== next) {
+      product.image = next;
+      changed = true;
+    }
+  }
+  if (changed) persist();
+}
+
 function load(): MesaFlowStore {
   if (cache) return cache;
   mkdirSync(dirname(DATA_PATH), { recursive: true });
   if (existsSync(DATA_PATH)) {
     try {
       cache = { ...emptyStore(), ...JSON.parse(readFileSync(DATA_PATH, "utf8")) };
+      migrateProductImages(cache!);
       return cache!;
     } catch {
       /* fallthrough */

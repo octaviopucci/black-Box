@@ -1,5 +1,5 @@
 import { id } from "./crypto-utils";
-import { productImage } from "./product-images";
+import { FOOD_PRESETS, productImage, productImageByName } from "./product-images";
 import type {
   BusinessType,
   Category,
@@ -150,7 +150,10 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       name: input.businessType === "padaria" ? "Pão na Chapa" : "Prato do Dia",
       description: "Edite este item no painel quando o CRUD estiver disponível.",
       price: 29.9,
-      image: productImage("p_xburger", p1),
+      image:
+        input.businessType === "padaria"
+          ? FOOD_PRESETS.padaria
+          : productImage("p_xburger", "prato"),
       tags: ["destaque"],
       prepMinutes: 15,
       availability: "AMBOS",
@@ -168,7 +171,10 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       name: input.businessType === "lanchonete" ? "X-Salada" : "Porção Especial",
       description: "Item de exemplo — personalize no cardápio.",
       price: 24.9,
-      image: productImage("p_batata", p2),
+      image: productImageByName(
+        input.businessType === "lanchonete" ? "X-Salada" : "Porção Especial",
+        "porcao",
+      ),
       tags: [],
       prepMinutes: 12,
       availability: "AMBOS",
@@ -186,7 +192,7 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       name: "Refrigerante Lata",
       description: "350ml gelado.",
       price: 8.9,
-      image: productImage("p_coca", p3),
+      image: FOOD_PRESETS.bebida,
       tags: [],
       prepMinutes: 1,
       availability: "VITRINE",

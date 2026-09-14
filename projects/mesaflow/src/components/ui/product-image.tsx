@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { productImage } from "@/lib/product-images";
+import { PRODUCT_IMAGES, productImage, productImageByName } from "@/lib/product-images";
 
 type Props = {
   src?: string;
@@ -15,7 +15,10 @@ type Props = {
 
 export function ProductImage({ src, alt, width, height, className, seed = "mesaflow-food" }: Props) {
   const [failed, setFailed] = useState(false);
-  const resolved = failed || !src ? productImage(seed, seed) : src;
+  const resolved =
+    failed || !src
+      ? PRODUCT_IMAGES[seed] ?? productImageByName(alt) ?? productImage(seed, "default")
+      : src;
 
   return (
     <Image
