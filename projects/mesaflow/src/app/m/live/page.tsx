@@ -1,14 +1,20 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useMemo } from "react";
 import { CartProvider } from "@/contexts/cart-context";
 import { CustomerApp } from "@/components/customer/customer-app";
+import { parseMenuRoute } from "@/lib/parse-route";
 
 function LiveMenu() {
-  const params = useSearchParams();
-  const slug = params.get("slug") || "";
-  const table = params.get("table") || "";
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
+
+  const { slug, table } = useMemo(
+    () => parseMenuRoute(pathname, search ? `?${search}` : ""),
+    [pathname, search],
+  );
 
   if (!slug || !table) {
     return (

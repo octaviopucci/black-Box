@@ -44,7 +44,7 @@ export default function AdminTablesPage() {
           return (
             <Link
               key={t.id}
-              href={`/m/live?slug=${encodeURIComponent(slug)}&table=${encodeURIComponent(t.qrToken)}`}
+              href={`/m/${encodeURIComponent(slug)}/${encodeURIComponent(t.qrToken)}`}
               className="rounded-2xl border border-white/5 bg-surface-2 p-5 transition hover:border-brand/30"
             >
               <div className="flex items-center justify-between">

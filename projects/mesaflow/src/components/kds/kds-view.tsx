@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { parseKdsRoute } from "@/lib/parse-route";
 import { Button } from "@/components/ui/button";
 import { useRealtime } from "@/hooks/use-realtime";
 import { apiUrl } from "@/lib/api";
@@ -11,8 +12,11 @@ import type { Order, OrderStatus, Sector } from "@/lib/types";
 import { cn } from "@/lib/cn";
 
 export function KdsView({ sectorId }: { sectorId: string }) {
+  const pathname = usePathname();
   const params = useSearchParams();
-  const resolvedSector = params.get("sector") || (sectorId !== "live" ? sectorId : "");
+  const search = params.toString();
+  const resolvedSector =
+    parseKdsRoute(pathname, search ? `?${search}` : "") || (sectorId !== "live" ? sectorId : "");
   const slug = params.get("slug") || DEMO_ESTABLISHMENT_SLUG;
   const [orders, setOrders] = useState<Order[]>([]);
   const [sectorName, setSectorName] = useState("KDS");

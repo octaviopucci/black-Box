@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 function menuUrl(slug: string, qrToken: string) {
   const base = typeof window !== "undefined" ? window.location.origin : "";
   const prefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
-  return `${base}${prefix}/m/live?slug=${encodeURIComponent(slug)}&table=${encodeURIComponent(qrToken)}`;
+  return `${base}${prefix}/m/${encodeURIComponent(slug)}/${encodeURIComponent(qrToken)}`;
 }
 
 export default function QRCodesPage() {
