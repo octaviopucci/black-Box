@@ -318,6 +318,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return json(res, 400, { error: 'Informe usuário e senha.' })
       }
 
+      // Gestor pode ser aberto antes do site — garante seed demo no primeiro login.
+      if (!storeSlug || storeSlug === PUCCI_DEMO_CREDENTIALS.store) {
+        await ensurePucciMotorsDemo(store)
+      }
+
       const found = store.findUserForLogin(username, storeSlug)
       if (Array.isArray(found)) {
         const options = found.map((u) => {

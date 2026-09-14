@@ -935,11 +935,23 @@ async function refreshPucciDemoVehicleImages(store) {
   }
   return updated;
 }
+function upsertPucciDemoUser(store, orgId) {
+  store.data().users[USER_ID] = {
+    id: USER_ID,
+    organizationId: orgId,
+    username: "admin",
+    passwordHash: hashPassword("PucciMotors123"),
+    nome: "Administrador Pucci",
+    role: "admin",
+    active: true
+  };
+}
 async function ensurePucciMotorsDemo(store) {
   const existing = store.findOrgBySlug(DEMO_SLUG);
   const rec = existing ? store.data().databases[existing.id] : null;
   const vehicles = rec?.data?.vehicles || [];
-  if (existing && vehicles.length > 0) return false;
+  const cloudUser = store.data().users[USER_ID];
+  if (existing && vehicles.length > 0 && cloudUser) return false;
   const now = (/* @__PURE__ */ new Date()).toISOString();
   const org = existing || {
     id: ORG_ID,
@@ -948,21 +960,14 @@ async function ensurePucciMotorsDemo(store) {
     createdAt: now
   };
   store.data().organizations[org.id] = org;
-  const user = {
-    id: USER_ID,
-    organizationId: org.id,
-    username: "admin",
-    passwordHash: hashPassword("PucciMotors123"),
-    nome: "Administrador Pucci",
-    role: "admin",
-    active: true
-  };
-  store.data().users[user.id] = user;
-  store.data().databases[org.id] = {
-    version: 1,
-    updatedAt: now,
-    data: buildPucciDemoDatabase()
-  };
+  upsertPucciDemoUser(store, org.id);
+  if (!existing || vehicles.length === 0) {
+    store.data().databases[org.id] = {
+      version: 1,
+      updatedAt: now,
+      data: buildPucciDemoDatabase()
+    };
+  }
   store.markDirty();
   await store.persist();
   return true;
@@ -1203,6 +1208,9 @@ async function handler(req, res) {
       const storeSlug = String(body.store || "").trim();
       if (!username || !password) {
         return json(res, 400, { error: "Informe usu\xE1rio e senha." });
+      }
+      if (!storeSlug || storeSlug === PUCCI_DEMO_CREDENTIALS.store) {
+        await ensurePucciMotorsDemo(store);
       }
       const found = store.findUserForLogin(username, storeSlug);
       if (Array.isArray(found)) {
