@@ -1,4 +1,3 @@
-import { heroVehicleImages } from "@/data/vehicles";
 import { asset } from "@/lib/assets";
 
 function unique<T>(items: T[]) {
@@ -66,14 +65,21 @@ function duplicateLoop(items: string[]) {
   return [...items, ...items];
 }
 
-export function buildHeroPhotoColumns() {
-  const all = unique(heroVehicleImages.map((path) => asset(path)));
+/** Monta colunas do hero a partir das fotos do estoque (URLs absolutas ou paths locais). */
+export function buildHeroPhotoColumns(imageUrls: string[]) {
+  const sources = imageUrls.filter(Boolean);
+  if (sources.length === 0) return [[], []] as const;
+
+  const all = unique(sources.map((path) => asset(path)));
   const half = Math.ceil(all.length / 2);
   const poolA = all.slice(0, half);
   const poolB = all.slice(half);
+  const target = Math.min(7, all.length);
 
-  const left = fixLoop(pickColumn(poolA, poolB, all, 7));
-  const right = fixLoop(pickColumn([...poolA].reverse(), [...poolB].reverse(), [...all].reverse(), 7));
+  const left = fixLoop(pickColumn(poolA, poolB, all, target));
+  const right = fixLoop(
+    pickColumn([...poolA].reverse(), [...poolB].reverse(), [...all].reverse(), target),
+  );
 
   return [duplicateLoop(left), duplicateLoop(right)] as const;
 }

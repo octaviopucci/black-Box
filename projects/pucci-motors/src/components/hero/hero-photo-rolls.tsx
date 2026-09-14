@@ -2,11 +2,25 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
+import { useCatalog } from "@/components/catalog/CatalogProvider";
 import { buildHeroPhotoColumns } from "@/components/hero/hero-photo-rolls-data";
+import { demoCatalogVehicles } from "@/data/demo-vehicles";
 import { cn } from "@/lib/utils";
 
+function stockHeroImages(vehicleImages: string[]) {
+  const unique = [...new Set(vehicleImages.filter(Boolean))];
+  if (unique.length >= 4) return unique;
+  const fallback = demoCatalogVehicles.map((v) => v.image).filter(Boolean);
+  return [...new Set([...unique, ...fallback])];
+}
+
 export function HeroPhotoRolls() {
-  const columns = useMemo(() => buildHeroPhotoColumns(), []);
+  const { vehicles } = useCatalog();
+
+  const columns = useMemo(() => {
+    const images = stockHeroImages(vehicles.map((v) => v.image));
+    return buildHeroPhotoColumns(images);
+  }, [vehicles]);
 
   return (
     <div
