@@ -9,13 +9,14 @@ import { Checkbox } from '@/components/ui/Input'
 import { Toast } from '@/components/ui/Feedback'
 import { useApp } from '@/context/AppContext'
 import { brandFullName } from '@/utils/brand'
+import { DEFAULT_STORE_SLUG } from '@/config/variant'
 
 export function LoginPage() {
   const { login, toast, settings } = useApp()
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [store, setStore] = useState('')
+  const [store, setStore] = useState(DEFAULT_STORE_SLUG)
   const [remember, setRemember] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -92,13 +93,16 @@ export function LoginPage() {
         </label>
 
         <label className="block">
-          <span className="label-field">Código da loja (se precisar)</span>
+          <span className="label-field">
+            {DEFAULT_STORE_SLUG ? 'Código da loja' : 'Código da loja (se precisar)'}
+          </span>
           <input
             className="input-field"
             value={store}
             onChange={(e) => setStore(e.target.value.toLowerCase())}
-            placeholder="ex.: silva-motors"
+            placeholder={DEFAULT_STORE_SLUG || 'ex.: silva-motors'}
             autoComplete="organization"
+            required={Boolean(DEFAULT_STORE_SLUG)}
           />
         </label>
 

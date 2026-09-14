@@ -302,13 +302,26 @@ export async function refreshPucciDemoVehicleImages(store: JsonStore): Promise<n
   return updated
 }
 
-/** Garante org demo Pucci Motors no Blob (só se ainda não existir ou estiver vazia). */
+function upsertPucciDemoUser(store: JsonStore, orgId: string): void {
+  store.data().users[USER_ID] = {
+    id: USER_ID,
+    organizationId: orgId,
+    username: 'admin',
+    passwordHash: hashPassword('PucciMotors123'),
+    nome: 'Administrador Pucci',
+    role: 'admin',
+    active: true,
+  }
+}
+
+/** Garante org demo Pucci Motors no Blob (cria ou repara usuário admin ausente). */
 export async function ensurePucciMotorsDemo(store: JsonStore): Promise<boolean> {
   const existing = store.findOrgBySlug(DEMO_SLUG)
   const rec = existing ? store.data().databases[existing.id] : null
   const vehicles = (rec?.data as LpOrgDatabase | undefined)?.vehicles || []
+  const cloudUser = store.data().users[USER_ID]
 
-  if (existing && vehicles.length > 0) return false
+  if (existing && vehicles.length > 0 && cloudUser) return false
 
   const now = new Date().toISOString()
   const org: CloudOrg = existing || {
@@ -319,22 +332,14 @@ export async function ensurePucciMotorsDemo(store: JsonStore): Promise<boolean> 
   }
 
   store.data().organizations[org.id] = org
+  upsertPucciDemoUser(store, org.id)
 
-  const user: CloudUser = {
-    id: USER_ID,
-    organizationId: org.id,
-    username: 'admin',
-    passwordHash: hashPassword('PucciMotors123'),
-    nome: 'Administrador Pucci',
-    role: 'admin',
-    active: true,
-  }
-  store.data().users[user.id] = user
-
-  store.data().databases[org.id] = {
-    version: 1,
-    updatedAt: now,
-    data: buildPucciDemoDatabase(),
+  if (!existing || vehicles.length === 0) {
+    store.data().databases[org.id] = {
+      version: 1,
+      updatedAt: now,
+      data: buildPucciDemoDatabase(),
+    }
   }
 
   store.markDirty()

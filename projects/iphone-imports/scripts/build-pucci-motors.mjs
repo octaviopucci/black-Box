@@ -57,6 +57,7 @@ run('npm run build', {
     VITE_APP_SHORT: 'B2 Gestor',
     VITE_APP_DESCRIPTION:
       'B2 Gestor — Sistema profissional de gestão de estoque e operação para lojas de veículos',
+    VITE_DEFAULT_STORE_SLUG: 'pucci-motors',
     VITE_OUT_DIR: 'dist',
   },
 })
