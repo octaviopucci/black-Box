@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { useRealtime } from "@/hooks/use-realtime";
+import { apiUrl } from "@/lib/api";
 import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
 import type { Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ export default function QRCodesPage() {
   const [qrs, setQrs] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`);
+    const res = await fetch(apiUrl(`/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`));
     const json = await res.json();
     setTables(json.tables || []);
   }, []);

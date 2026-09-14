@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRealtime } from "@/hooks/use-realtime";
+import { apiUrl } from "@/lib/api";
 import { formatCurrency, formatTime, minutesSince } from "@/lib/format";
 import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
 import type { Order, OrderStatus } from "@/lib/types";
@@ -27,7 +28,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`);
+    const res = await fetch(apiUrl(`/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`));
     const json = await res.json();
     setOrders(json.orders || []);
   }, []);
@@ -39,7 +40,7 @@ export default function AdminOrdersPage() {
   useRealtime(DEMO_ESTABLISHMENT_ID, load);
 
   async function advance(id: string, status: OrderStatus) {
-    await fetch(`/api/orders/${id}`, {
+    await fetch(apiUrl(`/orders/${id}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),

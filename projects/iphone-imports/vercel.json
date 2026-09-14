@@ -18,6 +18,10 @@
     "api/lp-motors.js": {
       "memory": 512,
       "maxDuration": 30
+    },
+    "api/mesaflow.js": {
+      "memory": 512,
+      "maxDuration": 30
     }
   },
   "rewrites": [
@@ -27,6 +31,8 @@
     { "source": "/api/w-tube/(.*)", "destination": "/api/w-tube?path=$1" },
     { "source": "/api/lp-motors", "destination": "/api/lp-motors?path=health" },
     { "source": "/api/lp-motors/(.*)", "destination": "/api/lp-motors?path=$1" },
+    { "source": "/api/mesaflow", "destination": "/api/mesaflow?path=health" },
+    { "source": "/api/mesaflow/(.*)", "destination": "/api/mesaflow?path=$1" },
     { "source": "/pucci-motors", "destination": "/pucci-motors/index.html" },
     { "source": "/pucci-motors/(.*)", "destination": "/pucci-motors/index.html" },
     { "source": "/b2-gestor", "destination": "/b2-gestor/index.html" },
@@ -37,6 +43,14 @@
     { "source": "/w-tube", "destination": "/w-tube/index.html" },
     { "source": "/w-tube/gestor", "destination": "/w-tube/gestor/index.html" },
     { "source": "/w-tube/gestor/((?!assets/).*)", "destination": "/w-tube/gestor/index.html" },
-    { "source": "/w-tube/produto/:slug", "destination": "/w-tube/produto/__live__.html" }
+    { "source": "/w-tube/produto/:slug", "destination": "/w-tube/produto/__live__.html" },
+    { "source": "/mesaflow", "destination": "/mesaflow/index.html" },
+    { "source": "/mesaflow/admin", "destination": "/mesaflow/admin.html" },
+    { "source": "/mesaflow/admin/login", "destination": "/mesaflow/admin/login.html" },
+    { "source": "/mesaflow/admin/orders", "destination": "/mesaflow/admin/orders.html" },
+    { "source": "/mesaflow/admin/tables", "destination": "/mesaflow/admin/tables.html" },
+    { "source": "/mesaflow/admin/qrcodes", "destination": "/mesaflow/admin/qrcodes.html" },
+    { "source": "/mesaflow/kds/:sector", "destination": "/mesaflow/kds/:sector.html" },
+    { "source": "/mesaflow/m/:slug/:table", "destination": "/mesaflow/m/:slug/:table.html" }
   ]
 }

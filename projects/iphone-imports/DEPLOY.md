@@ -13,6 +13,8 @@ Projeto unificado em `projects/iphone-imports/`:
 | **Loja Pucci Motors** | `https://loja-iphoneimports.vercel.app/pucci-motors/` |
 | **B2 Gestor** (Pucci) | `https://loja-iphoneimports.vercel.app/b2-gestor/` |
 | **API LP Motors** | `https://loja-iphoneimports.vercel.app/api/lp-motors` |
+| **MesaFlow** | `https://loja-iphoneimports.vercel.app/mesaflow/` |
+| **API MesaFlow** | `https://loja-iphoneimports.vercel.app/api/mesaflow/health` |
 
 ## Vercel — checklist (loja-iphoneimports)
 

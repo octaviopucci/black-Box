@@ -1,115 +1,14 @@
-"use client";
+import { KdsView } from "@/components/kds/kds-view";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { useRealtime } from "@/hooks/use-realtime";
-import { minutesSince } from "@/lib/format";
-import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
-import type { Order, OrderStatus } from "@/lib/types";
-import { cn } from "@/lib/cn";
+export function generateStaticParams() {
+  return [
+    { sector: "sec_cozinha" },
+    { sector: "sec_balcao" },
+    { sector: "sec_bar" },
+  ];
+}
 
-const SECTOR_NAMES: Record<string, string> = {
-  sec_cozinha: "Cozinha",
-  sec_balcao: "Balcão",
-  sec_bar: "Bar",
-};
-
-export default function KdsPage() {
-  const params = useParams();
-  const sectorId = String(params.sector);
-  const [orders, setOrders] = useState<Order[]>([]);
-
-  const load = useCallback(async () => {
-    const res = await fetch(`/api/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`);
-    const json = await res.json();
-    setOrders(json.orders || []);
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  useRealtime(DEMO_ESTABLISHMENT_ID, load);
-
-  const tickets = useMemo(() => {
-    return orders
-      .filter((o) => !["ENTREGUE", "CANCELADO"].includes(o.status))
-      .flatMap((order) => {
-        const items = order.items.filter((i) => i.sectorId === sectorId);
-        if (!items.length) return [];
-        return [{ order, items }];
-      });
-  }, [orders, sectorId]);
-
-  async function setStatus(orderId: string, status: OrderStatus) {
-    await fetch(`/api/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    load();
-  }
-
-  return (
-    <div className="min-h-dvh bg-[#111] p-4 text-white">
-      <header className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-        <h1 className="text-3xl font-bold">{SECTOR_NAMES[sectorId] || "KDS"}</h1>
-        <span className="text-muted">{tickets.length} tickets</span>
-      </header>
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {tickets.map(({ order, items }) => {
-          const late = minutesSince(order.createdAt) > 12;
-          return (
-            <div
-              key={order.id}
-              className={cn(
-                "rounded-2xl border-2 p-5",
-                late ? "border-danger bg-danger/10" : "border-white/10 bg-[#1a1a1a]",
-              )}
-            >
-              <div className="mb-4 flex items-baseline justify-between">
-                <div>
-                  <p className="text-2xl font-black">MESA {order.tableNumber}</p>
-                  <p className="text-sm text-muted">Pedido #{order.number}</p>
-                </div>
-                <p className={cn("text-lg font-bold", late && "text-danger animate-pulse-ring")}>
-                  {minutesSince(order.createdAt)} min
-                </p>
-              </div>
-              <ul className="mb-4 space-y-2 text-xl font-semibold">
-                {items.map((i) => (
-                  <li key={i.id}>
-                    {i.qty}x {i.productName}
-                    {i.notes && <p className="text-sm font-normal text-warning">OBS: {i.notes}</p>}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex gap-2">
-                {order.status === "NOVO" || order.status === "ACEITO" ? (
-                  <Button className="flex-1" size="lg" onClick={() => setStatus(order.id, "EM_PREPARO")}>
-                    Iniciar
-                  </Button>
-                ) : null}
-                {order.status === "EM_PREPARO" && (
-                  <Button className="flex-1" size="lg" onClick={() => setStatus(order.id, "PRONTO")}>
-                    Pronto
-                  </Button>
-                )}
-                {order.status === "PRONTO" && (
-                  <Button className="flex-1" variant="secondary" size="lg" onClick={() => setStatus(order.id, "ENTREGUE")}>
-                    Entregue
-                  </Button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-        {tickets.length === 0 && (
-          <p className="col-span-full py-20 text-center text-2xl text-muted">Nenhum pedido no momento</p>
-        )}
-      </div>
-    </div>
-  );
+export default async function KdsPage({ params }: { params: Promise<{ sector: string }> }) {
+  const { sector } = await params;
+  return <KdsView sectorId={sector} />;
 }

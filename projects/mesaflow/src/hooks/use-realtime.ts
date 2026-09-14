@@ -2,18 +2,11 @@
 
 import { useEffect } from "react";
 
+/** Polling leve — compatível com serverless (sem SSE long-lived). */
 export function useRealtime(establishmentId: string | undefined, onEvent: () => void) {
   useEffect(() => {
     if (!establishmentId) return;
-    const es = new EventSource(`/api/events?establishmentId=${establishmentId}`);
-    es.onmessage = (msg) => {
-      try {
-        const data = JSON.parse(msg.data);
-        if (data.type && data.type !== "ping" && data.type !== "connected") onEvent();
-      } catch {
-        /* ignore */
-      }
-    };
-    return () => es.close();
+    const id = setInterval(onEvent, 4000);
+    return () => clearInterval(id);
   }, [establishmentId, onEvent]);
 }

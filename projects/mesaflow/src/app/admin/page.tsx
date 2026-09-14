@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRealtime } from "@/hooks/use-realtime";
+import { apiUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
 
@@ -23,7 +24,7 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<Dash | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`);
+    const res = await fetch(apiUrl(`/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`));
     const json = await res.json();
     setData(json);
   }, []);

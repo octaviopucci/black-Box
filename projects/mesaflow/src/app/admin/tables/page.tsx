@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRealtime } from "@/hooks/use-realtime";
+import { apiUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
 import type { Table } from "@/lib/types";
@@ -13,7 +14,7 @@ export default function AdminTablesPage() {
   const [commands, setCommands] = useState<Record<string, { total: number }>>({});
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`);
+    const res = await fetch(apiUrl(`/admin/dashboard?slug=${DEMO_ESTABLISHMENT_SLUG}`));
     const json = await res.json();
     setTables(json.tables || []);
     const cmdMap: Record<string, { total: number }> = {};

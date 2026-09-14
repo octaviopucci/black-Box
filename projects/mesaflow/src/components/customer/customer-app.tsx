@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import { useRealtime } from "@/hooks/use-realtime";
+import { apiUrl } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency, formatTime, orderStatusLabel } from "@/lib/format";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
@@ -50,7 +51,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(`/api/menu/${slug}/${tableToken}`);
+      const res = await fetch(apiUrl(`/menu/${slug}/${tableToken}`));
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Erro ao carregar");
       setData(json);
@@ -86,7 +87,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       const sectors = Object.fromEntries(
         data.sectors.map((s) => [s.id, { name: s.name }]),
       );
-      const res = await fetch("/api/orders", {
+      const res = await fetch(apiUrl("/orders"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -109,7 +110,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   }
 
   async function requestBill() {
-    await fetch("/api/bill", {
+    await fetch(apiUrl("/bill"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug, tableToken }),
@@ -138,7 +139,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
         };
       });
     if (!items.length) return;
-    const res = await fetch("/api/rodizio/round", {
+    const res = await fetch(apiUrl("/rodizio/round"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
