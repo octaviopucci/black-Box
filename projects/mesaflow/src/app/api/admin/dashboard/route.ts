@@ -1,10 +1,10 @@
-import { dashboardStats, getStore, resolveAdminEstablishment } from "@/lib/store";
+import { dashboardStats, getStore } from "@/lib/store";
+import { requireAdmin } from "../_shared";
 
 export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const slug = url.searchParams.get("slug") || "";
-  const est = resolveAdminEstablishment(slug, req.headers.get("authorization") || undefined);
-  if (!est) return Response.json({ error: "Não autorizado." }, { status: 401 });
+  const auth = requireAdmin(req);
+  if (!auth) return Response.json({ error: "Não autorizado." }, { status: 401 });
+  const est = auth.establishment;
 
   const store = getStore();
   const stats = dashboardStats(est.id);
@@ -18,5 +18,17 @@ export async function GET(req: Request) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, 20);
   const commands = Object.values(store.commands).filter((c) => c.establishmentId === est.id);
-  return Response.json({ establishment: est, stats, orders, tables, sectors, commands, notifications });
+  const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id);
+  const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
+  return Response.json({
+    establishment: est,
+    stats,
+    orders,
+    tables,
+    sectors,
+    commands,
+    notifications,
+    categories,
+    products,
+  });
 }

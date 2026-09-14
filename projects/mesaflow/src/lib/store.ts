@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
+import { list, put } from "@vercel/blob";
 import { hashPassword, id, sessionToken } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
@@ -18,14 +19,20 @@ import type {
   Session,
   StoreEvent,
   Table,
+  TableStatus,
   User,
+  Product,
+  ProductAvailability,
 } from "./types";
 
+const BLOB_PATHNAME = "mesaflow/store.json";
 const DATA_PATH =
   process.env.MESAFLOW_DATA ||
   (process.env.VERCEL ? "/tmp/mesaflow-store.json" : join(process.cwd(), "data", "store.json"));
 
 let cache: MesaFlowStore | null = null;
+let persistentDirty = false;
+let runtimeOidcToken: string | undefined;
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -57,7 +64,7 @@ function migrateProductImages(store: MesaFlowStore) {
     const stale =
       !product.image ||
       product.image.includes("picsum.photos") ||
-      (canonical && product.image !== canonical);
+      (product.id === "p_cappuccino" && product.image.includes("1593508512255"));
     if (stale && next && product.image !== next) {
       product.image = next;
       changed = true;
@@ -86,6 +93,7 @@ function load(): MesaFlowStore {
 function persist() {
   if (!cache) return;
   writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
+  persistentDirty = true;
 }
 
 export function getStore() {
@@ -95,6 +103,78 @@ export function getStore() {
 export function saveStore(next: MesaFlowStore) {
   cache = next;
   persist();
+}
+
+function blobAuthOptions(): { token?: string; storeId?: string; oidcToken?: string } {
+  const token =
+    process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+  if (token) return { token };
+  const storeId = process.env.MESAFLOW_BLOB_STORE_ID || process.env.BLOB_STORE_ID;
+  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
+  return {
+    ...(storeId ? { storeId } : {}),
+    ...(oidcToken ? { oidcToken } : {}),
+  };
+}
+
+function blobConfigured() {
+  const auth = blobAuthOptions();
+  return Boolean(auth.token || auth.storeId || auth.oidcToken);
+}
+
+export function setPersistentStoreOidcToken(token: string | undefined) {
+  runtimeOidcToken = token?.trim() || undefined;
+}
+
+export async function hydratePersistentStore() {
+  if (!process.env.VERCEL) {
+    getStore();
+    return;
+  }
+
+  mkdirSync(dirname(DATA_PATH), { recursive: true });
+  if (blobConfigured()) {
+    try {
+      const listed = await list({
+        prefix: BLOB_PATHNAME,
+        limit: 1,
+        ...blobAuthOptions(),
+      });
+      const blob = listed.blobs.find((candidate) => candidate.pathname === BLOB_PATHNAME);
+      if (blob) {
+        const response = await fetch(blob.url);
+        if (!response.ok) throw new Error(`Blob read failed (${response.status})`);
+        cache = {
+          ...emptyStore(),
+          ...((await response.json()) as Partial<MesaFlowStore>),
+        };
+        writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
+        persistentDirty = false;
+        migrateProductImages(cache);
+        return;
+      }
+    } catch (error) {
+      console.warn("[mesaflow] blob hydrate failed", error);
+    }
+  }
+
+  cache = null;
+  getStore();
+}
+
+export async function flushPersistentStore() {
+  if (!process.env.VERCEL || !persistentDirty || !cache) return;
+  if (!blobConfigured()) {
+    throw new Error("MesaFlow Blob persistence is not configured.");
+  }
+  await put(BLOB_PATHNAME, JSON.stringify(cache), {
+    access: "public",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: "application/json",
+    ...blobAuthOptions(),
+  });
+  persistentDirty = false;
 }
 
 function notify(establishmentId: string, type: string, title: string, body: string) {
@@ -212,23 +292,410 @@ export function publicUser(user: User) {
 }
 
 export function resolveAdminEstablishment(
-  slug: string | undefined,
+  _slug: string | undefined,
   authHeader: string | undefined,
 ): Establishment | null {
   const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
   const auth = validateSession(token);
-  if (auth) return auth.establishment;
-  if (slug) return findEstablishmentBySlug(slug);
-  return null;
+  return auth?.establishment || null;
 }
 
 export function findTableByQr(establishmentId: string, tableToken: string) {
   const store = getStore();
   return (
     Object.values(store.tables).find(
-      (t) => t.establishmentId === establishmentId && (t.qrToken === tableToken || t.number === tableToken),
+      (t) => t.establishmentId === establishmentId && t.qrToken === tableToken,
     ) || null
   );
+}
+
+type MutationError = { error: string; status: number };
+type MutationResult<T> = { value: T } | MutationError;
+
+const PRODUCT_AVAILABILITIES = new Set<ProductAvailability>([
+  "VITRINE",
+  "SOB_DEMANDA",
+  "AMBOS",
+]);
+const TABLE_STATUSES = new Set<TableStatus>([
+  "LIVRE",
+  "OCUPADA",
+  "AGUARDANDO_PAGAMENTO",
+  "RESERVADA",
+  "INATIVA",
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function invalid(error: string, status = 400): MutationError {
+  return { error, status };
+}
+
+function validateProductFields(
+  store: MesaFlowStore,
+  establishmentId: string,
+  body: unknown,
+  partial: boolean,
+): MutationResult<Partial<Product>> {
+  if (!isRecord(body)) return invalid("Corpo inválido.");
+  const fields: Partial<Product> = {};
+  const required = ["categoryId", "sectorId", "name", "description", "price", "prepMinutes", "availability"];
+  if (!partial && required.some((field) => body[field] === undefined)) {
+    return invalid("Preencha os campos obrigatórios do produto.");
+  }
+
+  if (body.categoryId !== undefined) {
+    if (typeof body.categoryId !== "string") return invalid("Categoria inválida.");
+    const category = store.categories[body.categoryId];
+    if (!category || category.establishmentId !== establishmentId) {
+      return invalid("Categoria não pertence ao estabelecimento.");
+    }
+    fields.categoryId = body.categoryId;
+  }
+  if (body.sectorId !== undefined) {
+    if (typeof body.sectorId !== "string") return invalid("Setor inválido.");
+    const sector = store.sectors[body.sectorId];
+    if (!sector || sector.establishmentId !== establishmentId) {
+      return invalid("Setor não pertence ao estabelecimento.");
+    }
+    fields.sectorId = body.sectorId;
+  }
+  if (body.name !== undefined) {
+    if (typeof body.name !== "string" || !body.name.trim() || body.name.trim().length > 120) {
+      return invalid("Nome deve ter entre 1 e 120 caracteres.");
+    }
+    fields.name = body.name.trim();
+  }
+  if (body.description !== undefined) {
+    if (typeof body.description !== "string" || body.description.length > 1000) {
+      return invalid("Descrição deve ter no máximo 1000 caracteres.");
+    }
+    fields.description = body.description.trim();
+  }
+  if (body.price !== undefined) {
+    if (typeof body.price !== "number" || !Number.isFinite(body.price) || body.price < 0 || body.price > 1_000_000) {
+      return invalid("Preço deve estar entre 0 e 1000000.");
+    }
+    fields.price = body.price;
+  }
+  if (body.image !== undefined) {
+    if (body.image !== null && (typeof body.image !== "string" || body.image.length > 2048)) {
+      return invalid("Imagem inválida.");
+    }
+    fields.image = body.image === null || body.image === "" ? undefined : body.image;
+  }
+  if (body.tags !== undefined) {
+    if (
+      !Array.isArray(body.tags) ||
+      body.tags.length > 20 ||
+      body.tags.some((tag) => typeof tag !== "string" || !tag.trim() || tag.length > 50)
+    ) {
+      return invalid("Tags inválidas.");
+    }
+    fields.tags = body.tags.map((tag) => String(tag).trim());
+  }
+  if (body.prepMinutes !== undefined) {
+    if (!Number.isInteger(body.prepMinutes) || Number(body.prepMinutes) < 0 || Number(body.prepMinutes) > 1440) {
+      return invalid("Tempo de preparo deve ser inteiro entre 0 e 1440.");
+    }
+    fields.prepMinutes = Number(body.prepMinutes);
+  }
+  if (body.availability !== undefined) {
+    if (
+      typeof body.availability !== "string" ||
+      !PRODUCT_AVAILABILITIES.has(body.availability as ProductAvailability)
+    ) {
+      return invalid("Disponibilidade inválida.");
+    }
+    fields.availability = body.availability as ProductAvailability;
+  }
+  for (const field of ["featured", "active"] as const) {
+    if (body[field] !== undefined) {
+      if (typeof body[field] !== "boolean") return invalid(`${field} deve ser booleano.`);
+      fields[field] = body[field];
+    }
+  }
+  return { value: fields };
+}
+
+export function listAdminProducts(establishmentId: string) {
+  const store = getStore();
+  return {
+    categories: Object.values(store.categories)
+      .filter((item) => item.establishmentId === establishmentId)
+      .sort((a, b) => a.sortOrder - b.sortOrder),
+    sectors: Object.values(store.sectors).filter(
+      (item) => item.establishmentId === establishmentId,
+    ),
+    products: Object.values(store.products).filter(
+      (item) => item.establishmentId === establishmentId,
+    ),
+  };
+}
+
+export function createAdminProduct(
+  establishmentId: string,
+  body: unknown,
+): MutationResult<Product> {
+  const store = getStore();
+  const parsed = validateProductFields(store, establishmentId, body, false);
+  if ("error" in parsed) return parsed;
+  const product: Product = {
+    id: id("p_"),
+    establishmentId,
+    categoryId: parsed.value.categoryId!,
+    sectorId: parsed.value.sectorId!,
+    name: parsed.value.name!,
+    description: parsed.value.description!,
+    price: parsed.value.price!,
+    image: parsed.value.image,
+    tags: parsed.value.tags || [],
+    prepMinutes: parsed.value.prepMinutes!,
+    availability: parsed.value.availability!,
+    featured: parsed.value.featured ?? false,
+    active: parsed.value.active ?? true,
+    variants: [],
+    addons: [],
+    rodizioIncluded: false,
+  };
+  store.products[product.id] = product;
+  saveStore(store);
+  return { value: product };
+}
+
+export function updateAdminProduct(
+  establishmentId: string,
+  productId: string,
+  body: unknown,
+): MutationResult<Product> {
+  const store = getStore();
+  const product = store.products[productId];
+  if (!product || product.establishmentId !== establishmentId) {
+    return invalid("Produto não encontrado.", 404);
+  }
+  const parsed = validateProductFields(store, establishmentId, body, true);
+  if ("error" in parsed) return parsed;
+  Object.assign(product, parsed.value);
+  saveStore(store);
+  return { value: product };
+}
+
+export function deleteAdminProduct(
+  establishmentId: string,
+  productId: string,
+): MutationResult<Product> {
+  const store = getStore();
+  const product = store.products[productId];
+  if (!product || product.establishmentId !== establishmentId) {
+    return invalid("Produto não encontrado.", 404);
+  }
+  product.active = false;
+  saveStore(store);
+  return { value: product };
+}
+
+function uniqueQrToken(store: MesaFlowStore) {
+  let token = sessionToken();
+  while (Object.values(store.tables).some((table) => table.qrToken === token)) {
+    token = sessionToken();
+  }
+  return token;
+}
+
+function validateTableFields(
+  store: MesaFlowStore,
+  establishmentId: string,
+  body: unknown,
+  partial: boolean,
+  currentId?: string,
+): MutationResult<Partial<Table>> {
+  if (!isRecord(body)) return invalid("Corpo inválido.");
+  const fields: Partial<Table> = {};
+  if (!partial && ["number", "capacity"].some((field) => body[field] === undefined)) {
+    return invalid("Preencha os campos obrigatórios da mesa.");
+  }
+  if (body.number !== undefined) {
+    if (typeof body.number !== "string" || !body.number.trim() || body.number.trim().length > 20) {
+      return invalid("Número deve ter entre 1 e 20 caracteres.");
+    }
+    const number = body.number.trim();
+    const duplicate = Object.values(store.tables).some(
+      (table) =>
+        table.establishmentId === establishmentId &&
+        table.id !== currentId &&
+        table.number === number,
+    );
+    if (duplicate) return invalid("Já existe uma mesa com este número.", 409);
+    fields.number = number;
+  }
+  if (body.name !== undefined) {
+    if (typeof body.name !== "string" || body.name.trim().length > 80) {
+      return invalid("Nome deve ter no máximo 80 caracteres.");
+    }
+    fields.name = body.name.trim();
+  }
+  if (body.capacity !== undefined) {
+    if (!Number.isInteger(body.capacity) || Number(body.capacity) < 1 || Number(body.capacity) > 100) {
+      return invalid("Capacidade deve ser inteira entre 1 e 100.");
+    }
+    fields.capacity = Number(body.capacity);
+  }
+  if (body.status !== undefined) {
+    if (typeof body.status !== "string" || !TABLE_STATUSES.has(body.status as TableStatus)) {
+      return invalid("Status de mesa inválido.");
+    }
+    fields.status = body.status as TableStatus;
+  }
+  return { value: fields };
+}
+
+export function listAdminTables(establishmentId: string) {
+  return Object.values(getStore().tables).filter(
+    (table) => table.establishmentId === establishmentId,
+  );
+}
+
+export function createAdminTable(
+  establishmentId: string,
+  body: unknown,
+): MutationResult<Table> {
+  const store = getStore();
+  const parsed = validateTableFields(store, establishmentId, body, false);
+  if ("error" in parsed) return parsed;
+  const table: Table = {
+    id: id("tbl_"),
+    establishmentId,
+    number: parsed.value.number!,
+    name: parsed.value.name || `Mesa ${parsed.value.number}`,
+    capacity: parsed.value.capacity!,
+    status: parsed.value.status || "LIVRE",
+    qrToken: uniqueQrToken(store),
+  };
+  store.tables[table.id] = table;
+  saveStore(store);
+  return { value: table };
+}
+
+export function updateAdminTable(
+  establishmentId: string,
+  tableId: string,
+  body: unknown,
+): MutationResult<Table> {
+  const store = getStore();
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa não encontrada.", 404);
+  }
+  const parsed = validateTableFields(store, establishmentId, body, true, tableId);
+  if ("error" in parsed) return parsed;
+  Object.assign(table, parsed.value);
+  saveStore(store);
+  return { value: table };
+}
+
+export function deleteAdminTable(
+  establishmentId: string,
+  tableId: string,
+): MutationResult<{ id: string }> {
+  const store = getStore();
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa não encontrada.", 404);
+  }
+  const blockingCommand = Object.values(store.commands).some(
+    (command) =>
+      command.establishmentId === establishmentId &&
+      command.tableId === tableId &&
+      (command.status === "ABERTA" || command.status === "PAGAMENTO_SOLICITADO"),
+  );
+  if (blockingCommand) {
+    return invalid("Mesa possui comanda aberta ou aguardando pagamento.", 409);
+  }
+  delete store.tables[tableId];
+  saveStore(store);
+  return { value: { id: tableId } };
+}
+
+export function regenerateAdminTableQr(
+  establishmentId: string,
+  tableId: string,
+): MutationResult<Table> {
+  const store = getStore();
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa não encontrada.", 404);
+  }
+  table.qrToken = uniqueQrToken(store);
+  saveStore(store);
+  return { value: table };
+}
+
+export function getAdminSettings(establishmentId: string) {
+  return getStore().establishments[establishmentId] || null;
+}
+
+export function updateAdminSettings(
+  establishmentId: string,
+  body: unknown,
+): MutationResult<Establishment> {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return invalid("Estabelecimento não encontrado.", 404);
+  if (!isRecord(body)) return invalid("Corpo inválido.");
+  const next: Establishment = {
+    ...establishment,
+    settings: { ...establishment.settings },
+  };
+  if (body.settings !== undefined && !isRecord(body.settings)) {
+    return invalid("Ajustes inválidos.");
+  }
+  const settings = isRecord(body.settings) ? body.settings : body;
+
+  if (body.name !== undefined) {
+    if (typeof body.name !== "string" || !body.name.trim() || body.name.trim().length > 120) {
+      return invalid("Nome deve ter entre 1 e 120 caracteres.");
+    }
+    next.name = body.name.trim();
+  }
+  if (body.tagline !== undefined) {
+    if (typeof body.tagline !== "string" || body.tagline.length > 240) {
+      return invalid("Tagline deve ter no máximo 240 caracteres.");
+    }
+    next.tagline = body.tagline.trim();
+  }
+  for (const field of ["open", "rodizioEnabled"] as const) {
+    if (body[field] !== undefined) {
+      if (typeof body[field] !== "boolean") return invalid(`${field} deve ser booleano.`);
+      next[field] = body[field];
+    }
+  }
+  if (settings.currency !== undefined) {
+    if (typeof settings.currency !== "string" || !/^[A-Za-z]{3}$/.test(settings.currency)) {
+      return invalid("Moeda deve usar código ISO de 3 letras.");
+    }
+    next.settings.currency = settings.currency.toUpperCase();
+  }
+  for (const field of ["allowEditAfterPrep", "soundNotifications"] as const) {
+    if (settings[field] !== undefined) {
+      if (typeof settings[field] !== "boolean") return invalid(`${field} deve ser booleano.`);
+      next.settings[field] = settings[field];
+    }
+  }
+  if (settings.minIntervalRodizioSec !== undefined) {
+    if (
+      !Number.isInteger(settings.minIntervalRodizioSec) ||
+      Number(settings.minIntervalRodizioSec) < 0 ||
+      Number(settings.minIntervalRodizioSec) > 86_400
+    ) {
+      return invalid("Intervalo do rodízio deve ser inteiro entre 0 e 86400.");
+    }
+    next.settings.minIntervalRodizioSec = Number(settings.minIntervalRodizioSec);
+  }
+  store.establishments[establishmentId] = next;
+  saveStore(store);
+  return { value: next };
 }
 
 export function getOrOpenCommand(table: Table): Command {
