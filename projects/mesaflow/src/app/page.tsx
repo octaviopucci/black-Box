@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SignupSection } from "@/components/auth/signup-section";
 import {
   ArrowRight,
   ChefHat,
@@ -59,7 +60,7 @@ export default function HomePage() {
             Entrar
           </Link>
           <Link
-            href="/admin/signup"
+            href="#cadastro"
             className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
           >
             Começar grátis
@@ -82,13 +83,13 @@ export default function HomePage() {
             Simples para o cliente, poderoso para o seu negócio.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/admin/signup"
-              className="inline-flex items-center gap-2 rounded-2xl bg-brand px-8 py-4 text-base font-semibold text-white shadow-xl shadow-brand/25 transition hover:bg-brand-dark"
-            >
-              Criar minha conta
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <Link
+            href="#cadastro"
+            className="inline-flex items-center gap-2 rounded-2xl bg-brand px-8 py-4 text-base font-semibold text-white shadow-xl shadow-brand/25 transition hover:bg-brand-dark"
+          >
+            Criar minha conta
+            <ArrowRight className="h-4 w-4" />
+          </Link>
             <Link
               href={`/m/${DEMO_ESTABLISHMENT_SLUG}/mesa-8`}
               className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold backdrop-blur transition hover:bg-white/10"
@@ -162,10 +163,10 @@ export default function HomePage() {
             </div>
             <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">Pronto para começar?</h3>
             <p className="mt-2 max-w-xs text-sm text-muted">
-              Restaurantes, lanchonetes, padarias, bares e rodízios — cadastro em minutos.
+              Escaneie um QR Code e o cliente pede direto do celular.
             </p>
             <Link
-              href="/admin/signup"
+              href="#cadastro"
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 font-semibold text-white"
             >
               Criar conta grátis
@@ -173,6 +174,8 @@ export default function HomePage() {
             </Link>
           </div>
         </section>
+
+        <SignupSection />
       </main>
 
       <footer className="relative border-t border-white/5 py-8 text-center text-xs text-muted">

@@ -44862,7 +44862,7 @@ var seed_data_default = {
     id: "org_iphone_imports",
     name: "iPhone Imports",
     slug: "iphone-imports",
-    createdAt: "2026-09-11T18:04:01.597Z"
+    createdAt: "2026-09-14T17:39:13.177Z"
   },
   stores: [
     {
@@ -44870,7 +44870,7 @@ var seed_data_default = {
       organizationId: "org_iphone_imports",
       name: "iPhone Imports \u2014 Matriz",
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z"
     }
   ],
   categories: [
@@ -44880,11 +44880,11 @@ var seed_data_default = {
       slug: "iphones",
       name: "iPhones",
       description: "Linha completa de iPhones novos e seminovos selecionados.",
-      image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-17-pro-max-finish-select-silver-202509_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_smartphones",
@@ -44892,11 +44892,11 @@ var seed_data_default = {
       slug: "smartphones",
       name: "Smartphones",
       description: "Smartphones de diversas marcas com \xF3timo custo-benef\xEDcio.",
-      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/699529/pexels-photo-699529.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_airpods-fones",
@@ -44904,11 +44904,11 @@ var seed_data_default = {
       slug: "airpods-fones",
       name: "AirPods e Fones",
       description: "AirPods, fones Bluetooth e headphones sem fio.",
-      image: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-4-select-202409?wid=800&hei=800&fmt=png-alpha&qlt=90",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_smartwatches",
@@ -44916,11 +44916,11 @@ var seed_data_default = {
       slug: "smartwatches",
       name: "Smartwatches",
       description: "Apple Watch e smartwatches compat\xEDveis.",
-      image: "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/watch-case-46-aluminum-rosegold-nc-s10_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_capinhas",
@@ -44928,11 +44928,11 @@ var seed_data_default = {
       slug: "capinhas",
       name: "Capinhas",
       description: "Capinhas transparentes, silicone, MagSafe e prote\xE7\xE3o refor\xE7ada.",
-      image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/6671619/pexels-photo-6671619.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_peliculas",
@@ -44940,11 +44940,11 @@ var seed_data_default = {
       slug: "peliculas",
       name: "Pel\xEDculas",
       description: "Pel\xEDculas de vidro, privacidade e prote\xE7\xE3o de c\xE2mera.",
-      image: "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/6671623/pexels-photo-6671623.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_carregadores",
@@ -44952,11 +44952,11 @@ var seed_data_default = {
       slug: "carregadores",
       name: "Carregadores",
       description: "Fontes r\xE1pidas, MagSafe, veiculares e mais.",
-      image: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/3806097/pexels-photo-3806097.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_cabos",
@@ -44964,11 +44964,11 @@ var seed_data_default = {
       slug: "cabos",
       name: "Cabos",
       description: "Cabos USB-C, Lightning e refor\xE7ados.",
-      image: "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/4910424/pexels-photo-4910424.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_fontes",
@@ -44976,11 +44976,11 @@ var seed_data_default = {
       slug: "fontes",
       name: "Fontes",
       description: "Fontes de alimenta\xE7\xE3o para diversos dispositivos.",
-      image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/3806097/pexels-photo-3806097.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_power-banks",
@@ -44988,11 +44988,11 @@ var seed_data_default = {
       slug: "power-banks",
       name: "Power Banks",
       description: "Baterias port\xE1teis para carregar onde voc\xEA estiver.",
-      image: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/1570268/pexels-photo-1570268.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_suportes",
@@ -45000,11 +45000,11 @@ var seed_data_default = {
       slug: "suportes",
       name: "Suportes",
       description: "Suportes para mesa, carro e uso di\xE1rio.",
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/7867171/pexels-photo-7867171.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_acessorios-carro",
@@ -45012,11 +45012,11 @@ var seed_data_default = {
       slug: "acessorios-carro",
       name: "Acess\xF3rios para carro",
       description: "Carregadores veiculares, suportes e mais.",
-      image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_audio",
@@ -45024,11 +45024,11 @@ var seed_data_default = {
       slug: "audio",
       name: "\xC1udio",
       description: "Caixas Bluetooth, fones e acess\xF3rios de \xE1udio.",
-      image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/3683098/pexels-photo-3683098.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_eletronicos",
@@ -45036,11 +45036,11 @@ var seed_data_default = {
       slug: "eletronicos",
       name: "Eletr\xF4nicos",
       description: "Hubs, adaptadores e eletr\xF4nicos diversos.",
-      image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://images.pexels.com/photos/7867173/pexels-photo-7867173.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1",
       featured: false,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "cat_ofertas",
@@ -45048,11 +45048,11 @@ var seed_data_default = {
       slug: "ofertas",
       name: "Ofertas",
       description: "Promo\xE7\xF5es e condi\xE7\xF5es exclusivas da semana.",
-      image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=800&fit=crop&auto=format&q=80",
+      image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-17-finish-select-lavender-202509_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90",
       featured: true,
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     }
   ],
   products: [
@@ -45069,7 +45069,7 @@ var seed_data_default = {
       oldPrice: 11999,
       installment: "ou 12x de R$ 916,58",
       images: [
-        "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-17-pro-max-finish-select-silver-202509_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Tit\xE2nio Natural",
@@ -45103,8 +45103,8 @@ var seed_data_default = {
         "Documenta\xE7\xE3o"
       ],
       warranty: "Garantia conforme condi\xE7\xF5es informadas no atendimento.",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ip17p",
@@ -45119,7 +45119,7 @@ var seed_data_default = {
       oldPrice: 10499,
       installment: "ou 12x de R$ 791,58",
       images: [
-        "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-17-pro-finish-select-cosmicorange-202509_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Tit\xE2nio Natural",
@@ -45139,8 +45139,8 @@ var seed_data_default = {
         "iphone 17",
         "pro"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ip17",
@@ -45154,7 +45154,7 @@ var seed_data_default = {
       price: 6999,
       installment: "ou 12x de R$ 583,25",
       images: [
-        "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-17-finish-select-lavender-202509_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Azul",
@@ -45173,8 +45173,8 @@ var seed_data_default = {
       keywords: [
         "iphone 17"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ip16pm",
@@ -45189,7 +45189,7 @@ var seed_data_default = {
       oldPrice: 9999,
       installment: "ou 12x de R$ 749,92",
       images: [
-        "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://www.apple.com/newsroom/images/2024/09/apple-debuts-iphone-16-pro-and-iphone-16-pro-max/article/Apple-iPhone-16-Pro-hero-240909_inline.jpg.large.jpg"
       ],
       colors: [
         "Tit\xE2nio Deserto",
@@ -45209,8 +45209,8 @@ var seed_data_default = {
         "iphone 16",
         "pro max"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ip16p",
@@ -45225,7 +45225,7 @@ var seed_data_default = {
       oldPrice: 8799,
       installment: "ou 12x de R$ 666,58",
       images: [
-        "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-pro-finish-select-202409-6-3inch-blacktitanium?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Tit\xE2nio Preto",
@@ -45244,8 +45244,8 @@ var seed_data_default = {
         "iphone 16",
         "pro"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ip16",
@@ -45259,7 +45259,7 @@ var seed_data_default = {
       price: 5999,
       installment: "ou 12x de R$ 499,92",
       images: [
-        "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-ultramarine-select-202409_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Rosa",
@@ -45277,8 +45277,8 @@ var seed_data_default = {
       keywords: [
         "iphone 16"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ip15",
@@ -45293,7 +45293,7 @@ var seed_data_default = {
       oldPrice: 5499,
       installment: "ou 12x de R$ 416,58",
       images: [
-        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-blue?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Azul",
@@ -45311,8 +45311,8 @@ var seed_data_default = {
       keywords: [
         "iphone 15"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ip14",
@@ -45326,7 +45326,7 @@ var seed_data_default = {
       price: 3999,
       installment: "ou 12x de R$ 333,25",
       images: [
-        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-14-finish-select-202209-6-1inch-blue?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Azul",
@@ -45342,8 +45342,8 @@ var seed_data_default = {
       keywords: [
         "iphone 14"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ip13",
@@ -45358,7 +45358,7 @@ var seed_data_default = {
       oldPrice: 3699,
       installment: "ou 12x de R$ 274,92",
       images: [
-        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-13-blue-select-2021_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Meia-noite",
@@ -45375,8 +45375,8 @@ var seed_data_default = {
       keywords: [
         "iphone 13"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_ap4",
@@ -45390,7 +45390,7 @@ var seed_data_default = {
       price: 1499,
       installment: "ou 12x de R$ 124,92",
       images: [
-        "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-4-select-202409?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       featured: true,
       new: true,
@@ -45400,8 +45400,8 @@ var seed_data_default = {
         "fone",
         "sem fio"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_app2",
@@ -45416,7 +45416,7 @@ var seed_data_default = {
       oldPrice: 2499,
       installment: "ou 12x de R$ 183,25",
       images: [
-        "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202409?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       featured: true,
       bestSeller: true,
@@ -45427,8 +45427,8 @@ var seed_data_default = {
         "fone",
         "anc"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_apm",
@@ -45442,15 +45442,15 @@ var seed_data_default = {
       price: 5499,
       installment: "ou 12x de R$ 458,25",
       images: [
-        "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-max-select-202409-midnight?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       published: true,
       keywords: [
         "airpods max",
         "headphone"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_bt-fone",
@@ -45465,7 +45465,7 @@ var seed_data_default = {
       oldPrice: 279,
       installment: "ou 3x de R$ 66,33",
       images: [
-        "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/3825517/pexels-photo-3825517.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       sale: true,
       published: true,
@@ -45474,8 +45474,8 @@ var seed_data_default = {
         "bluetooth",
         "tws"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_aws10",
@@ -45489,7 +45489,7 @@ var seed_data_default = {
       price: 4299,
       installment: "ou 12x de R$ 358,25",
       images: [
-        "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/watch-case-46-aluminum-rosegold-nc-s10_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       colors: [
         "Rosa",
@@ -45503,8 +45503,8 @@ var seed_data_default = {
         "apple watch",
         "series 10"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_awse",
@@ -45519,7 +45519,7 @@ var seed_data_default = {
       oldPrice: 2799,
       installment: "ou 12x de R$ 208,25",
       images: [
-        "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/watch-case-44-aluminum-midnight-nc-se3_SW_COLOR?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       bestSeller: true,
       sale: true,
@@ -45528,8 +45528,8 @@ var seed_data_default = {
         "apple watch",
         "se"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_sw-compat",
@@ -45543,15 +45543,15 @@ var seed_data_default = {
       price: 349,
       installment: "ou 3x de R$ 116,33",
       images: [
-        "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/7867175/pexels-photo-7867175.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
         "smartwatch",
         "relogio"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_cap-trans",
@@ -45565,7 +45565,7 @@ var seed_data_default = {
       price: 49,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/6671619/pexels-photo-6671619.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       colors: [
         "Transparente"
@@ -45577,8 +45577,8 @@ var seed_data_default = {
         "transparente",
         "case"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_cap-sil",
@@ -45592,7 +45592,7 @@ var seed_data_default = {
       price: 59,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1601593346740-925612772716?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/6671620/pexels-photo-6671620.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       colors: [
         "Preto",
@@ -45605,8 +45605,8 @@ var seed_data_default = {
         "capinha",
         "silicone"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_cap-mag",
@@ -45621,7 +45621,7 @@ var seed_data_default = {
       oldPrice: 119,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/6671621/pexels-photo-6671621.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       colors: [
         "Preto",
@@ -45633,8 +45633,8 @@ var seed_data_default = {
         "capinha",
         "magsafe"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_cap-ref",
@@ -45648,7 +45648,7 @@ var seed_data_default = {
       price: 79,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1601593346740-925612772716?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/6671622/pexels-photo-6671622.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       colors: [
         "Preto",
@@ -45660,8 +45660,8 @@ var seed_data_default = {
         "reforcada",
         "protecao"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_pel-vidro",
@@ -45675,7 +45675,7 @@ var seed_data_default = {
       price: 39,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/6671623/pexels-photo-6671623.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       bestSeller: true,
       published: true,
@@ -45683,8 +45683,8 @@ var seed_data_default = {
         "pelicula",
         "vidro"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_pel-priv",
@@ -45698,15 +45698,15 @@ var seed_data_default = {
       price: 59,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/6671624/pexels-photo-6671624.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
         "pelicula",
         "privacidade"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_pel-cam",
@@ -45720,15 +45720,15 @@ var seed_data_default = {
       price: 29,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/6671625/pexels-photo-6671625.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
         "pelicula",
         "camera"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_chg-20w",
@@ -45743,7 +45743,7 @@ var seed_data_default = {
       oldPrice: 119,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/3806097/pexels-photo-3806097.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       bestSeller: true,
       sale: true,
@@ -45754,8 +45754,8 @@ var seed_data_default = {
         "20w",
         "usb-c"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_chg-mag",
@@ -45769,15 +45769,15 @@ var seed_data_default = {
       price: 449,
       installment: "ou 6x de R$ 74,83",
       images: [
-        "https://images.unsplash.com/photo-1625842268584-8f3296236761?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MU7E2?wid=800&hei=800&fmt=png-alpha&qlt=90"
       ],
       published: true,
       keywords: [
         "magsafe",
         "carregador"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_chg-car",
@@ -45791,7 +45791,7 @@ var seed_data_default = {
       price: 69,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
@@ -45799,8 +45799,8 @@ var seed_data_default = {
         "veicular",
         "carro"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_cabo-cc",
@@ -45814,7 +45814,7 @@ var seed_data_default = {
       price: 49,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/4910424/pexels-photo-4910424.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       bestSeller: true,
       published: true,
@@ -45822,8 +45822,8 @@ var seed_data_default = {
         "cabo",
         "usb-c"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_cabo-cl",
@@ -45837,7 +45837,7 @@ var seed_data_default = {
       price: 59,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/351965/pexels-photo-351965.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
@@ -45845,8 +45845,8 @@ var seed_data_default = {
         "lightning",
         "usb-c"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_cabo-ref",
@@ -45861,7 +45861,7 @@ var seed_data_default = {
       oldPrice: 89,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/169677/pexels-photo-169677.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       sale: true,
       published: true,
@@ -45870,8 +45870,8 @@ var seed_data_default = {
         "reforcado",
         "nylon"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_pb-10k",
@@ -45886,7 +45886,7 @@ var seed_data_default = {
       oldPrice: 199,
       installment: "ou 3x de R$ 49,67",
       images: [
-        "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/1570268/pexels-photo-1570268.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       sale: true,
       published: true,
@@ -45894,8 +45894,8 @@ var seed_data_default = {
         "power bank",
         "bateria"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_pb-20k",
@@ -45909,15 +45909,15 @@ var seed_data_default = {
       price: 229,
       installment: "ou 3x de R$ 76,33",
       images: [
-        "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/7867170/pexels-photo-7867170.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
         "power bank",
         "bateria"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_sup-mesa",
@@ -45931,15 +45931,15 @@ var seed_data_default = {
       price: 79,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/7867171/pexels-photo-7867171.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
         "suporte",
         "mesa"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_sup-carro",
@@ -45953,7 +45953,7 @@ var seed_data_default = {
       price: 59,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/7867172/pexels-photo-7867172.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
@@ -45961,8 +45961,8 @@ var seed_data_default = {
         "carro",
         "veicular"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_cx-bt",
@@ -45977,7 +45977,7 @@ var seed_data_default = {
       oldPrice: 279,
       installment: "ou 3x de R$ 66,33",
       images: [
-        "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/3683098/pexels-photo-3683098.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       sale: true,
       published: true,
@@ -45986,8 +45986,8 @@ var seed_data_default = {
         "bluetooth",
         "som"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_hub-usb",
@@ -46001,7 +46001,7 @@ var seed_data_default = {
       price: 249,
       installment: "ou 3x de R$ 83,00",
       images: [
-        "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/7867173/pexels-photo-7867173.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
@@ -46009,8 +46009,8 @@ var seed_data_default = {
         "usb-c",
         "adaptador"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_adaptador",
@@ -46024,7 +46024,7 @@ var seed_data_default = {
       price: 39,
       installment: "\xE0 vista",
       images: [
-        "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/7867174/pexels-photo-7867174.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       published: true,
       keywords: [
@@ -46032,8 +46032,8 @@ var seed_data_default = {
         "usb-c",
         "lightning"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "prod_sm-android",
@@ -46048,7 +46048,7 @@ var seed_data_default = {
       oldPrice: 2899,
       installment: "ou 12x de R$ 208,25",
       images: [
-        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&auto=format&q=80"
+        "https://images.pexels.com/photos/699529/pexels-photo-699529.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop&dpr=1"
       ],
       colors: [
         "Preto",
@@ -46065,8 +46065,8 @@ var seed_data_default = {
         "android",
         "samsung"
       ],
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     }
   ],
   inventory: [
@@ -46079,8 +46079,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Natural",
       storage: "256GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ip17p",
@@ -46091,8 +46091,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Natural",
       storage: "128GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ip17",
@@ -46103,8 +46103,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ip16pm",
@@ -46115,8 +46115,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Deserto",
       storage: "256GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ip16p",
@@ -46127,8 +46127,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Tit\xE2nio Preto",
       storage: "128GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ip16",
@@ -46139,8 +46139,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Rosa",
       storage: "128GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ip15",
@@ -46151,8 +46151,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ip14",
@@ -46163,8 +46163,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Azul",
       storage: "128GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ip13",
@@ -46175,8 +46175,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Meia-noite",
       storage: "128GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_ap4",
@@ -46185,8 +46185,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_app2",
@@ -46195,8 +46195,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_apm",
@@ -46205,8 +46205,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_bt-fone",
@@ -46215,8 +46215,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_aws10",
@@ -46226,8 +46226,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Rosa",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_awse",
@@ -46236,8 +46236,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_sw-compat",
@@ -46246,8 +46246,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_cap-trans",
@@ -46257,8 +46257,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Transparente",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_cap-sil",
@@ -46268,8 +46268,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_cap-mag",
@@ -46279,8 +46279,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_cap-ref",
@@ -46290,8 +46290,8 @@ var seed_data_default = {
       status: "available",
       condition: "novo",
       color: "Preto",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_pel-vidro",
@@ -46300,8 +46300,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_pel-priv",
@@ -46310,8 +46310,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_pel-cam",
@@ -46320,8 +46320,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_chg-20w",
@@ -46330,8 +46330,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_chg-mag",
@@ -46340,8 +46340,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_chg-car",
@@ -46350,8 +46350,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_cabo-cc",
@@ -46360,8 +46360,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_cabo-cl",
@@ -46370,8 +46370,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_cabo-ref",
@@ -46380,8 +46380,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_pb-10k",
@@ -46390,8 +46390,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_pb-20k",
@@ -46400,8 +46400,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_sup-mesa",
@@ -46410,8 +46410,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_sup-carro",
@@ -46420,8 +46420,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_cx-bt",
@@ -46430,8 +46430,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_hub-usb",
@@ -46440,8 +46440,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_adaptador",
@@ -46450,8 +46450,8 @@ var seed_data_default = {
       storeId: "store_matriz",
       status: "available",
       condition: "novo",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     },
     {
       id: "unit_sm-android",
@@ -46462,8 +46462,8 @@ var seed_data_default = {
       condition: "novo",
       color: "Preto",
       storage: "128GB",
-      createdAt: "2026-09-11T18:04:01.597Z",
-      updatedAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z",
+      updatedAt: "2026-09-14T17:39:13.177Z"
     }
   ],
   customers: [],
@@ -46476,7 +46476,7 @@ var seed_data_default = {
     hours: "Seg\u2013Sex 9h\u201318h \xB7 S\xE1b 9h\u201313h",
     topBarMessage: "\u{1F525} Ofertas especiais toda semana \u2022 Atendimento r\xE1pido pelo WhatsApp",
     promoBarMessage: "\u{1F525} Semana iPhone Imports \u2014 confira nossas ofertas",
-    updatedAt: "2026-09-11T18:04:01.597Z"
+    updatedAt: "2026-09-14T17:39:13.177Z"
   },
   users: [
     {
@@ -46487,7 +46487,7 @@ var seed_data_default = {
       nome: "Administrador",
       role: "admin",
       active: true,
-      createdAt: "2026-09-11T18:04:01.597Z"
+      createdAt: "2026-09-14T17:39:13.177Z"
     }
   ],
   auditLogs: []
