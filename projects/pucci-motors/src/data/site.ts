@@ -1,15 +1,15 @@
-const whatsappLabel = "(15) 99999-9999";
+const whatsappLabel = "(15) 99653-2750";
 
 export const site = {
   name: "Pucci Motors",
   legalName: "Pucci Motors Ltda",
   cnpj: "",
-  tagline: "Seminovos selecionados com transparência",
-  whatsapp: "5515999999999",
+  tagline: "Seminovos premium com transparência",
+  whatsapp: "5515996532750",
   whatsappLabel,
   phone: {
     label: whatsappLabel,
-    href: "tel:+5515999999999",
+    href: "tel:+5515996532750",
   },
   instagram: {
     handle: "@puccimotors",

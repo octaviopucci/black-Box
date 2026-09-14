@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { demoCatalogVehicles } from "@/data/demo-vehicles";
 import { site } from "@/data/site";
 import { catalogVehicleToSite, type Vehicle } from "@/data/vehicles";
 import { fetchLiveCatalog, type LiveCatalog } from "@/lib/catalog-api";
@@ -46,11 +47,17 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   const value = useMemo<CatalogContextValue>(() => {
-    const vehicles = (catalog?.vehicles ?? []).map(catalogVehicleToSite);
+    const liveVehicles = (catalog?.vehicles ?? []).map(catalogVehicleToSite);
+    const vehicles =
+      liveVehicles.length > 0
+        ? liveVehicles
+        : !loading
+          ? demoCatalogVehicles.map(catalogVehicleToSite)
+          : [];
 
     return {
       loading,
-      live: Boolean(catalog),
+      live: Boolean(catalog && liveVehicles.length > 0),
       storeName: catalog?.storeName || site.name,
       whatsapp: catalog?.whatsapp || site.whatsapp,
       city: catalog?.city || site.city,

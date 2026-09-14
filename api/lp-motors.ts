@@ -21,6 +21,7 @@ import {
   type FipeVehicleType,
 } from './_lp-motors/fipe'
 import { buildPublicCatalog, getPublicVehicleById, type LpOrgDatabase } from './_lp-motors/catalog'
+import { ensurePucciMotorsDemo, PUCCI_DEMO_CREDENTIALS } from './_lp-motors/pucci-demo'
 
 function resolvePath(req: VercelRequest): string {
   const q = req.query?.path
@@ -177,9 +178,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 200, estimateIpva(value, body.uf || 'SP'))
     }
 
+    if (req.method === 'POST' && path === '/init/pucci-motors') {
+      const seeded = await ensurePucciMotorsDemo(store)
+      return json(res, 200, {
+        ok: true,
+        seeded,
+        credentials: PUCCI_DEMO_CREDENTIALS,
+        catalog: `/api/lp-motors/catalog/${PUCCI_DEMO_CREDENTIALS.store}`,
+      })
+    }
+
     // ---- Catálogo público (site) ----
     if (req.method === 'GET' && path.startsWith('/catalog/')) {
       const slug = decodeURIComponent(path.replace(/^\/catalog\//, '').replace(/\/$/, ''))
+      if (slug === 'pucci-motors') {
+        await ensurePucciMotorsDemo(store)
+      }
       const org = store.findOrgBySlug(slug)
       if (!org) return json(res, 404, { error: 'Loja não encontrada.' })
 
