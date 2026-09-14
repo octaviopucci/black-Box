@@ -1,30 +1,10 @@
 import { hashPassword, type CloudOrg, type CloudUser, type JsonStore } from './store'
 import type { LpOrgDatabase, LpVehicle } from './catalog'
+import { pucciVehicleImage } from './pucci-vehicle-images'
 
 const ORG_ID = 'org_pucci_motors'
 const USER_ID = 'user_pucci_admin'
 const DEMO_SLUG = 'pucci-motors'
-
-const IMG = {
-  porsche: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80',
-  porscheSuv: 'https://images.unsplash.com/photo-1614162692292-7bcb57c3f2e7?w=1200&q=80',
-  bmw: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&q=80',
-  bmwSuv: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&q=80',
-  mercedes: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1200&q=80',
-  mercedesAmg: 'https://images.unsplash.com/photo-1617814076665-977e6e994f9d?w=1200&q=80',
-  ferrari: 'https://images.unsplash.com/photo-1583121274602-3e2820c87538?w=1200&q=80',
-  lamborghini: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1200&q=80',
-  aston: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=1200&q=80',
-  audi: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=1200&q=80',
-  mclaren: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
-  bentley: 'https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=1200&q=80',
-  maserati: 'https://images.unsplash.com/photo-1503736331616-8674f86129da?w=1200&q=80',
-  rolls: 'https://images.unsplash.com/photo-1523983382138-44453a5ddbc7?w=1200&q=80',
-  jaguar: 'https://images.unsplash.com/photo-1603386329225-868f9b1ee6d9?w=1200&q=80',
-  range: 'https://images.unsplash.com/photo-1614200187526-d7c90c9d0aeb?w=1200&q=80',
-  lexus: 'https://images.unsplash.com/photo-1609521263047-f8f205293bb4?w=1200&q=80',
-  volvo: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=1200&q=80',
-} as const
 
 function daysAgo(n: number): string {
   const d = new Date()
@@ -46,9 +26,9 @@ function vehicle(
   ano: number,
   preco: number,
   status: LpVehicle['status'],
-  img: string,
   extras: Partial<LpVehicle> = {},
 ): LpVehicle {
+  const img = pucciVehicleImage(id)
   return {
     id,
     organizationId: ORG_ID,
@@ -100,111 +80,111 @@ function vehicle(
 
 export function buildPucciDemoVehicles(): LpVehicle[] {
   return [
-    vehicle('pucci_001', 'Porsche', '911', 'Carrera S 3.0', 2022, 899000, 'pronto', IMG.porsche, {
+    vehicle('pucci_001', 'Porsche', '911', 'Carrera S 3.0', 2022, 899000, 'pronto', {
       categoria: 'Esportivo',
       cor: 'Cinza GT',
       motor: '3.0 biturbo',
       quilometragem: 8400,
     }),
-    vehicle('pucci_002', 'Porsche', 'Cayenne', 'Turbo GT', 2021, 1249000, 'anunciado', IMG.porscheSuv, {
+    vehicle('pucci_002', 'Porsche', 'Cayenne', 'Turbo GT', 2021, 1249000, 'anunciado', {
       categoria: 'SUV',
       cor: 'Branco Carrara',
       motor: '4.0 V8',
       quilometragem: 22000,
     }),
-    vehicle('pucci_003', 'BMW', 'M4', 'Competition', 2023, 689000, 'pronto', IMG.bmw, {
+    vehicle('pucci_003', 'BMW', 'M4', 'Competition', 2023, 689000, 'pronto', {
       categoria: 'Esportivo',
       cor: 'Azul Portimão',
       motor: '3.0 biturbo',
       quilometragem: 5100,
     }),
-    vehicle('pucci_004', 'BMW', 'X5', 'M50i xDrive', 2022, 549000, 'anunciado', IMG.bmwSuv, {
+    vehicle('pucci_004', 'BMW', 'X5', 'M50i xDrive', 2022, 549000, 'anunciado', {
       categoria: 'SUV',
       cor: 'Preto',
       motor: '4.4 V8',
       quilometragem: 28000,
     }),
-    vehicle('pucci_005', 'Mercedes-AMG', 'GT', '63 S 4MATIC+', 2021, 998000, 'pronto', IMG.mercedesAmg, {
+    vehicle('pucci_005', 'Mercedes-AMG', 'GT', '63 S 4MATIC+', 2021, 998000, 'pronto', {
       categoria: 'Esportivo',
       cor: 'Prata Selenite',
       motor: '4.0 V8 biturbo',
       quilometragem: 15000,
     }),
-    vehicle('pucci_006', 'Mercedes-Benz', 'GLE', '450 4MATIC', 2023, 589000, 'anunciado', IMG.mercedes, {
+    vehicle('pucci_006', 'Mercedes-Benz', 'GLE', '450 4MATIC', 2023, 589000, 'anunciado', {
       categoria: 'SUV',
       cor: 'Preto Obsidiana',
       motor: '3.0 inline-6',
       quilometragem: 12000,
     }),
-    vehicle('pucci_007', 'Ferrari', 'Roma', '3.9 V8', 2021, 1890000, 'pronto', IMG.ferrari, {
+    vehicle('pucci_007', 'Ferrari', 'Roma', '3.9 V8', 2021, 1890000, 'pronto', {
       categoria: 'Esportivo',
       cor: 'Vermelho Rosso',
       motor: '3.9 V8',
       quilometragem: 6200,
     }),
-    vehicle('pucci_008', 'Aston Martin', 'DB11', 'V8 AMR', 2020, 1290000, 'anunciado', IMG.aston, {
+    vehicle('pucci_008', 'Aston Martin', 'DB11', 'V8 AMR', 2020, 1290000, 'anunciado', {
       categoria: 'Esportivo',
       cor: 'Verde British',
       motor: '4.0 V8',
       quilometragem: 18500,
     }),
-    vehicle('pucci_009', 'Lamborghini', 'Huracán', 'EVO RWD', 2022, 2490000, 'pronto', IMG.lamborghini, {
+    vehicle('pucci_009', 'Lamborghini', 'Huracán', 'EVO RWD', 2022, 2490000, 'pronto', {
       categoria: 'Esportivo',
       cor: 'Amarelo Giallo',
       motor: '5.2 V10',
       quilometragem: 4800,
     }),
-    vehicle('pucci_010', 'Audi', 'R8', 'V10 Performance', 2021, 1190000, 'anunciado', IMG.audi, {
+    vehicle('pucci_010', 'Audi', 'R8', 'V10 Performance', 2021, 1190000, 'anunciado', {
       categoria: 'Esportivo',
       cor: 'Preto Mythos',
       motor: '5.2 V10',
       quilometragem: 9100,
     }),
-    vehicle('pucci_011', 'McLaren', '570S', 'Coupe', 2019, 1090000, 'pronto', IMG.mclaren, {
+    vehicle('pucci_011', 'McLaren', '570S', 'Coupe', 2019, 1090000, 'pronto', {
       categoria: 'Esportivo',
       cor: 'Laranja McLaren',
       motor: '3.8 V8 biturbo',
       quilometragem: 24000,
     }),
-    vehicle('pucci_012', 'Bentley', 'Continental GT', 'V8', 2022, 1590000, 'anunciado', IMG.bentley, {
+    vehicle('pucci_012', 'Bentley', 'Continental GT', 'V8', 2022, 1590000, 'anunciado', {
       categoria: 'Luxo',
       cor: 'Branco Glacier',
       motor: '4.0 V8',
       quilometragem: 7000,
     }),
-    vehicle('pucci_013', 'Maserati', 'GranTurismo', 'Trofeo', 2024, 899000, 'pronto', IMG.maserati, {
+    vehicle('pucci_013', 'Maserati', 'GranTurismo', 'Trofeo', 2024, 899000, 'pronto', {
       categoria: 'Esportivo',
       cor: 'Azul Emozione',
       motor: '3.0 V6 Nettuno',
       quilometragem: 2100,
     }),
-    vehicle('pucci_014', 'Rolls-Royce', 'Ghost', 'Black Badge', 2020, 2890000, 'pronto', IMG.rolls, {
+    vehicle('pucci_014', 'Rolls-Royce', 'Ghost', 'Black Badge', 2020, 2890000, 'pronto', {
       categoria: 'Luxo',
       cor: 'Preto Diamond',
       motor: '6.75 V12',
       quilometragem: 16000,
     }),
-    vehicle('pucci_015', 'Lexus', 'LC', '500 Inspiration', 2022, 649000, 'anunciado', IMG.lexus, {
+    vehicle('pucci_015', 'Lexus', 'LC', '500 Inspiration', 2022, 649000, 'anunciado', {
       categoria: 'Esportivo',
       cor: 'Vermelho Infrared',
       motor: '5.0 V8',
       quilometragem: 11000,
     }),
-    vehicle('pucci_016', 'Jaguar', 'F-Type', 'R AWD', 2021, 489000, 'preparacao', IMG.jaguar, {
+    vehicle('pucci_016', 'Jaguar', 'F-Type', 'R AWD', 2021, 489000, 'preparacao', {
       categoria: 'Esportivo',
       cor: 'Branco Fuji',
       motor: '5.0 V8',
       quilometragem: 19000,
       observacoes: 'Em detalhamento estético — não publicado no site ainda.',
     }),
-    vehicle('pucci_017', 'Land Rover', 'Range Rover Sport', 'SVR', 2022, 799000, 'preparacao', IMG.range, {
+    vehicle('pucci_017', 'Land Rover', 'Range Rover Sport', 'SVR', 2022, 799000, 'preparacao', {
       categoria: 'SUV',
       cor: 'Verde Santorini',
       motor: '5.0 V8 SC',
       quilometragem: 25000,
       observacoes: 'Revisão mecânica em andamento.',
     }),
-    vehicle('pucci_018', 'Volvo', 'XC90', 'Recharge T8', 2023, 429000, 'negociacao', IMG.volvo, {
+    vehicle('pucci_018', 'Volvo', 'XC90', 'Recharge T8', 2023, 429000, 'negociacao', {
       categoria: 'SUV',
       cor: 'Cinza Thunder',
       combustivel: 'hibrido',
@@ -290,6 +270,36 @@ export function buildPucciDemoDatabase(): LpOrgDatabase {
     payables: [],
     auditLogs: [],
   }
+}
+
+/** Atualiza fotos demo no Blob quando o mapa de imagens mudar (deploy). */
+export async function refreshPucciDemoVehicleImages(store: JsonStore): Promise<number> {
+  const org = store.findOrgBySlug(DEMO_SLUG)
+  if (!org) return 0
+
+  const rec = store.data().databases[org.id]
+  const db = rec?.data as LpOrgDatabase | undefined
+  if (!db?.vehicles?.length) return 0
+
+  const seedById = new Map(buildPucciDemoVehicles().map((v) => [v.id, v]))
+  let updated = 0
+
+  for (const vehicle of db.vehicles) {
+    const seed = seedById.get(vehicle.id)
+    if (!seed) continue
+    const nextUrl = seed.fotos[0] || ''
+    if (!nextUrl || vehicle.fotos[0] === nextUrl) continue
+    vehicle.fotos = [...seed.fotos]
+    vehicle.fotoPrincipal = seed.fotoPrincipal
+    updated++
+  }
+
+  if (updated > 0) {
+    store.markDirty()
+    await store.persist()
+  }
+
+  return updated
 }
 
 /** Garante org demo Pucci Motors no Blob (só se ainda não existir ou estiver vazia). */

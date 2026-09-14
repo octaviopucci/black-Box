@@ -631,30 +631,35 @@ function getPublicVehicleById(db, orgSlug, vehicleId) {
   return catalog.vehicles.find((v) => v.id === vehicleId || v.slug === vehicleId) || null;
 }
 
+// api/_lp-motors/pucci-vehicle-images.ts
+var PUCCI_VEHICLE_IMAGES = {
+  pucci_001: "https://cdn.imagin.studio/getImage?customer=img&make=porsche&modelFamily=911&modelYear=2022&paintId=grey&angle=23&zoomType=fullscreen",
+  pucci_002: "https://cdn.imagin.studio/getImage?customer=img&make=porsche&modelFamily=cayenne&modelYear=2021&paintId=white&angle=23&zoomType=fullscreen",
+  pucci_003: "https://cdn.imagin.studio/getImage?customer=img&make=bmw&modelFamily=m4&modelYear=2023&paintId=blue&angle=23&zoomType=fullscreen",
+  pucci_004: "https://cdn.imagin.studio/getImage?customer=img&make=bmw&modelFamily=x5&modelYear=2022&paintId=black&angle=23&zoomType=fullscreen",
+  pucci_005: "https://cdn.imagin.studio/getImage?customer=img&make=mercedes-benz&modelFamily=amg%20gt&modelYear=2021&paintId=silver&angle=23&zoomType=fullscreen",
+  pucci_006: "https://cdn.imagin.studio/getImage?customer=img&make=mercedes-benz&modelFamily=gle&modelYear=2023&paintId=black&angle=23&zoomType=fullscreen",
+  pucci_007: "https://cdn.imagin.studio/getImage?customer=img&make=ferrari&modelFamily=roma&modelYear=2021&paintId=red&angle=23&zoomType=fullscreen",
+  pucci_008: "https://cdn.imagin.studio/getImage?customer=img&make=aston%20martin&modelFamily=db11&modelYear=2020&paintId=green&angle=23&zoomType=fullscreen",
+  pucci_009: "https://cdn.imagin.studio/getImage?customer=img&make=lamborghini&modelFamily=huracan&modelYear=2022&paintId=yellow&angle=23&zoomType=fullscreen",
+  pucci_010: "https://cdn.imagin.studio/getImage?customer=img&make=audi&modelFamily=r8&modelYear=2021&paintId=black&angle=23&zoomType=fullscreen",
+  pucci_011: "https://cdn.imagin.studio/getImage?customer=img&make=mclaren&modelFamily=570s&modelYear=2019&paintId=orange&angle=23&zoomType=fullscreen",
+  pucci_012: "https://cdn.imagin.studio/getImage?customer=img&make=bentley&modelFamily=continental&modelYear=2022&paintId=white&angle=23&zoomType=fullscreen",
+  pucci_013: "https://cdn.imagin.studio/getImage?customer=img&make=maserati&modelFamily=granturismo&modelYear=2024&paintId=blue&angle=23&zoomType=fullscreen",
+  pucci_014: "https://cdn.imagin.studio/getImage?customer=img&make=rolls-royce&modelFamily=ghost&modelYear=2020&paintId=black&angle=23&zoomType=fullscreen",
+  pucci_015: "https://cdn.imagin.studio/getImage?customer=img&make=lexus&modelFamily=lc&modelYear=2022&paintId=red&angle=23&zoomType=fullscreen",
+  pucci_016: "https://cdn.imagin.studio/getImage?customer=img&make=jaguar&modelFamily=f-type&modelYear=2021&paintId=white&angle=23&zoomType=fullscreen",
+  pucci_017: "https://cdn.imagin.studio/getImage?customer=img&make=land%20rover&modelFamily=range%20rover%20sport&modelYear=2022&paintId=green&angle=23&zoomType=fullscreen",
+  pucci_018: "https://cdn.imagin.studio/getImage?customer=img&make=volvo&modelFamily=xc90&modelYear=2023&paintId=grey&angle=23&zoomType=fullscreen"
+};
+function pucciVehicleImage(id) {
+  return PUCCI_VEHICLE_IMAGES[id] || PUCCI_VEHICLE_IMAGES.pucci_001;
+}
+
 // api/_lp-motors/pucci-demo.ts
 var ORG_ID = "org_pucci_motors";
 var USER_ID = "user_pucci_admin";
 var DEMO_SLUG = "pucci-motors";
-var IMG = {
-  porsche: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80",
-  porscheSuv: "https://images.unsplash.com/photo-1614162692292-7bcb57c3f2e7?w=1200&q=80",
-  bmw: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&q=80",
-  bmwSuv: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&q=80",
-  mercedes: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1200&q=80",
-  mercedesAmg: "https://images.unsplash.com/photo-1617814076665-977e6e994f9d?w=1200&q=80",
-  ferrari: "https://images.unsplash.com/photo-1583121274602-3e2820c87538?w=1200&q=80",
-  lamborghini: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1200&q=80",
-  aston: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=1200&q=80",
-  audi: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=1200&q=80",
-  mclaren: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80",
-  bentley: "https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=1200&q=80",
-  maserati: "https://images.unsplash.com/photo-1503736331616-8674f86129da?w=1200&q=80",
-  rolls: "https://images.unsplash.com/photo-1523983382138-44453a5ddbc7?w=1200&q=80",
-  jaguar: "https://images.unsplash.com/photo-1603386329225-868f9b1ee6d9?w=1200&q=80",
-  range: "https://images.unsplash.com/photo-1614200187526-d7c90c9d0aeb?w=1200&q=80",
-  lexus: "https://images.unsplash.com/photo-1609521263047-f8f205293bb4?w=1200&q=80",
-  volvo: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=1200&q=80"
-};
 function daysAgo(n) {
   const d = /* @__PURE__ */ new Date();
   d.setDate(d.getDate() - n);
@@ -665,7 +670,8 @@ function isoDaysAgo(n) {
   d.setDate(d.getDate() - n);
   return d.toISOString();
 }
-function vehicle(id, marca, modelo, versao, ano, preco, status, img, extras = {}) {
+function vehicle(id, marca, modelo, versao, ano, preco, status, extras = {}) {
+  const img = pucciVehicleImage(id);
   return {
     id,
     organizationId: ORG_ID,
@@ -716,111 +722,111 @@ function vehicle(id, marca, modelo, versao, ano, preco, status, img, extras = {}
 }
 function buildPucciDemoVehicles() {
   return [
-    vehicle("pucci_001", "Porsche", "911", "Carrera S 3.0", 2022, 899e3, "pronto", IMG.porsche, {
+    vehicle("pucci_001", "Porsche", "911", "Carrera S 3.0", 2022, 899e3, "pronto", {
       categoria: "Esportivo",
       cor: "Cinza GT",
       motor: "3.0 biturbo",
       quilometragem: 8400
     }),
-    vehicle("pucci_002", "Porsche", "Cayenne", "Turbo GT", 2021, 1249e3, "anunciado", IMG.porscheSuv, {
+    vehicle("pucci_002", "Porsche", "Cayenne", "Turbo GT", 2021, 1249e3, "anunciado", {
       categoria: "SUV",
       cor: "Branco Carrara",
       motor: "4.0 V8",
       quilometragem: 22e3
     }),
-    vehicle("pucci_003", "BMW", "M4", "Competition", 2023, 689e3, "pronto", IMG.bmw, {
+    vehicle("pucci_003", "BMW", "M4", "Competition", 2023, 689e3, "pronto", {
       categoria: "Esportivo",
       cor: "Azul Portim\xE3o",
       motor: "3.0 biturbo",
       quilometragem: 5100
     }),
-    vehicle("pucci_004", "BMW", "X5", "M50i xDrive", 2022, 549e3, "anunciado", IMG.bmwSuv, {
+    vehicle("pucci_004", "BMW", "X5", "M50i xDrive", 2022, 549e3, "anunciado", {
       categoria: "SUV",
       cor: "Preto",
       motor: "4.4 V8",
       quilometragem: 28e3
     }),
-    vehicle("pucci_005", "Mercedes-AMG", "GT", "63 S 4MATIC+", 2021, 998e3, "pronto", IMG.mercedesAmg, {
+    vehicle("pucci_005", "Mercedes-AMG", "GT", "63 S 4MATIC+", 2021, 998e3, "pronto", {
       categoria: "Esportivo",
       cor: "Prata Selenite",
       motor: "4.0 V8 biturbo",
       quilometragem: 15e3
     }),
-    vehicle("pucci_006", "Mercedes-Benz", "GLE", "450 4MATIC", 2023, 589e3, "anunciado", IMG.mercedes, {
+    vehicle("pucci_006", "Mercedes-Benz", "GLE", "450 4MATIC", 2023, 589e3, "anunciado", {
       categoria: "SUV",
       cor: "Preto Obsidiana",
       motor: "3.0 inline-6",
       quilometragem: 12e3
     }),
-    vehicle("pucci_007", "Ferrari", "Roma", "3.9 V8", 2021, 189e4, "pronto", IMG.ferrari, {
+    vehicle("pucci_007", "Ferrari", "Roma", "3.9 V8", 2021, 189e4, "pronto", {
       categoria: "Esportivo",
       cor: "Vermelho Rosso",
       motor: "3.9 V8",
       quilometragem: 6200
     }),
-    vehicle("pucci_008", "Aston Martin", "DB11", "V8 AMR", 2020, 129e4, "anunciado", IMG.aston, {
+    vehicle("pucci_008", "Aston Martin", "DB11", "V8 AMR", 2020, 129e4, "anunciado", {
       categoria: "Esportivo",
       cor: "Verde British",
       motor: "4.0 V8",
       quilometragem: 18500
     }),
-    vehicle("pucci_009", "Lamborghini", "Hurac\xE1n", "EVO RWD", 2022, 249e4, "pronto", IMG.lamborghini, {
+    vehicle("pucci_009", "Lamborghini", "Hurac\xE1n", "EVO RWD", 2022, 249e4, "pronto", {
       categoria: "Esportivo",
       cor: "Amarelo Giallo",
       motor: "5.2 V10",
       quilometragem: 4800
     }),
-    vehicle("pucci_010", "Audi", "R8", "V10 Performance", 2021, 119e4, "anunciado", IMG.audi, {
+    vehicle("pucci_010", "Audi", "R8", "V10 Performance", 2021, 119e4, "anunciado", {
       categoria: "Esportivo",
       cor: "Preto Mythos",
       motor: "5.2 V10",
       quilometragem: 9100
     }),
-    vehicle("pucci_011", "McLaren", "570S", "Coupe", 2019, 109e4, "pronto", IMG.mclaren, {
+    vehicle("pucci_011", "McLaren", "570S", "Coupe", 2019, 109e4, "pronto", {
       categoria: "Esportivo",
       cor: "Laranja McLaren",
       motor: "3.8 V8 biturbo",
       quilometragem: 24e3
     }),
-    vehicle("pucci_012", "Bentley", "Continental GT", "V8", 2022, 159e4, "anunciado", IMG.bentley, {
+    vehicle("pucci_012", "Bentley", "Continental GT", "V8", 2022, 159e4, "anunciado", {
       categoria: "Luxo",
       cor: "Branco Glacier",
       motor: "4.0 V8",
       quilometragem: 7e3
     }),
-    vehicle("pucci_013", "Maserati", "GranTurismo", "Trofeo", 2024, 899e3, "pronto", IMG.maserati, {
+    vehicle("pucci_013", "Maserati", "GranTurismo", "Trofeo", 2024, 899e3, "pronto", {
       categoria: "Esportivo",
       cor: "Azul Emozione",
       motor: "3.0 V6 Nettuno",
       quilometragem: 2100
     }),
-    vehicle("pucci_014", "Rolls-Royce", "Ghost", "Black Badge", 2020, 289e4, "pronto", IMG.rolls, {
+    vehicle("pucci_014", "Rolls-Royce", "Ghost", "Black Badge", 2020, 289e4, "pronto", {
       categoria: "Luxo",
       cor: "Preto Diamond",
       motor: "6.75 V12",
       quilometragem: 16e3
     }),
-    vehicle("pucci_015", "Lexus", "LC", "500 Inspiration", 2022, 649e3, "anunciado", IMG.lexus, {
+    vehicle("pucci_015", "Lexus", "LC", "500 Inspiration", 2022, 649e3, "anunciado", {
       categoria: "Esportivo",
       cor: "Vermelho Infrared",
       motor: "5.0 V8",
       quilometragem: 11e3
     }),
-    vehicle("pucci_016", "Jaguar", "F-Type", "R AWD", 2021, 489e3, "preparacao", IMG.jaguar, {
+    vehicle("pucci_016", "Jaguar", "F-Type", "R AWD", 2021, 489e3, "preparacao", {
       categoria: "Esportivo",
       cor: "Branco Fuji",
       motor: "5.0 V8",
       quilometragem: 19e3,
       observacoes: "Em detalhamento est\xE9tico \u2014 n\xE3o publicado no site ainda."
     }),
-    vehicle("pucci_017", "Land Rover", "Range Rover Sport", "SVR", 2022, 799e3, "preparacao", IMG.range, {
+    vehicle("pucci_017", "Land Rover", "Range Rover Sport", "SVR", 2022, 799e3, "preparacao", {
       categoria: "SUV",
       cor: "Verde Santorini",
       motor: "5.0 V8 SC",
       quilometragem: 25e3,
       observacoes: "Revis\xE3o mec\xE2nica em andamento."
     }),
-    vehicle("pucci_018", "Volvo", "XC90", "Recharge T8", 2023, 429e3, "negociacao", IMG.volvo, {
+    vehicle("pucci_018", "Volvo", "XC90", "Recharge T8", 2023, 429e3, "negociacao", {
       categoria: "SUV",
       cor: "Cinza Thunder",
       combustivel: "hibrido",
@@ -905,6 +911,29 @@ function buildPucciDemoDatabase() {
     payables: [],
     auditLogs: []
   };
+}
+async function refreshPucciDemoVehicleImages(store) {
+  const org = store.findOrgBySlug(DEMO_SLUG);
+  if (!org) return 0;
+  const rec = store.data().databases[org.id];
+  const db = rec?.data;
+  if (!db?.vehicles?.length) return 0;
+  const seedById = new Map(buildPucciDemoVehicles().map((v) => [v.id, v]));
+  let updated = 0;
+  for (const vehicle2 of db.vehicles) {
+    const seed = seedById.get(vehicle2.id);
+    if (!seed) continue;
+    const nextUrl = seed.fotos[0] || "";
+    if (!nextUrl || vehicle2.fotos[0] === nextUrl) continue;
+    vehicle2.fotos = [...seed.fotos];
+    vehicle2.fotoPrincipal = seed.fotoPrincipal;
+    updated++;
+  }
+  if (updated > 0) {
+    store.markDirty();
+    await store.persist();
+  }
+  return updated;
 }
 async function ensurePucciMotorsDemo(store) {
   const existing = store.findOrgBySlug(DEMO_SLUG);
@@ -1066,9 +1095,11 @@ async function handler(req, res) {
     }
     if (req.method === "POST" && path === "/init/pucci-motors") {
       const seeded = await ensurePucciMotorsDemo(store);
+      const imagesUpdated = await refreshPucciDemoVehicleImages(store);
       return json(res, 200, {
         ok: true,
         seeded,
+        imagesUpdated,
         credentials: PUCCI_DEMO_CREDENTIALS,
         catalog: `/api/lp-motors/catalog/${PUCCI_DEMO_CREDENTIALS.store}`
       });
@@ -1077,6 +1108,7 @@ async function handler(req, res) {
       const slug = decodeURIComponent(path.replace(/^\/catalog\//, "").replace(/\/$/, ""));
       if (slug === "pucci-motors") {
         await ensurePucciMotorsDemo(store);
+        await refreshPucciDemoVehicleImages(store);
       }
       const org = store.findOrgBySlug(slug);
       if (!org) return json(res, 404, { error: "Loja n\xE3o encontrada." });

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { site } from "@/data/site";
 import { asset } from "@/lib/assets";
 
-const STORAGE_KEY = "na-veiculos-loaded";
+const STORAGE_KEY = "pucci-motors-loaded";
 
 type Phase = "enter" | "shine" | "exit" | "done";
 

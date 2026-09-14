@@ -1,6 +1,6 @@
 /**
  * Pucci Motors + LP Motors API/gestor no deploy host (loja-iphoneimports).
- * Site: out/pucci-motors/ · Gestor: out/lp-motors/ · API: api/lp-motors.js
+ * Site: out/pucci-motors/ · Gestor: out/b2-gestor/ · API: api/lp-motors.js
  */
 import { execSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
@@ -46,24 +46,28 @@ if (!existsSync(join(siteOut, 'index.html'))) {
 console.log('→ pucci-motors: copiando para out/pucci-motors/...')
 copyDir(siteOut, siteTarget)
 
-console.log('\n→ lp-motors gestor: install + build...')
+console.log('\n→ b2-gestor: install + build...')
 run('npm ci --include=dev', { cwd: gestorRoot })
 run('npm run build', {
   cwd: gestorRoot,
   env: {
     ...process.env,
-    VITE_BASE: '/lp-motors/',
+    VITE_BASE: '/b2-gestor/',
+    VITE_APP_NAME: 'B2 Gestor',
+    VITE_APP_SHORT: 'B2 Gestor',
+    VITE_APP_DESCRIPTION:
+      'B2 Gestor — Sistema profissional de gestão de estoque e operação para lojas de veículos',
     VITE_OUT_DIR: 'dist',
   },
 })
 
 const gestorDist = join(gestorRoot, 'dist')
-const gestorTarget = join(hostRoot, 'out', 'lp-motors')
+const gestorTarget = join(hostRoot, 'out', 'b2-gestor')
 if (!existsSync(join(gestorDist, 'index.html'))) {
   console.error('✗ apps/lp-motors-gestor/dist/index.html ausente')
   process.exit(1)
 }
-console.log('→ lp-motors gestor: copiando para out/lp-motors/...')
+console.log('→ b2-gestor: copiando para out/b2-gestor/...')
 copyDir(gestorDist, gestorTarget)
 
 console.log('\n→ lp-motors: bundle API → api/lp-motors.js...')

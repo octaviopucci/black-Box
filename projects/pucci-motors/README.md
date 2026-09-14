@@ -4,7 +4,7 @@ Site da loja **Pucci Motors** — hero cinematic (NA Veículos) + estoque live v
 
 ## Gestor
 
-Cadastre veículos em `/lp-motors/` (LP Motors). Só entram no site os com status **Pronto para venda** ou **Anunciado** (não aparecem em preparação/oficina).
+Cadastre veículos em `/b2-gestor/` (B2 Gestor). Só entram no site os com status **Pronto para venda** ou **Anunciado** (não aparecem em preparação/oficina).
 
 ### Demo (18 carros de luxo)
 
@@ -31,7 +31,7 @@ Hospedado no projeto Vercel **loja-iphoneimports** (mesmo host do iPhone Imports
 | Parte | URL |
 |-------|-----|
 | Site | `https://loja-iphoneimports.vercel.app/pucci-motors/` |
-| Gestor LP Motors | `https://loja-iphoneimports.vercel.app/lp-motors/` |
+| B2 Gestor | `https://loja-iphoneimports.vercel.app/b2-gestor/` |
 | API | `https://loja-iphoneimports.vercel.app/api/lp-motors` |
 
 Build: `npm --prefix projects/iphone-imports run vercel-build`

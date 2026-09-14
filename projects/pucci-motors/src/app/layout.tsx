@@ -19,7 +19,7 @@ const mono = IBM_Plex_Mono({
 });
 
 const description =
-  "Pucci Motors — seminovos selecionados com preço no anúncio, foto do carro real e estoque sincronizado com o gestor LP Motors. Financiamento, trocas e consignação.";
+  "Pucci Motors — seminovos selecionados com preço no anúncio, foto do carro real e estoque sincronizado com o B2 Gestor. Financiamento, trocas e consignação.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://blckbox.vercel.app"),
