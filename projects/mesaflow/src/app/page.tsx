@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SignupSection } from "@/components/auth/signup-section";
+import { Logo } from "@/components/brand/logo";
 import {
   ArrowRight,
   ChefHat,
@@ -7,7 +8,6 @@ import {
   Smartphone,
   Sparkles,
   TrendingUp,
-  UtensilsCrossed,
   Zap,
 } from "lucide-react";
 import { DEMO_ESTABLISHMENT_SLUG, DEMO_LOGIN } from "@/lib/demo";
@@ -49,12 +49,7 @@ export default function HomePage() {
       <div className="pointer-events-none absolute -left-20 bottom-40 h-64 w-64 rounded-full bg-brand-soft/10 blur-3xl" />
 
       <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-2">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/15 ring-1 ring-brand/25">
-            <UtensilsCrossed className="h-5 w-5 text-brand" />
-          </span>
-          <span className="font-[family-name:var(--font-display)] text-xl font-bold">MesaFlow</span>
-        </div>
+        <Logo showTagline />
         <div className="flex items-center gap-3">
           <Link href="/admin/login" className="hidden text-sm font-medium text-muted transition hover:text-ink sm:block">
             Entrar
@@ -70,9 +65,9 @@ export default function HomePage() {
 
       <main className="relative mx-auto max-w-6xl px-6 pb-20 pt-8 sm:pt-16">
         <section className="text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-1.5 text-xs font-semibold text-brand">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand">
             <Sparkles className="h-3.5 w-3.5" />
-            Garçom digital para restaurantes, bares e padarias
+            Seu pedido, sem espera
           </div>
           <h1 className="mx-auto max-w-3xl font-[family-name:var(--font-display)] text-4xl font-bold leading-[1.1] sm:text-6xl">
             Pedidos por QR Code com{" "}

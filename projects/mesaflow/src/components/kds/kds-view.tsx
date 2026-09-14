@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { parseKdsRoute } from "@/lib/parse-route";
+import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { useRealtime } from "@/hooks/use-realtime";
 import { apiUrl } from "@/lib/api";
@@ -68,9 +69,12 @@ export function KdsView({ sectorId }: { sectorId: string }) {
   return (
     <div className="min-h-dvh bg-[#0a0a0a] p-4 text-white">
       <header className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-brand">MesaFlow KDS</p>
-          <h1 className="text-3xl font-bold">{sectorName}</h1>
+        <div className="flex items-center gap-4">
+          <Logo variant="icon" href={null} iconSize={36} />
+          <div>
+            <p className="text-xs uppercase tracking-widest text-brand">KDS · MesaFlow</p>
+            <h1 className="text-3xl font-bold">{sectorName}</h1>
+          </div>
         </div>
         <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm">{tickets.length} tickets</span>
       </header>

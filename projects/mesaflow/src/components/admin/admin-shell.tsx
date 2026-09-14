@@ -11,6 +11,7 @@ import {
   ShoppingBag,
   Table2,
 } from "lucide-react";
+import { Logo } from "@/components/brand/logo";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -48,12 +49,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh bg-surface text-ink">
       <aside className="hidden w-64 shrink-0 border-r border-white/5 bg-surface-2/50 p-5 backdrop-blur lg:block">
-        <div className="mb-8 flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/15 ring-1 ring-brand/25 text-brand font-bold">M</span>
-          <div className="min-w-0">
-            <p className="font-[family-name:var(--font-display)] font-bold">MesaFlow</p>
-            <p className="truncate text-xs text-muted">{session?.establishment.name}</p>
-          </div>
+        <div className="mb-8">
+          <Logo href="/admin" iconSize={36} />
+          <p className="mt-3 truncate text-xs text-muted">{session?.establishment.name}</p>
         </div>
         <nav className="space-y-1">
           {NAV.map(({ href, label, icon: Icon }) => (
