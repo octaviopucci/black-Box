@@ -1,0 +1,12 @@
+{
+  "deployHost": "projects/iphone-imports",
+  "siblings": [
+    {
+      "slug": "w-tube",
+      "name": "W-Tube",
+      "projectDir": "projects/w-tube",
+      "apiBundle": "api/w-tube.js",
+      "apiModuleDir": "api/_w-tube"
+    }
+  ]
+}
