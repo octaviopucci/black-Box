@@ -6,6 +6,10 @@ on:
     paths:
       - 'projects/iphone-imports/**'
       - 'projects/w-tube/**'
+      - 'projects/pucci-motors/**'
+      - 'apps/lp-motors-gestor/**'
+      - 'api/_lp-motors/**'
+      - 'api/lp-motors.ts'
       - '.github/workflows/iphone-imports-deploy.yml'
   workflow_dispatch:
 

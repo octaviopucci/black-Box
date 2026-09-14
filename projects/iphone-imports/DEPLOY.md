@@ -10,6 +10,9 @@ Projeto unificado em `projects/iphone-imports/`:
 | Loja W-Tube | `https://loja-iphoneimports.vercel.app/w-tube` |
 | Gestor W-Tube | `https://loja-iphoneimports.vercel.app/w-tube/gestor/` |
 | API W-Tube | `https://loja-iphoneimports.vercel.app/api/w-tube` |
+| **Loja Pucci Motors** | `https://loja-iphoneimports.vercel.app/pucci-motors/` |
+| **Gestor LP Motors** (Pucci) | `https://loja-iphoneimports.vercel.app/lp-motors/` |
+| **API LP Motors** | `https://loja-iphoneimports.vercel.app/api/lp-motors` |
 
 ## Vercel — checklist (loja-iphoneimports)
 
@@ -145,6 +148,16 @@ Saída: `out/` (loja + `out/gestor/`) + `api/dist/handler.cjs`
 | Usuário | `admin` |
 | Senha | `wtubeadmin123` |
 | Código da loja | `w-tube` |
+
+### Pucci Motors (`/lp-motors/` + site `/pucci-motors/`)
+
+| Campo | Valor |
+|-------|-------|
+| Usuário | `admin` |
+| Senha | `PucciMotors123` |
+| Código da loja | `pucci-motors` |
+
+O catálogo demo (18 carros de luxo) é criado na primeira leitura de `/api/lp-motors/catalog/pucci-motors`.
 
 O catálogo do site é populado automaticamente com os 37 produtos do seed.
 Alterações no estoque pelo gestor refletem na loja em até 15 segundos.

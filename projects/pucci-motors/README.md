@@ -24,14 +24,20 @@ Forçar re-seed: `POST /api/lp-motors/init/pucci-motors`
 | `NEXT_PUBLIC_LP_ORG_SLUG` | Slug da org no Blob LP Motors (default: `pucci-motors`) |
 | `NEXT_BASE_PATH` | Subpath no deploy (ex.: `/pucci-motors`) |
 
+## Deploy (produção)
+
+Hospedado no projeto Vercel **loja-iphoneimports** (mesmo host do iPhone Imports / W-Tube):
+
+| Parte | URL |
+|-------|-----|
+| Site | `https://loja-iphoneimports.vercel.app/pucci-motors/` |
+| Gestor LP Motors | `https://loja-iphoneimports.vercel.app/lp-motors/` |
+| API | `https://loja-iphoneimports.vercel.app/api/lp-motors` |
+
+Build: `npm --prefix projects/iphone-imports run vercel-build`
+
 ## Dev
 
 ```bash
 npm run dev:pucci-motors
-```
-
-## Build
-
-```bash
-npm run build:pucci-motors
 ```

@@ -14,6 +14,10 @@
     "api/w-tube.js": {
       "memory": 512,
       "maxDuration": 30
+    },
+    "api/lp-motors.js": {
+      "memory": 512,
+      "maxDuration": 30
     }
   },
   "rewrites": [
@@ -21,6 +25,12 @@
     { "source": "/api/iphone-imports/(.*)", "destination": "/api/iphone-imports?path=$1" },
     { "source": "/api/w-tube", "destination": "/api/w-tube?path=health" },
     { "source": "/api/w-tube/(.*)", "destination": "/api/w-tube?path=$1" },
+    { "source": "/api/lp-motors", "destination": "/api/lp-motors?path=health" },
+    { "source": "/api/lp-motors/(.*)", "destination": "/api/lp-motors?path=$1" },
+    { "source": "/pucci-motors", "destination": "/pucci-motors/index.html" },
+    { "source": "/pucci-motors/(.*)", "destination": "/pucci-motors/index.html" },
+    { "source": "/lp-motors", "destination": "/lp-motors/index.html" },
+    { "source": "/lp-motors/(.*)", "destination": "/lp-motors/index.html" },
     { "source": "/gestor", "destination": "/gestor/index.html" },
     { "source": "/gestor/((?!assets/).*)", "destination": "/gestor/index.html" },
     { "source": "/produto/:slug", "destination": "/produto/__live__.html" },
