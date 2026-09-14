@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  AlertCircle,
+  CheckCircle2,
   ClipboardList,
   Flame,
   Home,
@@ -20,6 +22,7 @@ import { formatCurrency, formatTime, orderStatusLabel } from "@/lib/format";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ui/product-image";
+import { lineTotal } from "@/lib/order-math";
 
 type Tab = "menu" | "orders" | "comanda" | "rodizio";
 
@@ -44,10 +47,31 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const [tab, setTab] = useState<Tab>("menu");
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string | "all">("all");
+  const [availability, setAvailability] = useState<Product["availability"] | "all">("all");
   const [selected, setSelected] = useState<Product | null>(null);
+  const [selectedVariantId, setSelectedVariantId] = useState("");
+  const [selectedAddons, setSelectedAddons] = useState<Record<string, number>>({});
+  const [itemNotes, setItemNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [rodizioPick, setRodizioPick] = useState<Record<string, number>>({});
+  const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
+
+  const notify = useCallback((message: string, tone: "success" | "error" = "success") => {
+    setToast({ message, tone });
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(null), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
+  useEffect(() => {
+    setSelectedVariantId(selected?.variants[0]?.id || "");
+    setSelectedAddons({});
+    setItemNotes("");
+  }, [selected]);
 
   const load = useCallback(async () => {
     try {
@@ -73,10 +97,11 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     if (!data) return [];
     return data.products.filter((p) => {
       if (categoryId !== "all" && p.categoryId !== categoryId) return false;
+      if (availability !== "all" && p.availability !== availability) return false;
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [data, categoryId, search]);
+  }, [data, categoryId, availability, search]);
 
   const featured = useMemo(() => data?.products.filter((p) => p.featured) || [], [data]);
 
@@ -103,20 +128,26 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       setTab("orders");
       await load();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Erro ao enviar pedido");
+      notify(e instanceof Error ? e.message : "Erro ao enviar pedido", "error");
     } finally {
       setSubmitting(false);
     }
   }
 
   async function requestBill() {
-    await fetch(apiUrl("/bill"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug, tableToken }),
-    });
-    alert("Conta solicitada! Um atendente virá até sua mesa.");
-    load();
+    try {
+      const response = await fetch(apiUrl("/bill"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, tableToken }),
+      });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(json.error || "Não foi possível solicitar a conta.");
+      notify("Conta solicitada! Um atendente virá até sua mesa.");
+      await load();
+    } catch (billError) {
+      notify(billError instanceof Error ? billError.message : "Erro ao solicitar a conta.", "error");
+    }
   }
 
   async function sendRodizioRound() {
@@ -151,11 +182,11 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     });
     const json = await res.json();
     if (!res.ok) {
-      alert(json.error);
+      notify(json.error || "Não foi possível enviar a rodada.", "error");
       return;
     }
     setRodizioPick({});
-    alert(json.message);
+    notify(json.message || "Rodada enviada.");
     setTab("orders");
     load();
   }
@@ -203,7 +234,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
             <p className="text-xs text-muted">Mesa {table.number} · Comanda aberta</p>
           </div>
         </div>
-        <div className="flex gap-2 overflow-x-auto px-4 pb-3 scrollbar-none">
+        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3">
           {(
             [
               ["menu", "Cardápio", Home],
@@ -242,7 +273,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           {featured.length > 0 && categoryId === "all" && !search && (
             <section className="mb-6">
               <h2 className="mb-3 text-sm font-semibold text-muted">Destaques</h2>
-              <div className="flex gap-3 overflow-x-auto pb-1">
+              <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-1">
                 {featured.map((p) => (
                   <button
                     key={p.id}
@@ -267,7 +298,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
             </section>
           )}
 
-          <div className="mb-4 flex gap-2 overflow-x-auto">
+          <div className="scrollbar-hide mb-3 flex gap-2 overflow-x-auto">
             <button
               onClick={() => setCategoryId("all")}
               className={cn(
@@ -291,6 +322,26 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
             ))}
           </div>
 
+          <div className="scrollbar-hide mb-4 flex gap-2 overflow-x-auto">
+            {([
+              ["all", "Tudo"],
+              ["VITRINE", "Vitrine"],
+              ["SOB_DEMANDA", "Feito na hora"],
+              ["AMBOS", "Ambos"],
+            ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                onClick={() => setAvailability(value)}
+                className={cn(
+                  "shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-medium",
+                  availability === value ? "border-brand/40 bg-brand/10 text-brand" : "border-white/5 text-muted",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <div className="space-y-3">
             {filtered.map((p) => (
               <button
@@ -309,11 +360,22 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{p.name}</p>
                   <p className="line-clamp-2 text-xs text-muted">{p.description}</p>
+                  <span className="mt-1.5 inline-block rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-medium text-muted">
+                    {p.availability === "VITRINE" ? "Vitrine" : p.availability === "SOB_DEMANDA" ? "Feito na hora" : "Vitrine + cozinha"}
+                  </span>
                   <p className="mt-1 text-sm font-bold text-brand">{formatCurrency(p.price)}</p>
                 </div>
                 <Plus className="mt-2 h-5 w-5 shrink-0 text-brand" />
               </button>
             ))}
+            {filtered.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-white/10 px-5 py-12 text-center">
+                <Search className="mx-auto mb-3 h-7 w-7 text-muted" />
+                <p className="font-semibold">Nada encontrado</p>
+                <p className="mt-1 text-xs text-muted">Tente outro nome, categoria ou disponibilidade.</p>
+                <button onClick={() => { setSearch(""); setCategoryId("all"); setAvailability("all"); }} className="mt-4 text-xs font-semibold text-brand">Limpar filtros</button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -474,13 +536,61 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               className="mb-4 h-40 w-full rounded-xl object-cover"
             />
             <p className="mb-4 text-sm text-muted">{selected.description}</p>
-            <p className="mb-4 text-xl font-bold text-brand">{formatCurrency(selected.price)}</p>
+            {selected.variants.length > 0 && (
+              <fieldset className="mb-4">
+                <legend className="mb-2 text-sm font-semibold">Escolha uma opção</legend>
+                <div className="grid gap-2">
+                  {selected.variants.map((variant) => (
+                    <label key={variant.id} className={cn("flex cursor-pointer items-center justify-between rounded-xl border p-3 text-sm", selectedVariantId === variant.id ? "border-brand/40 bg-brand/10" : "border-white/5 bg-surface")}>
+                      <span className="flex items-center gap-2"><input type="radio" name="variant" value={variant.id} checked={selectedVariantId === variant.id} onChange={() => setSelectedVariantId(variant.id)} className="accent-brand" /> {variant.name}</span>
+                      <span className="text-xs text-muted">{variant.priceDelta ? `${variant.priceDelta > 0 ? "+" : ""}${formatCurrency(variant.priceDelta)}` : "Incluso"}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+            {selected.addons.length > 0 && (
+              <fieldset className="mb-4">
+                <legend className="mb-2 text-sm font-semibold">Adicionais</legend>
+                <div className="space-y-2">
+                  {selected.addons.map((addon) => {
+                    const quantity = selectedAddons[addon.id] || 0;
+                    return (
+                      <div key={addon.id} className="flex items-center justify-between rounded-xl bg-surface p-3">
+                        <div><p className="text-sm font-medium">{addon.name}</p><p className="text-xs text-brand">+{formatCurrency(addon.price)}</p></div>
+                        <div className="flex items-center gap-2">
+                          <button type="button" aria-label={`Remover ${addon.name}`} onClick={() => setSelectedAddons((current) => ({ ...current, [addon.id]: Math.max(0, quantity - 1) }))} className="rounded-lg bg-surface-3 p-2"><Minus className="h-3.5 w-3.5" /></button>
+                          <span className="w-5 text-center text-sm font-bold">{quantity}</span>
+                          <button type="button" aria-label={`Adicionar ${addon.name}`} onClick={() => setSelectedAddons((current) => ({ ...current, [addon.id]: Math.min(addon.maxQty || 9, quantity + 1) }))} className="rounded-lg bg-brand p-2 text-white"><Plus className="h-3.5 w-3.5" /></button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            )}
+            <label className="mb-4 block">
+              <span className="mb-1.5 block text-xs font-medium text-muted">Observação (opcional)</span>
+              <input value={itemNotes} onChange={(event) => setItemNotes(event.target.value)} maxLength={160} placeholder="Ex.: sem cebola" className="w-full rounded-xl border border-white/10 bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand/50" />
+            </label>
+            <p className="mb-4 text-xl font-bold text-brand">
+              {formatCurrency(
+                selected.price +
+                (selected.variants.find((variant) => variant.id === selectedVariantId)?.priceDelta || 0) +
+                selected.addons.reduce((total, addon) => total + addon.price * (selectedAddons[addon.id] || 0), 0),
+              )}
+            </p>
             <Button
               className="w-full"
               size="lg"
               onClick={() => {
-                cart.add(selected);
+                const variant = selected.variants.find((item) => item.id === selectedVariantId);
+                const addons = selected.addons
+                  .filter((addon) => (selectedAddons[addon.id] || 0) > 0)
+                  .map((addon) => ({ addonId: addon.id, name: addon.name, price: addon.price, qty: selectedAddons[addon.id] }));
+                cart.add(selected, { variant, addons, notes: itemNotes.trim() || undefined });
                 setSelected(null);
+                notify(`${selected.name} adicionado ao carrinho.`);
               }}
             >
               Adicionar ao carrinho
@@ -500,7 +610,9 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               <div key={line.key} className="mb-3 flex items-center justify-between rounded-xl bg-surface-2 p-3">
                 <div>
                   <p className="font-medium">{line.product.name}</p>
-                  <p className="text-sm text-brand">{formatCurrency(line.product.price * line.qty)}</p>
+                  {line.variant && <p className="text-xs text-muted">{line.variant.name}</p>}
+                  {line.addons.length > 0 && <p className="text-xs text-muted">{line.addons.map((addon) => `${addon.qty}x ${addon.name}`).join(", ")}</p>}
+                  <p className="text-sm text-brand">{formatCurrency(lineTotal({ qty: line.qty, unitPrice: line.product.price, variantDelta: line.variant?.priceDelta || 0, addons: line.addons }))}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => cart.updateQty(line.key, line.qty - 1)} className="rounded-lg bg-surface-3 p-2">
@@ -517,6 +629,14 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               Confirmar pedido · {formatCurrency(cart.total)}
             </Button>
           </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className={cn("fixed left-1/2 top-4 z-[70] flex w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur-xl", toast.tone === "success" ? "border-success/25 bg-surface-2/95 text-success" : "border-danger/25 bg-surface-2/95 text-danger")} role="status">
+          {toast.tone === "success" ? <CheckCircle2 className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
+          <span className="flex-1">{toast.message}</span>
+          <button aria-label="Fechar aviso" onClick={() => setToast(null)}><X className="h-4 w-4" /></button>
         </div>
       )}
     </div>

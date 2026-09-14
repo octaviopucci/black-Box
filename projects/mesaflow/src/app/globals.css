@@ -18,10 +18,40 @@
 
 * {
   box-sizing: border-box;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  scrollbar-width: thin;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+*::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 106, 0, 0.55);
+}
+
+::selection {
+  background: rgba(255, 106, 0, 0.35);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-soft);
+  outline-offset: 3px;
 }
 
 body {
@@ -36,6 +66,15 @@ body {
 
 .safe-bottom {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 .mesh-bg {
@@ -55,7 +94,7 @@ body {
 .glass-panel {
   border-radius: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(17, 24, 32, 0.72);
+  background: rgba(27, 27, 27, 0.78);
   backdrop-filter: blur(20px);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.03) inset,
@@ -65,7 +104,7 @@ body {
 .glass-card {
   border-radius: 1.25rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  background: linear-gradient(180deg, rgba(26, 36, 48, 0.9) 0%, rgba(17, 24, 32, 0.95) 100%);
+  background: linear-gradient(180deg, rgba(38, 38, 38, 0.92) 0%, rgba(26, 26, 26, 0.97) 100%);
   box-shadow: 0 8px 32px -12px rgba(0, 0, 0, 0.5);
 }
 
@@ -117,4 +156,41 @@ body {
   background: linear-gradient(90deg, var(--color-surface-3) 25%, var(--color-surface-2) 50%, var(--color-surface-3) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .print-hide,
+  button,
+  nav,
+  aside {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
 }

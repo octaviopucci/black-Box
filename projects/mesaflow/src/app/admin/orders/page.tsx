@@ -56,7 +56,7 @@ export default function AdminOrdersPage() {
   return (
     <div>
       <h1 className="mb-6 font-[family-name:var(--font-display)] text-2xl font-bold">Pedidos</h1>
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-4">
         {COLUMNS.map((col) => (
           <div key={col.status} className="min-w-[260px] flex-1 rounded-2xl border border-white/5 bg-surface-2 p-4">
             <h2 className="mb-3 font-semibold">{col.label} ({byStatus[col.status]?.length || 0})</h2>
