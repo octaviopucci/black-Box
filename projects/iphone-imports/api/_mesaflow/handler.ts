@@ -45,7 +45,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "GET" && path.startsWith("/menu/")) {
-      const [, slug, table] = path.split("/");
+      const parts = path.split("/").filter(Boolean);
+      const slug = parts[1];
+      const table = parts[2];
+      if (!slug || !table) return json(res, 400, { error: "Path inválido." });
       const est = findEstablishmentBySlug(slug);
       if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
       if (!est.open) return json(res, 403, { error: "Estabelecimento fechado no momento." });
