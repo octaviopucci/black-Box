@@ -37,6 +37,7 @@
     "test:pix": "npm --prefix apps/pix-gateway test",
     "test:iphone-imports-api": "npm --prefix projects/iphone-imports run test:api",
     "test:w-tube-api": "npm --prefix projects/w-tube run test:api",
+    "new:store": "node scripts/new-store.mjs",
     "dev:iphone-imports-gestor": "npm --prefix projects/iphone-imports run dev:gestor",
     "build:maciel": "npm --prefix apps/maciel-motors-gestor ci --include=dev && VITE_BASE=/maciel-motors/ VITE_OUT_DIR=dist npm --prefix apps/maciel-motors-gestor run build",
     "build:maciel-x": "VITE_INTERACTIVE=1 VITE_BASE=/maciel-motors-x/ VITE_OUT_DIR=dist-x npm --prefix apps/maciel-motors-gestor run build",

@@ -27,6 +27,17 @@ Edite `src/config/store.ts`:
 | `promoBarMessage` | Texto da barra promocional |
 | `siteUrl` | URL do site (SEO/sitemap) |
 
+## Nova loja irmã (mesmo deploy)
+
+Este projeto é o **deploy host** (iPhone Imports na raiz + lojas em `/w-tube`, etc.).
+
+```bash
+# na raiz do monorepo
+npm run new:store -- --slug minha-loja --name "Minha Loja" --whatsapp 5511...
+```
+
+Documentação: [docs/store-template/README.md](../../docs/store-template/README.md)
+
 ## Produtos e preços
 
 - **Produtos:** `src/data/products.ts`

@@ -1,0 +1,18 @@
+{
+  "slug": "minha-loja",
+  "name": "Minha Loja",
+  "vertical": "general",
+  "whatsapp": "5511999999999",
+  "orgId": "org_minha_loja",
+  "paths": {
+    "basePath": "/minha-loja",
+    "api": "/api/minha-loja",
+    "gestor": "/minha-loja/gestor",
+    "blob": "minha-loja/store.json"
+  },
+  "envPrefix": "MINHA_LOJA",
+  "features": {
+    "serializedStock": true,
+    "whatsappCheckout": true
+  }
+}
