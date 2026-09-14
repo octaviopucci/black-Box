@@ -18,8 +18,15 @@ MesaFlow é um app **Next.js completo** (páginas + API routes + SSE). Precisa d
 ### 1. Novo projeto
 1. [Vercel Dashboard](https://vercel.com/new) → Import `octaviopucci/black-Box`
 2. **Root Directory:** `projects/mesaflow`
-3. Framework: **Next.js** (detectado automaticamente)
-4. Deploy
+3. **Framework Preset:** Next.js
+4. **Build Command:** *(deixar vazio — vem do `vercel.json`)*
+5. **Output Directory:** *(deixar vazio — NÃO usar `public` nem `.next`)*
+6. **Install Command:** *(deixar vazio — vem do `vercel.json`)*
+7. Deploy
+
+> **Erro comum:** `The Next.js output directory "public" was not found`  
+> O dashboard está com **Output Directory** = `public` (preset “Other”).  
+> **Correção:** Settings → Build → limpe **Output Directory** e mude **Framework** para **Next.js**. Redeploy.
 
 ### 2. Domínio (opcional)
 - Sugestão: `mesaflow-ponto.vercel.app` ou `ponto-do-sabor.vercel.app`
