@@ -36,9 +36,9 @@ Não crie um store novo se a Vercel retornar limite de uso.
 
 | Arquivo no Blob | API | Acesso |
 |-----------------|-----|--------|
-| `mesaflow/store.json` | `/api/mesaflow` | **private** |
-| `w-tube/store.json` | `/api/w-tube` | private |
-| `iphone-imports/store.json` | `/api/iphone-imports` | private |
+| `mesaflow/store.json` | `/api/mesaflow` | compartilhado |
+| `w-tube/store.json` | `/api/w-tube` | compartilhado |
+| `iphone-imports/store.json` | `/api/iphone-imports` | compartilhado |
 
 Validar após deploy:
 

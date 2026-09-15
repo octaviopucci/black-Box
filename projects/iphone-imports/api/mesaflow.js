@@ -2455,8 +2455,8 @@ var BLOB_PATHNAME = "mesaflow/store.json";
 var DATA_PATH = process.env.MESAFLOW_DATA || (process.env.VERCEL ? "/tmp/mesaflow-store.json" : (0, import_path.join)(process.cwd(), "data", "store.json"));
 var cache = null;
 var persistentDirty = false;
-var persistentEtag;
 var runtimeOidcToken;
+var lastBlobError;
 var SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
 function emptyStore() {
   return {
@@ -2549,7 +2549,8 @@ function blobDiagnostics(hasOidcHeader = false) {
     onVercel: Boolean(process.env.VERCEL),
     blobEnvKeys,
     pathname: BLOB_PATHNAME,
-    access: "private"
+    access: "public",
+    lastError: lastBlobError
   };
 }
 function setPersistentStoreOidcToken(token) {
@@ -2561,45 +2562,57 @@ async function hydratePersistentStore() {
     return;
   }
   (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });
-  if (!blobConfigured()) {
-    throw new Error(
-      "MesaFlow Blob persistence is not configured. Reuse the project Blob store (BLOB_STORE_ID) or set MESAFLOW_BLOB_STORE_ID."
-    );
-  }
-  const result = await (0, import_blob.get)(BLOB_PATHNAME, {
-    access: "private",
-    useCache: false,
-    ...blobAuthOptions()
-  });
-  if (result?.statusCode === 200) {
-    cache = {
-      ...emptyStore(),
-      ...await new Response(result.stream).json()
-    };
-    persistentEtag = result.blob.etag;
-    (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
-    persistentDirty = false;
-    migrateProductImages(cache);
-    return;
+  lastBlobError = void 0;
+  if (blobConfigured()) {
+    try {
+      const listed = await (0, import_blob.list)({
+        prefix: BLOB_PATHNAME,
+        limit: 1,
+        ...blobAuthOptions()
+      });
+      const blob = listed.blobs.find((entry) => entry.pathname === BLOB_PATHNAME);
+      if (blob) {
+        const response = await fetch(blob.url);
+        if (response.ok) {
+          cache = {
+            ...emptyStore(),
+            ...await response.json()
+          };
+          (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+          persistentDirty = false;
+          migrateProductImages(cache);
+          return;
+        }
+        lastBlobError = `blob fetch failed: ${response.status}`;
+      }
+    } catch (error) {
+      lastBlobError = error instanceof Error ? error.message : "blob hydrate failed";
+      console.warn("[mesaflow] blob hydrate failed", error);
+    }
+  } else {
+    lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
   }
   cache = null;
-  persistentEtag = void 0;
   getStore();
 }
 async function flushPersistentStore() {
   if (!process.env.VERCEL || !persistentDirty || !cache) return;
-  if (!blobConfigured()) {
-    throw new Error("MesaFlow Blob persistence is not configured.");
+  if (!blobConfigured()) return;
+  try {
+    await (0, import_blob.put)(BLOB_PATHNAME, JSON.stringify(cache), {
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: "application/json",
+      ...blobAuthOptions()
+    });
+    persistentDirty = false;
+    lastBlobError = void 0;
+  } catch (error) {
+    lastBlobError = error instanceof Error ? error.message : "blob persist failed";
+    console.warn("[mesaflow] blob persist failed", error);
+    throw error;
   }
-  const result = await (0, import_blob.put)(BLOB_PATHNAME, JSON.stringify(cache), {
-    access: "private",
-    addRandomSuffix: false,
-    ...persistentEtag ? { ifMatch: persistentEtag } : {},
-    contentType: "application/json",
-    ...blobAuthOptions()
-  });
-  persistentEtag = result.etag;
-  persistentDirty = false;
 }
 function notify(establishmentId, type, title, body) {
   const store = getStore();
@@ -3231,10 +3244,12 @@ async function handler(req, res) {
     const store = getStore();
     if (req.method === "GET" && path === "/health") {
       const storage = blobDiagnostics(Boolean(readOidcHeader(req)));
+      const establishments = Object.keys(store.establishments).length;
       return json(res, 200, {
         ok: true,
         service: "mesaflow",
-        blob: storage.configured,
+        blob: storage.configured && !storage.lastError,
+        establishments,
         storage
       });
     }
