@@ -25,17 +25,27 @@ Porta padrão: **3010**
 
 ## Deploy (Vercel)
 
-Projeto separado com **Root Directory** = `projects/mesaflow` (Next.js + API routes).
+O deploy de produção é integrado ao projeto `projects/iphone-imports`, sob
+`/mesaflow`. O script `projects/iphone-imports/scripts/build-mesaflow.mjs`
+exporta o site e empacota a API.
 
-1. Criar projeto na Vercel apontando para este monorepo
-2. Root Directory: `projects/mesaflow`
-3. Deploy Hook → secret `MESAFLOW_VERCEL_DEPLOY_HOOK` no GitHub
-4. Push em `main` dispara `.github/workflows/mesaflow-deploy.yml`
+### Persistência obrigatória
+
+Cadastros, sessões, cardápios e mesas são persistidos em um **Vercel Blob
+privado**. Não reutilize o Blob público dos catálogos.
+
+1. Crie um Blob Store com acesso **Private** e conecte-o ao projeto de produção.
+2. Configure `MESAFLOW_BLOB_STORE_ID` com o ID desse store.
+3. OIDC da Vercel autentica as funções automaticamente. Fora da Vercel, use
+   `MESAFLOW_BLOB_READ_WRITE_TOKEN`.
+
+Sem um store privado configurado, a API falha fechada e não grava dados em
+`/tmp`.
 
 ## Arquitetura MVP
 
 - **Next.js App Router** — cliente, admin e KDS
-- **Store JSON** — persistência local (`data/store.json` ou `/tmp` na Vercel)
+- **Store JSON** — arquivo local em desenvolvimento e Vercel Blob privado em produção
 - **SSE** — `/api/events` para atualização em tempo real
 - **Multi-tenant** — `establishmentId` em todas as entidades
 
