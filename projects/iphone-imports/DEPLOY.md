@@ -52,7 +52,7 @@ Sem Blob, produtos somem após deploy/reinício. A mesma variável `BLOB_STORE_I
 |-----|-----------------|--------|------|
 | W-Tube | `w-tube/store.json` | `/w-tube/gestor/` | `/w-tube` |
 | iPhone Imports | `iphone-imports/store.json` | `/gestor/` | `/` |
-| MesaFlow | `mesaflow/store.json` (private) | `/mesaflow/admin` | `/mesaflow` |
+| MesaFlow | `mesaflow/store.json` | `/mesaflow/admin` | `/mesaflow` |
 
 Validar todas:
 ```bash
@@ -63,8 +63,7 @@ curl https://loja-iphoneimports.vercel.app/api/mesaflow/health
 ```
 
 > **MesaFlow não precisa de Blob Store separado.** Reutilize o mesmo store
-> (`BLOB_STORE_ID`). O arquivo `mesaflow/store.json` é gravado com acesso
-> **private** — sessões e senhas não ficam públicas.
+> (`BLOB_STORE_ID`) já conectado ao projeto.
 
 **Opção A — conectar pelo dashboard (recomendado):**
 1. Vercel → projeto **loja-iphoneimports** (não o monorepo `cbx`)

@@ -86,10 +86,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === "GET" && path === "/health") {
       const storage = blobDiagnostics(Boolean(readOidcHeader(req)));
+      const establishments = Object.keys(store.establishments).length;
       return json(res, 200, {
         ok: true,
         service: "mesaflow",
-        blob: storage.configured,
+        blob: storage.configured && !storage.lastError,
+        establishments,
         storage,
       });
     }

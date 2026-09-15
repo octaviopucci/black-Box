@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
-import { get, put } from "@vercel/blob";
+import { list, put } from "@vercel/blob";
 import { hashPassword, id, sessionToken, verifyPassword } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
@@ -32,8 +32,8 @@ const DATA_PATH =
 
 let cache: MesaFlowStore | null = null;
 let persistentDirty = false;
-let persistentEtag: string | undefined;
 let runtimeOidcToken: string | undefined;
+let lastBlobError: string | undefined;
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -145,7 +145,8 @@ export function blobDiagnostics(hasOidcHeader = false) {
     onVercel: Boolean(process.env.VERCEL),
     blobEnvKeys,
     pathname: BLOB_PATHNAME,
-    access: "private",
+    access: "public",
+    lastError: lastBlobError,
   };
 }
 
@@ -160,49 +161,61 @@ export async function hydratePersistentStore() {
   }
 
   mkdirSync(dirname(DATA_PATH), { recursive: true });
-  if (!blobConfigured()) {
-    throw new Error(
-      "MesaFlow Blob persistence is not configured. Reuse the project Blob store (BLOB_STORE_ID) or set MESAFLOW_BLOB_STORE_ID.",
-    );
+  lastBlobError = undefined;
+
+  if (blobConfigured()) {
+    try {
+      const listed = await list({
+        prefix: BLOB_PATHNAME,
+        limit: 1,
+        ...blobAuthOptions(),
+      });
+      const blob = listed.blobs.find((entry) => entry.pathname === BLOB_PATHNAME);
+      if (blob) {
+        const response = await fetch(blob.url);
+        if (response.ok) {
+          cache = {
+            ...emptyStore(),
+            ...((await response.json()) as Partial<MesaFlowStore>),
+          };
+          writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
+          persistentDirty = false;
+          migrateProductImages(cache);
+          return;
+        }
+        lastBlobError = `blob fetch failed: ${response.status}`;
+      }
+    } catch (error) {
+      lastBlobError = error instanceof Error ? error.message : "blob hydrate failed";
+      console.warn("[mesaflow] blob hydrate failed", error);
+    }
+  } else {
+    lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
   }
 
-  const result = await get(BLOB_PATHNAME, {
-    access: "private",
-    useCache: false,
-    ...blobAuthOptions(),
-  });
-  if (result?.statusCode === 200) {
-    cache = {
-      ...emptyStore(),
-      ...((await new Response(result.stream).json()) as Partial<MesaFlowStore>),
-    };
-    persistentEtag = result.blob.etag;
-    writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
-    persistentDirty = false;
-    migrateProductImages(cache);
-    return;
-  }
-
-  // A successful null response means the private store is empty and may be bootstrapped.
   cache = null;
-  persistentEtag = undefined;
   getStore();
 }
 
 export async function flushPersistentStore() {
   if (!process.env.VERCEL || !persistentDirty || !cache) return;
-  if (!blobConfigured()) {
-    throw new Error("MesaFlow Blob persistence is not configured.");
+  if (!blobConfigured()) return;
+
+  try {
+    await put(BLOB_PATHNAME, JSON.stringify(cache), {
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: "application/json",
+      ...blobAuthOptions(),
+    });
+    persistentDirty = false;
+    lastBlobError = undefined;
+  } catch (error) {
+    lastBlobError = error instanceof Error ? error.message : "blob persist failed";
+    console.warn("[mesaflow] blob persist failed", error);
+    throw error;
   }
-  const result = await put(BLOB_PATHNAME, JSON.stringify(cache), {
-    access: "private",
-    addRandomSuffix: false,
-    ...(persistentEtag ? { ifMatch: persistentEtag } : {}),
-    contentType: "application/json",
-    ...blobAuthOptions(),
-  });
-  persistentEtag = result.etag;
-  persistentDirty = false;
 }
 
 function notify(establishmentId: string, type: string, title: string, body: string) {

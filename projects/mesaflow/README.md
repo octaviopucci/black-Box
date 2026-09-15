@@ -31,8 +31,8 @@ exporta o site e empacota a API.
 
 ### Persistência obrigatória
 
-Cadastros, sessões, cardápios e mesas são persistidos em Vercel Blob com
-`access: "private"` no arquivo `mesaflow/store.json`.
+Cadastros, sessões, cardápios e mesas são persistidos em Vercel Blob no arquivo
+`mesaflow/store.json` (mesmo store compartilhado do projeto).
 
 **Não é necessário criar um Blob Store novo.** Reutilize o store já conectado ao
 projeto `loja-iphoneimports` (`BLOB_STORE_ID` / `BLOB_READ_WRITE_TOKEN`), o
