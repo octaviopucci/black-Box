@@ -9,6 +9,8 @@ import {
   deleteAdminTable,
   findEstablishmentBySlug,
   findTableByQr,
+  blobConfigured,
+  blobDiagnostics,
   flushPersistentStore,
   getAdminSettings,
   getOrOpenCommand,
@@ -83,7 +85,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const store = getStore();
 
     if (req.method === "GET" && path === "/health") {
-      return json(res, 200, { ok: true, service: "mesaflow" });
+      const storage = blobDiagnostics(Boolean(readOidcHeader(req)));
+      return json(res, 200, {
+        ok: true,
+        service: "mesaflow",
+        blob: storage.configured,
+        storage,
+      });
     }
 
     if (req.method === "GET" && path.startsWith("/menu/")) {

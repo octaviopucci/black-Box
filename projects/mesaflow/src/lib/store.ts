@@ -106,20 +106,47 @@ export function saveStore(next: MesaFlowStore) {
   persist();
 }
 
-function blobAuthOptions(): { token?: string; storeId?: string; oidcToken?: string } {
-  const token = process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN;
-  if (token) return { token };
-  const storeId = process.env.MESAFLOW_BLOB_STORE_ID;
-  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
-  return {
-    ...(storeId ? { storeId } : {}),
-    ...(storeId && oidcToken ? { oidcToken } : {}),
-  };
+function blobReadWriteToken() {
+  return process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
 }
 
-function blobConfigured() {
-  const auth = blobAuthOptions();
-  return Boolean(auth.token || (auth.storeId && auth.oidcToken));
+function blobStoreId() {
+  return process.env.MESAFLOW_BLOB_STORE_ID || process.env.BLOB_STORE_ID;
+}
+
+function blobAuthOptions(): { token?: string; storeId?: string; oidcToken?: string } {
+  const token = blobReadWriteToken();
+  if (token) return { token };
+
+  const storeId = blobStoreId();
+  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
+  if (oidcToken && storeId) return { oidcToken, storeId };
+  if (storeId) return { storeId };
+  if (oidcToken) return { oidcToken };
+  return {};
+}
+
+export function blobConfigured() {
+  if (blobReadWriteToken()) return true;
+  if (blobStoreId()) return true;
+  return Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN);
+}
+
+export function blobDiagnostics(hasOidcHeader = false) {
+  const blobEnvKeys = Object.keys(process.env).filter(
+    (key) => key.includes("BLOB") || key.includes("OIDC"),
+  );
+  return {
+    configured: blobConfigured(),
+    hasToken: Boolean(blobReadWriteToken()),
+    hasStoreId: Boolean(blobStoreId()),
+    hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
+    hasOidcHeader,
+    onVercel: Boolean(process.env.VERCEL),
+    blobEnvKeys,
+    pathname: BLOB_PATHNAME,
+    access: "private",
+  };
 }
 
 export function setPersistentStoreOidcToken(token: string | undefined) {
@@ -134,7 +161,9 @@ export async function hydratePersistentStore() {
 
   mkdirSync(dirname(DATA_PATH), { recursive: true });
   if (!blobConfigured()) {
-    throw new Error("MesaFlow private Blob persistence is not configured.");
+    throw new Error(
+      "MesaFlow Blob persistence is not configured. Reuse the project Blob store (BLOB_STORE_ID) or set MESAFLOW_BLOB_STORE_ID.",
+    );
   }
 
   const result = await get(BLOB_PATHNAME, {

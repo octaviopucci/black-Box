@@ -16,7 +16,7 @@
 | NA Veículos = Next em `projects/na-veiculos` (template Clow); `apps/na-veiculos` Vite é legado sem script | `projects/na-veiculos/README.md` | architecture |
 | Site institucional Black Box = `portal/` (raiz blckbox.vercel.app) | `portal/README.md` | architecture |
 | Contato/WhatsApp/redes do portal: `portal/src/data/site.ts` | `portal/src/data/site.ts` | business-rule |
-| MesaFlow exige Vercel Blob **privado** dedicado (`MESAFLOW_BLOB_STORE_ID`) para persistência; não reutilizar Blob público dos catálogos | `projects/mesaflow/README.md` | security |
+| MesaFlow persiste em `mesaflow/store.json` com `access: private` no **mesmo** Blob do projeto (`BLOB_STORE_ID`); store dedicado é opcional | `projects/mesaflow/README.md` | architecture |
 | **Black Box Platform** (Revenue OS parceiros) — spec + `platform/` app | `docs/black-box-platform/`, `platform/` | architecture |
 
 _Add rows when a future session would be surprised not to know something._

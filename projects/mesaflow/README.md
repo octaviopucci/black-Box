@@ -31,16 +31,23 @@ exporta o site e empacota a API.
 
 ### Persistência obrigatória
 
-Cadastros, sessões, cardápios e mesas são persistidos em um **Vercel Blob
-privado**. Não reutilize o Blob público dos catálogos.
+Cadastros, sessões, cardápios e mesas são persistidos em Vercel Blob com
+`access: "private"` no arquivo `mesaflow/store.json`.
 
-1. Crie um Blob Store com acesso **Private** e conecte-o ao projeto de produção.
-2. Configure `MESAFLOW_BLOB_STORE_ID` com o ID desse store.
-3. OIDC da Vercel autentica as funções automaticamente. Fora da Vercel, use
-   `MESAFLOW_BLOB_READ_WRITE_TOKEN`.
+**Não é necessário criar um Blob Store novo.** Reutilize o store já conectado ao
+projeto `loja-iphoneimports` (`BLOB_STORE_ID` / `BLOB_READ_WRITE_TOKEN`), o
+mesmo usado por W-Tube e iPhone Imports.
 
-Sem um store privado configurado, a API falha fechada e não grava dados em
-`/tmp`.
+1. Confirme que o projeto já tem Blob conectado (ver `projects/iphone-imports/DEPLOY.md`).
+2. Faça redeploy — o MesaFlow usa automaticamente `BLOB_STORE_ID` ou
+   `BLOB_READ_WRITE_TOKEN`.
+3. Valide: `GET /api/mesaflow/health` deve retornar `blob: true`.
+
+Opcional: variáveis dedicadas `MESAFLOW_BLOB_STORE_ID` /
+`MESAFLOW_BLOB_READ_WRITE_TOKEN` só se quiser isolar em outro store (exige
+cota disponível na Vercel).
+
+Sem Blob configurado, a API falha fechada e não grava dados em `/tmp`.
 
 ## Arquitetura MVP
 

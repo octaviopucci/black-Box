@@ -27,22 +27,22 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// api/_mesaflow/handler.ts
+// projects/iphone-imports/api/_mesaflow/handler.ts
 var handler_exports = {};
 __export(handler_exports, {
   default: () => handler
 });
 module.exports = __toCommonJS(handler_exports);
 
-// ../mesaflow/src/lib/store.ts
+// projects/mesaflow/src/lib/store.ts
 var import_fs = require("fs");
 var import_path = require("path");
 var import_blob = require("@vercel/blob");
 
-// ../mesaflow/src/lib/crypto-utils.ts
+// projects/mesaflow/src/lib/crypto-utils.ts
 var import_crypto2 = require("crypto");
 
-// ../mesaflow/node_modules/bcryptjs/index.js
+// projects/mesaflow/node_modules/bcryptjs/index.js
 var import_crypto = __toESM(require("crypto"), 1);
 var randomFallback = null;
 function randomBytes(len) {
@@ -1621,7 +1621,7 @@ function _hash(password, salt, callback, progressCallback) {
   }
 }
 
-// ../mesaflow/src/lib/crypto-utils.ts
+// projects/mesaflow/src/lib/crypto-utils.ts
 function hashPassword(password) {
   return hashSync(password, 12);
 }
@@ -1637,7 +1637,7 @@ function sessionToken() {
   return (0, import_crypto2.randomBytes)(32).toString("hex");
 }
 
-// ../mesaflow/src/lib/events.ts
+// projects/mesaflow/src/lib/events.ts
 var listeners = /* @__PURE__ */ new Map();
 function emit(event) {
   const set = listeners.get(event.establishmentId);
@@ -1645,13 +1645,13 @@ function emit(event) {
   for (const fn of set) fn(event);
 }
 
-// ../mesaflow/src/lib/order-math.ts
+// projects/mesaflow/src/lib/order-math.ts
 function lineTotal(item) {
   const addons = item.addons.reduce((s, a) => s + a.price * a.qty, 0);
   return item.qty * (item.unitPrice + item.variantDelta) + addons;
 }
 
-// ../mesaflow/src/lib/product-images.ts
+// projects/mesaflow/src/lib/product-images.ts
 var PEXELS_Q = "auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
 function pexels(id2, slug = "pexels-photo") {
   return `https://images.pexels.com/photos/${id2}/${slug}-${id2}.jpeg?${PEXELS_Q}`;
@@ -1732,7 +1732,7 @@ function productImageByName(name, preset = "default") {
   return FOOD_PRESETS[preset] ?? FOOD_PRESETS.default;
 }
 
-// ../mesaflow/src/lib/provision.ts
+// projects/mesaflow/src/lib/provision.ts
 var import_crypto3 = require("crypto");
 function slugify(name) {
   return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
@@ -1949,11 +1949,11 @@ function provisionEstablishment(store, input) {
   return { establishment, user, slug };
 }
 
-// ../mesaflow/src/lib/demo.ts
+// projects/mesaflow/src/lib/demo.ts
 var DEMO_ESTABLISHMENT_SLUG = "ponto-do-sabor";
 var DEMO_ESTABLISHMENT_ID = "est_ponto_sabor";
 
-// ../mesaflow/src/lib/seed.ts
+// projects/mesaflow/src/lib/seed.ts
 var EST_ID = DEMO_ESTABLISHMENT_ID;
 var DEMO_SLUG = DEMO_ESTABLISHMENT_SLUG;
 function buildDemoStore() {
@@ -2450,7 +2450,7 @@ function buildDemoStore() {
   };
 }
 
-// ../mesaflow/src/lib/store.ts
+// projects/mesaflow/src/lib/store.ts
 var BLOB_PATHNAME = "mesaflow/store.json";
 var DATA_PATH = process.env.MESAFLOW_DATA || (process.env.VERCEL ? "/tmp/mesaflow-store.json" : (0, import_path.join)(process.cwd(), "data", "store.json"));
 var cache = null;
@@ -2515,19 +2515,42 @@ function saveStore(next) {
   cache = next;
   persist();
 }
+function blobReadWriteToken() {
+  return process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+}
+function blobStoreId() {
+  return process.env.MESAFLOW_BLOB_STORE_ID || process.env.BLOB_STORE_ID;
+}
 function blobAuthOptions() {
-  const token = process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN;
+  const token = blobReadWriteToken();
   if (token) return { token };
-  const storeId = process.env.MESAFLOW_BLOB_STORE_ID;
+  const storeId = blobStoreId();
   const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
-  return {
-    ...storeId ? { storeId } : {},
-    ...storeId && oidcToken ? { oidcToken } : {}
-  };
+  if (oidcToken && storeId) return { oidcToken, storeId };
+  if (storeId) return { storeId };
+  if (oidcToken) return { oidcToken };
+  return {};
 }
 function blobConfigured() {
-  const auth = blobAuthOptions();
-  return Boolean(auth.token || auth.storeId && auth.oidcToken);
+  if (blobReadWriteToken()) return true;
+  if (blobStoreId()) return true;
+  return Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN);
+}
+function blobDiagnostics(hasOidcHeader = false) {
+  const blobEnvKeys = Object.keys(process.env).filter(
+    (key) => key.includes("BLOB") || key.includes("OIDC")
+  );
+  return {
+    configured: blobConfigured(),
+    hasToken: Boolean(blobReadWriteToken()),
+    hasStoreId: Boolean(blobStoreId()),
+    hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
+    hasOidcHeader,
+    onVercel: Boolean(process.env.VERCEL),
+    blobEnvKeys,
+    pathname: BLOB_PATHNAME,
+    access: "private"
+  };
 }
 function setPersistentStoreOidcToken(token) {
   runtimeOidcToken = token?.trim() || void 0;
@@ -2539,7 +2562,9 @@ async function hydratePersistentStore() {
   }
   (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });
   if (!blobConfigured()) {
-    throw new Error("MesaFlow private Blob persistence is not configured.");
+    throw new Error(
+      "MesaFlow Blob persistence is not configured. Reuse the project Blob store (BLOB_STORE_ID) or set MESAFLOW_BLOB_STORE_ID."
+    );
   }
   const result = await (0, import_blob.get)(BLOB_PATHNAME, {
     access: "private",
@@ -3160,7 +3185,7 @@ function dashboardStats(establishmentId) {
   };
 }
 
-// api/_mesaflow/handler.ts
+// projects/iphone-imports/api/_mesaflow/handler.ts
 function resolvePath(req) {
   const q = req.query?.path;
   if (Array.isArray(q) && q.length > 0) return "/" + q.map(String).join("/");
@@ -3205,7 +3230,13 @@ async function handler(req, res) {
     const path = resolvePath(req);
     const store = getStore();
     if (req.method === "GET" && path === "/health") {
-      return json(res, 200, { ok: true, service: "mesaflow" });
+      const storage = blobDiagnostics(Boolean(readOidcHeader(req)));
+      return json(res, 200, {
+        ok: true,
+        service: "mesaflow",
+        blob: storage.configured,
+        storage
+      });
     }
     if (req.method === "GET" && path.startsWith("/menu/")) {
       const parts = path.split("/").filter(Boolean);
