@@ -1,16 +1,31 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import {
+  createAdminProduct,
+  createAdminTable,
   createOrder,
   createRodizioRound,
   dashboardStats,
+  deleteAdminProduct,
+  deleteAdminTable,
   findEstablishmentBySlug,
   findTableByQr,
+  blobConfigured,
+  blobDiagnostics,
+  flushPersistentStore,
+  getAdminSettings,
   getOrOpenCommand,
   getStore,
+  hydratePersistentStore,
+  listAdminProducts,
+  listAdminTables,
   loginUser,
   publicUser,
+  regenerateAdminTableQr,
   registerEstablishment,
-  resolveAdminEstablishment,
+  setPersistentStoreOidcToken,
+  updateAdminProduct,
+  updateAdminSettings,
+  updateAdminTable,
   validateSession,
   requestBill,
   updateOrderStatus,
@@ -29,23 +44,54 @@ function resolvePath(req: VercelRequest): string {
   return stripped.startsWith("/") ? stripped : `/${stripped}`;
 }
 
-function json(res: VercelResponse, status: number, body: unknown) {
+async function json(res: VercelResponse, status: number, body: unknown) {
+  try {
+    await flushPersistentStore();
+  } catch (error) {
+    console.error("[mesaflow] blob persist failed", error);
+    status = 500;
+    body = { error: "Não foi possível persistir a alteração." };
+  }
   res.status(status).setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   res.send(JSON.stringify(body));
 }
 
+function readOidcHeader(req: VercelRequest) {
+  const value = req.headers["x-vercel-oidc-token"];
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (Array.isArray(value) && value[0]?.trim()) return value[0].trim();
+  return undefined;
+}
+
+function adminAuth(req: VercelRequest) {
+  const authorization = req.headers.authorization;
+  const match = typeof authorization === "string" && authorization.match(/^Bearer\s+(.+)$/i);
+  const auth = validateSession(match ? match[1].trim() : undefined);
+  return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER")
+    ? auth
+    : null;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setPersistentStoreOidcToken(readOidcHeader(req));
   if (req.method === "OPTIONS") return json(res, 204, {});
 
   try {
+    await hydratePersistentStore();
     const path = resolvePath(req);
     const store = getStore();
 
     if (req.method === "GET" && path === "/health") {
-      return json(res, 200, { ok: true, service: "mesaflow" });
+      const storage = blobDiagnostics(Boolean(readOidcHeader(req)));
+      return json(res, 200, {
+        ok: true,
+        service: "mesaflow",
+        blob: storage.configured,
+        storage,
+      });
     }
 
     if (req.method === "GET" && path.startsWith("/menu/")) {
@@ -197,13 +243,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "GET" && path === "/admin/dashboard") {
-      const slug = String(req.query?.slug || "");
-      const est = resolveAdminEstablishment(slug, req.headers.authorization);
-      if (!est) return json(res, 401, { error: "Não autorizado." });
-      const auth = validateSession(req.headers.authorization?.replace(/^Bearer\s+/i, ""));
-      if (auth && auth.establishment.id !== est.id) {
-        return json(res, 403, { error: "Acesso negado a este estabelecimento." });
-      }
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const est = auth.establishment;
       const stats = dashboardStats(est.id);
       const orders = Object.values(store.orders)
         .filter((o) => o.establishmentId === est.id)
@@ -215,7 +257,105 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
         .slice(0, 20);
       const commands = Object.values(store.commands).filter((c) => c.establishmentId === est.id);
-      return json(res, 200, { establishment: est, stats, orders, tables, sectors, commands, notifications });
+      const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id);
+      const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
+      return json(res, 200, {
+        establishment: est,
+        stats,
+        orders,
+        tables,
+        sectors,
+        commands,
+        notifications,
+        categories,
+        products,
+      });
+    }
+
+    if (path === "/admin/settings") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "GET") {
+        const establishment = getAdminSettings(auth.establishment.id);
+        if (!establishment) {
+          return json(res, 404, { error: "Estabelecimento não encontrado." });
+        }
+        return json(res, 200, { establishment });
+      }
+      if (req.method === "PATCH") {
+        const result = updateAdminSettings(auth.establishment.id, req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { establishment: result.value });
+      }
+    }
+
+    if (path === "/admin/products") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "GET") {
+        return json(res, 200, listAdminProducts(auth.establishment.id));
+      }
+      if (req.method === "POST") {
+        const result = createAdminProduct(auth.establishment.id, req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, { product: result.value });
+      }
+    }
+
+    const adminProductMatch = path.match(/^\/admin\/products\/([^/]+)$/);
+    if (adminProductMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "PATCH") {
+        const result = updateAdminProduct(auth.establishment.id, adminProductMatch[1], req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { product: result.value });
+      }
+      if (req.method === "DELETE") {
+        const result = deleteAdminProduct(auth.establishment.id, adminProductMatch[1]);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { product: result.value });
+      }
+    }
+
+    if (path === "/admin/tables") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "GET") {
+        return json(res, 200, { tables: listAdminTables(auth.establishment.id) });
+      }
+      if (req.method === "POST") {
+        const result = createAdminTable(auth.establishment.id, req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, { table: result.value });
+      }
+    }
+
+    const regenerateQrMatch = path.match(/^\/admin\/tables\/([^/]+)\/regenerate-qr$/);
+    if (regenerateQrMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "POST") {
+        const result = regenerateAdminTableQr(auth.establishment.id, regenerateQrMatch[1]);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { table: result.value });
+      }
+    }
+
+    const adminTableMatch = path.match(/^\/admin\/tables\/([^/]+)$/);
+    if (adminTableMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "PATCH") {
+        const result = updateAdminTable(auth.establishment.id, adminTableMatch[1], req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { table: result.value });
+      }
+      if (req.method === "DELETE") {
+        const result = deleteAdminTable(auth.establishment.id, adminTableMatch[1]);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { deleted: result.value.id });
+      }
     }
 
     if (req.method === "POST" && path === "/rodizio/round") {

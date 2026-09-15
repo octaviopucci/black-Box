@@ -1,4 +1,5 @@
 import { id } from "./crypto-utils";
+import { randomBytes } from "crypto";
 import { FOOD_PRESETS, productImage, productImageByName } from "./product-images";
 import type {
   BusinessType,
@@ -39,6 +40,17 @@ function uniqueSlug(store: MesaFlowStore, base: string) {
     slug = `${slugify(base)}-${n}`;
   }
   return slug;
+}
+
+function uniqueQrToken(store: MesaFlowStore, pending: Record<string, Table>) {
+  let token = randomBytes(32).toString("hex");
+  while (
+    Object.values(store.tables).some((table) => table.qrToken === token) ||
+    Object.values(pending).some((table) => table.qrToken === token)
+  ) {
+    token = randomBytes(32).toString("hex");
+  }
+  return token;
 }
 
 const TYPE_LABELS: Record<BusinessType, string> = {
@@ -215,7 +227,7 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       name: `Mesa ${String(i).padStart(2, "0")}`,
       capacity: i <= 4 ? 4 : 6,
       status: "LIVRE",
-      qrToken: `mesa-${i}`,
+      qrToken: uniqueQrToken(store, tables),
     };
   }
 

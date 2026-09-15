@@ -48,6 +48,8 @@
     { "source": "/mesaflow/admin/login", "destination": "/mesaflow/admin/login" },
     { "source": "/mesaflow/admin/signup", "destination": "/mesaflow/admin/signup" },
     { "source": "/mesaflow/admin/orders", "destination": "/mesaflow/admin/orders" },
+    { "source": "/mesaflow/admin/products", "destination": "/mesaflow/admin/products" },
+    { "source": "/mesaflow/admin/settings", "destination": "/mesaflow/admin/settings" },
     { "source": "/mesaflow/admin/tables", "destination": "/mesaflow/admin/tables" },
     { "source": "/mesaflow/admin/qrcodes", "destination": "/mesaflow/admin/qrcodes" },
     { "source": "/mesaflow/admin", "destination": "/mesaflow/admin" },

@@ -64,6 +64,7 @@ await esbuild.build({
   outfile: join(hostRoot, "api/mesaflow.js"),
   format: "cjs",
   sourcemap: true,
+  external: ["@vercel/blob", "@vercel/node"],
   loader: { ".json": "json" },
 });
 console.log("✓ mesaflow pronto");

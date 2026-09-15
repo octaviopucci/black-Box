@@ -29,6 +29,27 @@ Opções:
 - **Recomendado:** aponte o domínio para o deploy em `loja-iphoneimports` (alias/custom domain)
 - **Alternativa:** projeto separado com Root Directory = `projects/mesaflow`, Framework = Next.js, sem output directory manual
 
+## Persistência (Blob)
+
+O MesaFlow **reutiliza o Blob já conectado** ao projeto `loja-iphoneimports`.
+Não crie um store novo se a Vercel retornar limite de uso.
+
+| Arquivo no Blob | API | Acesso |
+|-----------------|-----|--------|
+| `mesaflow/store.json` | `/api/mesaflow` | **private** |
+| `w-tube/store.json` | `/api/w-tube` | private |
+| `iphone-imports/store.json` | `/api/iphone-imports` | private |
+
+Validar após deploy:
+
+```bash
+curl https://loja-iphoneimports.vercel.app/api/mesaflow/health
+# ok: true · blob: true
+```
+
+Se `blob: false`, siga o passo 4 de `projects/iphone-imports/DEPLOY.md` (conectar
+Blob ou adicionar `BLOB_READ_WRITE_TOKEN`).
+
 ## Verificação local
 
 ```bash

@@ -14,6 +14,8 @@ const requiredFiles = [
   "kds/live.html",
   "admin/login.html",
   "admin/signup.html",
+  "admin/products.html",
+  "admin/settings.html",
   "brand/logo-icon.png",
   "brand/logo-vertical.png",
   "favicon.ico",
@@ -41,6 +43,14 @@ if (badRewrites.length > 0) {
   console.error("✗ rewrites MesaFlow com .html (incompatível com cleanUrls):");
   for (const r of badRewrites) console.error(`  ${r.source} → ${r.destination}`);
   failed = true;
+}
+
+for (const route of ["/mesaflow/admin/products", "/mesaflow/admin/settings"]) {
+  const rewrite = (vercelJson.rewrites ?? []).find((candidate) => candidate.source === route);
+  if (!rewrite || rewrite.destination !== route) {
+    console.error(`✗ rewrite ausente ou inválido: ${route}`);
+    failed = true;
+  }
 }
 
 if (failed) process.exit(1);

@@ -24,7 +24,7 @@ export const PRODUCT_IMAGES: Record<string, string> = {
   p_batata: pexels(1581384), // batata frita
   p_coxinha: pexels(4518843), // salgado / coxinha
   p_coca: pexels(50593, "coca-cola-cold-drink-soft-drink-coke"), // coca-cola lata
-  p_cappuccino: unsplash("1593508512255-86ab42a8e620"), // cappuccino
+  p_cappuccino: unsplash("1572442388796-11668a67e53d"), // cappuccino com latte art
   p_chopp: pexels(15515325), // chopp / cerveja na torneira
   p_caipirinha: pexels(2097090), // caipirinha / coquetel
   p_pudim: unsplash("1551024506-0bccd828d307"), // pudim de leite
@@ -41,7 +41,7 @@ export const FOOD_PRESETS = {
   padaria: pexels(5632401),
   porcao: pexels(1581384),
   bebida: pexels(50593, "coca-cola-cold-drink-soft-drink-coke"),
-  cafe: unsplash("1593508512255-86ab42a8e620"),
+  cafe: unsplash("1495474472287-4d71bcdd2085"),
   default: pexels(1893556),
 } as const;
 
@@ -55,19 +55,26 @@ export function productImage(id: string, fallback: FoodPreset | string = "defaul
 
 /** Escolhe imagem pelo nome do produto (novos tenants). */
 export function productImageByName(name: string, preset: FoodPreset = "default") {
-  const n = name.toLowerCase();
-  if (n.includes("burger") || n.includes("x-burger") || n.includes("hambúrguer")) return FOOD_PRESETS.burger;
-  if (n.includes("salada") && n.includes("x-")) return FOOD_PRESETS.xsalada;
-  if (n.includes("pizza")) return FOOD_PRESETS.pizza;
-  if (n.includes("pão") || n.includes("padaria")) return FOOD_PRESETS.padaria;
-  if (n.includes("batata") || n.includes("porção") || n.includes("porcao")) return FOOD_PRESETS.porcao;
+  const n = name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (n.includes("x-salada") || n.includes("x salada")) return FOOD_PRESETS.xsalada;
+  if (n.includes("burger") || n.includes("x-burger") || n.includes("hamburguer")) return FOOD_PRESETS.burger;
+  if (n.includes("pizza") || n.includes("calabresa") || n.includes("pepperoni") || n.includes("marguerita") || n.includes("margherita")) {
+    if (n.includes("pepperoni")) return PRODUCT_IMAGES.p_pizza_pepper;
+    if (n.includes("marguerita") || n.includes("margherita")) return PRODUCT_IMAGES.p_pizza_marg;
+    if (n.includes("frango")) return PRODUCT_IMAGES.p_pizza_frango;
+    return PRODUCT_IMAGES.p_pizza_calabresa;
+  }
+  if (n.includes("coxinha") || n.includes("salgado")) return PRODUCT_IMAGES.p_coxinha;
+  if (n.includes("pao") || n.includes("padaria") || n.includes("croissant")) return FOOD_PRESETS.padaria;
+  if (n.includes("batata") || n.includes("porcao")) return FOOD_PRESETS.porcao;
   if (n.includes("refrigerante") || n.includes("coca") || n.includes("suco")) return FOOD_PRESETS.bebida;
-  if (n.includes("café") || n.includes("cafe") || n.includes("cappuccino")) return FOOD_PRESETS.cafe;
+  if (n.includes("cappuccino") || n.includes("capuccino")) return PRODUCT_IMAGES.p_cappuccino;
+  if (n.includes("cafe") || n.includes("espresso") || n.includes("expresso") || n.includes("latte")) return FOOD_PRESETS.cafe;
   if (n.includes("chopp") || n.includes("cerveja")) return pexels(15515325);
   if (n.includes("caipirinha") || n.includes("drink")) return pexels(2097090);
-  if (n.includes("pudim") || n.includes("doce") || n.includes("brownie")) return pexels(1624487);
+  if (n.includes("pudim") || n.includes("flan")) return PRODUCT_IMAGES.p_pudim;
+  if (n.includes("brownie") || n.includes("bolo") || n.includes("sobremesa") || n.includes("doce")) return PRODUCT_IMAGES.p_brownie;
   if (n.includes("salada")) return unsplash("1512621776951-a57141f2eefd");
-  if (n.includes("coxinha") || n.includes("salgado")) return pexels(4518843);
   if (n.includes("prato")) return FOOD_PRESETS.prato;
   return FOOD_PRESETS[preset] ?? FOOD_PRESETS.default;
 }
