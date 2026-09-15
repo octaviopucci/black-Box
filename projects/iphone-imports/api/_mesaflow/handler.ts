@@ -67,7 +67,10 @@ function readOidcHeader(req: VercelRequest) {
 function adminAuth(req: VercelRequest) {
   const authorization = req.headers.authorization;
   const match = typeof authorization === "string" && authorization.match(/^Bearer\s+(.+)$/i);
-  return validateSession(match ? match[1].trim() : undefined);
+  const auth = validateSession(match ? match[1].trim() : undefined);
+  return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER")
+    ? auth
+    : null;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

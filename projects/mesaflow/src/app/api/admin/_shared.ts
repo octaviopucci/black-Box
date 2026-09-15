@@ -3,7 +3,10 @@ import { validateSession } from "@/lib/store";
 export function requireAdmin(req: Request) {
   const authorization = req.headers.get("authorization") || "";
   const match = authorization.match(/^Bearer\s+(.+)$/i);
-  return validateSession(match?.[1]?.trim());
+  const auth = validateSession(match?.[1]?.trim());
+  return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER")
+    ? auth
+    : null;
 }
 
 export async function readJson(req: Request): Promise<unknown> {

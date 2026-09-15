@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -19,10 +20,13 @@ async function run() {
     deleteAdminTable,
     findTableByQr,
     getStore,
+    loginUser,
     listAdminProducts,
     regenerateAdminTableQr,
+    saveStore,
     updateAdminProduct,
     updateAdminSettings,
+    updateAdminTable,
   } = await import("./store");
 
   const store = getStore();
@@ -37,6 +41,9 @@ async function run() {
   assert.match(table.qrToken, /^[a-f0-9]{64}$/);
   assert.equal(findTableByQr(establishment.id, "99"), null, "table number is not a QR credential");
   assert.equal(findTableByQr(establishment.id, table.qrToken)?.id, table.id);
+  unwrap(updateAdminTable(establishment.id, table.id, { status: "INATIVA" }));
+  assert.equal(findTableByQr(establishment.id, table.qrToken), null, "inactive table QR must be rejected");
+  unwrap(updateAdminTable(establishment.id, table.id, { status: "LIVRE" }));
 
   const oldToken = table.qrToken;
   const regenerated = unwrap(regenerateAdminTableQr(establishment.id, table.id));
@@ -86,6 +93,12 @@ async function run() {
   assert.equal(updated.name, "Ponto do Sabor Atualizado");
   assert.equal(updated.open, false);
   assert.equal(updated.settings.soundNotifications, false);
+
+  const owner = Object.values(store.users).find((user) => user.establishmentId === establishment.id)!;
+  owner.passwordHash = createHash("sha256").update("mesaflow:demo123").digest("hex");
+  saveStore(store);
+  assert.ok(!loginUser(owner.email, "demo123").error, "legacy login must remain valid");
+  assert.ok(owner.passwordHash.startsWith("$2"), "legacy password must migrate to bcrypt");
 
   console.log("✓ MesaFlow admin CRUD, tenant isolation and QR lifecycle passed");
 }

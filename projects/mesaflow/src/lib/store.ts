@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
-import { list, put } from "@vercel/blob";
-import { hashPassword, id, sessionToken } from "./crypto-utils";
+import { get, put } from "@vercel/blob";
+import { hashPassword, id, sessionToken, verifyPassword } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
 import { PRODUCT_IMAGES, productImageByName } from "./product-images";
@@ -32,6 +32,7 @@ const DATA_PATH =
 
 let cache: MesaFlowStore | null = null;
 let persistentDirty = false;
+let persistentEtag: string | undefined;
 let runtimeOidcToken: string | undefined;
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -106,20 +107,19 @@ export function saveStore(next: MesaFlowStore) {
 }
 
 function blobAuthOptions(): { token?: string; storeId?: string; oidcToken?: string } {
-  const token =
-    process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+  const token = process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN;
   if (token) return { token };
-  const storeId = process.env.MESAFLOW_BLOB_STORE_ID || process.env.BLOB_STORE_ID;
+  const storeId = process.env.MESAFLOW_BLOB_STORE_ID;
   const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
   return {
     ...(storeId ? { storeId } : {}),
-    ...(oidcToken ? { oidcToken } : {}),
+    ...(storeId && oidcToken ? { oidcToken } : {}),
   };
 }
 
 function blobConfigured() {
   const auth = blobAuthOptions();
-  return Boolean(auth.token || auth.storeId || auth.oidcToken);
+  return Boolean(auth.token || (auth.storeId && auth.oidcToken));
 }
 
 export function setPersistentStoreOidcToken(token: string | undefined) {
@@ -133,32 +133,30 @@ export async function hydratePersistentStore() {
   }
 
   mkdirSync(dirname(DATA_PATH), { recursive: true });
-  if (blobConfigured()) {
-    try {
-      const listed = await list({
-        prefix: BLOB_PATHNAME,
-        limit: 1,
-        ...blobAuthOptions(),
-      });
-      const blob = listed.blobs.find((candidate) => candidate.pathname === BLOB_PATHNAME);
-      if (blob) {
-        const response = await fetch(blob.url);
-        if (!response.ok) throw new Error(`Blob read failed (${response.status})`);
-        cache = {
-          ...emptyStore(),
-          ...((await response.json()) as Partial<MesaFlowStore>),
-        };
-        writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
-        persistentDirty = false;
-        migrateProductImages(cache);
-        return;
-      }
-    } catch (error) {
-      console.warn("[mesaflow] blob hydrate failed", error);
-    }
+  if (!blobConfigured()) {
+    throw new Error("MesaFlow private Blob persistence is not configured.");
   }
 
+  const result = await get(BLOB_PATHNAME, {
+    access: "private",
+    useCache: false,
+    ...blobAuthOptions(),
+  });
+  if (result?.statusCode === 200) {
+    cache = {
+      ...emptyStore(),
+      ...((await new Response(result.stream).json()) as Partial<MesaFlowStore>),
+    };
+    persistentEtag = result.blob.etag;
+    writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
+    persistentDirty = false;
+    migrateProductImages(cache);
+    return;
+  }
+
+  // A successful null response means the private store is empty and may be bootstrapped.
   cache = null;
+  persistentEtag = undefined;
   getStore();
 }
 
@@ -167,13 +165,14 @@ export async function flushPersistentStore() {
   if (!blobConfigured()) {
     throw new Error("MesaFlow Blob persistence is not configured.");
   }
-  await put(BLOB_PATHNAME, JSON.stringify(cache), {
-    access: "public",
+  const result = await put(BLOB_PATHNAME, JSON.stringify(cache), {
+    access: "private",
     addRandomSuffix: false,
-    allowOverwrite: true,
+    ...(persistentEtag ? { ifMatch: persistentEtag } : {}),
     contentType: "application/json",
     ...blobAuthOptions(),
   });
+  persistentEtag = result.etag;
   persistentDirty = false;
 }
 
@@ -277,10 +276,15 @@ export function registerEstablishment(input: Omit<RegisterInput, "passwordHash">
 
 export function loginUser(email: string, password: string) {
   const user = findUserByEmail(email);
-  if (!user || user.passwordHash !== hashPassword(password)) {
+  if (!user || !verifyPassword(password, user.passwordHash)) {
     return { error: "E-mail ou senha inválidos." };
   }
   const store = getStore();
+  if (!user.passwordHash.startsWith("$2")) {
+    user.passwordHash = hashPassword(password);
+    store.users[user.id] = user;
+    saveStore(store);
+  }
   const establishment = store.establishments[user.establishmentId];
   if (!establishment) return { error: "Estabelecimento não encontrado." };
   const session = createSession(user);
@@ -304,7 +308,10 @@ export function findTableByQr(establishmentId: string, tableToken: string) {
   const store = getStore();
   return (
     Object.values(store.tables).find(
-      (t) => t.establishmentId === establishmentId && t.qrToken === tableToken,
+      (t) =>
+        t.establishmentId === establishmentId &&
+        t.status !== "INATIVA" &&
+        t.qrToken === tableToken,
     ) || null
   );
 }
