@@ -434,7 +434,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               o.items.map((item) => (
                 <div key={item.id} className="flex justify-between border-b border-white/5 py-2 text-sm">
                   <span>{item.qty}x {item.productName}</span>
-                  <span>{formatCurrency(item.qty * (item.unitPrice + item.variantDelta))}</span>
+                  <span>{formatCurrency(lineTotal(item))}</span>
                 </div>
               )),
             )}

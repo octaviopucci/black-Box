@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input, Select } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
 import type { Establishment } from "@/lib/types";
@@ -12,10 +12,6 @@ type SettingsDraft = {
   name: string;
   tagline: string;
   open: boolean;
-  currency: string;
-  allowEditAfterPrep: boolean;
-  soundNotifications: boolean;
-  minIntervalRodizioSec: string;
 };
 
 function toDraft(establishment: Establishment): SettingsDraft {
@@ -23,10 +19,6 @@ function toDraft(establishment: Establishment): SettingsDraft {
     name: establishment.name,
     tagline: establishment.tagline || "",
     open: establishment.open,
-    currency: establishment.settings.currency || "BRL",
-    allowEditAfterPrep: establishment.settings.allowEditAfterPrep,
-    soundNotifications: establishment.settings.soundNotifications,
-    minIntervalRodizioSec: String(establishment.settings.minIntervalRodizioSec || 0),
   };
 }
 
@@ -75,12 +67,6 @@ export default function AdminSettingsPage() {
           name: draft.name.trim(),
           tagline: draft.tagline.trim(),
           open: draft.open,
-          settings: {
-            currency: draft.currency,
-            allowEditAfterPrep: draft.allowEditAfterPrep,
-            soundNotifications: draft.soundNotifications,
-            minIntervalRodizioSec: Math.max(0, Number(draft.minIntervalRodizioSec) || 0),
-          },
         }),
       });
       const json = await response.json();
@@ -124,22 +110,6 @@ export default function AdminSettingsPage() {
                   <label className="flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-surface/50 p-4">
                     <span><span className="block text-sm font-semibold">Aceitando pedidos</span><span className="mt-0.5 block text-xs text-muted">O cardápio informa se a casa está aberta.</span></span>
                     <input type="checkbox" checked={draft.open} onChange={(event) => setDraft({ ...draft, open: event.target.checked })} className="h-5 w-5 shrink-0 accent-brand" />
-                  </label>
-                </div>
-              </section>
-
-              <section className="glass-card p-5 sm:p-6">
-                <h2 className="mb-4 font-bold">Operação</h2>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label><span className="mb-1.5 block text-xs font-medium text-muted">Moeda</span><Select value={draft.currency} onChange={(event) => setDraft({ ...draft, currency: event.target.value })}><option value="BRL">Real brasileiro (BRL)</option><option value="USD">Dólar (USD)</option><option value="EUR">Euro (EUR)</option></Select></label>
-                  <label><span className="mb-1.5 block text-xs font-medium text-muted">Intervalo mínimo do rodízio (segundos)</span><Input type="number" min="0" step="1" value={draft.minIntervalRodizioSec} onChange={(event) => setDraft({ ...draft, minIntervalRodizioSec: event.target.value })} /></label>
-                  <label className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-surface/50 p-4 sm:col-span-2">
-                    <span><span className="block text-sm font-semibold">Notificações sonoras</span><span className="block text-xs text-muted">Reproduzir som quando novos pedidos chegarem.</span></span>
-                    <input type="checkbox" checked={draft.soundNotifications} onChange={(event) => setDraft({ ...draft, soundNotifications: event.target.checked })} className="h-5 w-5 accent-brand" />
-                  </label>
-                  <label className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-surface/50 p-4 sm:col-span-2">
-                    <span><span className="block text-sm font-semibold">Permitir edição após preparo</span><span className="block text-xs text-muted">Pedidos já iniciados poderão ser alterados.</span></span>
-                    <input type="checkbox" checked={draft.allowEditAfterPrep} onChange={(event) => setDraft({ ...draft, allowEditAfterPrep: event.target.checked })} className="h-5 w-5 accent-brand" />
                   </label>
                 </div>
               </section>
