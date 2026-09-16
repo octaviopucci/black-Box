@@ -16,6 +16,14 @@ Projeto unificado em `projects/iphone-imports/`:
 | **MesaFlow** | `https://loja-iphoneimports.vercel.app/mesaflow/` |
 | **API MesaFlow** | `https://loja-iphoneimports.vercel.app/api/mesaflow/health` |
 
+## Nova conta Vercel (migração)
+
+Se trocou de conta (limite de Blob, novo time, etc.), siga o guia completo:
+
+**`scripts/setup-vercel-account.md`** na raiz do monorepo.
+
+Resumo: importar repo com Root Directory `projects/iphone-imports` → criar Blob → atualizar secret `VERCEL_DEPLOY_HOOK` no GitHub → `npm run setup:vercel-plugin` + `vercel login` no Mac.
+
 ## Vercel — checklist (loja-iphoneimports)
 
 ### 1. Git (Settings → Git) ✅
