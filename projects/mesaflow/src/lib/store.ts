@@ -60,12 +60,16 @@ function emptyStore(): MesaFlowStore {
     establishments: {},
     users: {},
     sessions: {},
+    clientSessions: {},
+    otpChallenges: {},
+    guestPhoneSecrets: {},
     sectors: {},
     categories: {},
     products: {},
     tables: {},
     commands: {},
     orders: {},
+    guestParticipations: {},
     rodizios: {},
     rodizioRounds: {},
     notifications: {},
@@ -857,9 +861,13 @@ export function createOrder(input: {
   notes?: string;
   source?: Order["source"];
   rodizioRoundId?: string;
-  guestParticipationId?: string;
+  guestParticipationId: string;
 }): Order {
   const store = getStore();
+  const participation = store.guestParticipations[input.guestParticipationId];
+  if (participation && participation.status !== "OPEN") {
+    throw new Error("Participação não permite novos pedidos.");
+  }
   const total = input.items.reduce((s, i) => s + lineTotal(i), 0);
   const order: Order = {
     id: id("ord_"),
@@ -867,7 +875,7 @@ export function createOrder(input: {
     tableId: input.table.id,
     tableNumber: input.table.number,
     commandId: input.commandId,
-    guestParticipationId: input.guestParticipationId || `gp_legacy_${input.commandId}`,
+    guestParticipationId: input.guestParticipationId,
     number: nextOrderNumber(input.establishmentId),
     status: "NOVO",
     items: input.items.map((i) => ({ ...i, status: "NOVO" as OrderStatus })),
@@ -879,6 +887,11 @@ export function createOrder(input: {
     updatedAt: new Date().toISOString(),
   };
   store.orders[order.id] = order;
+  if (participation) {
+    participation.orderCount += 1;
+    participation.lastOrderAt = order.createdAt;
+    store.guestParticipations[participation.id] = participation;
+  }
   saveStore(store);
   recalcCommandTotal(input.commandId);
   notify(input.establishmentId, "order.new", "Novo pedido", `Mesa ${input.table.number} · Pedido #${order.number}`);
@@ -929,6 +942,7 @@ export function createRodizioRound(input: {
   table: Table;
   commandId: string;
   rodizioId: string;
+  guestParticipationId: string;
   items: OrderItem[];
 }): RodizioRound {
   const store = getStore();
@@ -940,6 +954,7 @@ export function createRodizioRound(input: {
     establishmentId: input.establishmentId,
     commandId: input.commandId,
     tableId: input.table.id,
+    guestParticipationId: input.guestParticipationId,
     rodizioId: input.rodizioId,
     roundNumber: existing.length + 1,
     status: "NOVO",
@@ -952,6 +967,7 @@ export function createRodizioRound(input: {
     establishmentId: input.establishmentId,
     table: input.table,
     commandId: input.commandId,
+    guestParticipationId: input.guestParticipationId,
     items: input.items,
     source: "RODIZIO",
     rodizioRoundId: round.id,

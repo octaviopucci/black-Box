@@ -8,7 +8,8 @@
     "vercel-build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:admin": "npx tsx src/lib/admin-crud.test.ts"
+    "test:admin": "npx tsx src/lib/admin-crud.test.ts",
+    "test:guest": "npx tsx src/lib/guest-session.test.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

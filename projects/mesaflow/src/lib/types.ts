@@ -48,6 +48,59 @@ export interface EstablishmentSettings {
   allowEditAfterPrep: boolean;
   soundNotifications: boolean;
   minIntervalRodizioSec: number;
+  /** Default true — demo `ponto-do-sabor` usa false */
+  otpRequired?: boolean;
+}
+
+export type GuestParticipationStatus = "OPEN" | "CLOSING_REQUESTED" | "CLOSED";
+
+export interface GuestParticipation {
+  id: string;
+  establishmentId: string;
+  commandId: string;
+  tableId: string;
+  phoneLookupHash: string;
+  phoneDisplay: string;
+  displayName?: string;
+  participantIndex: number;
+  status: GuestParticipationStatus;
+  joinedAt: string;
+  verifiedAt: string;
+  closingRequestedAt?: string;
+  closedAt?: string;
+  closedByUserId?: string;
+  orderCount: number;
+  lastOrderAt?: string;
+}
+
+export interface ClientSession {
+  id: string;
+  guestParticipationId: string;
+  tokenHash: string;
+  createdAt: string;
+  expiresAt: string;
+  lastSeenAt: string;
+  revokedAt?: string;
+}
+
+export interface OtpChallenge {
+  id: string;
+  establishmentId: string;
+  commandId: string;
+  tableId: string;
+  phoneLookupHash: string;
+  codeHash: string;
+  purpose: "JOIN" | "RECOVER";
+  expiresAt: string;
+  attempts: number;
+  maxAttempts: number;
+  consumedAt?: string;
+  sentAt: string;
+  resendCount: number;
+}
+
+export interface GuestPhoneSecret {
+  phoneCiphertext: string;
 }
 
 export interface User {
@@ -163,7 +216,7 @@ export interface Order {
   tableNumber: string;
   commandId: string;
   /** Fase 0: legado usa gp_legacy_{commandId} */
-  guestParticipationId?: string;
+  guestParticipationId: string;
   number: number;
   status: OrderStatus;
   items: OrderItem[];
@@ -204,6 +257,7 @@ export interface RodizioRound {
   establishmentId: string;
   commandId: string;
   tableId: string;
+  guestParticipationId: string;
   rodizioId: string;
   roundNumber: number;
   status: OrderStatus;
@@ -230,6 +284,7 @@ export interface MesaFlowOperationalStore {
   tables: Record<string, Table>;
   commands: Record<string, Command>;
   orders: Record<string, Order>;
+  guestParticipations: Record<string, GuestParticipation>;
   rodizios: Record<string, Rodizio>;
   rodizioRounds: Record<string, RodizioRound>;
   notifications: Record<string, Notification>;
@@ -239,6 +294,9 @@ export interface MesaFlowOperationalStore {
 export interface MesaFlowIdentityStore {
   users: Record<string, User>;
   sessions: Record<string, Session>;
+  clientSessions: Record<string, ClientSession>;
+  otpChallenges: Record<string, OtpChallenge>;
+  guestPhoneSecrets: Record<string, GuestPhoneSecret>;
 }
 
 export interface MesaFlowStore extends MesaFlowOperationalStore, MesaFlowIdentityStore {}

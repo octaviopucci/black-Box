@@ -31,6 +31,22 @@ import {
   requestBill,
   updateOrderStatus,
 } from "../../../mesaflow/src/lib/store";
+import {
+  clearClientCookie,
+  parseClientCookie,
+  setClientCookie,
+} from "../../../mesaflow/src/lib/guest-cookie";
+import {
+  guestTableSummary,
+  joinGuestAtTable,
+  otpRequiredForEstablishment,
+  publicParticipation,
+  requestOtpChallenge,
+  validateClientSession,
+  verifyOtpChallenge,
+  revokeClientSession,
+} from "../../../mesaflow/src/lib/guest";
+import { normalizePhoneE164 } from "../../../mesaflow/src/lib/identity-crypto";
 import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
 import type { OrderLineInput, OrderStatus } from "../../../mesaflow/src/lib/types";
 
@@ -148,6 +164,104 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
     }
 
+    if (req.method === "GET" && path === "/guest/table-context") {
+      const slug = String(req.query?.slug || "");
+      const tableToken = String(req.query?.tableToken || "");
+      const est = findEstablishmentBySlug(slug);
+      if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
+      const tbl = findTableByQr(est.id, tableToken);
+      if (!tbl) return json(res, 404, { error: "Mesa inválida ou QR expirado." });
+      const command = getActiveCommand(tbl);
+      const summary = guestTableSummary(est.id, command?.id);
+      const guestAuth = validateClientSession(parseClientCookie(req));
+      return json(res, 200, {
+        establishment: { id: est.id, slug: est.slug, name: est.name, open: est.open, rodizioEnabled: est.rodizioEnabled },
+        table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
+        command,
+        otpRequired: otpRequiredForEstablishment(est),
+        hasSession: Boolean(guestAuth),
+        ...summary,
+      });
+    }
+
+    if (req.method === "GET" && path === "/guest/me") {
+      const guestAuth = validateClientSession(parseClientCookie(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente inválida." });
+      const orders = Object.values(store.orders)
+        .filter((o) => o.guestParticipationId === guestAuth.participation.id)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const consumptionTotal = orders
+        .filter((o) => o.status !== "CANCELADO")
+        .reduce((sum, order) => sum + order.total, 0);
+      return json(res, 200, {
+        participation: publicParticipation(guestAuth.participation),
+        orders,
+        consumptionTotal,
+      });
+    }
+
+    if (req.method === "POST" && path === "/guest/join/mock") {
+      const body = (req.body || {}) as { slug: string; tableToken: string; phone?: string; displayName?: string };
+      const est = findEstablishmentBySlug(String(body.slug || ""));
+      if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
+      if (otpRequiredForEstablishment(est)) {
+        return json(res, 403, { error: "OTP obrigatório para este estabelecimento." });
+      }
+      const tbl = findTableByQr(est.id, String(body.tableToken || ""));
+      if (!tbl) return json(res, 404, { error: "Mesa inválida." });
+      const phoneE164 = normalizePhoneE164(body.phone || "+5511999999999");
+      if (!phoneE164) return json(res, 400, { error: "Telefone inválido." });
+      const result = joinGuestAtTable({
+        establishment: est,
+        table: tbl,
+        phoneE164,
+        displayName: body.displayName,
+      });
+      setClientCookie(res, result.token);
+      return json(res, 200, {
+        participation: publicParticipation(result.participation),
+        message: result.message,
+      });
+    }
+
+    if (req.method === "POST" && path === "/guest/otp/request") {
+      const body = (req.body || {}) as { slug: string; tableToken: string; phone: string };
+      const est = findEstablishmentBySlug(String(body.slug || ""));
+      if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
+      const tbl = findTableByQr(est.id, String(body.tableToken || ""));
+      if (!tbl) return json(res, 404, { error: "Mesa inválida." });
+      const result = requestOtpChallenge({
+        establishment: est,
+        table: tbl,
+        phoneRaw: String(body.phone || ""),
+        purpose: "JOIN",
+      });
+      if ("error" in result) return json(res, 400, { error: result.error });
+      return json(res, 200, {
+        challengeId: result.challengeId,
+        mockCode: result.mockCode,
+        message: "Código enviado (mock em desenvolvimento).",
+      });
+    }
+
+    if (req.method === "POST" && path === "/guest/otp/verify") {
+      const body = (req.body || {}) as { challengeId: string; code: string; displayName?: string };
+      const result = verifyOtpChallenge({
+        challengeId: String(body.challengeId || ""),
+        code: String(body.code || ""),
+        displayName: body.displayName,
+      });
+      if ("error" in result) return json(res, 400, { error: result.error });
+      setClientCookie(res, result.token);
+      return json(res, 200, { participation: publicParticipation(result.participation) });
+    }
+
+    if (req.method === "POST" && path === "/guest/logout") {
+      revokeClientSession(parseClientCookie(req));
+      clearClientCookie(res);
+      return json(res, 200, { ok: true });
+    }
+
     if (req.method === "GET" && path.startsWith("/menu/")) {
       const parts = path.split("/").filter(Boolean);
       const slug = parts[1];
@@ -165,11 +279,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .sort((a, b) => a.sortOrder - b.sortOrder);
       const products = Object.values(store.products).filter((p) => p.establishmentId === est.id && p.active);
       const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id);
-      const orders = command
-        ? Object.values(store.orders)
-            .filter((o) => o.commandId === command.id)
-            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-        : [];
+      const summary = guestTableSummary(est.id, command?.id);
       const rodizio = est.rodizioEnabled
         ? Object.values(store.rodizios).find((r) => r.establishmentId === est.id && r.active)
         : null;
@@ -181,8 +291,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         categories,
         products,
         sectors,
-        orders,
         rodizio,
+        ...summary,
       });
     }
 
@@ -197,17 +307,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/orders") {
+      const guestAuth = validateClientSession(parseClientCookie(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente obrigatória." });
+      if (guestAuth.participation.status !== "OPEN") {
+        return json(res, 403, { error: "Sua participação não permite novos pedidos." });
+      }
+
       const body = (req.body || {}) as {
-        slug: string;
-        tableToken: string;
         items: OrderLineInput[];
         notes?: string;
       };
-      const est = findEstablishmentBySlug(body.slug);
-      if (!est?.open) return json(res, 400, { error: "Estabelecimento indisponível." });
-      const tbl = findTableByQr(est.id, body.tableToken);
-      if (!tbl) return json(res, 404, { error: "Mesa inválida." });
       if (!body.items?.length) return json(res, 400, { error: "Carrinho vazio." });
+
+      const est = guestAuth.establishment;
+      if (!est.open) return json(res, 400, { error: "Estabelecimento indisponível." });
+      const tbl = store.tables[guestAuth.participation.tableId];
+      if (!tbl) return json(res, 404, { error: "Mesa inválida." });
 
       const sectors = Object.fromEntries(
         Object.values(store.sectors)
@@ -218,15 +333,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
 
       const command = getOrOpenCommand(tbl);
-      const order = createOrder({
-        establishmentId: est.id,
-        table: tbl,
-        commandId: command.id,
-        items: resolved.items,
-        notes: body.notes,
-        source: "MESA",
-      });
-      return json(res, 200, { order, total: order.total });
+      if (command.id !== guestAuth.participation.commandId) {
+        return json(res, 409, { error: "Comanda da participação desatualizada. Recarregue a página." });
+      }
+
+      try {
+        const order = createOrder({
+          establishmentId: est.id,
+          table: tbl,
+          commandId: command.id,
+          guestParticipationId: guestAuth.participation.id,
+          items: resolved.items,
+          notes: body.notes,
+          source: "MESA",
+        });
+        return json(res, 200, { order, total: order.total });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Não foi possível criar o pedido.";
+        return json(res, 403, { error: message });
+      }
     }
 
     const orderMatch = path.match(/^\/orders\/([^/]+)$/);
@@ -429,15 +554,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/rodizio/round") {
+      const guestAuth = validateClientSession(parseClientCookie(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente obrigatória." });
+      if (guestAuth.participation.status !== "OPEN") {
+        return json(res, 403, { error: "Sua participação não permite novos pedidos." });
+      }
+
       const body = (req.body || {}) as {
-        slug: string;
-        tableToken: string;
         rodizioId: string;
         items: OrderLineInput[];
       };
-      const est = findEstablishmentBySlug(body.slug);
-      if (!est?.rodizioEnabled) return json(res, 400, { error: "Rodízio indisponível." });
-      const table = findTableByQr(est.id, body.tableToken);
+      const est = guestAuth.establishment;
+      if (!est.rodizioEnabled) return json(res, 400, { error: "Rodízio indisponível." });
+      const table = store.tables[guestAuth.participation.tableId];
       if (!table) return json(res, 404, { error: "Mesa inválida." });
       const rodizio = store.rodizios[body.rodizioId];
       if (!rodizio || rodizio.establishmentId !== est.id) {
@@ -466,6 +595,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         establishmentId: est.id,
         table,
         commandId: command.id,
+        guestParticipationId: guestAuth.participation.id,
         rodizioId: body.rodizioId,
         items: resolved.items,
       });
