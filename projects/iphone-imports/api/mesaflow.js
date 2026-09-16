@@ -74,6 +74,7 @@ function emptyOperational() {
     tables: {},
     commands: {},
     orders: {},
+    guestParticipations: {},
     rodizios: {},
     rodizioRounds: {},
     notifications: {},
@@ -81,7 +82,7 @@ function emptyOperational() {
   };
 }
 function emptyIdentity() {
-  return { users: {}, sessions: {} };
+  return { users: {}, sessions: {}, clientSessions: {}, otpChallenges: {}, guestPhoneSecrets: {} };
 }
 function splitStore(store) {
   const {
@@ -94,10 +95,14 @@ function splitStore(store) {
     tables,
     commands,
     orders,
+    guestParticipations,
     rodizios,
     rodizioRounds,
     notifications,
-    orderCounter
+    orderCounter,
+    clientSessions,
+    otpChallenges,
+    guestPhoneSecrets
   } = store;
   return {
     operational: {
@@ -108,12 +113,13 @@ function splitStore(store) {
       tables,
       commands,
       orders,
+      guestParticipations,
       rodizios,
       rodizioRounds,
       notifications,
       orderCounter
     },
-    identity: { users, sessions }
+    identity: { users, sessions, clientSessions, otpChallenges, guestPhoneSecrets }
   };
 }
 function mergeStore(operational, identity) {
@@ -2541,6 +2547,7 @@ function buildDemoStore() {
       tableId: "tbl_8",
       tableNumber: "08",
       commandId: cmd8.id,
+      guestParticipationId: `gp_legacy_${cmd8.id}`,
       number: 1294,
       status: "EM_PREPARO",
       items: [demoItem("p_xburger", 2, "EM_PREPARO", "1 sem cebola"), demoItem("p_batata", 1)],
@@ -2555,6 +2562,7 @@ function buildDemoStore() {
       tableId: "tbl_4",
       tableNumber: "04",
       commandId: cmd4.id,
+      guestParticipationId: `gp_legacy_${cmd4.id}`,
       number: 1293,
       status: "NOVO",
       items: [demoItem("p_cappuccino", 2), demoItem("p_coxinha", 1)],
@@ -2569,6 +2577,7 @@ function buildDemoStore() {
       tableId: "tbl_4",
       tableNumber: "04",
       commandId: cmd4.id,
+      guestParticipationId: `gp_legacy_${cmd4.id}`,
       number: 1290,
       status: "PRONTO",
       items: [demoItem("p_chopp", 2), demoItem("p_caipirinha", 1)],
@@ -2583,6 +2592,7 @@ function buildDemoStore() {
       tableId: "tbl_4",
       tableNumber: "04",
       commandId: cmd4.id,
+      guestParticipationId: `gp_legacy_${cmd4.id}`,
       number: 1288,
       status: "ENTREGUE",
       items: [demoItem("p_pizza_calabresa", 1), demoItem("p_salada", 1)],
@@ -2608,7 +2618,8 @@ function buildDemoStore() {
           currency: "BRL",
           allowEditAfterPrep: false,
           soundNotifications: true,
-          minIntervalRodizioSec: 120
+          minIntervalRodizioSec: 120,
+          otpRequired: false
         },
         createdAt: now
       }
@@ -2649,7 +2660,11 @@ function buildDemoStore() {
     },
     rodizioRounds: {},
     notifications: {},
-    orderCounter: { [EST_ID]: 1294 }
+    orderCounter: { [EST_ID]: 1294 },
+    guestParticipations: {},
+    clientSessions: {},
+    otpChallenges: {},
+    guestPhoneSecrets: {}
   };
 }
 
@@ -2667,12 +2682,16 @@ function emptyStore() {
     establishments: {},
     users: {},
     sessions: {},
+    clientSessions: {},
+    otpChallenges: {},
+    guestPhoneSecrets: {},
     sectors: {},
     categories: {},
     products: {},
     tables: {},
     commands: {},
     orders: {},
+    guestParticipations: {},
     rodizios: {},
     rodizioRounds: {},
     notifications: {},
@@ -3320,6 +3339,10 @@ function nextOrderNumber(establishmentId) {
 }
 function createOrder(input) {
   const store = getStore();
+  const participation = store.guestParticipations[input.guestParticipationId];
+  if (participation && participation.status !== "OPEN") {
+    throw new Error("Participa\xE7\xE3o n\xE3o permite novos pedidos.");
+  }
   const total = input.items.reduce((s, i) => s + lineTotal(i), 0);
   const order = {
     id: id("ord_"),
@@ -3327,7 +3350,7 @@ function createOrder(input) {
     tableId: input.table.id,
     tableNumber: input.table.number,
     commandId: input.commandId,
-    guestParticipationId: input.guestParticipationId || `gp_legacy_${input.commandId}`,
+    guestParticipationId: input.guestParticipationId,
     number: nextOrderNumber(input.establishmentId),
     status: "NOVO",
     items: input.items.map((i) => ({ ...i, status: "NOVO" })),
@@ -3339,6 +3362,11 @@ function createOrder(input) {
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   };
   store.orders[order.id] = order;
+  if (participation) {
+    participation.orderCount += 1;
+    participation.lastOrderAt = order.createdAt;
+    store.guestParticipations[participation.id] = participation;
+  }
   saveStore(store);
   recalcCommandTotal(input.commandId);
   notify(input.establishmentId, "order.new", "Novo pedido", `Mesa ${input.table.number} \xB7 Pedido #${order.number}`);
@@ -3387,6 +3415,7 @@ function createRodizioRound(input) {
     establishmentId: input.establishmentId,
     commandId: input.commandId,
     tableId: input.table.id,
+    guestParticipationId: input.guestParticipationId,
     rodizioId: input.rodizioId,
     roundNumber: existing.length + 1,
     status: "NOVO",
@@ -3399,6 +3428,7 @@ function createRodizioRound(input) {
     establishmentId: input.establishmentId,
     table: input.table,
     commandId: input.commandId,
+    guestParticipationId: input.guestParticipationId,
     items: input.items,
     source: "RODIZIO",
     rodizioRoundId: round.id
@@ -3441,6 +3471,317 @@ function dashboardStats(establishmentId) {
     pending,
     topProducts
   };
+}
+
+// ../mesaflow/src/lib/guest-cookie-web.ts
+var CLIENT_COOKIE = "mf_cs";
+function parseClientCookieHeader(cookieHeader) {
+  if (!cookieHeader) return void 0;
+  for (const part of cookieHeader.split(";")) {
+    const trimmed = part.trim();
+    if (trimmed.startsWith(`${CLIENT_COOKIE}=`)) {
+      return decodeURIComponent(trimmed.slice(CLIENT_COOKIE.length + 1));
+    }
+  }
+  return void 0;
+}
+function buildClientCookie(token) {
+  const secure = process.env.VERCEL ? "; Secure" : "";
+  return `${CLIENT_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`;
+}
+function clearClientCookieValue() {
+  const secure = process.env.VERCEL ? "; Secure" : "";
+  return `${CLIENT_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
+}
+
+// ../mesaflow/src/lib/guest-cookie.ts
+function parseClientCookie(req) {
+  return parseClientCookieHeader(req.headers.cookie);
+}
+function setClientCookie(res, token) {
+  res.setHeader("Set-Cookie", buildClientCookie(token));
+}
+function clearClientCookie(res) {
+  res.setHeader("Set-Cookie", clearClientCookieValue());
+}
+
+// ../mesaflow/src/lib/identity-crypto.ts
+var import_crypto4 = require("crypto");
+var DEV_FALLBACK_SECRET = "mesaflow-dev-only-change-in-production";
+function secret(name) {
+  return process.env[name] || process.env.MESAFLOW_IDENTITY_SECRET || DEV_FALLBACK_SECRET;
+}
+function hashToken(token) {
+  return (0, import_crypto4.createHash)("sha256").update(token).digest("hex");
+}
+function phoneLookupHash(establishmentId, phoneE164) {
+  return (0, import_crypto4.createHmac)("sha256", secret("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
+}
+function encryptPhone(phoneE164) {
+  const key = (0, import_crypto4.createHash)("sha256").update(secret("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+  const iv = (0, import_crypto4.randomBytes)(12);
+  const cipher = (0, import_crypto4.createCipheriv)("aes-256-gcm", key, iv);
+  const encrypted = Buffer.concat([cipher.update(phoneE164, "utf8"), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
+}
+function decryptPhone(ciphertext) {
+  try {
+    const [ivB64, tagB64, dataB64] = ciphertext.split(".");
+    if (!ivB64 || !tagB64 || !dataB64) return null;
+    const key = (0, import_crypto4.createHash)("sha256").update(secret("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+    const decipher = (0, import_crypto4.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
+    decipher.setAuthTag(Buffer.from(tagB64, "base64url"));
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(dataB64, "base64url")),
+      decipher.final()
+    ]);
+    return decrypted.toString("utf8");
+  } catch {
+    return null;
+  }
+}
+function maskPhoneDisplay(phoneE164) {
+  const digits = phoneE164.replace(/\D/g, "");
+  if (digits.length < 4) return "+** ****";
+  const tail = digits.slice(-4);
+  if (phoneE164.startsWith("+55") && digits.length >= 12) {
+    return `+55 ** *****-${tail}`;
+  }
+  return `+** ***${tail}`;
+}
+function normalizePhoneE164(input) {
+  const digits = input.replace(/\D/g, "");
+  if (!digits) return null;
+  if (digits.startsWith("55") && digits.length >= 12) return `+${digits}`;
+  if (digits.length >= 10 && digits.length <= 11) return `+55${digits}`;
+  if (input.startsWith("+") && digits.length >= 10) return `+${digits}`;
+  return null;
+}
+function otpCodeHash(challengeId, code) {
+  return (0, import_crypto4.createHmac)("sha256", secret("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
+}
+function generateOtpCode() {
+  return String(Math.floor(1e5 + Math.random() * 9e5));
+}
+function generateClientSessionToken() {
+  return (0, import_crypto4.randomBytes)(32).toString("base64url");
+}
+
+// ../mesaflow/src/lib/guest.ts
+var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
+var OTP_TTL_MS = 5 * 60 * 1e3;
+var OTP_MAX_ATTEMPTS = 5;
+function otpRequiredForEstablishment(est) {
+  if (process.env.MESAFLOW_DEV_SKIP_OTP === "1") return false;
+  return est.settings.otpRequired !== false;
+}
+function findOpenParticipation(store, commandId, lookupHash) {
+  return Object.values(store.guestParticipations).find(
+    (gp) => gp.commandId === commandId && gp.phoneLookupHash === lookupHash && (gp.status === "OPEN" || gp.status === "CLOSING_REQUESTED")
+  ) || null;
+}
+function nextParticipantIndex(store, commandId) {
+  const active = Object.values(store.guestParticipations).filter(
+    (gp) => gp.commandId === commandId && gp.status !== "CLOSED"
+  );
+  return active.length + 1;
+}
+function upsertGuestPhoneSecret(participationId, phoneE164) {
+  const store = getStore();
+  store.guestPhoneSecrets[participationId] = { phoneCiphertext: encryptPhone(phoneE164) };
+  saveStore(store);
+}
+function createGuestParticipation(input) {
+  const store = getStore();
+  const lookup = phoneLookupHash(input.establishment.id, input.phoneE164);
+  const existing = findOpenParticipation(store, input.commandId, lookup);
+  if (existing) return existing;
+  const participation = {
+    id: id("gp_"),
+    establishmentId: input.establishment.id,
+    commandId: input.commandId,
+    tableId: input.table.id,
+    phoneLookupHash: lookup,
+    phoneDisplay: maskPhoneDisplay(input.phoneE164),
+    displayName: input.displayName?.trim() || void 0,
+    participantIndex: nextParticipantIndex(store, input.commandId),
+    status: "OPEN",
+    joinedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    verifiedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    orderCount: 0
+  };
+  store.guestParticipations[participation.id] = participation;
+  upsertGuestPhoneSecret(participation.id, input.phoneE164);
+  saveStore(store);
+  return participation;
+}
+function createClientSession(participationId) {
+  const store = getStore();
+  const token = generateClientSessionToken();
+  const now = /* @__PURE__ */ new Date();
+  const session = {
+    id: id("cs_"),
+    guestParticipationId: participationId,
+    tokenHash: hashToken(token),
+    createdAt: now.toISOString(),
+    expiresAt: new Date(now.getTime() + CLIENT_SESSION_TTL_MS).toISOString(),
+    lastSeenAt: now.toISOString()
+  };
+  store.clientSessions[session.id] = session;
+  saveStore(store);
+  return { token, session };
+}
+function validateClientSession(token) {
+  if (!token?.trim()) return null;
+  const store = getStore();
+  const tokenHash = hashToken(token.trim());
+  const session = Object.values(store.clientSessions).find(
+    (entry) => entry.tokenHash === tokenHash && !entry.revokedAt
+  );
+  if (!session) return null;
+  if (new Date(session.expiresAt).getTime() < Date.now()) return null;
+  const participation = store.guestParticipations[session.guestParticipationId];
+  if (!participation || participation.status === "CLOSED") return null;
+  session.lastSeenAt = (/* @__PURE__ */ new Date()).toISOString();
+  store.clientSessions[session.id] = session;
+  saveStore(store);
+  const establishment = store.establishments[participation.establishmentId];
+  if (!establishment) return null;
+  return { session, participation, establishment };
+}
+function revokeClientSession(token) {
+  if (!token?.trim()) return;
+  const store = getStore();
+  const tokenHash = hashToken(token.trim());
+  const session = Object.values(store.clientSessions).find((entry) => entry.tokenHash === tokenHash);
+  if (!session) return;
+  session.revokedAt = (/* @__PURE__ */ new Date()).toISOString();
+  store.clientSessions[session.id] = session;
+  saveStore(store);
+}
+function joinGuestAtTable(input) {
+  const store = getStore();
+  const command = getOrOpenCommand(input.table);
+  const lookup = phoneLookupHash(input.establishment.id, input.phoneE164);
+  const existing = findOpenParticipation(store, command.id, lookup);
+  const participation = existing || createGuestParticipation({
+    establishment: input.establishment,
+    table: input.table,
+    commandId: command.id,
+    phoneE164: input.phoneE164,
+    displayName: input.displayName
+  });
+  const { token } = createClientSession(participation.id);
+  return {
+    token,
+    participation,
+    command,
+    message: existing ? "Voc\xEA j\xE1 est\xE1 participando desta mesa." : void 0
+  };
+}
+function requestOtpChallenge(input) {
+  const phoneE164 = normalizePhoneE164(input.phoneRaw);
+  if (!phoneE164) return { error: "Telefone inv\xE1lido." };
+  const command = getActiveCommand(input.table) || getOrOpenCommand(input.table);
+  const store = getStore();
+  const lookup = phoneLookupHash(input.establishment.id, phoneE164);
+  for (const challenge2 of Object.values(store.otpChallenges)) {
+    if (challenge2.commandId === command.id && challenge2.phoneLookupHash === lookup && !challenge2.consumedAt && new Date(challenge2.expiresAt).getTime() > Date.now()) {
+      challenge2.consumedAt = (/* @__PURE__ */ new Date()).toISOString();
+      store.otpChallenges[challenge2.id] = challenge2;
+    }
+  }
+  const code = generateOtpCode();
+  const challengeId = id("otp_");
+  const challenge = {
+    id: challengeId,
+    establishmentId: input.establishment.id,
+    commandId: command.id,
+    tableId: input.table.id,
+    phoneLookupHash: lookup,
+    codeHash: otpCodeHash(challengeId, code),
+    purpose: input.purpose,
+    expiresAt: new Date(Date.now() + OTP_TTL_MS).toISOString(),
+    attempts: 0,
+    maxAttempts: OTP_MAX_ATTEMPTS,
+    sentAt: (/* @__PURE__ */ new Date()).toISOString(),
+    resendCount: 0
+  };
+  store.otpChallenges[challenge.id] = challenge;
+  storePhoneForOtpLookup(input.establishment.id, phoneE164);
+  saveStore(store);
+  const mockCode = process.env.MESAFLOW_OTP_MOCK === "1" || process.env.MESAFLOW_DEV_SKIP_OTP === "1" ? code : void 0;
+  return { challengeId: challenge.id, mockCode };
+}
+function verifyOtpChallenge(input) {
+  const store = getStore();
+  const challenge = store.otpChallenges[input.challengeId];
+  if (!challenge || challenge.consumedAt) {
+    return { error: "C\xF3digo inv\xE1lido ou expirado." };
+  }
+  if (new Date(challenge.expiresAt).getTime() < Date.now()) {
+    return { error: "C\xF3digo expirado." };
+  }
+  if (challenge.attempts >= challenge.maxAttempts) {
+    return { error: "Limite de tentativas excedido." };
+  }
+  const expected = otpCodeHash(challenge.id, input.code.trim());
+  if (expected !== challenge.codeHash) {
+    challenge.attempts += 1;
+    store.otpChallenges[challenge.id] = challenge;
+    saveStore(store);
+    return { error: "C\xF3digo incorreto." };
+  }
+  challenge.consumedAt = (/* @__PURE__ */ new Date()).toISOString();
+  store.otpChallenges[challenge.id] = challenge;
+  const establishment = store.establishments[challenge.establishmentId];
+  const table = store.tables[challenge.tableId];
+  if (!establishment || !table) return { error: "Mesa indispon\xEDvel." };
+  const secret2 = store.guestPhoneSecrets[challenge.phoneLookupHash];
+  const phoneE164 = secret2 ? decryptPhone(secret2.phoneCiphertext) : null;
+  if (!phoneE164) return { error: "Telefone n\xE3o encontrado para este c\xF3digo." };
+  const participation = createGuestParticipation({
+    establishment,
+    table,
+    commandId: challenge.commandId,
+    phoneE164,
+    displayName: input.displayName
+  });
+  const { token } = createClientSession(participation.id);
+  saveStore(store);
+  return { token, participation };
+}
+function guestTableSummary(establishmentId, commandId) {
+  const store = getStore();
+  if (!commandId) {
+    return { participantCount: 0, tableTotal: 0 };
+  }
+  const participants = Object.values(store.guestParticipations).filter(
+    (gp) => gp.commandId === commandId && gp.status !== "CLOSED"
+  );
+  const command = store.commands[commandId];
+  return {
+    participantCount: participants.length,
+    tableTotal: command?.total || 0
+  };
+}
+function publicParticipation(gp) {
+  return {
+    id: gp.id,
+    displayName: gp.displayName || `Participante ${gp.participantIndex}`,
+    participantIndex: gp.participantIndex,
+    status: gp.status,
+    phoneDisplay: gp.phoneDisplay,
+    orderCount: gp.orderCount
+  };
+}
+function storePhoneForOtpLookup(establishmentId, phoneE164) {
+  const store = getStore();
+  const lookup = phoneLookupHash(establishmentId, phoneE164);
+  store.guestPhoneSecrets[lookup] = { phoneCiphertext: encryptPhone(phoneE164) };
+  saveStore(store);
+  return lookup;
 }
 
 // ../mesaflow/src/lib/order-resolve.ts
@@ -3612,6 +3953,94 @@ async function handler(req, res) {
         { skipFlush: true }
       );
     }
+    if (req.method === "GET" && path === "/guest/table-context") {
+      const slug = String(req.query?.slug || "");
+      const tableToken = String(req.query?.tableToken || "");
+      const est = findEstablishmentBySlug(slug);
+      if (!est) return json(res, 404, { error: "Estabelecimento n\xE3o encontrado." });
+      const tbl = findTableByQr(est.id, tableToken);
+      if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida ou QR expirado." });
+      const command = getActiveCommand(tbl);
+      const summary = guestTableSummary(est.id, command?.id);
+      const guestAuth = validateClientSession(parseClientCookie(req));
+      return json(res, 200, {
+        establishment: { id: est.id, slug: est.slug, name: est.name, open: est.open, rodizioEnabled: est.rodizioEnabled },
+        table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
+        command,
+        otpRequired: otpRequiredForEstablishment(est),
+        hasSession: Boolean(guestAuth),
+        ...summary
+      });
+    }
+    if (req.method === "GET" && path === "/guest/me") {
+      const guestAuth = validateClientSession(parseClientCookie(req));
+      if (!guestAuth) return json(res, 401, { error: "Sess\xE3o de cliente inv\xE1lida." });
+      const orders = Object.values(store.orders).filter((o) => o.guestParticipationId === guestAuth.participation.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const consumptionTotal = orders.filter((o) => o.status !== "CANCELADO").reduce((sum, order) => sum + order.total, 0);
+      return json(res, 200, {
+        participation: publicParticipation(guestAuth.participation),
+        orders,
+        consumptionTotal
+      });
+    }
+    if (req.method === "POST" && path === "/guest/join/mock") {
+      const body = req.body || {};
+      const est = findEstablishmentBySlug(String(body.slug || ""));
+      if (!est) return json(res, 404, { error: "Estabelecimento n\xE3o encontrado." });
+      if (otpRequiredForEstablishment(est)) {
+        return json(res, 403, { error: "OTP obrigat\xF3rio para este estabelecimento." });
+      }
+      const tbl = findTableByQr(est.id, String(body.tableToken || ""));
+      if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida." });
+      const phoneE164 = normalizePhoneE164(body.phone || "+5511999999999");
+      if (!phoneE164) return json(res, 400, { error: "Telefone inv\xE1lido." });
+      const result = joinGuestAtTable({
+        establishment: est,
+        table: tbl,
+        phoneE164,
+        displayName: body.displayName
+      });
+      setClientCookie(res, result.token);
+      return json(res, 200, {
+        participation: publicParticipation(result.participation),
+        message: result.message
+      });
+    }
+    if (req.method === "POST" && path === "/guest/otp/request") {
+      const body = req.body || {};
+      const est = findEstablishmentBySlug(String(body.slug || ""));
+      if (!est) return json(res, 404, { error: "Estabelecimento n\xE3o encontrado." });
+      const tbl = findTableByQr(est.id, String(body.tableToken || ""));
+      if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida." });
+      const result = requestOtpChallenge({
+        establishment: est,
+        table: tbl,
+        phoneRaw: String(body.phone || ""),
+        purpose: "JOIN"
+      });
+      if ("error" in result) return json(res, 400, { error: result.error });
+      return json(res, 200, {
+        challengeId: result.challengeId,
+        mockCode: result.mockCode,
+        message: "C\xF3digo enviado (mock em desenvolvimento)."
+      });
+    }
+    if (req.method === "POST" && path === "/guest/otp/verify") {
+      const body = req.body || {};
+      const result = verifyOtpChallenge({
+        challengeId: String(body.challengeId || ""),
+        code: String(body.code || ""),
+        displayName: body.displayName
+      });
+      if ("error" in result) return json(res, 400, { error: result.error });
+      setClientCookie(res, result.token);
+      return json(res, 200, { participation: publicParticipation(result.participation) });
+    }
+    if (req.method === "POST" && path === "/guest/logout") {
+      revokeClientSession(parseClientCookie(req));
+      clearClientCookie(res);
+      return json(res, 200, { ok: true });
+    }
     if (req.method === "GET" && path.startsWith("/menu/")) {
       const parts = path.split("/").filter(Boolean);
       const slug = parts[1];
@@ -3626,7 +4055,7 @@ async function handler(req, res) {
       const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id && c.active).sort((a, b) => a.sortOrder - b.sortOrder);
       const products = Object.values(store.products).filter((p) => p.establishmentId === est.id && p.active);
       const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id);
-      const orders = command ? Object.values(store.orders).filter((o) => o.commandId === command.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : [];
+      const summary = guestTableSummary(est.id, command?.id);
       const rodizio = est.rodizioEnabled ? Object.values(store.rodizios).find((r) => r.establishmentId === est.id && r.active) : null;
       return json(res, 200, {
         establishment: est,
@@ -3635,8 +4064,8 @@ async function handler(req, res) {
         categories,
         products,
         sectors,
-        orders,
-        rodizio
+        rodizio,
+        ...summary
       });
     }
     if (req.method === "GET" && path === "/orders") {
@@ -3649,27 +4078,41 @@ async function handler(req, res) {
       return json(res, 200, { orders });
     }
     if (req.method === "POST" && path === "/orders") {
+      const guestAuth = validateClientSession(parseClientCookie(req));
+      if (!guestAuth) return json(res, 401, { error: "Sess\xE3o de cliente obrigat\xF3ria." });
+      if (guestAuth.participation.status !== "OPEN") {
+        return json(res, 403, { error: "Sua participa\xE7\xE3o n\xE3o permite novos pedidos." });
+      }
       const body = req.body || {};
-      const est = findEstablishmentBySlug(body.slug);
-      if (!est?.open) return json(res, 400, { error: "Estabelecimento indispon\xEDvel." });
-      const tbl = findTableByQr(est.id, body.tableToken);
-      if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida." });
       if (!body.items?.length) return json(res, 400, { error: "Carrinho vazio." });
+      const est = guestAuth.establishment;
+      if (!est.open) return json(res, 400, { error: "Estabelecimento indispon\xEDvel." });
+      const tbl = store.tables[guestAuth.participation.tableId];
+      if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida." });
       const sectors = Object.fromEntries(
         Object.values(store.sectors).filter((sector) => sector.establishmentId === est.id).map((sector) => [sector.id, { name: sector.name }])
       );
       const resolved = resolveOrderLines(store, est.id, sectors, body.items);
       if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
       const command = getOrOpenCommand(tbl);
-      const order = createOrder({
-        establishmentId: est.id,
-        table: tbl,
-        commandId: command.id,
-        items: resolved.items,
-        notes: body.notes,
-        source: "MESA"
-      });
-      return json(res, 200, { order, total: order.total });
+      if (command.id !== guestAuth.participation.commandId) {
+        return json(res, 409, { error: "Comanda da participa\xE7\xE3o desatualizada. Recarregue a p\xE1gina." });
+      }
+      try {
+        const order = createOrder({
+          establishmentId: est.id,
+          table: tbl,
+          commandId: command.id,
+          guestParticipationId: guestAuth.participation.id,
+          items: resolved.items,
+          notes: body.notes,
+          source: "MESA"
+        });
+        return json(res, 200, { order, total: order.total });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "N\xE3o foi poss\xEDvel criar o pedido.";
+        return json(res, 403, { error: message });
+      }
     }
     const orderMatch = path.match(/^\/orders\/([^/]+)$/);
     if (orderMatch) {
@@ -3841,10 +4284,15 @@ async function handler(req, res) {
       }
     }
     if (req.method === "POST" && path === "/rodizio/round") {
+      const guestAuth = validateClientSession(parseClientCookie(req));
+      if (!guestAuth) return json(res, 401, { error: "Sess\xE3o de cliente obrigat\xF3ria." });
+      if (guestAuth.participation.status !== "OPEN") {
+        return json(res, 403, { error: "Sua participa\xE7\xE3o n\xE3o permite novos pedidos." });
+      }
       const body = req.body || {};
-      const est = findEstablishmentBySlug(body.slug);
-      if (!est?.rodizioEnabled) return json(res, 400, { error: "Rod\xEDzio indispon\xEDvel." });
-      const table = findTableByQr(est.id, body.tableToken);
+      const est = guestAuth.establishment;
+      if (!est.rodizioEnabled) return json(res, 400, { error: "Rod\xEDzio indispon\xEDvel." });
+      const table = store.tables[guestAuth.participation.tableId];
       if (!table) return json(res, 404, { error: "Mesa inv\xE1lida." });
       const rodizio = store.rodizios[body.rodizioId];
       if (!rodizio || rodizio.establishmentId !== est.id) {
@@ -3871,6 +4319,7 @@ async function handler(req, res) {
         establishmentId: est.id,
         table,
         commandId: command.id,
+        guestParticipationId: guestAuth.participation.id,
         rodizioId: body.rodizioId,
         items: resolved.items
       });

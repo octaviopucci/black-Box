@@ -1,12 +1,12 @@
 import {
   createOrder,
-  findEstablishmentBySlug,
-  findTableByQr,
   getOrOpenCommand,
   getStore,
   validateSession,
 } from "@/lib/store";
+import { validateClientSession } from "@/lib/guest";
 import { resolveOrderLines } from "@/lib/order-resolve";
+import { readClientToken } from "@/lib/guest-request";
 import type { OrderLineInput } from "@/lib/types";
 
 function readBearer(req: Request) {
@@ -30,38 +30,50 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { slug, tableToken, items, notes } = body as {
-    slug: string;
-    tableToken: string;
-    items: OrderLineInput[];
+  const guestAuth = validateClientSession(readClientToken(req));
+  if (!guestAuth) return Response.json({ error: "Sessão de cliente obrigatória." }, { status: 401 });
+  if (guestAuth.participation.status !== "OPEN") {
+    return Response.json({ error: "Sua participação não permite novos pedidos." }, { status: 403 });
+  }
+
+  const body = await req.json().catch(() => ({})) as {
+    items?: OrderLineInput[];
     notes?: string;
   };
+  if (!body.items?.length) return Response.json({ error: "Carrinho vazio." }, { status: 400 });
 
-  const est = findEstablishmentBySlug(slug);
-  if (!est?.open) return Response.json({ error: "Estabelecimento indisponível." }, { status: 400 });
-  const tbl = findTableByQr(est.id, tableToken);
-  if (!tbl) return Response.json({ error: "Mesa inválida." }, { status: 404 });
-  if (!items?.length) return Response.json({ error: "Carrinho vazio." }, { status: 400 });
-
+  const est = guestAuth.establishment;
+  if (!est.open) return Response.json({ error: "Estabelecimento indisponível." }, { status: 400 });
   const store = getStore();
+  const tbl = store.tables[guestAuth.participation.tableId];
+  if (!tbl) return Response.json({ error: "Mesa inválida." }, { status: 404 });
+
   const sectors = Object.fromEntries(
     Object.values(store.sectors)
       .filter((sector) => sector.establishmentId === est.id)
       .map((sector) => [sector.id, { name: sector.name }]),
   );
-  const resolved = resolveOrderLines(store, est.id, sectors, items);
+  const resolved = resolveOrderLines(store, est.id, sectors, body.items);
   if (!resolved.ok) return Response.json({ error: resolved.error }, { status: resolved.status });
 
   const command = getOrOpenCommand(tbl);
-  const order = createOrder({
-    establishmentId: est.id,
-    table: tbl,
-    commandId: command.id,
-    items: resolved.items,
-    notes,
-    source: "MESA",
-  });
+  if (command.id !== guestAuth.participation.commandId) {
+    return Response.json({ error: "Comanda da participação desatualizada. Recarregue a página." }, { status: 409 });
+  }
 
-  return Response.json({ order, total: order.total });
+  try {
+    const order = createOrder({
+      establishmentId: est.id,
+      table: tbl,
+      commandId: command.id,
+      guestParticipationId: guestAuth.participation.id,
+      items: resolved.items,
+      notes: body.notes,
+      source: "MESA",
+    });
+    return Response.json({ order, total: order.total });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Não foi possível criar o pedido.";
+    return Response.json({ error: message }, { status: 403 });
+  }
 }

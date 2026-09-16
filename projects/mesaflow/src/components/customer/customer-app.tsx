@@ -8,10 +8,12 @@ import {
   Flame,
   Home,
   Minus,
+  Phone,
   Plus,
   Receipt,
   Search,
   ShoppingBag,
+  User,
   X,
 } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
@@ -33,17 +35,56 @@ type MenuData = {
   categories: Category[];
   products: Product[];
   sectors: Sector[];
-  orders: Order[];
   rodizio: Rodizio | null;
+  participantCount?: number;
+  tableTotal?: number;
 };
+
+type TableContext = {
+  establishment: Pick<Establishment, "id" | "slug" | "name" | "open" | "rodizioEnabled">;
+  table: Pick<Table, "id" | "number" | "name" | "status">;
+  command: Command | null;
+  otpRequired: boolean;
+  hasSession: boolean;
+  participantCount: number;
+  tableTotal: number;
+};
+
+type GuestMe = {
+  participation: {
+    id: string;
+    displayName: string;
+    participantIndex: number;
+    status: string;
+    phoneDisplay: string;
+    orderCount: number;
+  };
+  orders: Order[];
+  consumptionTotal: number;
+};
+
+type GateStep = "intro" | "otp";
 
 const STATUS_STEPS = ["NOVO", "ACEITO", "EM_PREPARO", "PRONTO", "ENTREGUE"] as const;
 
+function apiFetch(path: string, init?: RequestInit) {
+  return fetch(apiUrl(path), { ...init, credentials: "include" });
+}
+
 export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: string }) {
   const cart = useCart();
+  const [context, setContext] = useState<TableContext | null>(null);
   const [data, setData] = useState<MenuData | null>(null);
+  const [guestMe, setGuestMe] = useState<GuestMe | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [gateStep, setGateStep] = useState<GateStep>("intro");
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otpChallengeId, setOtpChallengeId] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [joining, setJoining] = useState(false);
   const [tab, setTab] = useState<Tab>("menu");
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string | "all">("all");
@@ -73,25 +114,129 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     setItemNotes("");
   }, [selected]);
 
-  const load = useCallback(async () => {
+  const loadGuest = useCallback(async () => {
+    const res = await apiFetch("/guest/me");
+    if (res.status === 401) return null;
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Erro ao carregar sessão");
+    setGuestMe(json);
+    return json as GuestMe;
+  }, []);
+
+  const loadMenu = useCallback(async () => {
+    const res = await apiFetch(`/menu/${slug}/${tableToken}`);
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Erro ao carregar");
+    setData(json);
+    return json as MenuData;
+  }, [slug, tableToken]);
+
+  const loadContext = useCallback(async () => {
+    const res = await apiFetch(
+      `/guest/table-context?slug=${encodeURIComponent(slug)}&tableToken=${encodeURIComponent(tableToken)}`,
+    );
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Erro ao carregar mesa");
+    setContext(json);
+    return json as TableContext;
+  }, [slug, tableToken]);
+
+  const loadApp = useCallback(async () => {
+    await Promise.all([loadMenu(), loadGuest()]);
+    setSessionReady(true);
+    setError(null);
+  }, [loadMenu, loadGuest]);
+
+  const bootstrap = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch(apiUrl(`/menu/${slug}/${tableToken}`));
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Erro ao carregar");
-      setData(json);
-      setError(null);
+      const ctx = await loadContext();
+      if (ctx.hasSession) {
+        await loadApp();
+      } else {
+        setSessionReady(false);
+        setError(null);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha de conexão");
     } finally {
       setLoading(false);
     }
-  }, [slug, tableToken]);
+  }, [loadContext, loadApp]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    bootstrap();
+  }, [bootstrap]);
 
-  useRealtime(data?.establishment.id, load);
+  const refresh = useCallback(async () => {
+    if (!sessionReady) return;
+    try {
+      await loadApp();
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Falha ao atualizar", "error");
+    }
+  }, [sessionReady, loadApp, notify]);
+
+  useRealtime(data?.establishment.id, refresh);
+
+  async function joinMock() {
+    setJoining(true);
+    try {
+      const res = await apiFetch("/guest/join/mock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, tableToken, displayName, phone }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Não foi possível entrar na mesa");
+      await loadApp();
+      if (json.message) notify(json.message);
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Erro ao entrar na mesa", "error");
+    } finally {
+      setJoining(false);
+    }
+  }
+
+  async function requestOtp() {
+    setJoining(true);
+    try {
+      const res = await apiFetch("/guest/otp/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, tableToken, phone }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Não foi possível enviar o código");
+      setOtpChallengeId(json.challengeId);
+      if (json.mockCode) setOtpCode(json.mockCode);
+      setGateStep("otp");
+      notify("Código enviado. Verifique seu WhatsApp.");
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Erro ao solicitar código", "error");
+    } finally {
+      setJoining(false);
+    }
+  }
+
+  async function verifyOtp() {
+    setJoining(true);
+    try {
+      const res = await apiFetch("/guest/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ challengeId: otpChallengeId, code: otpCode, displayName }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Código inválido");
+      await loadApp();
+      notify(`Bem-vindo, ${json.participation.displayName}!`);
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Erro ao verificar código", "error");
+    } finally {
+      setJoining(false);
+    }
+  }
 
   const filtered = useMemo(() => {
     if (!data) return [];
@@ -109,21 +254,17 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     if (!data || cart.lines.length === 0) return;
     setSubmitting(true);
     try {
-      const res = await fetch(apiUrl("/orders"), {
+      const res = await apiFetch("/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug,
-          tableToken,
-          items: cart.toOrderLines(),
-        }),
+        body: JSON.stringify({ items: cart.toOrderLines() }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
       cart.clear();
       setCartOpen(false);
       setTab("orders");
-      await load();
+      await refresh();
     } catch (e) {
       notify(e instanceof Error ? e.message : "Erro ao enviar pedido", "error");
     } finally {
@@ -133,7 +274,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
   async function requestBill() {
     try {
-      const response = await fetch(apiUrl("/bill"), {
+      const response = await apiFetch("/bill", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug, tableToken }),
@@ -141,7 +282,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível solicitar a conta.");
       notify("Conta solicitada! Um atendente virá até sua mesa.");
-      await load();
+      await refresh();
     } catch (billError) {
       notify(billError instanceof Error ? billError.message : "Erro ao solicitar a conta.", "error");
     }
@@ -153,12 +294,10 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       .filter(([, qty]) => qty > 0)
       .map(([productId, qty]) => ({ productId, qty }));
     if (!items.length) return;
-    const res = await fetch(apiUrl("/rodizio/round"), {
+    const res = await apiFetch("/rodizio/round", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        slug,
-        tableToken,
         rodizioId: data.rodizio.id,
         items,
       }),
@@ -171,7 +310,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     setRodizioPick({});
     notify(json.message || "Rodada enviada.");
     setTab("orders");
-    load();
+    refresh();
   }
 
   if (loading) {
@@ -190,19 +329,117 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     );
   }
 
-  if (error || !data) {
+  if (error || (!context && !loading)) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-surface p-6 text-center">
         <div className="glass-card max-w-sm p-8">
           <p className="text-lg font-semibold text-danger">{error || "Mesa inválida"}</p>
           <p className="mt-2 text-sm text-muted">Verifique o QR Code ou peça ajuda ao garçom.</p>
-          <Button className="mt-6" onClick={load}>Tentar novamente</Button>
+          <Button className="mt-6" onClick={bootstrap}>Tentar novamente</Button>
         </div>
       </div>
     );
   }
 
-  const { establishment, table, command, categories, orders, rodizio } = data;
+  if (!sessionReady && context) {
+    const est = context.establishment;
+    const tbl = context.table;
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-surface p-6">
+        <div className="glass-card w-full max-w-sm p-8">
+          <div className="mb-6 text-center">
+            <span className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/15 text-3xl ring-1 ring-brand/20">
+              🍽️
+            </span>
+            <h1 className="font-[family-name:var(--font-display)] text-xl font-bold">{est.name}</h1>
+            <p className="mt-1 text-sm text-muted">Mesa {tbl.number} · {context.participantCount} na mesa</p>
+          </div>
+
+          {gateStep === "intro" && (
+            <div className="space-y-4">
+              <label className="block">
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted">
+                  <User className="h-3.5 w-3.5" /> Seu nome (opcional)
+                </span>
+                <input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Como podemos te chamar?"
+                  className="w-full rounded-xl border border-white/10 bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand/50"
+                />
+              </label>
+              {context.otpRequired && (
+                <label className="block">
+                  <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted">
+                    <Phone className="h-3.5 w-3.5" /> WhatsApp
+                  </span>
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="(11) 99999-9999"
+                    className="w-full rounded-xl border border-white/10 bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand/50"
+                  />
+                </label>
+              )}
+              <Button
+                className="w-full"
+                size="lg"
+                loading={joining}
+                onClick={() => (context.otpRequired ? requestOtp() : joinMock())}
+              >
+                {context.otpRequired ? "Enviar código" : "Entrar na mesa"}
+              </Button>
+              <p className="text-center text-xs text-muted">
+                {context.otpRequired
+                  ? "Enviaremos um código por WhatsApp para confirmar sua identidade."
+                  : "Modo demo — sem verificação por WhatsApp."}
+              </p>
+            </div>
+          )}
+
+          {gateStep === "otp" && (
+            <div className="space-y-4">
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium text-muted">Código de 6 dígitos</span>
+                <input
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="000000"
+                  className="w-full rounded-xl border border-white/10 bg-surface px-3 py-3 text-center text-lg tracking-widest outline-none focus:border-brand/50"
+                />
+              </label>
+              <Button className="w-full" size="lg" loading={joining} onClick={verifyOtp}>
+                Confirmar e entrar
+              </Button>
+              <button
+                type="button"
+                onClick={() => setGateStep("intro")}
+                className="w-full text-center text-xs font-medium text-brand"
+              >
+                Voltar
+              </button>
+            </div>
+          )}
+        </div>
+
+        {toast && (
+          <div className={cn("fixed left-1/2 top-4 z-[70] flex w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur-xl", toast.tone === "success" ? "border-success/25 bg-surface-2/95 text-success" : "border-danger/25 bg-surface-2/95 text-danger")} role="status">
+            {toast.tone === "success" ? <CheckCircle2 className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
+            <span className="flex-1">{toast.message}</span>
+            <button aria-label="Fechar aviso" onClick={() => setToast(null)}><X className="h-4 w-4" /></button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const { establishment, table, command, categories, rodizio } = data;
+  const orders = guestMe?.orders || [];
+  const consumptionTotal = guestMe?.consumptionTotal || 0;
 
   return (
     <div className="relative mx-auto min-h-dvh max-w-lg bg-surface pb-28">
@@ -214,7 +451,10 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           </span>
           <div className="min-w-0 flex-1">
             <h1 className="truncate font-[family-name:var(--font-display)] text-lg font-bold">{establishment.name}</h1>
-            <p className="text-xs text-muted">Mesa {table.number} · Comanda aberta</p>
+            <p className="text-xs text-muted">
+              Mesa {table.number}
+              {guestMe ? ` · ${guestMe.participation.displayName}` : ""}
+            </p>
           </div>
         </div>
         <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3">
@@ -424,9 +664,14 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               )),
             )}
             <div className="mt-4 flex items-center justify-between text-lg font-bold">
-              <span>Total</span>
-              <span className="text-brand">{formatCurrency(command?.total || 0)}</span>
+              <span>Seu total</span>
+              <span className="text-brand">{formatCurrency(consumptionTotal)}</span>
             </div>
+            {data.tableTotal !== undefined && data.tableTotal > consumptionTotal && (
+              <p className="mt-2 text-center text-xs text-muted">
+                Total da mesa: {formatCurrency(data.tableTotal)}
+              </p>
+            )}
             <Button className="mt-4 w-full" variant="secondary" onClick={requestBill}>
               <ClipboardList className="mr-2 h-4 w-4" />
               Pedir a conta

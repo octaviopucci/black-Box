@@ -1,4 +1,5 @@
 import { findEstablishmentBySlug, findTableByQr, getActiveCommand, getStore } from "@/lib/store";
+import { guestTableSummary } from "@/lib/guest";
 
 export async function GET(
   _req: Request,
@@ -19,11 +20,7 @@ export async function GET(
     .sort((a, b) => a.sortOrder - b.sortOrder);
   const products = Object.values(store.products).filter((p) => p.establishmentId === est.id && p.active);
   const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id);
-  const orders = command
-    ? Object.values(store.orders)
-        .filter((o) => o.commandId === command.id)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    : [];
+  const summary = guestTableSummary(est.id, command?.id);
   const rodizio = est.rodizioEnabled
     ? Object.values(store.rodizios).find((r) => r.establishmentId === est.id && r.active)
     : null;
@@ -35,7 +32,7 @@ export async function GET(
     categories,
     products,
     sectors,
-    orders,
     rodizio,
+    ...summary,
   });
 }
