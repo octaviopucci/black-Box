@@ -1,4 +1,4 @@
-import { findEstablishmentBySlug, findTableByQr, getOrOpenCommand, getStore } from "@/lib/store";
+import { findEstablishmentBySlug, findTableByQr, getActiveCommand, getStore } from "@/lib/store";
 
 export async function GET(
   _req: Request,
@@ -13,15 +13,17 @@ export async function GET(
   if (!tbl) return Response.json({ error: "Mesa inválida ou QR expirado." }, { status: 404 });
 
   const store = getStore();
-  const command = getOrOpenCommand(tbl);
+  const command = getActiveCommand(tbl);
   const categories = Object.values(store.categories)
     .filter((c) => c.establishmentId === est.id && c.active)
     .sort((a, b) => a.sortOrder - b.sortOrder);
   const products = Object.values(store.products).filter((p) => p.establishmentId === est.id && p.active);
   const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id);
-  const orders = Object.values(store.orders)
-    .filter((o) => o.commandId === command.id)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const orders = command
+    ? Object.values(store.orders)
+        .filter((o) => o.commandId === command.id)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    : [];
   const rodizio = est.rodizioEnabled
     ? Object.values(store.rodizios).find((r) => r.establishmentId === est.id && r.active)
     : null;

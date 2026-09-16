@@ -29,7 +29,7 @@ type Tab = "menu" | "orders" | "comanda" | "rodizio";
 type MenuData = {
   establishment: Establishment;
   table: Table;
-  command: Command;
+  command: Command | null;
   categories: Category[];
   products: Product[];
   sectors: Sector[];
@@ -109,16 +109,13 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     if (!data || cart.lines.length === 0) return;
     setSubmitting(true);
     try {
-      const sectors = Object.fromEntries(
-        data.sectors.map((s) => [s.id, { name: s.name }]),
-      );
       const res = await fetch(apiUrl("/orders"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           slug,
           tableToken,
-          items: cart.toOrderItems(sectors),
+          items: cart.toOrderLines(),
         }),
       });
       const json = await res.json();
@@ -154,21 +151,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     if (!data?.rodizio) return;
     const items = Object.entries(rodizioPick)
       .filter(([, qty]) => qty > 0)
-      .map(([productId, qty]) => {
-        const p = data.products.find((x) => x.id === productId)!;
-        return {
-          id: `oi_rod_${productId}`,
-          productId: p.id,
-          productName: p.name,
-          sectorId: p.sectorId,
-          sectorName: "Cozinha",
-          qty,
-          unitPrice: p.rodizioPremiumPrice || 0,
-          variantDelta: 0,
-          addons: [],
-          status: "NOVO" as const,
-        };
-      });
+      .map(([productId, qty]) => ({ productId, qty }));
     if (!items.length) return;
     const res = await fetch(apiUrl("/rodizio/round"), {
       method: "POST",
@@ -428,7 +411,9 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           <div className="rounded-2xl bg-surface-2 p-4">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-bold">Comanda · Mesa {table.number}</h2>
-              <span className="rounded-full bg-brand/20 px-2 py-0.5 text-xs text-brand">{command.status}</span>
+              <span className="rounded-full bg-brand/20 px-2 py-0.5 text-xs text-brand">
+                {command?.status || "Sem comanda"}
+              </span>
             </div>
             {orders.flatMap((o) =>
               o.items.map((item) => (
@@ -440,7 +425,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
             )}
             <div className="mt-4 flex items-center justify-between text-lg font-bold">
               <span>Total</span>
-              <span className="text-brand">{formatCurrency(command.total)}</span>
+              <span className="text-brand">{formatCurrency(command?.total || 0)}</span>
             </div>
             <Button className="mt-4 w-full" variant="secondary" onClick={requestBill}>
               <ClipboardList className="mr-2 h-4 w-4" />

@@ -1,20 +1,29 @@
-import { lineTotal } from "@/lib/order-math";
 import {
   createOrder,
   findEstablishmentBySlug,
   findTableByQr,
   getOrOpenCommand,
   getStore,
+  validateSession,
 } from "@/lib/store";
-import type { OrderItem } from "@/lib/types";
+import { resolveOrderLines } from "@/lib/order-resolve";
+import type { OrderLineInput } from "@/lib/types";
+
+function readBearer(req: Request) {
+  const auth = req.headers.get("authorization");
+  const match = auth?.match(/^Bearer\s+(.+)$/i);
+  return match?.[1]?.trim();
+}
 
 export async function GET(req: Request) {
+  const auth = validateSession(readBearer(req));
+  if (!auth || (auth.user.role !== "OWNER" && auth.user.role !== "MANAGER")) {
+    return Response.json({ error: "Não autorizado." }, { status: 401 });
+  }
   const url = new URL(req.url);
-  const establishmentId = url.searchParams.get("establishmentId");
   const commandId = url.searchParams.get("commandId");
   const store = getStore();
-  let orders = Object.values(store.orders);
-  if (establishmentId) orders = orders.filter((o) => o.establishmentId === establishmentId);
+  let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
   if (commandId) orders = orders.filter((o) => o.commandId === commandId);
   orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return Response.json({ orders });
@@ -25,7 +34,7 @@ export async function POST(req: Request) {
   const { slug, tableToken, items, notes } = body as {
     slug: string;
     tableToken: string;
-    items: OrderItem[];
+    items: OrderLineInput[];
     notes?: string;
   };
 
@@ -35,12 +44,21 @@ export async function POST(req: Request) {
   if (!tbl) return Response.json({ error: "Mesa inválida." }, { status: 404 });
   if (!items?.length) return Response.json({ error: "Carrinho vazio." }, { status: 400 });
 
+  const store = getStore();
+  const sectors = Object.fromEntries(
+    Object.values(store.sectors)
+      .filter((sector) => sector.establishmentId === est.id)
+      .map((sector) => [sector.id, { name: sector.name }]),
+  );
+  const resolved = resolveOrderLines(store, est.id, sectors, items);
+  if (!resolved.ok) return Response.json({ error: resolved.error }, { status: resolved.status });
+
   const command = getOrOpenCommand(tbl);
   const order = createOrder({
     establishmentId: est.id,
     table: tbl,
     commandId: command.id,
-    items: items.map((i) => ({ ...i, id: i.id || `oi_${Date.now()}` })),
+    items: resolved.items,
     notes,
     source: "MESA",
   });

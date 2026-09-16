@@ -37,7 +37,210 @@ module.exports = __toCommonJS(handler_exports);
 // ../mesaflow/src/lib/store.ts
 var import_fs = require("fs");
 var import_path = require("path");
+
+// ../mesaflow/src/lib/blob-persistence.ts
 var import_blob = require("@vercel/blob");
+var LEGACY_BLOB_PATH = "mesaflow/store.json";
+var OPERATIONAL_BLOB_PATH = "mesaflow/operational.json";
+var IDENTITY_BLOB_PATH = "mesaflow/identity.json";
+var BLOB_ACCESS = "private";
+function blobReadWriteToken() {
+  return process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+}
+function blobStoreId() {
+  return process.env.MESAFLOW_BLOB_STORE_ID || process.env.BLOB_STORE_ID;
+}
+function blobAuthOptions(runtimeOidcToken2) {
+  const token = blobReadWriteToken();
+  if (token) return { token };
+  const storeId = blobStoreId();
+  const oidcToken = runtimeOidcToken2 || process.env.VERCEL_OIDC_TOKEN;
+  if (oidcToken && storeId) return { oidcToken, storeId };
+  if (storeId) return { storeId };
+  if (oidcToken) return { oidcToken };
+  return {};
+}
+function blobConfigured(runtimeOidcToken2) {
+  if (blobReadWriteToken()) return true;
+  if (blobStoreId()) return true;
+  return Boolean(runtimeOidcToken2 || process.env.VERCEL_OIDC_TOKEN);
+}
+function emptyOperational() {
+  return {
+    establishments: {},
+    sectors: {},
+    categories: {},
+    products: {},
+    tables: {},
+    commands: {},
+    orders: {},
+    rodizios: {},
+    rodizioRounds: {},
+    notifications: {},
+    orderCounter: {}
+  };
+}
+function emptyIdentity() {
+  return { users: {}, sessions: {} };
+}
+function splitStore(store) {
+  const {
+    users,
+    sessions,
+    establishments,
+    sectors,
+    categories,
+    products,
+    tables,
+    commands,
+    orders,
+    rodizios,
+    rodizioRounds,
+    notifications,
+    orderCounter
+  } = store;
+  return {
+    operational: {
+      establishments,
+      sectors,
+      categories,
+      products,
+      tables,
+      commands,
+      orders,
+      rodizios,
+      rodizioRounds,
+      notifications,
+      orderCounter
+    },
+    identity: { users, sessions }
+  };
+}
+function mergeStore(operational, identity) {
+  return {
+    ...emptyOperational(),
+    ...operational,
+    ...emptyIdentity(),
+    ...identity
+  };
+}
+async function readJsonFromStream(stream) {
+  const text = await new Response(stream).text();
+  return JSON.parse(text);
+}
+async function readPrivateBlob(pathname, auth) {
+  const result = await (0, import_blob.get)(pathname, { access: BLOB_ACCESS, ...auth, useCache: false });
+  if (!result?.stream) return null;
+  const data = await readJsonFromStream(result.stream);
+  return { data, etag: result.blob.etag };
+}
+async function readLegacyPublicBlob(pathname, auth) {
+  const listed = await (0, import_blob.list)({ prefix: pathname, limit: 1, ...auth });
+  const blob = listed.blobs.find((entry) => entry.pathname === pathname);
+  if (!blob) return null;
+  const response = await fetch(blob.url);
+  if (!response.ok) return null;
+  return { data: await response.json() };
+}
+async function hydrateFromBlob(runtimeOidcToken2) {
+  const auth = blobAuthOptions(runtimeOidcToken2);
+  if (!blobConfigured(runtimeOidcToken2)) return null;
+  const operational = await readPrivateBlob(OPERATIONAL_BLOB_PATH, auth);
+  const identity = await readPrivateBlob(IDENTITY_BLOB_PATH, auth);
+  if (operational || identity) {
+    return {
+      store: mergeStore(
+        operational?.data || {},
+        identity?.data || {}
+      ),
+      etags: {
+        operational: operational?.etag,
+        identity: identity?.etag
+      },
+      migratedFromLegacy: false
+    };
+  }
+  const legacy = await readLegacyPublicBlob(LEGACY_BLOB_PATH, auth);
+  if (!legacy) return null;
+  const legacyStore = legacy.data;
+  const { operational: op, identity: id2 } = splitStore(mergeStore(legacyStore, {}));
+  return {
+    store: mergeStore(op, id2),
+    etags: {},
+    migratedFromLegacy: true
+  };
+}
+var MAX_BLOB_RETRIES = 3;
+async function putWithRetry(pathname, body, auth, etag) {
+  for (let attempt = 0; attempt < MAX_BLOB_RETRIES; attempt++) {
+    try {
+      const result = await (0, import_blob.put)(pathname, body, {
+        access: BLOB_ACCESS,
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: "application/json",
+        ifMatch: etag,
+        ...auth
+      });
+      return { ok: true, etag: result.etag };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "blob persist failed";
+      const conflict = /precondition|etag|412/i.test(message);
+      if (!conflict || attempt === MAX_BLOB_RETRIES - 1) {
+        return { ok: false, error: message };
+      }
+      const fresh = await readPrivateBlob(pathname, auth);
+      if (fresh?.etag) etag = fresh.etag;
+    }
+  }
+  return { ok: false, error: "blob persist failed after retries" };
+}
+async function flushToBlob(input) {
+  const auth = blobAuthOptions(input.runtimeOidcToken);
+  if (!blobConfigured(input.runtimeOidcToken)) {
+    return {
+      operational: { ok: false, error: "Blob not configured" },
+      identity: { ok: false, error: "Blob not configured" }
+    };
+  }
+  const { operational, identity } = splitStore(input.store);
+  const result = {};
+  if (input.flushOperational) {
+    const putResult = await putWithRetry(
+      OPERATIONAL_BLOB_PATH,
+      JSON.stringify(operational),
+      auth,
+      input.etags.operational
+    );
+    result.operational = putResult.ok ? { ok: true, etag: putResult.etag } : { ok: false, error: putResult.error };
+  }
+  if (input.flushIdentity) {
+    const putResult = await putWithRetry(
+      IDENTITY_BLOB_PATH,
+      JSON.stringify(identity),
+      auth,
+      input.etags.identity
+    );
+    result.identity = putResult.ok ? { ok: true, etag: putResult.etag } : { ok: false, error: putResult.error };
+  }
+  return result;
+}
+async function probeBlobPaths(runtimeOidcToken2) {
+  if (!process.env.VERCEL) return { ok: false, error: "local" };
+  if (!blobConfigured(runtimeOidcToken2)) {
+    return { ok: false, error: "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)" };
+  }
+  try {
+    const auth = blobAuthOptions(runtimeOidcToken2);
+    await (0, import_blob.list)({ prefix: "mesaflow/", limit: 1, ...auth });
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "blob unreachable"
+    };
+  }
+}
 
 // ../mesaflow/src/lib/crypto-utils.ts
 var import_crypto2 = require("crypto");
@@ -2451,10 +2654,11 @@ function buildDemoStore() {
 }
 
 // ../mesaflow/src/lib/store.ts
-var BLOB_PATHNAME = "mesaflow/store.json";
 var DATA_PATH = process.env.MESAFLOW_DATA || (process.env.VERCEL ? "/tmp/mesaflow-store.json" : (0, import_path.join)(process.cwd(), "data", "store.json"));
 var cache = null;
-var persistentDirty = false;
+var operationalDirty = false;
+var identityDirty = false;
+var blobEtags = {};
 var runtimeOidcToken;
 var lastBlobError;
 var SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
@@ -2508,10 +2712,20 @@ function load() {
   persist();
   return cache;
 }
-function persist() {
+function persist(markIdentity = true) {
   if (!cache) return;
   (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
-  persistentDirty = true;
+  operationalDirty = true;
+  if (markIdentity) identityDirty = true;
+}
+function migrateLegacyGuestParticipations(store) {
+  let changed = false;
+  for (const order of Object.values(store.orders)) {
+    if (order.guestParticipationId) continue;
+    order.guestParticipationId = `gp_legacy_${order.commandId}`;
+    changed = true;
+  }
+  if (changed) persist(false);
 }
 function getStore() {
   return load();
@@ -2520,92 +2734,63 @@ function saveStore(next) {
   cache = next;
   persist();
 }
-function blobReadWriteToken() {
+function blobReadWriteToken2() {
   return process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
 }
-function blobStoreId() {
+function blobStoreId2() {
   return process.env.MESAFLOW_BLOB_STORE_ID || process.env.BLOB_STORE_ID;
-}
-function blobAuthOptions() {
-  const token = blobReadWriteToken();
-  if (token) return { token };
-  const storeId = blobStoreId();
-  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
-  if (oidcToken && storeId) return { oidcToken, storeId };
-  if (storeId) return { storeId };
-  if (oidcToken) return { oidcToken };
-  return {};
-}
-function blobConfigured() {
-  if (blobReadWriteToken()) return true;
-  if (blobStoreId()) return true;
-  return Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN);
 }
 function blobDiagnostics(hasOidcHeader = false) {
   const blobEnvKeys = Object.keys(process.env).filter(
     (key) => key.includes("BLOB") || key.includes("OIDC")
   );
+  const auth = blobAuthOptions(runtimeOidcToken);
   return {
-    configured: blobConfigured(),
-    hasToken: Boolean(blobReadWriteToken()),
-    hasStoreId: Boolean(blobStoreId()),
+    configured: blobConfigured(runtimeOidcToken),
+    hasToken: Boolean(blobReadWriteToken2()),
+    hasStoreId: Boolean(blobStoreId2()),
     hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
     hasOidcHeader,
     onVercel: Boolean(process.env.VERCEL),
     vercelProjectId: process.env.VERCEL_PROJECT_ID,
     vercelEnv: process.env.VERCEL_ENV,
     blobEnvKeys,
-    pathname: BLOB_PATHNAME,
-    access: "public",
-    lastError: lastBlobError
+    paths: {
+      legacy: LEGACY_BLOB_PATH,
+      operational: OPERATIONAL_BLOB_PATH,
+      identity: IDENTITY_BLOB_PATH
+    },
+    access: BLOB_ACCESS,
+    lastError: lastBlobError,
+    etags: blobEtags
   };
 }
 async function probeBlobStorage() {
-  if (!process.env.VERCEL) return { ok: false, error: "local" };
-  if (!blobConfigured()) {
-    return { ok: false, error: "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)" };
-  }
-  try {
-    await (0, import_blob.list)({ prefix: BLOB_PATHNAME, limit: 1, ...blobAuthOptions() });
-    return { ok: true };
-  } catch (error) {
-    return {
-      ok: false,
-      error: error instanceof Error ? error.message : "blob unreachable"
-    };
-  }
+  return probeBlobPaths(runtimeOidcToken);
 }
 function setPersistentStoreOidcToken(token) {
   runtimeOidcToken = token?.trim() || void 0;
 }
 async function hydratePersistentStore() {
   if (!process.env.VERCEL) {
-    getStore();
+    const store2 = getStore();
+    migrateLegacyGuestParticipations(store2);
     return;
   }
   (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });
   lastBlobError = void 0;
-  if (blobConfigured()) {
+  if (blobConfigured(runtimeOidcToken)) {
     try {
-      const listed = await (0, import_blob.list)({
-        prefix: BLOB_PATHNAME,
-        limit: 1,
-        ...blobAuthOptions()
-      });
-      const blob = listed.blobs.find((entry) => entry.pathname === BLOB_PATHNAME);
-      if (blob) {
-        const response = await fetch(blob.url);
-        if (response.ok) {
-          cache = {
-            ...emptyStore(),
-            ...await response.json()
-          };
-          (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
-          persistentDirty = false;
-          migrateProductImages(cache, false);
-          return;
-        }
-        lastBlobError = `blob fetch failed: ${response.status}`;
+      const hydrated = await hydrateFromBlob(runtimeOidcToken);
+      if (hydrated) {
+        cache = hydrated.store;
+        blobEtags = hydrated.etags;
+        operationalDirty = hydrated.migratedFromLegacy;
+        identityDirty = hydrated.migratedFromLegacy;
+        (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+        migrateProductImages(cache, false);
+        migrateLegacyGuestParticipations(cache);
+        return;
       }
     } catch (error) {
       lastBlobError = error instanceof Error ? error.message : "blob hydrate failed";
@@ -2615,31 +2800,44 @@ async function hydratePersistentStore() {
     lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
   }
   cache = null;
-  getStore();
+  const store = getStore();
+  migrateLegacyGuestParticipations(store);
 }
 async function flushPersistentStore() {
   if (!cache) return { disk: false, blob: false };
-  if (!process.env.VERCEL || !persistentDirty) return { disk: true, blob: false };
-  if (!blobConfigured()) {
+  if (!process.env.VERCEL || !operationalDirty && !identityDirty) {
+    return { disk: true, blob: false };
+  }
+  if (!blobConfigured(runtimeOidcToken)) {
     lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
     return { disk: true, blob: false, blobError: lastBlobError };
   }
-  try {
-    await (0, import_blob.put)(BLOB_PATHNAME, JSON.stringify(cache), {
-      access: "public",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      contentType: "application/json",
-      ...blobAuthOptions()
-    });
-    persistentDirty = false;
+  const flushed = await flushToBlob({
+    store: cache,
+    etags: blobEtags,
+    flushOperational: operationalDirty,
+    flushIdentity: identityDirty,
+    runtimeOidcToken
+  });
+  const operationalOk = !operationalDirty || flushed.operational?.ok === true;
+  const identityOk = !identityDirty || flushed.identity?.ok === true;
+  const blobOk = operationalOk && identityOk;
+  const blobError = flushed.operational?.error || flushed.identity?.error;
+  if (operationalOk && flushed.operational?.etag) {
+    blobEtags.operational = flushed.operational.etag;
+    operationalDirty = false;
+  }
+  if (identityOk && flushed.identity?.etag) {
+    blobEtags.identity = flushed.identity.etag;
+    identityDirty = false;
+  }
+  if (blobOk) {
     lastBlobError = void 0;
     return { disk: true, blob: true };
-  } catch (error) {
-    lastBlobError = error instanceof Error ? error.message : "blob persist failed";
-    console.warn("[mesaflow] blob persist failed", error);
-    return { disk: true, blob: false, blobError: lastBlobError };
   }
+  lastBlobError = blobError || "blob persist failed";
+  console.warn("[mesaflow] blob persist failed", lastBlobError);
+  return { disk: true, blob: false, blobError: lastBlobError };
 }
 function notify(establishmentId, type, title, body) {
   const store = getStore();
@@ -3065,10 +3263,27 @@ function updateAdminSettings(establishmentId, body) {
   saveStore(store);
   return { value: next };
 }
+function getActiveCommand(table) {
+  const store = getStore();
+  if (table.commandId) {
+    const linked = store.commands[table.commandId];
+    if (linked && linked.status !== "FECHADA") return linked;
+  }
+  const active = Object.values(store.commands).find(
+    (command) => command.tableId === table.id && command.status !== "FECHADA"
+  );
+  return active || null;
+}
 function getOrOpenCommand(table) {
   const store = getStore();
-  if (table.commandId && store.commands[table.commandId]?.status === "ABERTA") {
-    return store.commands[table.commandId];
+  const active = getActiveCommand(table);
+  if (active) {
+    if (table.commandId !== active.id) {
+      table.commandId = active.id;
+      store.tables[table.id] = table;
+      saveStore(store);
+    }
+    return active;
   }
   const cmd = {
     id: id("cmd_"),
@@ -3112,6 +3327,7 @@ function createOrder(input) {
     tableId: input.table.id,
     tableNumber: input.table.number,
     commandId: input.commandId,
+    guestParticipationId: input.guestParticipationId || `gp_legacy_${input.commandId}`,
     number: nextOrderNumber(input.establishmentId),
     status: "NOVO",
     items: input.items.map((i) => ({ ...i, status: "NOVO" })),
@@ -3129,10 +3345,11 @@ function createOrder(input) {
   emit({ type: "order.created", orderId: order.id, establishmentId: input.establishmentId });
   return order;
 }
-function updateOrderStatus(orderId, status) {
+function updateOrderStatus(orderId, status, establishmentId) {
   const store = getStore();
   const order = store.orders[orderId];
   if (!order) return null;
+  if (establishmentId && order.establishmentId !== establishmentId) return null;
   order.status = status;
   order.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
   order.items = order.items.map((i) => ({ ...i, status }));
@@ -3147,9 +3364,10 @@ function updateOrderStatus(orderId, status) {
 function requestBill(tableId) {
   const store = getStore();
   const table = store.tables[tableId];
-  if (!table?.commandId) return null;
-  const cmd = store.commands[table.commandId];
+  if (!table) return null;
+  const cmd = getActiveCommand(table);
   if (!cmd) return null;
+  if (cmd.status === "PAGAMENTO_SOLICITADO") return cmd;
   cmd.status = "PAGAMENTO_SOLICITADO";
   table.status = "AGUARDANDO_PAGAMENTO";
   store.commands[cmd.id] = cmd;
@@ -3225,6 +3443,84 @@ function dashboardStats(establishmentId) {
   };
 }
 
+// ../mesaflow/src/lib/order-resolve.ts
+function hasClientPricing(item) {
+  return "unitPrice" in item || "variantDelta" in item || Array.isArray(item.addons) && item.addons.some((addon) => typeof addon === "object" && addon !== null && "price" in addon);
+}
+function resolveAddon(product, addonId, qty) {
+  const addon = product.addons.find((entry) => entry.id === addonId);
+  if (!addon) return null;
+  const maxQty = addon.maxQty ?? 99;
+  if (qty < 1 || qty > maxQty) return null;
+  return { addonId: addon.id, name: addon.name, price: addon.price, qty };
+}
+function resolveOrderLines(store, establishmentId, sectors, lines, options) {
+  if (!lines.length) {
+    return { ok: false, status: 400, error: "Carrinho vazio." };
+  }
+  const items = [];
+  let lineIndex = 0;
+  for (const raw of lines) {
+    const line = raw;
+    if (hasClientPricing(line)) {
+      return {
+        ok: false,
+        status: 400,
+        error: "Pre\xE7os devem ser calculados pelo servidor. Envie apenas productId, qty, variantId e addonIds."
+      };
+    }
+    const product = store.products[line.productId];
+    if (!product || product.establishmentId !== establishmentId || !product.active) {
+      return { ok: false, status: 400, error: `Produto inv\xE1lido: ${line.productId}` };
+    }
+    const qty = Number(line.qty);
+    if (!Number.isFinite(qty) || qty < 1 || qty > 99) {
+      return { ok: false, status: 400, error: `Quantidade inv\xE1lida para ${product.name}.` };
+    }
+    let variantName;
+    let variantDelta = 0;
+    if (line.variantId) {
+      const variant = product.variants.find((entry) => entry.id === line.variantId);
+      if (!variant) {
+        return { ok: false, status: 400, error: `Varia\xE7\xE3o inv\xE1lida para ${product.name}.` };
+      }
+      variantName = variant.name;
+      variantDelta = variant.priceDelta;
+    } else if (product.variants.length > 0) {
+      return { ok: false, status: 400, error: `Selecione uma varia\xE7\xE3o para ${product.name}.` };
+    }
+    const addonCounts = /* @__PURE__ */ new Map();
+    for (const addonId of line.addonIds || []) {
+      addonCounts.set(addonId, (addonCounts.get(addonId) || 0) + 1);
+    }
+    const addons = [];
+    for (const [addonId, addonQty] of addonCounts) {
+      const resolved = resolveAddon(product, addonId, addonQty);
+      if (!resolved) {
+        return { ok: false, status: 400, error: `Adicional inv\xE1lido para ${product.name}.` };
+      }
+      addons.push(resolved);
+    }
+    const item = {
+      id: `oi_${Date.now()}_${lineIndex++}`,
+      productId: product.id,
+      productName: product.name,
+      sectorId: product.sectorId,
+      sectorName: sectors[product.sectorId]?.name || "",
+      qty,
+      unitPrice: options?.unitPriceFor ? options.unitPriceFor(product) : product.price,
+      variantName,
+      variantDelta,
+      addons,
+      notes: line.notes?.trim() || void 0,
+      status: "NOVO"
+    };
+    items.push(item);
+  }
+  const total = items.reduce((sum, item) => sum + lineTotal(item), 0);
+  return { ok: true, items, total };
+}
+
 // api/_mesaflow/handler.ts
 function resolvePath(req) {
   const q = req.query?.path;
@@ -3271,11 +3567,22 @@ function readOidcHeader(req) {
   if (Array.isArray(value) && value[0]?.trim()) return value[0].trim();
   return void 0;
 }
-function adminAuth(req) {
+function readBearer(req) {
   const authorization = req.headers.authorization;
   const match = typeof authorization === "string" && authorization.match(/^Bearer\s+(.+)$/i);
-  const auth = validateSession(match ? match[1].trim() : void 0);
+  return match ? match[1].trim() : void 0;
+}
+function adminAuth(req) {
+  const auth = validateSession(readBearer(req));
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
+}
+function kitchenAuth(req) {
+  const auth = validateSession(readBearer(req));
+  if (!auth) return null;
+  if (auth.user.role === "OWNER" || auth.user.role === "MANAGER" || auth.user.role === "KITCHEN" || auth.user.role === "COUNTER") {
+    return auth;
+  }
+  return null;
 }
 async function handler(req, res) {
   setPersistentStoreOidcToken(readOidcHeader(req));
@@ -3315,11 +3622,11 @@ async function handler(req, res) {
       if (!est.open) return json(res, 403, { error: "Estabelecimento fechado no momento." });
       const tbl = findTableByQr(est.id, table);
       if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida ou QR expirado." });
-      const command = getOrOpenCommand(tbl);
+      const command = getActiveCommand(tbl);
       const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id && c.active).sort((a, b) => a.sortOrder - b.sortOrder);
       const products = Object.values(store.products).filter((p) => p.establishmentId === est.id && p.active);
       const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id);
-      const orders = Object.values(store.orders).filter((o) => o.commandId === command.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const orders = command ? Object.values(store.orders).filter((o) => o.commandId === command.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : [];
       const rodizio = est.rodizioEnabled ? Object.values(store.rodizios).find((r) => r.establishmentId === est.id && r.active) : null;
       return json(res, 200, {
         establishment: est,
@@ -3333,10 +3640,10 @@ async function handler(req, res) {
       });
     }
     if (req.method === "GET" && path === "/orders") {
-      const establishmentId = String(req.query?.establishmentId || "");
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
       const commandId = String(req.query?.commandId || "");
-      let orders = Object.values(store.orders);
-      if (establishmentId) orders = orders.filter((o) => o.establishmentId === establishmentId);
+      let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
       if (commandId) orders = orders.filter((o) => o.commandId === commandId);
       orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       return json(res, 200, { orders });
@@ -3348,12 +3655,17 @@ async function handler(req, res) {
       const tbl = findTableByQr(est.id, body.tableToken);
       if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida." });
       if (!body.items?.length) return json(res, 400, { error: "Carrinho vazio." });
+      const sectors = Object.fromEntries(
+        Object.values(store.sectors).filter((sector) => sector.establishmentId === est.id).map((sector) => [sector.id, { name: sector.name }])
+      );
+      const resolved = resolveOrderLines(store, est.id, sectors, body.items);
+      if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
       const command = getOrOpenCommand(tbl);
       const order = createOrder({
         establishmentId: est.id,
         table: tbl,
         commandId: command.id,
-        items: body.items.map((i) => ({ ...i, id: i.id || `oi_${Date.now()}` })),
+        items: resolved.items,
         notes: body.notes,
         source: "MESA"
       });
@@ -3363,13 +3675,19 @@ async function handler(req, res) {
     if (orderMatch) {
       const orderId = orderMatch[1];
       if (req.method === "GET") {
+        const auth = adminAuth(req);
+        if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
         const order = store.orders[orderId];
-        if (!order) return json(res, 404, { error: "N\xE3o encontrado" });
+        if (!order || order.establishmentId !== auth.establishment.id) {
+          return json(res, 404, { error: "N\xE3o encontrado" });
+        }
         return json(res, 200, { order });
       }
       if (req.method === "PATCH") {
+        const auth = kitchenAuth(req);
+        if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
         const body = req.body || {};
-        const order = updateOrderStatus(orderId, body.status);
+        const order = updateOrderStatus(orderId, body.status, auth.establishment.id);
         if (!order) return json(res, 404, { error: "Pedido n\xE3o encontrado." });
         return json(res, 200, { order });
       }
@@ -3529,8 +3847,23 @@ async function handler(req, res) {
       const table = findTableByQr(est.id, body.tableToken);
       if (!table) return json(res, 404, { error: "Mesa inv\xE1lida." });
       const rodizio = store.rodizios[body.rodizioId];
-      if (!rodizio) return json(res, 404, { error: "Rod\xEDzio n\xE3o encontrado." });
-      if (body.items.length > rodizio.maxItemsPerRound) {
+      if (!rodizio || rodizio.establishmentId !== est.id) {
+        return json(res, 404, { error: "Rod\xEDzio n\xE3o encontrado." });
+      }
+      const sectors = Object.fromEntries(
+        Object.values(store.sectors).filter((sector) => sector.establishmentId === est.id).map((sector) => [sector.id, { name: sector.name }])
+      );
+      const resolved = resolveOrderLines(store, est.id, sectors, body.items, {
+        unitPriceFor: (product) => {
+          if (rodizio.premiumProductIds.includes(product.id)) {
+            return product.rodizioPremiumPrice ?? product.price;
+          }
+          if (rodizio.productIds.includes(product.id)) return 0;
+          return product.price;
+        }
+      });
+      if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
+      if (resolved.items.length > rodizio.maxItemsPerRound) {
         return json(res, 400, { error: `M\xE1ximo ${rodizio.maxItemsPerRound} itens por rodada.` });
       }
       const command = getOrOpenCommand(table);
@@ -3539,7 +3872,7 @@ async function handler(req, res) {
         table,
         commandId: command.id,
         rodizioId: body.rodizioId,
-        items: body.items
+        items: resolved.items
       });
       return json(res, 200, { round, message: "Rodada enviada para a cozinha." });
     }

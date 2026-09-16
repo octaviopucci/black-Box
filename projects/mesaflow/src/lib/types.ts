@@ -162,6 +162,8 @@ export interface Order {
   tableId: string;
   tableNumber: string;
   commandId: string;
+  /** Fase 0: legado usa gp_legacy_{commandId} */
+  guestParticipationId?: string;
   number: number;
   status: OrderStatus;
   items: OrderItem[];
@@ -171,6 +173,15 @@ export interface Order {
   total: number;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Payload do cliente — sem preços (resolvidos no servidor). */
+export interface OrderLineInput {
+  productId: string;
+  qty: number;
+  variantId?: string;
+  addonIds?: string[];
+  notes?: string;
 }
 
 export interface Rodizio {
@@ -211,10 +222,8 @@ export interface Notification {
   createdAt: string;
 }
 
-export interface MesaFlowStore {
+export interface MesaFlowOperationalStore {
   establishments: Record<string, Establishment>;
-  users: Record<string, User>;
-  sessions: Record<string, Session>;
   sectors: Record<string, Sector>;
   categories: Record<string, Category>;
   products: Record<string, Product>;
@@ -226,6 +235,13 @@ export interface MesaFlowStore {
   notifications: Record<string, Notification>;
   orderCounter: Record<string, number>;
 }
+
+export interface MesaFlowIdentityStore {
+  users: Record<string, User>;
+  sessions: Record<string, Session>;
+}
+
+export interface MesaFlowStore extends MesaFlowOperationalStore, MesaFlowIdentityStore {}
 
 export type StoreEvent =
   | { type: "order.created"; orderId: string; establishmentId: string }
