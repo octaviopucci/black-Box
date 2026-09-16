@@ -81,6 +81,7 @@
     "build": "npm run build:portal && npm run build:maciel && npm run build:maciel-x && npm run build:lp-motors && npm run build:lp-motors-domain && npm run build:lp-motors-x && npm run build:porthal && npm run build:marcio && npm run build:sogov && npm run build:dna && npm run build:prado && npm run build:harmonie && npm run build:pucci && npm run build:na && npm run build:pucci-motors && npm run build:matsubara && npm run build:danielle && npm run build:gl && npm run build:cbx && npm run build:pav && npm run build:rian && npm run build:chama && npm run build:traco && npm run build:lais && npm run build:nathalia && npm run build:mussi && npm run build:heitor && npm run build:estudio-clow && node scripts/assemble-dist.mjs",
     "bundle:pix": "node scripts/bundle-pix-api.mjs",
     "vercel-build": "node -e \"require('fs').accessSync('public/estudio-clow/index.html'); console.log('estudio-clow static ready')\"",
+    "setup:vercel-plugin": "bash scripts/setup-vercel-plugin.sh",
     "preview": "npx --yes serve -s dist -l 4173"
   },
   "dependencies": {
@@ -96,6 +97,7 @@
     "node": "22.x"
   },
   "devDependencies": {
-    "esbuild": "^0.28.1"
+    "esbuild": "^0.28.1",
+    "vercel": "^59.19.0"
   }
 }
