@@ -9,9 +9,9 @@ import {
   deleteAdminTable,
   findEstablishmentBySlug,
   findTableByQr,
-  blobConfigured,
   blobDiagnostics,
   flushPersistentStore,
+  probeBlobStorage,
   getAdminSettings,
   getOrOpenCommand,
   getStore,
@@ -44,19 +44,40 @@ function resolvePath(req: VercelRequest): string {
   return stripped.startsWith("/") ? stripped : `/${stripped}`;
 }
 
-async function json(res: VercelResponse, status: number, body: unknown) {
-  try {
-    await flushPersistentStore();
-  } catch (error) {
-    console.error("[mesaflow] blob persist failed", error);
-    status = 500;
-    body = { error: "Não foi possível persistir a alteração." };
+async function json(
+  res: VercelResponse,
+  status: number,
+  body: unknown,
+  options?: { skipFlush?: boolean },
+) {
+  if (!options?.skipFlush) {
+    const persist = await flushPersistentStore();
+    if (!persist.blob && persist.blobError) {
+      console.warn("[mesaflow] blob persist skipped/failed", persist.blobError);
+    }
   }
   res.status(status).setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   res.send(JSON.stringify(body));
+}
+
+function blobSetupHint(storage: ReturnType<typeof blobDiagnostics>): string {
+  if (storage.hasToken) return "";
+  if (storage.hasStoreId && !storage.hasOidc && !storage.hasOidcHeader) {
+    return "BLOB_STORE_ID existe mas OIDC não chegou na function. Faça Redeploy ou adicione BLOB_READ_WRITE_TOKEN manualmente.";
+  }
+  if ((storage.hasOidc || storage.hasOidcHeader) && !storage.hasStoreId) {
+    return "OIDC ok mas BLOB_STORE_ID ausente — o Blob provavelmente está conectado a OUTRO projeto Vercel. Em Storage → Blob → Projects → conecte o projeto certo (Production + Preview).";
+  }
+  if (storage.blobEnvKeys.length === 0) {
+    return "Nenhuma variável BLOB/OIDC nesta function. Storage → Blob → Connect to Project. Ou adicione BLOB_READ_WRITE_TOKEN em Environment Variables e redeploy.";
+  }
+  if (storage.lastError) {
+    return `Persistência falhou: ${storage.lastError}. Adicione BLOB_READ_WRITE_TOKEN (token Read-Write do Blob) e redeploy.`;
+  }
+  return "Storage → Blob → Connect to Project → marque Production + Preview → Redeploy.";
 }
 
 function readOidcHeader(req: VercelRequest) {
@@ -85,15 +106,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const store = getStore();
 
     if (req.method === "GET" && path === "/health") {
-      const storage = blobDiagnostics(Boolean(readOidcHeader(req)));
+      const hasOidcHeader = Boolean(readOidcHeader(req));
+      const storage = blobDiagnostics(hasOidcHeader);
+      const probe = await probeBlobStorage();
+      const persist = await flushPersistentStore();
+      const blobOk = probe.ok || (storage.hasToken && storage.configured);
       const establishments = Object.keys(store.establishments).length;
-      return json(res, 200, {
-        ok: true,
-        service: "mesaflow",
-        blob: storage.configured && !storage.lastError,
-        establishments,
-        storage,
-      });
+      return json(
+        res,
+        200,
+        {
+          ok: true,
+          service: "mesaflow",
+          blob: blobOk,
+          establishments,
+          storage: { ...storage, probe, persist },
+          setup:
+            blobOk && !persist.blobError
+              ? undefined
+              : blobSetupHint({ ...storage, lastError: persist.blobError ?? storage.lastError }),
+        },
+        { skipFlush: true },
+      );
     }
 
     if (req.method === "GET" && path.startsWith("/menu/")) {

@@ -35,6 +35,12 @@ let persistentDirty = false;
 let runtimeOidcToken: string | undefined;
 let lastBlobError: string | undefined;
 
+export interface PersistResult {
+  disk: boolean;
+  blob: boolean;
+  blobError?: string;
+}
+
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 function emptyStore(): MesaFlowStore {
@@ -57,7 +63,7 @@ function emptyStore(): MesaFlowStore {
 
 export { hashPassword } from "./crypto-utils";
 
-function migrateProductImages(store: MesaFlowStore) {
+function migrateProductImages(store: MesaFlowStore, markBlobDirty = true) {
   let changed = false;
   for (const product of Object.values(store.products)) {
     const canonical = PRODUCT_IMAGES[product.id];
@@ -71,7 +77,12 @@ function migrateProductImages(store: MesaFlowStore) {
       changed = true;
     }
   }
-  if (changed) persist();
+  if (!changed) return;
+  if (markBlobDirty) {
+    persist();
+    return;
+  }
+  writeFileSync(DATA_PATH, JSON.stringify(store, null, 2));
 }
 
 function load(): MesaFlowStore {
@@ -143,11 +154,30 @@ export function blobDiagnostics(hasOidcHeader = false) {
     hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
     hasOidcHeader,
     onVercel: Boolean(process.env.VERCEL),
+    vercelProjectId: process.env.VERCEL_PROJECT_ID,
+    vercelEnv: process.env.VERCEL_ENV,
     blobEnvKeys,
     pathname: BLOB_PATHNAME,
     access: "public",
     lastError: lastBlobError,
   };
+}
+
+/** Testa leitura real no Blob (OIDC automático na Vercel). */
+export async function probeBlobStorage(): Promise<{ ok: boolean; error?: string }> {
+  if (!process.env.VERCEL) return { ok: false, error: "local" };
+  if (!blobConfigured()) {
+    return { ok: false, error: "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)" };
+  }
+  try {
+    await list({ prefix: BLOB_PATHNAME, limit: 1, ...blobAuthOptions() });
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "blob unreachable",
+    };
+  }
 }
 
 export function setPersistentStoreOidcToken(token: string | undefined) {
@@ -180,7 +210,7 @@ export async function hydratePersistentStore() {
           };
           writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
           persistentDirty = false;
-          migrateProductImages(cache);
+          migrateProductImages(cache, false);
           return;
         }
         lastBlobError = `blob fetch failed: ${response.status}`;
@@ -197,9 +227,13 @@ export async function hydratePersistentStore() {
   getStore();
 }
 
-export async function flushPersistentStore() {
-  if (!process.env.VERCEL || !persistentDirty || !cache) return;
-  if (!blobConfigured()) return;
+export async function flushPersistentStore(): Promise<PersistResult> {
+  if (!cache) return { disk: false, blob: false };
+  if (!process.env.VERCEL || !persistentDirty) return { disk: true, blob: false };
+  if (!blobConfigured()) {
+    lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
+    return { disk: true, blob: false, blobError: lastBlobError };
+  }
 
   try {
     await put(BLOB_PATHNAME, JSON.stringify(cache), {
@@ -211,10 +245,11 @@ export async function flushPersistentStore() {
     });
     persistentDirty = false;
     lastBlobError = undefined;
+    return { disk: true, blob: true };
   } catch (error) {
     lastBlobError = error instanceof Error ? error.message : "blob persist failed";
     console.warn("[mesaflow] blob persist failed", error);
-    throw error;
+    return { disk: true, blob: false, blobError: lastBlobError };
   }
 }
 
