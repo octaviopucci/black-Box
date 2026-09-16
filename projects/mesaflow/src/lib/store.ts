@@ -1,6 +1,17 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
-import { list, put } from "@vercel/blob";
+import {
+  BLOB_ACCESS,
+  blobAuthOptions,
+  blobConfigured,
+  flushToBlob,
+  hydrateFromBlob,
+  IDENTITY_BLOB_PATH,
+  LEGACY_BLOB_PATH,
+  OPERATIONAL_BLOB_PATH,
+  probeBlobPaths,
+  type BlobEtags,
+} from "./blob-persistence";
 import { hashPassword, id, sessionToken, verifyPassword } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
@@ -25,13 +36,14 @@ import type {
   ProductAvailability,
 } from "./types";
 
-const BLOB_PATHNAME = "mesaflow/store.json";
 const DATA_PATH =
   process.env.MESAFLOW_DATA ||
   (process.env.VERCEL ? "/tmp/mesaflow-store.json" : join(process.cwd(), "data", "store.json"));
 
 let cache: MesaFlowStore | null = null;
-let persistentDirty = false;
+let operationalDirty = false;
+let identityDirty = false;
+let blobEtags: BlobEtags = {};
 let runtimeOidcToken: string | undefined;
 let lastBlobError: string | undefined;
 
@@ -102,10 +114,21 @@ function load(): MesaFlowStore {
   return cache;
 }
 
-function persist() {
+function persist(markIdentity = true) {
   if (!cache) return;
   writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
-  persistentDirty = true;
+  operationalDirty = true;
+  if (markIdentity) identityDirty = true;
+}
+
+function migrateLegacyGuestParticipations(store: MesaFlowStore) {
+  let changed = false;
+  for (const order of Object.values(store.orders)) {
+    if (order.guestParticipationId) continue;
+    order.guestParticipationId = `gp_legacy_${order.commandId}`;
+    changed = true;
+  }
+  if (changed) persist(false);
 }
 
 export function getStore() {
@@ -125,30 +148,13 @@ function blobStoreId() {
   return process.env.MESAFLOW_BLOB_STORE_ID || process.env.BLOB_STORE_ID;
 }
 
-function blobAuthOptions(): { token?: string; storeId?: string; oidcToken?: string } {
-  const token = blobReadWriteToken();
-  if (token) return { token };
-
-  const storeId = blobStoreId();
-  const oidcToken = runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN;
-  if (oidcToken && storeId) return { oidcToken, storeId };
-  if (storeId) return { storeId };
-  if (oidcToken) return { oidcToken };
-  return {};
-}
-
-export function blobConfigured() {
-  if (blobReadWriteToken()) return true;
-  if (blobStoreId()) return true;
-  return Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN);
-}
-
 export function blobDiagnostics(hasOidcHeader = false) {
   const blobEnvKeys = Object.keys(process.env).filter(
     (key) => key.includes("BLOB") || key.includes("OIDC"),
   );
+  const auth = blobAuthOptions(runtimeOidcToken);
   return {
-    configured: blobConfigured(),
+    configured: blobConfigured(runtimeOidcToken),
     hasToken: Boolean(blobReadWriteToken()),
     hasStoreId: Boolean(blobStoreId()),
     hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
@@ -157,27 +163,20 @@ export function blobDiagnostics(hasOidcHeader = false) {
     vercelProjectId: process.env.VERCEL_PROJECT_ID,
     vercelEnv: process.env.VERCEL_ENV,
     blobEnvKeys,
-    pathname: BLOB_PATHNAME,
-    access: "public",
+    paths: {
+      legacy: LEGACY_BLOB_PATH,
+      operational: OPERATIONAL_BLOB_PATH,
+      identity: IDENTITY_BLOB_PATH,
+    },
+    access: BLOB_ACCESS,
     lastError: lastBlobError,
+    etags: blobEtags,
   };
 }
 
 /** Testa leitura real no Blob (OIDC automático na Vercel). */
 export async function probeBlobStorage(): Promise<{ ok: boolean; error?: string }> {
-  if (!process.env.VERCEL) return { ok: false, error: "local" };
-  if (!blobConfigured()) {
-    return { ok: false, error: "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)" };
-  }
-  try {
-    await list({ prefix: BLOB_PATHNAME, limit: 1, ...blobAuthOptions() });
-    return { ok: true };
-  } catch (error) {
-    return {
-      ok: false,
-      error: error instanceof Error ? error.message : "blob unreachable",
-    };
-  }
+  return probeBlobPaths(runtimeOidcToken);
 }
 
 export function setPersistentStoreOidcToken(token: string | undefined) {
@@ -186,34 +185,26 @@ export function setPersistentStoreOidcToken(token: string | undefined) {
 
 export async function hydratePersistentStore() {
   if (!process.env.VERCEL) {
-    getStore();
+    const store = getStore();
+    migrateLegacyGuestParticipations(store);
     return;
   }
 
   mkdirSync(dirname(DATA_PATH), { recursive: true });
   lastBlobError = undefined;
 
-  if (blobConfigured()) {
+  if (blobConfigured(runtimeOidcToken)) {
     try {
-      const listed = await list({
-        prefix: BLOB_PATHNAME,
-        limit: 1,
-        ...blobAuthOptions(),
-      });
-      const blob = listed.blobs.find((entry) => entry.pathname === BLOB_PATHNAME);
-      if (blob) {
-        const response = await fetch(blob.url);
-        if (response.ok) {
-          cache = {
-            ...emptyStore(),
-            ...((await response.json()) as Partial<MesaFlowStore>),
-          };
-          writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
-          persistentDirty = false;
-          migrateProductImages(cache, false);
-          return;
-        }
-        lastBlobError = `blob fetch failed: ${response.status}`;
+      const hydrated = await hydrateFromBlob(runtimeOidcToken);
+      if (hydrated) {
+        cache = hydrated.store;
+        blobEtags = hydrated.etags;
+        operationalDirty = hydrated.migratedFromLegacy;
+        identityDirty = hydrated.migratedFromLegacy;
+        writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
+        migrateProductImages(cache, false);
+        migrateLegacyGuestParticipations(cache);
+        return;
       }
     } catch (error) {
       lastBlobError = error instanceof Error ? error.message : "blob hydrate failed";
@@ -224,33 +215,50 @@ export async function hydratePersistentStore() {
   }
 
   cache = null;
-  getStore();
+  const store = getStore();
+  migrateLegacyGuestParticipations(store);
 }
 
 export async function flushPersistentStore(): Promise<PersistResult> {
   if (!cache) return { disk: false, blob: false };
-  if (!process.env.VERCEL || !persistentDirty) return { disk: true, blob: false };
-  if (!blobConfigured()) {
+  if (!process.env.VERCEL || (!operationalDirty && !identityDirty)) {
+    return { disk: true, blob: false };
+  }
+  if (!blobConfigured(runtimeOidcToken)) {
     lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
     return { disk: true, blob: false, blobError: lastBlobError };
   }
 
-  try {
-    await put(BLOB_PATHNAME, JSON.stringify(cache), {
-      access: "public",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      contentType: "application/json",
-      ...blobAuthOptions(),
-    });
-    persistentDirty = false;
+  const flushed = await flushToBlob({
+    store: cache,
+    etags: blobEtags,
+    flushOperational: operationalDirty,
+    flushIdentity: identityDirty,
+    runtimeOidcToken,
+  });
+
+  const operationalOk = !operationalDirty || flushed.operational?.ok === true;
+  const identityOk = !identityDirty || flushed.identity?.ok === true;
+  const blobOk = operationalOk && identityOk;
+  const blobError = flushed.operational?.error || flushed.identity?.error;
+
+  if (operationalOk && flushed.operational?.etag) {
+    blobEtags.operational = flushed.operational.etag;
+    operationalDirty = false;
+  }
+  if (identityOk && flushed.identity?.etag) {
+    blobEtags.identity = flushed.identity.etag;
+    identityDirty = false;
+  }
+
+  if (blobOk) {
     lastBlobError = undefined;
     return { disk: true, blob: true };
-  } catch (error) {
-    lastBlobError = error instanceof Error ? error.message : "blob persist failed";
-    console.warn("[mesaflow] blob persist failed", error);
-    return { disk: true, blob: false, blobError: lastBlobError };
   }
+
+  lastBlobError = blobError || "blob persist failed";
+  console.warn("[mesaflow] blob persist failed", lastBlobError);
+  return { disk: true, blob: false, blobError: lastBlobError };
 }
 
 function notify(establishmentId: string, type: string, title: string, body: string) {
@@ -782,10 +790,28 @@ export function updateAdminSettings(
   return { value: next };
 }
 
+export function getActiveCommand(table: Table): Command | null {
+  const store = getStore();
+  if (table.commandId) {
+    const linked = store.commands[table.commandId];
+    if (linked && linked.status !== "FECHADA") return linked;
+  }
+  const active = Object.values(store.commands).find(
+    (command) => command.tableId === table.id && command.status !== "FECHADA",
+  );
+  return active || null;
+}
+
 export function getOrOpenCommand(table: Table): Command {
   const store = getStore();
-  if (table.commandId && store.commands[table.commandId]?.status === "ABERTA") {
-    return store.commands[table.commandId];
+  const active = getActiveCommand(table);
+  if (active) {
+    if (table.commandId !== active.id) {
+      table.commandId = active.id;
+      store.tables[table.id] = table;
+      saveStore(store);
+    }
+    return active;
   }
   const cmd: Command = {
     id: id("cmd_"),
@@ -831,6 +857,7 @@ export function createOrder(input: {
   notes?: string;
   source?: Order["source"];
   rodizioRoundId?: string;
+  guestParticipationId?: string;
 }): Order {
   const store = getStore();
   const total = input.items.reduce((s, i) => s + lineTotal(i), 0);
@@ -840,6 +867,7 @@ export function createOrder(input: {
     tableId: input.table.id,
     tableNumber: input.table.number,
     commandId: input.commandId,
+    guestParticipationId: input.guestParticipationId || `gp_legacy_${input.commandId}`,
     number: nextOrderNumber(input.establishmentId),
     status: "NOVO",
     items: input.items.map((i) => ({ ...i, status: "NOVO" as OrderStatus })),
@@ -858,10 +886,15 @@ export function createOrder(input: {
   return order;
 }
 
-export function updateOrderStatus(orderId: string, status: OrderStatus) {
+export function updateOrderStatus(
+  orderId: string,
+  status: OrderStatus,
+  establishmentId?: string,
+) {
   const store = getStore();
   const order = store.orders[orderId];
   if (!order) return null;
+  if (establishmentId && order.establishmentId !== establishmentId) return null;
   order.status = status;
   order.updatedAt = new Date().toISOString();
   order.items = order.items.map((i) => ({ ...i, status }));
@@ -877,9 +910,10 @@ export function updateOrderStatus(orderId: string, status: OrderStatus) {
 export function requestBill(tableId: string) {
   const store = getStore();
   const table = store.tables[tableId];
-  if (!table?.commandId) return null;
-  const cmd = store.commands[table.commandId];
+  if (!table) return null;
+  const cmd = getActiveCommand(table);
   if (!cmd) return null;
+  if (cmd.status === "PAGAMENTO_SOLICITADO") return cmd;
   cmd.status = "PAGAMENTO_SOLICITADO";
   table.status = "AGUARDANDO_PAGAMENTO";
   store.commands[cmd.id] = cmd;

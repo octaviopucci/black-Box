@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { lineTotal } from "@/lib/order-math";
-import type { OrderItem, OrderItemAddon, Product, ProductVariant } from "@/lib/types";
+import type { OrderItem, OrderItemAddon, OrderLineInput, Product, ProductVariant } from "@/lib/types";
 
 export type CartLine = {
   key: string;
@@ -21,7 +21,7 @@ type CartContextValue = {
   clear: () => void;
   total: number;
   count: number;
-  toOrderItems: (sectors: Record<string, { name: string }>) => OrderItem[];
+  toOrderLines: () => OrderLineInput[];
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -83,20 +83,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return s + lineTotal(item);
     }, 0),
     count: lines.reduce((s, l) => s + l.qty, 0),
-    toOrderItems(sectors) {
+    toOrderLines() {
       return lines.map((l) => ({
-        id: `oi_${l.key}`,
         productId: l.product.id,
-        productName: l.product.name,
-        sectorId: l.product.sectorId,
-        sectorName: sectors[l.product.sectorId]?.name || "",
         qty: l.qty,
-        unitPrice: l.product.price,
-        variantName: l.variant?.name,
-        variantDelta: l.variant?.priceDelta || 0,
-        addons: l.addons,
+        variantId: l.variant?.id,
+        addonIds: l.addons.flatMap((addon) => Array.from({ length: addon.qty }, () => addon.addonId)),
         notes: l.notes,
-        status: "NOVO" as const,
       }));
     },
   }), [lines]);

@@ -22,14 +22,29 @@ export function KdsView({ sectorId }: { sectorId: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [sectorName, setSectorName] = useState("KDS");
 
+  const authHeaders = useCallback((): Record<string, string> => {
+    const headers: Record<string, string> = {};
+    try {
+      const raw = sessionStorage.getItem("mesaflow_admin");
+      if (!raw) return headers;
+      const token = (JSON.parse(raw) as { token?: string }).token;
+      if (token) headers.Authorization = `Bearer ${token}`;
+    } catch {
+      /* ignore */
+    }
+    return headers;
+  }, []);
+
   const load = useCallback(async () => {
     if (!resolvedSector) return;
-    const res = await fetch(apiUrl(`/admin/dashboard?slug=${encodeURIComponent(slug)}`));
+    const res = await fetch(apiUrl(`/admin/dashboard?slug=${encodeURIComponent(slug)}`), {
+      headers: authHeaders(),
+    });
     const json = await res.json();
     setOrders(json.orders || []);
     const sector = (json.sectors as Sector[] | undefined)?.find((s) => s.id === resolvedSector);
     if (sector) setSectorName(sector.name);
-  }, [slug, resolvedSector]);
+  }, [slug, resolvedSector, authHeaders]);
 
   useEffect(() => {
     load();
@@ -52,7 +67,7 @@ export function KdsView({ sectorId }: { sectorId: string }) {
   async function setStatus(orderId: string, status: OrderStatus) {
     await fetch(apiUrl(`/orders/${orderId}`), {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ status }),
     });
     load();

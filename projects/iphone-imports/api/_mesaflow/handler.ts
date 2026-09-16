@@ -12,6 +12,7 @@ import {
   blobDiagnostics,
   flushPersistentStore,
   probeBlobStorage,
+  getActiveCommand,
   getAdminSettings,
   getOrOpenCommand,
   getStore,
@@ -30,7 +31,8 @@ import {
   requestBill,
   updateOrderStatus,
 } from "../../../mesaflow/src/lib/store";
-import type { OrderItem, OrderStatus } from "../../../mesaflow/src/lib/types";
+import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
+import type { OrderLineInput, OrderStatus } from "../../../mesaflow/src/lib/types";
 
 function resolvePath(req: VercelRequest): string {
   const q = req.query?.path;
@@ -87,13 +89,29 @@ function readOidcHeader(req: VercelRequest) {
   return undefined;
 }
 
-function adminAuth(req: VercelRequest) {
+function readBearer(req: VercelRequest) {
   const authorization = req.headers.authorization;
   const match = typeof authorization === "string" && authorization.match(/^Bearer\s+(.+)$/i);
-  const auth = validateSession(match ? match[1].trim() : undefined);
-  return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER")
-    ? auth
-    : null;
+  return match ? match[1].trim() : undefined;
+}
+
+function adminAuth(req: VercelRequest) {
+  const auth = validateSession(readBearer(req));
+  return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
+}
+
+function kitchenAuth(req: VercelRequest) {
+  const auth = validateSession(readBearer(req));
+  if (!auth) return null;
+  if (
+    auth.user.role === "OWNER" ||
+    auth.user.role === "MANAGER" ||
+    auth.user.role === "KITCHEN" ||
+    auth.user.role === "COUNTER"
+  ) {
+    return auth;
+  }
+  return null;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -141,15 +159,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const tbl = findTableByQr(est.id, table);
       if (!tbl) return json(res, 404, { error: "Mesa inválida ou QR expirado." });
 
-      const command = getOrOpenCommand(tbl);
+      const command = getActiveCommand(tbl);
       const categories = Object.values(store.categories)
         .filter((c) => c.establishmentId === est.id && c.active)
         .sort((a, b) => a.sortOrder - b.sortOrder);
       const products = Object.values(store.products).filter((p) => p.establishmentId === est.id && p.active);
       const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id);
-      const orders = Object.values(store.orders)
-        .filter((o) => o.commandId === command.id)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const orders = command
+        ? Object.values(store.orders)
+            .filter((o) => o.commandId === command.id)
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        : [];
       const rodizio = est.rodizioEnabled
         ? Object.values(store.rodizios).find((r) => r.establishmentId === est.id && r.active)
         : null;
@@ -167,10 +187,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "GET" && path === "/orders") {
-      const establishmentId = String(req.query?.establishmentId || "");
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
       const commandId = String(req.query?.commandId || "");
-      let orders = Object.values(store.orders);
-      if (establishmentId) orders = orders.filter((o) => o.establishmentId === establishmentId);
+      let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
       if (commandId) orders = orders.filter((o) => o.commandId === commandId);
       orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       return json(res, 200, { orders });
@@ -180,7 +200,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const body = (req.body || {}) as {
         slug: string;
         tableToken: string;
-        items: OrderItem[];
+        items: OrderLineInput[];
         notes?: string;
       };
       const est = findEstablishmentBySlug(body.slug);
@@ -189,12 +209,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!tbl) return json(res, 404, { error: "Mesa inválida." });
       if (!body.items?.length) return json(res, 400, { error: "Carrinho vazio." });
 
+      const sectors = Object.fromEntries(
+        Object.values(store.sectors)
+          .filter((sector) => sector.establishmentId === est.id)
+          .map((sector) => [sector.id, { name: sector.name }]),
+      );
+      const resolved = resolveOrderLines(store, est.id, sectors, body.items);
+      if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
+
       const command = getOrOpenCommand(tbl);
       const order = createOrder({
         establishmentId: est.id,
         table: tbl,
         commandId: command.id,
-        items: body.items.map((i) => ({ ...i, id: i.id || `oi_${Date.now()}` })),
+        items: resolved.items,
         notes: body.notes,
         source: "MESA",
       });
@@ -205,13 +233,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (orderMatch) {
       const orderId = orderMatch[1];
       if (req.method === "GET") {
+        const auth = adminAuth(req);
+        if (!auth) return json(res, 401, { error: "Não autorizado." });
         const order = store.orders[orderId];
-        if (!order) return json(res, 404, { error: "Não encontrado" });
+        if (!order || order.establishmentId !== auth.establishment.id) {
+          return json(res, 404, { error: "Não encontrado" });
+        }
         return json(res, 200, { order });
       }
       if (req.method === "PATCH") {
+        const auth = kitchenAuth(req);
+        if (!auth) return json(res, 401, { error: "Não autorizado." });
         const body = (req.body || {}) as { status: OrderStatus };
-        const order = updateOrderStatus(orderId, body.status);
+        const order = updateOrderStatus(orderId, body.status, auth.establishment.id);
         if (!order) return json(res, 404, { error: "Pedido não encontrado." });
         return json(res, 200, { order });
       }
@@ -399,15 +433,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         slug: string;
         tableToken: string;
         rodizioId: string;
-        items: OrderItem[];
+        items: OrderLineInput[];
       };
       const est = findEstablishmentBySlug(body.slug);
       if (!est?.rodizioEnabled) return json(res, 400, { error: "Rodízio indisponível." });
       const table = findTableByQr(est.id, body.tableToken);
       if (!table) return json(res, 404, { error: "Mesa inválida." });
       const rodizio = store.rodizios[body.rodizioId];
-      if (!rodizio) return json(res, 404, { error: "Rodízio não encontrado." });
-      if (body.items.length > rodizio.maxItemsPerRound) {
+      if (!rodizio || rodizio.establishmentId !== est.id) {
+        return json(res, 404, { error: "Rodízio não encontrado." });
+      }
+      const sectors = Object.fromEntries(
+        Object.values(store.sectors)
+          .filter((sector) => sector.establishmentId === est.id)
+          .map((sector) => [sector.id, { name: sector.name }]),
+      );
+      const resolved = resolveOrderLines(store, est.id, sectors, body.items, {
+        unitPriceFor: (product) => {
+          if (rodizio.premiumProductIds.includes(product.id)) {
+            return product.rodizioPremiumPrice ?? product.price;
+          }
+          if (rodizio.productIds.includes(product.id)) return 0;
+          return product.price;
+        },
+      });
+      if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
+      if (resolved.items.length > rodizio.maxItemsPerRound) {
         return json(res, 400, { error: `Máximo ${rodizio.maxItemsPerRound} itens por rodada.` });
       }
       const command = getOrOpenCommand(table);
@@ -416,7 +467,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         table,
         commandId: command.id,
         rodizioId: body.rodizioId,
-        items: body.items,
+        items: resolved.items,
       });
       return json(res, 200, { round, message: "Rodada enviada para a cozinha." });
     }
