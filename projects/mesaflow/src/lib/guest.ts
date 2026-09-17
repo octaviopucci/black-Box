@@ -15,6 +15,7 @@ import {
   parseGuestTokenClaims,
   type GuestTokenClaims,
 } from "./guest-session-token";
+import { resolveOperationMode } from "./operation-modes";
 import {
   findEstablishmentBySlug,
   findTableByQr,
@@ -35,6 +36,37 @@ import type {
 const CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 const OTP_TTL_MS = 5 * 60 * 1000;
 const OTP_MAX_ATTEMPTS = 5;
+
+type MutationError = { error: string; status: number };
+type MutationResult<T> = { value: T } | MutationError;
+
+function invalid(error: string, status = 400): MutationError {
+  return { error, status };
+}
+
+function ensureIdentityCollections(store: MesaFlowStore) {
+  store.clientSessions ||= {};
+  store.otpChallenges ||= {};
+  store.guestPhoneSecrets ||= {};
+  store.revokedGuestTokenHashes ||= {};
+}
+
+function normalizeComandaNumber(raw: string | undefined | null): string | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  const trimmed = String(raw).trim();
+  return trimmed || undefined;
+}
+
+function requireComandaIfNeeded(
+  establishment: Establishment,
+  comandaNumber: string | undefined,
+): MutationError | null {
+  if (resolveOperationMode(establishment) !== "comanda") return null;
+  if (!comandaNumber || comandaNumber.length < 1 || comandaNumber.length > 20) {
+    return invalid("Número da comanda é obrigatório (1 a 20 caracteres).");
+  }
+  return null;
+}
 
 export function otpRequiredForEstablishment(est: Establishment): boolean {
   if (process.env.MESAFLOW_DEV_SKIP_OTP === "1") return false;
@@ -76,11 +108,23 @@ export function createGuestParticipation(input: {
   commandId: string;
   phoneE164: string;
   displayName?: string;
-}): GuestParticipation {
+  comandaNumber?: string;
+}): GuestParticipation | MutationError {
+  const comandaNumber = normalizeComandaNumber(input.comandaNumber);
+  const comandaError = requireComandaIfNeeded(input.establishment, comandaNumber);
+  if (comandaError) return comandaError;
+
   const store = getStore();
   const lookup = phoneLookupHash(input.establishment.id, input.phoneE164);
   const existing = findOpenParticipation(store, input.commandId, lookup);
-  if (existing) return existing;
+  if (existing) {
+    if (comandaNumber && !existing.comandaNumber) {
+      existing.comandaNumber = comandaNumber;
+      store.guestParticipations[existing.id] = existing;
+      saveStore(store);
+    }
+    return existing;
+  }
 
   const participation: GuestParticipation = {
     id: id("gp_"),
@@ -90,6 +134,7 @@ export function createGuestParticipation(input: {
     phoneLookupHash: lookup,
     phoneDisplay: maskPhoneDisplay(input.phoneE164),
     displayName: input.displayName?.trim() || undefined,
+    comandaNumber,
     participantIndex: nextParticipantIndex(store, input.commandId),
     status: "OPEN",
     joinedAt: new Date().toISOString(),
@@ -113,13 +158,23 @@ export function createClientSession(participation: GuestParticipation): { token:
     expiresAt: new Date(now.getTime() + CLIENT_SESSION_TTL_MS).toISOString(),
     lastSeenAt: now.toISOString(),
   };
+  const store = getStore();
+  ensureIdentityCollections(store);
+  store.clientSessions[session.id] = session;
+  saveStore(store);
   return { token, session };
 }
 
-function participationFromClaims(claims: GuestTokenClaims): GuestParticipation {
+/** Returns null when the participation is CLOSED — never resurrect kicked guests from JWT. */
+function participationFromClaims(claims: GuestTokenClaims): GuestParticipation | null {
   const store = getStore();
   const existing = store.guestParticipations[claims.id];
-  if (existing && existing.status !== "CLOSED") return existing;
+  if (existing) {
+    if (existing.status === "CLOSED") return null;
+    return existing;
+  }
+
+  if (claims.status === "CLOSED") return null;
 
   const table = store.tables[claims.tableId];
   const command = table ? getOrOpenCommand(table) : null;
@@ -135,9 +190,9 @@ function participationFromClaims(claims: GuestTokenClaims): GuestParticipation {
     status: claims.status,
     joinedAt: claims.joinedAt,
     verifiedAt: claims.verifiedAt,
-    orderCount: existing?.orderCount || 0,
-    lastOrderAt: existing?.lastOrderAt,
+    orderCount: 0,
   };
+
   store.guestParticipations[participation.id] = participation;
   saveStore(store);
   return participation;
@@ -163,15 +218,19 @@ function resolveGuestSession(participation: GuestParticipation) {
 export function validateClientSession(token: string | undefined | null) {
   if (!token?.trim()) return null;
   const trimmed = token.trim();
+  const store = getStore();
+  ensureIdentityCollections(store);
+
+  const tokenHash = hashToken(trimmed);
+  if (store.revokedGuestTokenHashes[tokenHash]) return null;
 
   const claims = parseGuestTokenClaims(trimmed);
   if (claims) {
     const participation = participationFromClaims(claims);
+    if (!participation) return null;
     return resolveGuestSession(participation);
   }
 
-  const store = getStore();
-  const tokenHash = hashToken(trimmed);
   const session = Object.values(store.clientSessions).find(
     (entry) => entry.tokenHash === tokenHash && !entry.revokedAt,
   );
@@ -186,12 +245,30 @@ export function validateClientSession(token: string | undefined | null) {
 export function revokeClientSession(token: string | undefined | null) {
   if (!token?.trim()) return;
   const store = getStore();
+  ensureIdentityCollections(store);
   const tokenHash = hashToken(token.trim());
-  const session = Object.values(store.clientSessions).find((entry) => entry.tokenHash === tokenHash);
-  if (!session) return;
-  session.revokedAt = new Date().toISOString();
-  store.clientSessions[session.id] = session;
+  const now = new Date().toISOString();
+  store.revokedGuestTokenHashes[tokenHash] = now;
+
+  for (const session of Object.values(store.clientSessions)) {
+    if (session.tokenHash !== tokenHash) continue;
+    session.revokedAt = now;
+    store.clientSessions[session.id] = session;
+  }
   saveStore(store);
+}
+
+function revokeSessionsForParticipation(store: MesaFlowStore, participationId: string) {
+  ensureIdentityCollections(store);
+  const now = new Date().toISOString();
+  for (const session of Object.values(store.clientSessions)) {
+    if (session.guestParticipationId !== participationId || session.revokedAt) continue;
+    session.revokedAt = now;
+    store.clientSessions[session.id] = session;
+    if (session.tokenHash) {
+      store.revokedGuestTokenHashes[session.tokenHash] = now;
+    }
+  }
 }
 
 export function joinGuestAtTable(input: {
@@ -199,12 +276,17 @@ export function joinGuestAtTable(input: {
   table: Table;
   phoneE164: string;
   displayName?: string;
+  comandaNumber?: string;
 }) {
+  const comandaNumber = normalizeComandaNumber(input.comandaNumber);
+  const comandaError = requireComandaIfNeeded(input.establishment, comandaNumber);
+  if (comandaError) return comandaError;
+
   const store = getStore();
   const command = getOrOpenCommand(input.table);
   const lookup = phoneLookupHash(input.establishment.id, input.phoneE164);
   const existing = findOpenParticipation(store, command.id, lookup);
-  const participation =
+  const created =
     existing ||
     createGuestParticipation({
       establishment: input.establishment,
@@ -212,11 +294,20 @@ export function joinGuestAtTable(input: {
       commandId: command.id,
       phoneE164: input.phoneE164,
       displayName: input.displayName,
+      comandaNumber,
     });
-  const { token } = createClientSession(participation);
+  if ("error" in created) return created;
+
+  if (existing && comandaNumber && !existing.comandaNumber) {
+    existing.comandaNumber = comandaNumber;
+    store.guestParticipations[existing.id] = existing;
+    saveStore(store);
+  }
+
+  const { token } = createClientSession(created);
   return {
     token,
-    participation,
+    participation: created,
     command,
     message: existing ? "Você já está participando desta mesa." : undefined,
   };
@@ -282,8 +373,10 @@ export function verifyOtpChallenge(input: {
   slug?: string;
   tableToken?: string;
   phoneRaw?: string;
+  comandaNumber?: string;
 }) {
   const code = input.code.trim();
+  const comandaNumber = normalizeComandaNumber(input.comandaNumber);
 
   if (isOtpBypassCode(code) && input.slug && input.tableToken && input.phoneRaw) {
     const establishment = findEstablishmentBySlug(input.slug);
@@ -297,7 +390,9 @@ export function verifyOtpChallenge(input: {
       table,
       phoneE164,
       displayName: input.displayName,
+      comandaNumber,
     });
+    if ("error" in joined) return { error: joined.error as string };
     return { token: joined.token, participation: joined.participation };
   }
 
@@ -338,7 +433,9 @@ export function verifyOtpChallenge(input: {
     commandId: challenge.commandId,
     phoneE164,
     displayName: input.displayName,
+    comandaNumber,
   });
+  if ("error" in participation) return { error: participation.error };
   const { token } = createClientSession(participation);
   saveStore(store);
   return { token, participation };
@@ -367,6 +464,7 @@ export function publicParticipation(gp: GuestParticipation) {
     status: gp.status,
     phoneDisplay: gp.phoneDisplay,
     orderCount: gp.orderCount,
+    comandaNumber: gp.comandaNumber,
   };
 }
 
@@ -377,3 +475,45 @@ export function storePhoneForOtpLookup(establishmentId: string, phoneE164: strin
   saveStore(store);
   return lookup;
 }
+
+export function kickGuestParticipation(
+  establishmentId: string,
+  participationId: string,
+  actorUserId: string,
+): MutationResult<{ participation: GuestParticipation }> {
+  const store = getStore();
+  ensureIdentityCollections(store);
+  const participation = store.guestParticipations[participationId];
+  if (!participation || participation.establishmentId !== establishmentId) {
+    return invalid("Participação não encontrada.", 404);
+  }
+  if (participation.status === "CLOSED") {
+    return { value: { participation } };
+  }
+
+  const now = new Date().toISOString();
+  participation.status = "CLOSED";
+  participation.closedAt = now;
+  participation.closedByUserId = actorUserId;
+  store.guestParticipations[participation.id] = participation;
+  revokeSessionsForParticipation(store, participation.id);
+
+  store.auditEvents ||= {};
+  const auditId = id("aud_");
+  store.auditEvents[auditId] = {
+    id: auditId,
+    establishmentId,
+    type: "guest.kicked",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "guest_participation",
+    targetId: participation.id,
+    metadata: { tableId: participation.tableId, commandId: participation.commandId },
+    createdAt: now,
+  };
+
+  saveStore(store);
+  return { value: { participation } };
+}
+
+export { revokeSessionsForParticipation };

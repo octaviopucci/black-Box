@@ -1,10 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import {
+  createAdminCategory,
   createAdminProduct,
   createAdminTable,
   createOrder,
   createRodizioRound,
   dashboardStats,
+  deleteAdminCategory,
   deleteAdminProduct,
   deleteAdminTable,
   findEstablishmentBySlug,
@@ -20,6 +22,7 @@ import {
   getStore,
   saveStore,
   hydratePersistentStore,
+  listAdminCategories,
   listAdminProducts,
   listAdminTables,
   loginUser,
@@ -27,6 +30,7 @@ import {
   regenerateAdminTableQr,
   registerEstablishment,
   setPersistentStoreOidcToken,
+  updateAdminCategory,
   updateAdminProduct,
   updateAdminSettings,
   updateAdminTable,
@@ -37,7 +41,9 @@ import {
 import {
   confirmClosingRequest,
   ensureIntegrationCatalog,
+  forceClearTable,
   getTableCockpit,
+  listAdminOperations,
   listIntegrations,
   markNotificationRead,
   registerPayment,
@@ -53,6 +59,7 @@ import {
 import {
   guestTableSummary,
   joinGuestAtTable,
+  kickGuestParticipation,
   otpRequiredForEstablishment,
   publicParticipation,
   requestOtpChallenge,
@@ -61,9 +68,11 @@ import {
   revokeClientSession,
 } from "../../../mesaflow/src/lib/guest";
 import { normalizePhoneE164 } from "../../../mesaflow/src/lib/identity-crypto";
+import { parseBase64UploadBody, uploadProductImage } from "../../../mesaflow/src/lib/media-upload";
+import { isOperationMode } from "../../../mesaflow/src/lib/operation-modes";
 import { publicOtpBypassHint } from "../../../mesaflow/src/lib/otp-bypass";
 import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
-import type { OrderLineInput, OrderStatus } from "../../../mesaflow/src/lib/types";
+import type { OperationMode, OrderLineInput, OrderStatus } from "../../../mesaflow/src/lib/types";
 
 function resolvePath(req: VercelRequest): string {
   const q = req.query?.path;
@@ -208,12 +217,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const summary = guestTableSummary(est.id, command?.id);
       const guestAuth = validateClientSession(readGuestToken(req));
       return json(res, 200, {
-        establishment: { id: est.id, slug: est.slug, name: est.name, open: est.open, rodizioEnabled: est.rodizioEnabled },
+        establishment: {
+          id: est.id,
+          slug: est.slug,
+          name: est.name,
+          open: est.open,
+          rodizioEnabled: est.rodizioEnabled,
+          operationMode: est.operationMode || "a_la_carte",
+        },
         table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
         command,
         otpRequired: otpRequiredForEstablishment(est),
         otpBypass: publicOtpBypassHint(),
         hasSession: Boolean(guestAuth),
+        operationMode: est.operationMode || "a_la_carte",
         ...summary,
       });
     }
@@ -235,7 +252,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/guest/join/mock") {
-      const body = (req.body || {}) as { slug: string; tableToken: string; phone?: string; displayName?: string };
+      const body = (req.body || {}) as {
+        slug: string;
+        tableToken: string;
+        phone?: string;
+        displayName?: string;
+        comandaNumber?: string;
+      };
       const est = findEstablishmentBySlug(String(body.slug || ""));
       if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
       if (otpRequiredForEstablishment(est)) {
@@ -250,7 +273,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         table: tbl,
         phoneE164,
         displayName: body.displayName,
+        comandaNumber: body.comandaNumber,
       });
+      if ("error" in result) return json(res, result.status, { error: result.error });
       setClientCookie(res, result.token);
       return json(res, 200, {
         token: result.token,
@@ -287,6 +312,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         slug?: string;
         tableToken?: string;
         phone?: string;
+        comandaNumber?: string;
       };
       const result = verifyOtpChallenge({
         challengeId: String(body.challengeId || ""),
@@ -295,6 +321,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         slug: body.slug,
         tableToken: body.tableToken,
         phoneRaw: body.phone,
+        comandaNumber: body.comandaNumber,
       });
       if ("error" in result) return json(res, 400, { error: result.error });
       setClientCookie(res, result.token);
@@ -445,8 +472,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         email: string;
         password: string;
         businessType: string;
+        operationMode?: string;
         tableCount?: number;
       };
+      const operationMode = isOperationMode(body.operationMode)
+        ? (body.operationMode as OperationMode)
+        : undefined;
       const result = registerEstablishment({
         businessName: String(body.businessName || ""),
         ownerName: String(body.ownerName || ""),
@@ -459,6 +490,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           | "bar"
           | "cafeteria"
           | "rodizio",
+        operationMode,
         tableCount: Number(body.tableCount) || 5,
       });
       if (result.error) return json(res, 400, { error: result.error });
@@ -547,6 +579,69 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, { product: result.value });
       }
+    }
+
+    if (path === "/admin/categories") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "GET") {
+        return json(res, 200, { categories: listAdminCategories(auth.establishment.id) });
+      }
+      if (req.method === "POST") {
+        const result = createAdminCategory(auth.establishment.id, req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, { category: result.value });
+      }
+    }
+
+    const adminCategoryMatch = path.match(/^\/admin\/categories\/([^/]+)$/);
+    if (adminCategoryMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "PATCH") {
+        const result = updateAdminCategory(auth.establishment.id, adminCategoryMatch[1], req.body);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { category: result.value });
+      }
+      if (req.method === "DELETE") {
+        const result = deleteAdminCategory(auth.establishment.id, adminCategoryMatch[1]);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { category: result.value });
+      }
+    }
+
+    if (req.method === "POST" && path === "/admin/media/upload") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const parsed = parseBase64UploadBody(req.body);
+      if ("error" in parsed) return json(res, 400, { error: parsed.error });
+      const result = await uploadProductImage(auth.establishment.id, parsed);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 201, result);
+    }
+
+    if (req.method === "GET" && path === "/admin/operations") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      return json(res, 200, listAdminOperations(auth.establishment.id));
+    }
+
+    const guestKickMatch = path.match(/^\/admin\/guests\/([^/]+)\/kick$/);
+    if (guestKickMatch && req.method === "POST") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = kickGuestParticipation(auth.establishment.id, guestKickMatch[1], auth.user.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    const forceClearMatch = path.match(/^\/admin\/tables\/([^/]+)\/force-clear$/);
+    if (forceClearMatch && req.method === "POST") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = forceClearTable(auth.establishment.id, forceClearMatch[1], auth.user.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
     }
 
     const adminProductMatch = path.match(/^\/admin\/products\/([^/]+)$/);

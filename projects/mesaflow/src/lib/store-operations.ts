@@ -2,6 +2,7 @@ import { buildClosingSummary } from "@/lib/closing";
 import { validatePaymentAmount } from "@/lib/payments";
 import { id } from "@/lib/crypto-utils";
 import { emit } from "@/lib/events";
+import { revokeSessionsForParticipation } from "@/lib/guest";
 import { getStore, saveStore } from "@/lib/store";
 import type {
   AuditEvent,
@@ -559,4 +560,135 @@ export function ensureIntegrationCatalog(establishmentId: string) {
     store.integrationConnections[connection.id] = connection;
   }
   saveStore(store);
+}
+
+const STALE_PARTICIPATION_MS = 12 * 60 * 60 * 1000;
+
+export function forceClearTable(
+  establishmentId: string,
+  tableId: string,
+  actorUserId: string,
+): MutationResult<{ table: Table; command: Command | null; closedParticipations: number }> {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa não encontrada.", 404);
+  }
+
+  const command =
+    (table.commandId ? store.commands[table.commandId] : null) ||
+    Object.values(store.commands).find(
+      (entry) =>
+        entry.establishmentId === establishmentId &&
+        entry.tableId === tableId &&
+        entry.status !== "FECHADA",
+    ) ||
+    null;
+
+  const now = new Date().toISOString();
+  let closedParticipations = 0;
+
+  const closeParticipation = (participation: GuestParticipation) => {
+    if (participation.status === "CLOSED") return;
+    participation.status = "CLOSED";
+    participation.closedAt = now;
+    participation.closedByUserId = actorUserId;
+    store.guestParticipations[participation.id] = participation;
+    revokeSessionsForParticipation(store, participation.id);
+    closedParticipations += 1;
+  };
+
+  if (command) {
+    for (const participation of Object.values(store.guestParticipations)) {
+      if (participation.commandId !== command.id) continue;
+      closeParticipation(participation);
+    }
+
+    command.status = "FECHADA";
+    command.closedAt = now;
+    store.commands[command.id] = command;
+
+    for (const request of Object.values(store.closingRequests)) {
+      if (request.commandId !== command.id || request.status === "SETTLED") continue;
+      request.status = "SETTLED";
+      request.settledAt = now;
+      request.settledByUserId = actorUserId;
+      store.closingRequests[request.id] = request;
+    }
+
+    emit({ type: "command.updated", commandId: command.id, establishmentId });
+  } else {
+    for (const participation of Object.values(store.guestParticipations)) {
+      if (participation.tableId !== tableId || participation.establishmentId !== establishmentId) {
+        continue;
+      }
+      closeParticipation(participation);
+    }
+  }
+
+  table.status = "LIVRE";
+  table.commandId = undefined;
+  store.tables[table.id] = table;
+
+  recordAudit(store, {
+    establishmentId,
+    type: "table.force_cleared",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "table",
+    targetId: tableId,
+    metadata: {
+      commandId: command?.id,
+      closedParticipations,
+    },
+  });
+
+  saveStore(store);
+  return { value: { table, command, closedParticipations } };
+}
+
+export function listAdminOperations(establishmentId: string) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const now = Date.now();
+
+  const activeTables = Object.values(store.tables)
+    .filter(
+      (table) =>
+        table.establishmentId === establishmentId &&
+        table.status !== "INATIVA" &&
+        (table.status === "OCUPADA" ||
+          table.status === "AGUARDANDO_PAGAMENTO" ||
+          Boolean(table.commandId)),
+    )
+    .map((table) => {
+      const command =
+        (table.commandId ? store.commands[table.commandId] : null) ||
+        Object.values(store.commands).find(
+          (entry) =>
+            entry.tableId === table.id &&
+            entry.establishmentId === establishmentId &&
+            entry.status !== "FECHADA",
+        ) ||
+        null;
+      const participants = command
+        ? Object.values(store.guestParticipations).filter(
+            (gp) => gp.commandId === command.id && gp.status !== "CLOSED",
+          )
+        : [];
+      return { table, command, participants };
+    });
+
+  const staleParticipations = Object.values(store.guestParticipations).filter((gp) => {
+    if (gp.establishmentId !== establishmentId) return false;
+    if (gp.status === "CLOSED") return false;
+    const joinedAge = now - new Date(gp.joinedAt).getTime();
+    if (joinedAge > STALE_PARTICIPATION_MS) return true;
+    const command = store.commands[gp.commandId];
+    if (command && command.status === "FECHADA") return true;
+    return false;
+  });
+
+  return { activeTables, staleParticipations };
 }

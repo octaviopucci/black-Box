@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Flame,
   Home,
+  LogOut,
   Minus,
   Phone,
   Plus,
@@ -57,6 +58,7 @@ type TableContext = {
   hasSession: boolean;
   participantCount: number;
   tableTotal: number;
+  operationMode?: string;
 };
 
 type GuestMe = {
@@ -96,9 +98,11 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const [gateStep, setGateStep] = useState<GateStep>("intro");
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
+  const [comandaNumber, setComandaNumber] = useState("");
   const [otpChallengeId, setOtpChallengeId] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [joining, setJoining] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [tab, setTab] = useState<Tab>("menu");
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string | "all">("all");
@@ -213,12 +217,24 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   useRealtime(data?.establishment.id, refresh);
 
   async function joinMock() {
+    if (context?.operationMode === "comanda" && !comandaNumber.trim()) {
+      notify("Informe o número da comanda.", "error");
+      return;
+    }
     setJoining(true);
     try {
       const res = await apiFetch("/guest/join/mock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, tableToken, displayName, phone }),
+        body: JSON.stringify({
+          slug,
+          tableToken,
+          displayName,
+          phone,
+          ...(context?.operationMode === "comanda"
+            ? { comandaNumber: comandaNumber.trim() }
+            : {}),
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Não foi possível entrar na mesa");
@@ -233,6 +249,10 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   }
 
   async function requestOtp() {
+    if (context?.operationMode === "comanda" && !comandaNumber.trim()) {
+      notify("Informe o número da comanda.", "error");
+      return;
+    }
     setJoining(true);
     try {
       const res = await apiFetch("/guest/otp/request", {
@@ -266,6 +286,9 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           slug,
           tableToken,
           phone,
+          ...(context?.operationMode === "comanda"
+            ? { comandaNumber: comandaNumber.trim() }
+            : {}),
         }),
       });
       const json = await res.json();
@@ -281,6 +304,28 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     }
   }
 
+  async function logoutGuest() {
+    setLoggingOut(true);
+    try {
+      await apiFetch("/guest/logout", { method: "POST" });
+    } catch {
+      // still clear local session
+    } finally {
+      clearGuestToken();
+      cart.clear();
+      setGuestMe(null);
+      setSessionReady(false);
+      setGateStep("intro");
+      setOtpChallengeId("");
+      setOtpCode("");
+      setSelected(null);
+      setCartOpen(false);
+      setLoggingOut(false);
+      notify("Você saiu da mesa.");
+      void loadContext();
+    }
+  }
+
   const filtered = useMemo(() => {
     if (!data) return [];
     return data.products.filter((p) => {
@@ -292,6 +337,56 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   }, [data, categoryId, availability, search]);
 
   const featured = useMemo(() => data?.products.filter((p) => p.featured) || [], [data]);
+
+  const productById = useMemo(() => {
+    const map = new Map<string, Product>();
+    for (const product of data?.products || []) map.set(product.id, product);
+    return map;
+  }, [data]);
+
+  const selectedSuggestions = useMemo(() => {
+    if (!selected) return [] as Product[];
+    const ids = [
+      ...(selected.bumpProductIds || []),
+      ...(selected.upsellProductIds || []),
+    ];
+    const seen = new Set<string>([selected.id]);
+    const out: Product[] = [];
+    for (const id of ids) {
+      if (seen.has(id)) continue;
+      const product = productById.get(id);
+      if (!product || !product.active) continue;
+      seen.add(id);
+      out.push(product);
+    }
+    return out;
+  }, [selected, productById]);
+
+  const cartSuggestions = useMemo(() => {
+    if (!data || cart.lines.length === 0) return [] as Product[];
+    const inCart = new Set(cart.lines.map((line) => line.product.id));
+    const seen = new Set<string>();
+    const out: Product[] = [];
+    for (const line of cart.lines) {
+      const ids = [
+        ...(line.product.bumpProductIds || []),
+        ...(line.product.upsellProductIds || []),
+      ];
+      for (const id of ids) {
+        if (inCart.has(id) || seen.has(id)) continue;
+        const product = productById.get(id);
+        if (!product || !product.active) continue;
+        seen.add(id);
+        out.push(product);
+      }
+    }
+    return out.slice(0, 6);
+  }, [cart.lines, productById, data]);
+
+  function addSuggestion(product: Product) {
+    cart.add(product);
+    notify(`${product.name} adicionado.`);
+  }
 
   async function submitOrder() {
     if (!data || cart.lines.length === 0) return;
@@ -442,6 +537,21 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   className="w-full rounded-xl border border-white/10 bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand/50"
                 />
               </label>
+              {context.operationMode === "comanda" && (
+                <label className="block">
+                  <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted">
+                    <Receipt className="h-3.5 w-3.5" /> Número da comanda
+                  </span>
+                  <input
+                    value={comandaNumber}
+                    onChange={(e) => setComandaNumber(e.target.value)}
+                    placeholder="Ex.: 42"
+                    inputMode="numeric"
+                    className="w-full rounded-xl border border-white/10 bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand/50"
+                    required
+                  />
+                </label>
+              )}
               {context.otpRequired && (
                 <label className="block">
                   <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted">
@@ -537,6 +647,18 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               {guestMe ? ` · ${guestMe.participation.displayName}` : ""}
             </p>
           </div>
+          {guestMe && (
+            <button
+              type="button"
+              onClick={() => void logoutGuest()}
+              disabled={loggingOut}
+              className="flex shrink-0 items-center gap-1.5 rounded-xl bg-surface-3/80 px-3 py-2 text-xs font-semibold text-muted transition hover:text-ink disabled:opacity-50"
+              aria-label="Sair da mesa"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              {loggingOut ? "Saindo…" : "Sair"}
+            </button>
+          )}
         </div>
         <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3">
           {(
@@ -884,6 +1006,28 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               <span className="mb-1.5 block text-xs font-medium text-muted">Observação (opcional)</span>
               <input value={itemNotes} onChange={(event) => setItemNotes(event.target.value)} maxLength={160} placeholder="Ex.: sem cebola" className="w-full rounded-xl border border-white/10 bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand/50" />
             </label>
+            {selectedSuggestions.length > 0 && (
+              <div className="mb-4 rounded-2xl border border-white/5 bg-surface/60 p-3">
+                <p className="mb-2 text-xs font-semibold text-muted">Complete seu pedido</p>
+                <ul className="space-y-2">
+                  {selectedSuggestions.map((product) => (
+                    <li key={product.id} className="flex items-center justify-between gap-2 text-sm">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{product.name}</p>
+                        <p className="text-xs text-brand">{formatCurrency(product.price)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => addSuggestion(product)}
+                        className="shrink-0 rounded-lg bg-brand/15 px-2.5 py-1.5 text-xs font-semibold text-brand"
+                      >
+                        + Adicionar
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <p className="mb-4 text-xl font-bold text-brand">
               {formatCurrency(
                 selected.price +
@@ -940,6 +1084,28 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 </div>
               </div>
             ))}
+            {cartSuggestions.length > 0 && (
+              <div className="mb-4 rounded-2xl border border-white/5 bg-surface-2/80 p-3">
+                <p className="mb-2 text-xs font-semibold text-muted">Complete seu pedido</p>
+                <ul className="space-y-2">
+                  {cartSuggestions.map((product) => (
+                    <li key={product.id} className="flex items-center justify-between gap-2 text-sm">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{product.name}</p>
+                        <p className="text-xs text-brand">{formatCurrency(product.price)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => addSuggestion(product)}
+                        className="shrink-0 rounded-lg bg-brand/15 px-2.5 py-1.5 text-xs font-semibold text-brand"
+                      >
+                        + Adicionar
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <Button className="mt-4 w-full" size="lg" loading={submitting} onClick={submitOrder} disabled={submitting}>
               Confirmar pedido · {formatCurrency(cart.total)}
             </Button>

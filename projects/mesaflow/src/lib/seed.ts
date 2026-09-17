@@ -587,6 +587,7 @@ export function buildDemoStore(): MesaFlowStore {
     clientSessions: {},
     otpChallenges: {},
     guestPhoneSecrets: {},
+    revokedGuestTokenHashes: {},
   };
 }
 

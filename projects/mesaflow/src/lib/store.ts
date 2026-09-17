@@ -30,6 +30,7 @@ import { buildDemoStore } from "./seed";
 import type {
   ClosingRequest,
   Command,
+  Category,
   Establishment,
   MesaFlowStore,
   Notification,
@@ -43,8 +44,12 @@ import type {
   TableStatus,
   User,
   Product,
+  ProductAddon,
   ProductAvailability,
+  ProductVariant,
+  OperationMode,
 } from "./types";
+import { isOperationMode } from "./operation-modes";
 
 const DATA_PATH =
   process.env.MESAFLOW_DATA ||
@@ -77,6 +82,7 @@ function emptyStore(): MesaFlowStore {
     clientSessions: {},
     otpChallenges: {},
     guestPhoneSecrets: {},
+    revokedGuestTokenHashes: {},
     sectors: {},
     categories: {},
     products: {},
@@ -151,6 +157,10 @@ function migrateOperationalCollections(store: MesaFlowStore) {
   store.payments ||= {};
   store.integrationConnections ||= {};
   store.auditEvents ||= {};
+  store.revokedGuestTokenHashes ||= {};
+  store.clientSessions ||= {};
+  store.otpChallenges ||= {};
+  store.guestPhoneSecrets ||= {};
 }
 
 function migrateLegacyGuestParticipations(store: MesaFlowStore) {
@@ -488,6 +498,7 @@ export function registerEstablishment(input: Omit<RegisterInput, "passwordHash">
     email,
     passwordHash: hashPassword(input.password),
     businessType: input.businessType,
+    operationMode: input.operationMode,
     tableCount: input.tableCount,
   });
   saveStore(store);
@@ -645,6 +656,77 @@ function validateProductFields(
       fields[field] = body[field];
     }
   }
+  if (body.variants !== undefined) {
+    if (!Array.isArray(body.variants) || body.variants.length > 50) {
+      return invalid("Variantes inválidas.");
+    }
+    const variants: ProductVariant[] = [];
+    for (const entry of body.variants) {
+      if (!isRecord(entry)) return invalid("Variante inválida.");
+      if (typeof entry.name !== "string" || !entry.name.trim() || entry.name.trim().length > 80) {
+        return invalid("Nome da variante inválido.");
+      }
+      if (
+        typeof entry.priceDelta !== "number" ||
+        !Number.isFinite(entry.priceDelta) ||
+        entry.priceDelta < -1_000_000 ||
+        entry.priceDelta > 1_000_000
+      ) {
+        return invalid("Delta de preço da variante inválido.");
+      }
+      variants.push({
+        id: typeof entry.id === "string" && entry.id.trim() ? entry.id.trim() : id("var_"),
+        name: entry.name.trim(),
+        priceDelta: entry.priceDelta,
+      });
+    }
+    fields.variants = variants;
+  }
+  if (body.addons !== undefined) {
+    if (!Array.isArray(body.addons) || body.addons.length > 50) {
+      return invalid("Adicionais inválidos.");
+    }
+    const addons: ProductAddon[] = [];
+    for (const entry of body.addons) {
+      if (!isRecord(entry)) return invalid("Adicional inválido.");
+      if (typeof entry.name !== "string" || !entry.name.trim() || entry.name.trim().length > 80) {
+        return invalid("Nome do adicional inválido.");
+      }
+      if (
+        typeof entry.price !== "number" ||
+        !Number.isFinite(entry.price) ||
+        entry.price < 0 ||
+        entry.price > 1_000_000
+      ) {
+        return invalid("Preço do adicional inválido.");
+      }
+      if (
+        entry.maxQty !== undefined &&
+        (!Number.isInteger(entry.maxQty) || Number(entry.maxQty) < 1 || Number(entry.maxQty) > 99)
+      ) {
+        return invalid("Quantidade máxima do adicional inválida.");
+      }
+      addons.push({
+        id: typeof entry.id === "string" && entry.id.trim() ? entry.id.trim() : id("add_"),
+        name: entry.name.trim(),
+        price: entry.price,
+        maxQty: entry.maxQty === undefined ? undefined : Number(entry.maxQty),
+      });
+    }
+    fields.addons = addons;
+  }
+  for (const field of ["bumpProductIds", "upsellProductIds"] as const) {
+    if (body[field] !== undefined) {
+      if (
+        !Array.isArray(body[field]) ||
+        body[field].length > 20 ||
+        body[field].some((item) => typeof item !== "string" || !item.trim())
+      ) {
+        return invalid(`${field} inválido.`);
+      }
+      fields[field] = (body[field] as string[]).map((item) => item.trim());
+    }
+  }
   return { value: fields };
 }
 
@@ -684,8 +766,10 @@ export function createAdminProduct(
     availability: parsed.value.availability!,
     featured: parsed.value.featured ?? false,
     active: parsed.value.active ?? true,
-    variants: [],
-    addons: [],
+    variants: parsed.value.variants || [],
+    addons: parsed.value.addons || [],
+    bumpProductIds: parsed.value.bumpProductIds || [],
+    upsellProductIds: parsed.value.upsellProductIds || [],
     rodizioIncluded: false,
   };
   store.products[product.id] = product;
@@ -722,6 +806,118 @@ export function deleteAdminProduct(
   product.active = false;
   saveStore(store);
   return { value: product };
+}
+
+export function listAdminCategories(establishmentId: string) {
+  const store = getStore();
+  return Object.values(store.categories)
+    .filter((item) => item.establishmentId === establishmentId)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
+}
+
+function validateCategoryFields(
+  store: MesaFlowStore,
+  establishmentId: string,
+  body: unknown,
+  partial: boolean,
+): MutationResult<Partial<Category>> {
+  if (!isRecord(body)) return invalid("Corpo inválido.");
+  const fields: Partial<Category> = {};
+  if (!partial && body.name === undefined) {
+    return invalid("Nome da categoria é obrigatório.");
+  }
+  if (body.name !== undefined) {
+    if (typeof body.name !== "string" || !body.name.trim() || body.name.trim().length > 80) {
+      return invalid("Nome deve ter entre 1 e 80 caracteres.");
+    }
+    fields.name = body.name.trim();
+  }
+  if (body.emoji !== undefined) {
+    if (body.emoji !== null && (typeof body.emoji !== "string" || body.emoji.length > 16)) {
+      return invalid("Emoji inválido.");
+    }
+    fields.emoji = body.emoji === null || body.emoji === "" ? undefined : body.emoji;
+  }
+  if (body.sortOrder !== undefined) {
+    if (!Number.isInteger(body.sortOrder) || Number(body.sortOrder) < 0 || Number(body.sortOrder) > 10_000) {
+      return invalid("Ordem deve ser inteiro entre 0 e 10000.");
+    }
+    fields.sortOrder = Number(body.sortOrder);
+  }
+  if (body.active !== undefined) {
+    if (typeof body.active !== "boolean") return invalid("active deve ser booleano.");
+    fields.active = body.active;
+  }
+  if (body.parentId !== undefined) {
+    if (body.parentId === null || body.parentId === "") {
+      fields.parentId = undefined;
+    } else if (typeof body.parentId !== "string") {
+      return invalid("Categoria pai inválida.");
+    } else {
+      const parent = store.categories[body.parentId];
+      if (!parent || parent.establishmentId !== establishmentId) {
+        return invalid("Categoria pai não pertence ao estabelecimento.");
+      }
+      fields.parentId = body.parentId;
+    }
+  }
+  return { value: fields };
+}
+
+export function createAdminCategory(
+  establishmentId: string,
+  body: unknown,
+): MutationResult<Category> {
+  const store = getStore();
+  const parsed = validateCategoryFields(store, establishmentId, body, false);
+  if ("error" in parsed) return parsed;
+  const existing = listAdminCategories(establishmentId);
+  const category: Category = {
+    id: id("cat_"),
+    establishmentId,
+    name: parsed.value.name!,
+    emoji: parsed.value.emoji,
+    sortOrder: parsed.value.sortOrder ?? existing.length + 1,
+    active: parsed.value.active ?? true,
+    parentId: parsed.value.parentId,
+  };
+  store.categories[category.id] = category;
+  saveStore(store);
+  return { value: category };
+}
+
+export function updateAdminCategory(
+  establishmentId: string,
+  categoryId: string,
+  body: unknown,
+): MutationResult<Category> {
+  const store = getStore();
+  const category = store.categories[categoryId];
+  if (!category || category.establishmentId !== establishmentId) {
+    return invalid("Categoria não encontrada.", 404);
+  }
+  const parsed = validateCategoryFields(store, establishmentId, body, true);
+  if ("error" in parsed) return parsed;
+  if (parsed.value.parentId === categoryId) {
+    return invalid("Categoria não pode ser pai de si mesma.");
+  }
+  Object.assign(category, parsed.value);
+  saveStore(store);
+  return { value: category };
+}
+
+export function deleteAdminCategory(
+  establishmentId: string,
+  categoryId: string,
+): MutationResult<Category> {
+  const store = getStore();
+  const category = store.categories[categoryId];
+  if (!category || category.establishmentId !== establishmentId) {
+    return invalid("Categoria não encontrada.", 404);
+  }
+  category.active = false;
+  saveStore(store);
+  return { value: category };
 }
 
 function uniqueQrToken(store: MesaFlowStore) {
@@ -899,13 +1095,20 @@ export function updateAdminSettings(
       next[field] = body[field];
     }
   }
+  if (body.operationMode !== undefined) {
+    if (!isOperationMode(body.operationMode)) return invalid("Modo de operação inválido.");
+    next.operationMode = body.operationMode as OperationMode;
+    if (body.rodizioEnabled === undefined) {
+      next.rodizioEnabled = next.operationMode === "rodizio" || next.rodizioEnabled;
+    }
+  }
   if (settings.currency !== undefined) {
     if (typeof settings.currency !== "string" || !/^[A-Za-z]{3}$/.test(settings.currency)) {
       return invalid("Moeda deve usar código ISO de 3 letras.");
     }
     next.settings.currency = settings.currency.toUpperCase();
   }
-  for (const field of ["allowEditAfterPrep", "soundNotifications"] as const) {
+  for (const field of ["allowEditAfterPrep", "soundNotifications", "otpRequired"] as const) {
     if (settings[field] !== undefined) {
       if (typeof settings[field] !== "boolean") return invalid(`${field} deve ser booleano.`);
       next.settings[field] = settings[field];

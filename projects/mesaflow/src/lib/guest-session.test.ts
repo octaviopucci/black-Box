@@ -8,15 +8,16 @@ process.env.MESAFLOW_DATA = join(tempDir, "store.json");
 process.env.MESAFLOW_DEV_SKIP_OTP = "1";
 
 async function run() {
-  const { getStore, findEstablishmentBySlug, findTableByQr, createOrder } = await import("./store");
+  const { getStore, findEstablishmentBySlug, findTableByQr, createOrder, saveStore } = await import("./store");
   const {
     joinGuestAtTable,
     validateClientSession,
     findOpenParticipation,
     requestOtpChallenge,
     verifyOtpChallenge,
+    revokeClientSession,
   } = await import("./guest");
-  const { phoneLookupHash } = await import("./identity-crypto");
+  const { phoneLookupHash, hashToken } = await import("./identity-crypto");
 
   const store = getStore();
   const establishment = findEstablishmentBySlug("ponto-do-sabor");
@@ -31,9 +32,14 @@ async function run() {
     phoneE164: "+5511988776655",
     displayName: "Ana",
   });
+  assert.ok(!("error" in first));
   assert.ok(first.token);
   assert.equal(first.participation.displayName, "Ana");
   assert.equal(first.participation.status, "OPEN");
+  assert.ok(
+    Object.values(store.clientSessions).some((session) => session.guestParticipationId === first.participation.id),
+    "createClientSession must persist into store.clientSessions",
+  );
 
   const session = validateClientSession(first.token);
   assert.ok(session);
@@ -45,6 +51,7 @@ async function run() {
     phoneE164: "+5511988776655",
     displayName: "Ana",
   });
+  assert.ok(!("error" in duplicate));
   assert.equal(duplicate.participation.id, first.participation.id);
   assert.ok(duplicate.message);
 
@@ -133,6 +140,42 @@ async function run() {
   assert.ok(signedSession);
   assert.equal(signedSession.participation.id, first.participation.id);
   assert.ok(store.guestParticipations[first.participation.id]);
+
+  // CLOSED participation must NOT be resurrected from JWT claims
+  const closedJoin = joinGuestAtTable({
+    establishment,
+    table,
+    phoneE164: "+5511944332211",
+    displayName: "Eva",
+  });
+  assert.ok(!("error" in closedJoin));
+  const closedToken = closedJoin.token;
+  const closedGp = store.guestParticipations[closedJoin.participation.id];
+  closedGp.status = "CLOSED";
+  closedGp.closedAt = new Date().toISOString();
+  store.guestParticipations[closedGp.id] = closedGp;
+  saveStore(store);
+  assert.equal(validateClientSession(closedToken), null, "CLOSED participation must not validate");
+  const closedClaimsToken = issueGuestSessionToken({ ...closedGp, status: "CLOSED" });
+  assert.equal(
+    validateClientSession(closedClaimsToken),
+    null,
+    "JWT with CLOSED claims must not resurrect participation",
+  );
+  assert.equal(store.guestParticipations[closedGp.id].status, "CLOSED");
+
+  // revoke denylist blocks validateClientSession
+  const revokeJoin = joinGuestAtTable({
+    establishment,
+    table,
+    phoneE164: "+5511933221100",
+    displayName: "Felipe",
+  });
+  assert.ok(!("error" in revokeJoin));
+  assert.ok(validateClientSession(revokeJoin.token));
+  revokeClientSession(revokeJoin.token);
+  assert.ok(store.revokedGuestTokenHashes[hashToken(revokeJoin.token)]);
+  assert.equal(validateClientSession(revokeJoin.token), null, "revoked token must be denied");
 
   const directBypass = verifyOtpChallenge({
     challengeId: "otp_missing",

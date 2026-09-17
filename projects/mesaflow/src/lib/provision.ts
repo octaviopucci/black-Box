@@ -1,11 +1,13 @@
 import { id } from "./crypto-utils";
 import { randomBytes } from "crypto";
 import { FOOD_PRESETS, productImage, productImageByName } from "./product-images";
+import { isOperationMode } from "./operation-modes";
 import type {
   BusinessType,
   Category,
   Establishment,
   MesaFlowStore,
+  OperationMode,
   Product,
   Rodizio,
   Sector,
@@ -19,6 +21,7 @@ export type RegisterInput = {
   email: string;
   passwordHash: string;
   businessType: BusinessType;
+  operationMode?: OperationMode;
   tableCount: number;
 };
 
@@ -67,6 +70,9 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
   const slug = uniqueSlug(store, input.businessName);
   const now = new Date().toISOString();
   const typeLabel = TYPE_LABELS[input.businessType];
+  const operationMode: OperationMode =
+    (input.operationMode && isOperationMode(input.operationMode) && input.operationMode) ||
+    (input.businessType === "rodizio" ? "rodizio" : "a_la_carte");
 
   const establishment: Establishment = {
     id: estId,
@@ -75,13 +81,15 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
     tagline: `${typeLabel} · atendimento por mesa`,
     logo: "🍽️",
     open: true,
-    rodizioEnabled: input.businessType === "rodizio",
+    rodizioEnabled: operationMode === "rodizio" || input.businessType === "rodizio",
     businessType: input.businessType,
+    operationMode,
     settings: {
       currency: "BRL",
       allowEditAfterPrep: false,
       soundNotifications: true,
       minIntervalRodizioSec: 120,
+      otpRequired: true,
     },
     createdAt: now,
   };

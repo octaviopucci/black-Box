@@ -29,12 +29,14 @@ export async function GET(req: Request) {
       name: est.name,
       open: est.open,
       rodizioEnabled: est.rodizioEnabled,
+      operationMode: est.operationMode || "a_la_carte",
     },
     table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
     command,
     otpRequired: otpRequiredForEstablishment(est),
     otpBypass: publicOtpBypassHint(),
     hasSession: Boolean(guestAuth),
+    operationMode: est.operationMode || "a_la_carte",
     ...summary,
   });
 }
