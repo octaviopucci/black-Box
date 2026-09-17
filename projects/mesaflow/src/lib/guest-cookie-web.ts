@@ -11,12 +11,19 @@ export function parseClientCookieHeader(cookieHeader: string | null | undefined)
   return undefined;
 }
 
+function clientCookiePath(): string {
+  const prefix = process.env.MESAFLOW_API_PREFIX || process.env.NEXT_PUBLIC_API_PREFIX;
+  if (prefix) return `/api/${prefix}`;
+  if (process.env.VERCEL) return "/api/mesaflow";
+  return "/api";
+}
+
 export function buildClientCookie(token: string): string {
   const secure = process.env.VERCEL ? "; Secure" : "";
-  return `${CLIENT_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`;
+  return `${CLIENT_COOKIE}=${encodeURIComponent(token)}; Path=${clientCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`;
 }
 
 export function clearClientCookieValue(): string {
   const secure = process.env.VERCEL ? "; Secure" : "";
-  return `${CLIENT_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
+  return `${CLIENT_COOKIE}=; Path=${clientCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
 }

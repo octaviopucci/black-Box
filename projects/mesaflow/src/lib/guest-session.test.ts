@@ -121,6 +121,17 @@ async function run() {
   assert.ok("token" in bypassVerified && bypassVerified.participation);
   assert.equal(bypassVerified.participation!.displayName, "Carla");
 
+  const directBypass = verifyOtpChallenge({
+    challengeId: "otp_missing",
+    code: "010203",
+    displayName: "Diana",
+    slug: establishment.slug,
+    tableToken: qrToken,
+    phoneRaw: "+5511955443322",
+  });
+  assert.ok("token" in directBypass && directBypass.participation);
+  assert.equal(directBypass.participation!.displayName, "Diana");
+
   console.log("✓ MesaFlow guest-session tests passed");
 }
 

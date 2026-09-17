@@ -11,7 +11,14 @@ import {
   phoneLookupHash,
 } from "./identity-crypto";
 import { isOtpBypassCode } from "./otp-bypass";
-import { getStore, saveStore, getOrOpenCommand, getActiveCommand } from "./store";
+import {
+  findEstablishmentBySlug,
+  findTableByQr,
+  getStore,
+  saveStore,
+  getOrOpenCommand,
+  getActiveCommand,
+} from "./store";
 import type {
   ClientSession,
   Establishment,
@@ -227,7 +234,28 @@ export function verifyOtpChallenge(input: {
   challengeId: string;
   code: string;
   displayName?: string;
+  slug?: string;
+  tableToken?: string;
+  phoneRaw?: string;
 }) {
+  const code = input.code.trim();
+
+  if (isOtpBypassCode(code) && input.slug && input.tableToken && input.phoneRaw) {
+    const establishment = findEstablishmentBySlug(input.slug);
+    if (!establishment) return { error: "Estabelecimento não encontrado." as const };
+    const table = findTableByQr(establishment.id, input.tableToken);
+    if (!table) return { error: "Mesa inválida." as const };
+    const phoneE164 = normalizePhoneE164(input.phoneRaw);
+    if (!phoneE164) return { error: "Telefone inválido." as const };
+    const joined = joinGuestAtTable({
+      establishment,
+      table,
+      phoneE164,
+      displayName: input.displayName,
+    });
+    return { token: joined.token, participation: joined.participation };
+  }
+
   const store = getStore();
   const challenge = store.otpChallenges[input.challengeId];
   if (!challenge || challenge.consumedAt) {
@@ -240,7 +268,6 @@ export function verifyOtpChallenge(input: {
     return { error: "Limite de tentativas excedido." as const };
   }
 
-  const code = input.code.trim();
   const expected = otpCodeHash(challenge.id, code);
   if (expected !== challenge.codeHash && !isOtpBypassCode(code)) {
     challenge.attempts += 1;

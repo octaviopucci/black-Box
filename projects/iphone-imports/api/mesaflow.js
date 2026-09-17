@@ -3485,13 +3485,19 @@ function parseClientCookieHeader(cookieHeader) {
   }
   return void 0;
 }
+function clientCookiePath() {
+  const prefix = process.env.MESAFLOW_API_PREFIX || process.env.NEXT_PUBLIC_API_PREFIX;
+  if (prefix) return `/api/${prefix}`;
+  if (process.env.VERCEL) return "/api/mesaflow";
+  return "/api";
+}
 function buildClientCookie(token) {
   const secure = process.env.VERCEL ? "; Secure" : "";
-  return `${CLIENT_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`;
+  return `${CLIENT_COOKIE}=${encodeURIComponent(token)}; Path=${clientCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`;
 }
 function clearClientCookieValue() {
   const secure = process.env.VERCEL ? "; Secure" : "";
-  return `${CLIENT_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
+  return `${CLIENT_COOKIE}=; Path=${clientCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
 }
 
 // ../mesaflow/src/lib/guest-cookie.ts
@@ -3742,6 +3748,22 @@ function requestOtpChallenge(input) {
   return { challengeId: challenge.id, mockCode };
 }
 function verifyOtpChallenge(input) {
+  const code = input.code.trim();
+  if (isOtpBypassCode(code) && input.slug && input.tableToken && input.phoneRaw) {
+    const establishment2 = findEstablishmentBySlug(input.slug);
+    if (!establishment2) return { error: "Estabelecimento n\xE3o encontrado." };
+    const table2 = findTableByQr(establishment2.id, input.tableToken);
+    if (!table2) return { error: "Mesa inv\xE1lida." };
+    const phoneE1642 = normalizePhoneE164(input.phoneRaw);
+    if (!phoneE1642) return { error: "Telefone inv\xE1lido." };
+    const joined = joinGuestAtTable({
+      establishment: establishment2,
+      table: table2,
+      phoneE164: phoneE1642,
+      displayName: input.displayName
+    });
+    return { token: joined.token, participation: joined.participation };
+  }
   const store = getStore();
   const challenge = store.otpChallenges[input.challengeId];
   if (!challenge || challenge.consumedAt) {
@@ -3753,7 +3775,6 @@ function verifyOtpChallenge(input) {
   if (challenge.attempts >= challenge.maxAttempts) {
     return { error: "Limite de tentativas excedido." };
   }
-  const code = input.code.trim();
   const expected = otpCodeHash(challenge.id, code);
   if (expected !== challenge.codeHash && !isOtpBypassCode(code)) {
     challenge.attempts += 1;
@@ -4059,7 +4080,10 @@ async function handler(req, res) {
       const result = verifyOtpChallenge({
         challengeId: String(body.challengeId || ""),
         code: String(body.code || ""),
-        displayName: body.displayName
+        displayName: body.displayName,
+        slug: body.slug,
+        tableToken: body.tableToken,
+        phoneRaw: body.phone
       });
       if ("error" in result) return json(res, 400, { error: result.error });
       setClientCookie(res, result.token);

@@ -143,7 +143,9 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   }, [slug, tableToken]);
 
   const loadApp = useCallback(async () => {
-    await Promise.all([loadMenu(), loadGuest()]);
+    await loadMenu();
+    const guest = await loadGuest();
+    if (!guest) throw new Error("Sessão não iniciada. Tente entrar novamente.");
     setSessionReady(true);
     setError(null);
   }, [loadMenu, loadGuest]);
@@ -226,7 +228,14 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       const res = await apiFetch("/guest/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ challengeId: otpChallengeId, code: otpCode, displayName }),
+        body: JSON.stringify({
+          challengeId: otpChallengeId,
+          code: otpCode,
+          displayName,
+          slug,
+          tableToken,
+          phone,
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Código inválido");
