@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #0b1220;
+  --color-paper: #f4f0e8;
+  --color-mist: #a8b4c8;
+  --color-ash: #6b7a94;
+  --color-signal: #f5d547;
+  --color-signal-hot: #ffe066;
+  --color-accent-blue: #4a9eff;
+  --font-display: var(--font-syne);
+  --font-body: var(--font-source-sans);
+  --font-mono: var(--font-jetbrains);
+}
+
+@layer base {
+  :root {
+    --ink: 222 47% 8%;
+    --paper: 40 25% 94%;
+    --accent: 47 88% 62%;
+    --mute: 218 18% 55%;
+  }
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
