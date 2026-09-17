@@ -2619,7 +2619,7 @@ function buildDemoStore() {
           allowEditAfterPrep: false,
           soundNotifications: true,
           minIntervalRodizioSec: 120,
-          otpRequired: false
+          otpRequired: true
         },
         createdAt: now
       }
@@ -3589,6 +3589,11 @@ function isOtpBypassCode(code) {
   if (!bypass) return false;
   return code.trim() === bypass;
 }
+function publicOtpBypassHint() {
+  const code = otpBypassCode();
+  if (!code) return { active: false };
+  return { active: true, code };
+}
 
 // ../mesaflow/src/lib/guest.ts
 var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
@@ -3991,6 +3996,7 @@ async function handler(req, res) {
         table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
         command,
         otpRequired: otpRequiredForEstablishment(est),
+        otpBypass: publicOtpBypassHint(),
         hasSession: Boolean(guestAuth),
         ...summary
       });

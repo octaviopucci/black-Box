@@ -474,7 +474,7 @@ export function buildDemoStore(): MesaFlowStore {
           allowEditAfterPrep: false,
           soundNotifications: true,
           minIntervalRodizioSec: 120,
-          otpRequired: false,
+          otpRequired: true,
         },
         createdAt: now,
       },
