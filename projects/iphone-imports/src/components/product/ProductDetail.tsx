@@ -125,8 +125,8 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
                     className={cn(
                       "rounded-lg border px-4 py-2 text-sm transition-colors",
                       color === c
-                        ? "border-brand-silver bg-brand-silver/10 font-semibold"
-                        : "border-brand-border hover:border-brand-black"
+                        ? "border-brand-silver bg-brand-silver/10 font-semibold text-brand-silver"
+                        : "border-brand-border-light hover:border-brand-silver/50"
                     )}
                   >
                     {c}
@@ -147,8 +147,8 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
                     className={cn(
                       "rounded-lg border px-4 py-2 text-sm transition-colors",
                       storage === s
-                        ? "border-brand-silver bg-brand-silver/10 font-semibold"
-                        : "border-brand-border hover:border-brand-black"
+                        ? "border-brand-silver bg-brand-silver/10 font-semibold text-brand-silver"
+                        : "border-brand-border-light hover:border-brand-silver/50"
                     )}
                   >
                     {s}
@@ -255,7 +255,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
       )}
 
       {/* Mobile sticky bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-brand-border bg-white p-3 sm:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-brand-silver/20 bg-white/95 p-3 shadow-[0_-8px_32px_rgba(0,0,0,0.08)] backdrop-blur-md sm:hidden">
         <div className="flex items-center gap-3">
           <Price price={product.price} size="sm" className="shrink-0" />
           <button
@@ -267,9 +267,9 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
           </button>
           <button
             onClick={handleWhatsApp}
-            className="btn-secondary flex-1 py-2.5 text-xs"
+            className="btn-outline flex-1 py-2.5 text-xs"
           >
-            Comprar
+            WhatsApp
           </button>
         </div>
       </div>

@@ -26,7 +26,8 @@ export function PromoBanner({
           : "relative overflow-hidden rounded-3xl border border-brand-border bg-gradient-to-br from-brand-elevated via-brand-surface to-brand-black p-8 md:p-12"
       }
     >
-      {isDark && <div className="absolute inset-0 grid-pattern opacity-40" />}
+      {isDark && <div className="absolute inset-0 mesh-bg opacity-40" />}
+      <div className="absolute inset-0 grid-pattern opacity-20" />
       <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-brand-silver/10 to-transparent" />
 
       <div className="relative max-w-xl">
