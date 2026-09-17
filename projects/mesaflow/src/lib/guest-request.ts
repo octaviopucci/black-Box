@@ -5,7 +5,9 @@ import {
 } from "./guest-cookie-web";
 
 export function readClientToken(req: Request): string | undefined {
-  return parseClientCookieHeader(req.headers.get("cookie"));
+  const authorization = req.headers.get("authorization");
+  const bearer = authorization?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
+  return bearer || parseClientCookieHeader(req.headers.get("cookie"));
 }
 
 export function jsonWithClientCookie(body: unknown, token: string, status = 200) {

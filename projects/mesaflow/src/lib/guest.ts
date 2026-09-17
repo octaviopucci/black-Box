@@ -2,7 +2,6 @@ import { id } from "./crypto-utils";
 import {
   decryptPhone,
   encryptPhone,
-  generateClientSessionToken,
   generateOtpCode,
   hashToken,
   maskPhoneDisplay,
@@ -11,6 +10,7 @@ import {
   phoneLookupHash,
 } from "./identity-crypto";
 import { isOtpBypassCode } from "./otp-bypass";
+import { issueGuestSessionToken, parseGuestSessionToken } from "./guest-session-token";
 import {
   findEstablishmentBySlug,
   findTableByQr,
@@ -100,7 +100,7 @@ export function createGuestParticipation(input: {
 
 export function createClientSession(participationId: string): { token: string; session: ClientSession } {
   const store = getStore();
-  const token = generateClientSessionToken();
+  const token = issueGuestSessionToken(participationId, CLIENT_SESSION_TTL_MS);
   const now = new Date();
   const session: ClientSession = {
     id: id("cs_"),
@@ -115,27 +115,43 @@ export function createClientSession(participationId: string): { token: string; s
   return { token, session };
 }
 
+function resolveGuestSession(participationId: string) {
+  const store = getStore();
+  const participation = store.guestParticipations[participationId];
+  if (!participation || participation.status === "CLOSED") return null;
+  const establishment = store.establishments[participation.establishmentId];
+  if (!establishment) return null;
+  const now = new Date().toISOString();
+  const session: ClientSession = {
+    id: `stateless_${participationId}`,
+    guestParticipationId: participationId,
+    tokenHash: "",
+    createdAt: now,
+    expiresAt: now,
+    lastSeenAt: now,
+  };
+  return { session, participation, establishment };
+}
+
 export function validateClientSession(token: string | undefined | null) {
   if (!token?.trim()) return null;
+  const trimmed = token.trim();
+
+  const participationId = parseGuestSessionToken(trimmed);
+  if (participationId) return resolveGuestSession(participationId);
+
   const store = getStore();
-  const tokenHash = hashToken(token.trim());
+  const tokenHash = hashToken(trimmed);
   const session = Object.values(store.clientSessions).find(
     (entry) => entry.tokenHash === tokenHash && !entry.revokedAt,
   );
   if (!session) return null;
   if (new Date(session.expiresAt).getTime() < Date.now()) return null;
 
-  const participation = store.guestParticipations[session.guestParticipationId];
-  if (!participation || participation.status === "CLOSED") return null;
-
   session.lastSeenAt = new Date().toISOString();
   store.clientSessions[session.id] = session;
   saveStore(store);
-
-  const establishment = store.establishments[participation.establishmentId];
-  if (!establishment) return null;
-
-  return { session, participation, establishment };
+  return resolveGuestSession(session.guestParticipationId);
 }
 
 export function revokeClientSession(token: string | undefined | null) {

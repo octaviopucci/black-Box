@@ -20,7 +20,10 @@ export async function POST(req: Request) {
   });
   if ("error" in result) return Response.json({ error: result.error }, { status: 400 });
   return jsonWithClientCookie(
-    { participation: publicParticipation(result.participation) },
+    {
+      token: result.token,
+      participation: publicParticipation(result.participation),
+    },
     result.token,
   );
 }
