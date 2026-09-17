@@ -3496,7 +3496,10 @@ function clearClientCookieValue() {
 
 // ../mesaflow/src/lib/guest-cookie.ts
 function parseClientCookie(req) {
-  return parseClientCookieHeader(req.headers.cookie);
+  const raw = req.headers.cookie;
+  if (typeof raw === "string") return parseClientCookieHeader(raw);
+  if (Array.isArray(raw)) return parseClientCookieHeader(raw.join("; "));
+  return void 0;
 }
 function setClientCookie(res, token) {
   res.setHeader("Set-Cookie", buildClientCookie(token));

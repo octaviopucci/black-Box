@@ -13,20 +13,56 @@ const repoRoot = join(hostRoot, "..", "..");
 const mesaflowRoot = join(repoRoot, "projects", "mesaflow");
 const basePath = "/mesaflow";
 
+const apiDir = join(mesaflowRoot, "src/app/api");
+const legacyBackup = join(mesaflowRoot, "src/app/_api_backup");
+const apiStash = join(mesaflowRoot, ".mesaflow-api-stash");
+
 function run(cmd, opts = {}) {
-  execSync(cmd, { stdio: "inherit", ...opts });
+  try {
+    execSync(cmd, { stdio: "inherit", ...opts });
+  } catch (error) {
+    console.error(`\n✗ comando falhou: ${cmd}`);
+    if (error instanceof Error && "status" in error) {
+      process.exit(error.status ?? 1);
+    }
+    process.exit(1);
+  }
 }
 
-const apiDir = join(mesaflowRoot, "src/app/api");
-const apiBackup = join(mesaflowRoot, "src/app/_api_backup");
+function stashApiRoutes() {
+  // Limpa resíduos de builds anteriores (cache Vercel / falha no finally).
+  rmSync(legacyBackup, { recursive: true, force: true });
+  rmSync(apiStash, { recursive: true, force: true });
+
+  if (!existsSync(apiDir)) {
+    if (existsSync(legacyBackup)) {
+      renameSync(legacyBackup, apiDir);
+      console.log("→ mesaflow: API restaurada de _api_backup legado");
+    } else {
+      console.warn("→ mesaflow: src/app/api ausente — seguindo sem stash");
+      return false;
+    }
+  }
+
+  mkdirSync(dirname(apiStash), { recursive: true });
+  renameSync(apiDir, apiStash);
+  console.log("→ mesaflow: API routes desabilitadas para export estático");
+  return true;
+}
+
+function restoreApiRoutes(stashed) {
+  if (!stashed) return;
+  rmSync(apiDir, { recursive: true, force: true });
+  rmSync(legacyBackup, { recursive: true, force: true });
+  if (existsSync(apiStash)) {
+    renameSync(apiStash, apiDir);
+  }
+}
 
 console.log("\n→ mesaflow: install + build site...");
 run("npm ci --include=dev", { cwd: mesaflowRoot });
 
-if (existsSync(apiDir)) {
-  renameSync(apiDir, apiBackup);
-  console.log("→ mesaflow: API routes desabilitadas para export estático");
-}
+const stashed = stashApiRoutes();
 
 try {
   run("npm run build", {
@@ -40,7 +76,7 @@ try {
     },
   });
 } finally {
-  if (existsSync(apiBackup)) renameSync(apiBackup, apiDir);
+  restoreApiRoutes(stashed);
 }
 
 const siteOut = join(mesaflowRoot, "out");
