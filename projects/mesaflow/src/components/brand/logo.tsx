@@ -12,42 +12,6 @@ type Props = {
   showTagline?: boolean;
 };
 
-function Wordmark({ className, size = "md" }: { className?: string; size?: "sm" | "md" | "lg" }) {
-  const text =
-    size === "lg"
-      ? "text-4xl sm:text-5xl"
-      : size === "sm"
-        ? "text-base"
-        : "text-xl sm:text-2xl";
-
-  return (
-    <p
-      className={cn(
-        "font-[family-name:var(--font-display)] font-extrabold leading-none tracking-tight",
-        text,
-        className,
-      )}
-      aria-label={BRAND_NAME}
-    >
-      <span className="text-ink">NA </span>
-      <span className="text-gradient-brand">MESA</span>
-    </p>
-  );
-}
-
-function Tagline({ className }: { className?: string }) {
-  return (
-    <p
-      className={cn(
-        "text-[10px] font-semibold uppercase tracking-[0.22em] text-muted",
-        className,
-      )}
-    >
-      {BRAND_TAGLINE}
-    </p>
-  );
-}
-
 export function Logo({
   variant = "horizontal",
   href = "/",
@@ -79,41 +43,30 @@ export function Logo({
 
   if (variant === "vertical") {
     return wrap(
-      <div className="flex flex-col items-center text-center">
-        <Image
-          src={asset("/brand/logo-icon.png")}
-          alt=""
-          width={96}
-          height={96}
-          className="mb-6 h-24 w-24"
-          aria-hidden
-          priority
-        />
-        <Wordmark size="lg" />
-        <div className="mt-4 flex w-full max-w-[220px] items-center gap-3">
-          <span className="h-px flex-1 bg-gradient-to-r from-transparent to-brand/60" />
-          <Tagline className="shrink-0 text-[9px]" />
-          <span className="h-px flex-1 bg-gradient-to-l from-transparent to-brand/60" />
-        </div>
-      </div>,
+      <Image
+        src={asset("/brand/logo-vertical.png")}
+        alt={`${BRAND_NAME} — ${BRAND_TAGLINE}`}
+        width={220}
+        height={187}
+        className="h-auto w-full max-w-[220px]"
+        priority
+      />,
     );
   }
 
+  const src = showTagline ? asset("/brand/logo-horizontal.png") : asset("/brand/logo-navy-bg.png");
+  const width = showTagline ? 220 : 160;
+  const height = showTagline ? 48 : 36;
+
   return wrap(
-    <div className="inline-flex items-center gap-2.5">
-      <Image
-        src={asset("/brand/logo-icon.png")}
-        alt=""
-        width={iconSize}
-        height={iconSize}
-        className="shrink-0"
-        aria-hidden
-        priority
-      />
-      <div>
-        <Wordmark size="sm" className="text-lg sm:text-xl" />
-        {showTagline && <Tagline className="mt-1" />}
-      </div>
-    </div>,
+    <Image
+      src={src}
+      alt={`${BRAND_NAME} — ${BRAND_TAGLINE}`}
+      width={width}
+      height={height}
+      className="h-auto w-auto"
+      style={{ maxHeight: showTagline ? 48 : 36 }}
+      priority
+    />,
   );
 }
