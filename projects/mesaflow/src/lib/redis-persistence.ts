@@ -15,15 +15,54 @@ export type RedisAuth = {
   token: string;
 };
 
+function redisEnvKeys() {
+  return Object.keys(process.env).filter(
+    (key) => key.includes("REDIS") || key.includes("KV_REST") || key === "KV_URL",
+  );
+}
+
+export function redisDiagnostics() {
+  const auth = redisAuth();
+  return {
+    configured: Boolean(auth),
+    envKeys: redisEnvKeys(),
+    urlKey: auth
+      ? [
+          process.env.MESAFLOW_REDIS_REST_URL && "MESAFLOW_REDIS_REST_URL",
+          process.env.UPSTASH_REDIS_REST_URL && "UPSTASH_REDIS_REST_URL",
+          process.env.KV_REST_API_URL && "KV_REST_API_URL",
+        ].find(Boolean)
+      : undefined,
+  };
+}
+
 export function redisConfigured(): boolean {
   return Boolean(redisAuth());
 }
 
 export function redisAuth(): RedisAuth | null {
-  const url = process.env.MESAFLOW_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.MESAFLOW_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url =
+    process.env.MESAFLOW_REDIS_REST_URL ||
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.KV_REST_API_URL;
+  const token =
+    process.env.MESAFLOW_REDIS_REST_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.KV_REST_API_TOKEN;
   if (!url || !token) return null;
   return { url: url.replace(/\/$/, ""), token };
+}
+
+function parseRedisJson<T>(raw: unknown): T | null {
+  if (raw == null) return null;
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  }
+  return raw as T;
 }
 
 async function redisCommand<T>(command: string[]): Promise<T | null> {
@@ -48,9 +87,11 @@ async function redisCommand<T>(command: string[]): Promise<T | null> {
 
 export async function hydrateFromRedis(): Promise<HydrateBlobResult | null> {
   if (!redisConfigured()) return null;
-  const operational = await redisCommand<MesaFlowOperationalStore>(["GET", OPERATIONAL_KEY]);
-  const identity = await redisCommand<MesaFlowIdentityStore>(["GET", IDENTITY_KEY]);
-  const etags = (await redisCommand<BlobEtags>(["GET", ETAGS_KEY])) || {};
+  const operational = parseRedisJson<MesaFlowOperationalStore>(
+    await redisCommand<string>(["GET", OPERATIONAL_KEY]),
+  );
+  const identity = parseRedisJson<MesaFlowIdentityStore>(await redisCommand<string>(["GET", IDENTITY_KEY]));
+  const etags = parseRedisJson<BlobEtags>(await redisCommand<string>(["GET", ETAGS_KEY])) || {};
   if (!operational && !identity) return null;
   return {
     store: mergeStore(operational || {}, identity || {}),
@@ -69,11 +110,15 @@ export async function flushToRedis(input: {
     return { ok: false, error: "Redis not configured" };
   }
   const { operational, identity } = splitStore(input.store);
-  const pipeline: unknown[][] = [];
-  if (input.flushOperational) pipeline.push(["SET", OPERATIONAL_KEY, operational]);
-  if (input.flushIdentity) pipeline.push(["SET", IDENTITY_KEY, identity]);
+  const pipeline: string[][] = [];
+  if (input.flushOperational) {
+    pipeline.push(["SET", OPERATIONAL_KEY, JSON.stringify(operational)]);
+  }
+  if (input.flushIdentity) {
+    pipeline.push(["SET", IDENTITY_KEY, JSON.stringify(identity)]);
+  }
   if (input.flushOperational || input.flushIdentity) {
-    pipeline.push(["SET", ETAGS_KEY, input.etags]);
+    pipeline.push(["SET", ETAGS_KEY, JSON.stringify(input.etags)]);
   }
   if (!pipeline.length) return { ok: true };
 
@@ -100,7 +145,12 @@ export async function flushToRedis(input: {
 }
 
 export async function probeRedis(): Promise<{ ok: boolean; error?: string }> {
-  if (!redisConfigured()) return { ok: false, error: "Redis not configured" };
+  if (!redisConfigured()) {
+    return {
+      ok: false,
+      error: `Redis not configured (need UPSTASH_REDIS_REST_URL/TOKEN or KV_REST_API_URL/TOKEN). Found: ${redisEnvKeys().join(", ") || "none"}`,
+    };
+  }
   const pong = await redisCommand<string>(["PING"]);
   if (pong !== "PONG") return { ok: false, error: "redis ping failed" };
   return { ok: true };

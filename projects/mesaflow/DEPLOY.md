@@ -57,8 +57,11 @@ Se o health retornar `persist.blob: false` e `This store has been suspended`, os
 
 1. Vercel → projeto **loja-iphoneimports** → **Storage** → **Create Database** → **Upstash Redis**
 2. **Connect to Project** → marque Production + Preview
-3. Redeploy — as variáveis `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN` são injetadas automaticamente
-4. Valide: `curl .../api/mesaflow/health` → `shared: true` ou `persist.redis: true`
+3. Redeploy — a Vercel injeta `UPSTASH_REDIS_REST_URL`/`TOKEN` **ou** `KV_REST_API_URL`/`TOKEN`
+4. Valide: `curl .../api/mesaflow/health` → `shared: true` e `storage.redis.configured: true`
+
+> Se conectou o Upstash mas `redis.configured: false`, o deploy está antigo ou as variáveis
+> não chegaram na function `api/mesaflow.js` — faça **Redeploy** após conectar.
 
 Alternativa: criar um **Blob store novo** (não suspenso) e adicionar `BLOB_READ_WRITE_TOKEN` manualmente.
 

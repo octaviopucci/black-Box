@@ -17,6 +17,7 @@ import {
   hydrateFromRedis,
   probeRedis,
   redisConfigured,
+  redisDiagnostics,
 } from "./redis-persistence";
 import { issueAdminSessionToken, parseAdminSessionToken } from "./admin-session-token";
 import { hashPassword, id, sessionToken, verifyPassword } from "./crypto-utils";
@@ -187,7 +188,7 @@ export function blobDiagnostics(hasOidcHeader = false) {
     lastError: lastBlobError,
     etags: blobEtags,
     redis: {
-      configured: redisConfigured(),
+      ...redisDiagnostics(),
       lastError: lastRedisError,
     },
   };
@@ -263,11 +264,10 @@ export async function flushPersistentStore(): Promise<PersistResult> {
   if (!process.env.VERCEL || (!operationalDirty && !identityDirty)) {
     return { disk: true, blob: false };
   }
+
   if (!blobConfigured(runtimeOidcToken)) {
     lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
-    return { disk: true, blob: false, blobError: lastBlobError };
-  }
-
+  } else {
   const flushed = await flushToBlob({
     store: cache,
     etags: blobEtags,
@@ -298,6 +298,7 @@ export async function flushPersistentStore(): Promise<PersistResult> {
 
   lastBlobError = blobError || "blob persist failed";
   console.warn("[mesaflow] blob persist failed", lastBlobError);
+  }
 
   if (redisConfigured()) {
     const redisResult = await flushToRedis({
