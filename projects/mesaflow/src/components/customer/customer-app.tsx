@@ -30,6 +30,7 @@ import { formatCurrency, formatTime, orderStatusLabel } from "@/lib/format";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ui/product-image";
+import { Logo } from "@/components/brand/logo";
 import { BRAND_NAME } from "@/lib/brand";
 import { lineTotal } from "@/lib/order-math";
 
@@ -421,9 +422,9 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">
               Bem-vindo ao {BRAND_NAME}
             </p>
-            <span className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/15 text-3xl ring-1 ring-brand/20">
-              🍽️
-            </span>
+            <div className="mb-3 flex justify-center">
+              <Logo variant="icon" href={null} iconSize={56} />
+            </div>
             <h1 className="font-[family-name:var(--font-display)] text-xl font-bold">{est.name}</h1>
             <p className="mt-1 text-sm text-muted">Mesa {tbl.number} · {context.participantCount} na mesa</p>
           </div>
