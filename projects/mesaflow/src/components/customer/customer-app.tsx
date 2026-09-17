@@ -20,6 +20,11 @@ import { useCart } from "@/contexts/cart-context";
 import { useRealtime } from "@/hooks/use-realtime";
 import { apiUrl } from "@/lib/api";
 import { clearGuestToken, getStoredGuestToken, storeGuestToken } from "@/lib/guest-client-storage";
+import {
+  addCachedGuestOrder,
+  consumptionTotalFor,
+  mergeGuestOrders,
+} from "@/lib/guest-orders-cache";
 import { cn } from "@/lib/cn";
 import { formatCurrency, formatTime, orderStatusLabel } from "@/lib/format";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
@@ -129,8 +134,14 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     }
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || "Erro ao carregar sessão");
-    setGuestMe(json);
-    return json as GuestMe;
+    const orders = mergeGuestOrders(json.participation.id, json.orders || []);
+    const next: GuestMe = {
+      ...json,
+      orders,
+      consumptionTotal: consumptionTotalFor(orders),
+    };
+    setGuestMe(next);
+    return next;
   }, []);
 
   const loadMenu = useCallback(async () => {
@@ -282,6 +293,12 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
   async function submitOrder() {
     if (!data || cart.lines.length === 0) return;
+    for (const line of cart.lines) {
+      if (line.product.variants.length > 0 && !line.variant?.id) {
+        notify(`Selecione uma opção para ${line.product.name}.`, "error");
+        return;
+      }
+    }
     setSubmitting(true);
     try {
       const res = await apiFetch("/orders", {
@@ -290,11 +307,33 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
         body: JSON.stringify({ items: cart.toOrderLines() }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
+      if (!res.ok) throw new Error(json.error || "Erro ao enviar pedido");
+      const order = json.order as Order;
+      let participationId = guestMe?.participation.id;
+      if (!participationId) {
+        const guest = await loadGuest();
+        participationId = guest?.participation.id;
+      }
+      if (participationId && order) {
+        addCachedGuestOrder(participationId, order);
+        setGuestMe((current) => {
+          if (!current) return current;
+          const orders = mergeGuestOrders(participationId, [order, ...current.orders]);
+          return {
+            ...current,
+            orders,
+            consumptionTotal: consumptionTotalFor(orders),
+            participation: {
+              ...current.participation,
+              orderCount: Math.max(current.participation.orderCount, orders.length),
+            },
+          };
+        });
+      }
       cart.clear();
       setCartOpen(false);
       setTab("orders");
-      await refresh();
+      notify(order ? `Pedido #${order.number} enviado com sucesso!` : "Pedido enviado!");
     } catch (e) {
       notify(e instanceof Error ? e.message : "Erro ao enviar pedido", "error");
     } finally {
@@ -851,6 +890,10 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               className="w-full"
               size="lg"
               onClick={() => {
+                if (selected.variants.length > 0 && !selectedVariantId) {
+                  notify("Selecione uma opção antes de adicionar.", "error");
+                  return;
+                }
                 const variant = selected.variants.find((item) => item.id === selectedVariantId);
                 const addons = selected.addons
                   .filter((addon) => (selectedAddons[addon.id] || 0) > 0)
