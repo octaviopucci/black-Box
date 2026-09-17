@@ -247,11 +247,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/guest/otp/verify") {
-      const body = (req.body || {}) as { challengeId: string; code: string; displayName?: string };
+      const body = (req.body || {}) as {
+        challengeId: string;
+        code: string;
+        displayName?: string;
+        slug?: string;
+        tableToken?: string;
+        phone?: string;
+      };
       const result = verifyOtpChallenge({
         challengeId: String(body.challengeId || ""),
         code: String(body.code || ""),
         displayName: body.displayName,
+        slug: body.slug,
+        tableToken: body.tableToken,
+        phoneRaw: body.phone,
       });
       if ("error" in result) return json(res, 400, { error: result.error });
       setClientCookie(res, result.token);
