@@ -123,7 +123,10 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
   const loadGuest = useCallback(async () => {
     const res = await apiFetch("/guest/me");
-    if (res.status === 401) return null;
+    if (res.status === 401) {
+      clearGuestToken();
+      return null;
+    }
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || "Erro ao carregar sessão");
     setGuestMe(json);
@@ -151,17 +154,24 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const loadApp = useCallback(async () => {
     await loadMenu();
     const guest = await loadGuest();
-    if (!guest) throw new Error("Sessão não iniciada. Tente entrar novamente.");
+    if (!guest) {
+      setSessionReady(false);
+      setGuestMe(null);
+      return false;
+    }
     setSessionReady(true);
     setError(null);
+    return true;
   }, [loadMenu, loadGuest]);
 
   const bootstrap = useCallback(async () => {
     setLoading(true);
     try {
       const ctx = await loadContext();
-      if (ctx.hasSession) {
-        await loadApp();
+      const hasToken = Boolean(getStoredGuestToken());
+      if (ctx.hasSession || hasToken) {
+        const ok = await loadApp();
+        if (!ok && hasToken) clearGuestToken();
       } else {
         setSessionReady(false);
         setError(null);
@@ -180,7 +190,8 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const refresh = useCallback(async () => {
     if (!sessionReady) return;
     try {
-      await loadApp();
+      const ok = await loadApp();
+      if (!ok) notify("Sessão expirada. Entre novamente na mesa.", "error");
     } catch (e) {
       notify(e instanceof Error ? e.message : "Falha ao atualizar", "error");
     }
@@ -247,14 +258,8 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Código inválido");
       if (json.token) storeGuestToken(json.token);
-      setGuestMe({
-        participation: json.participation,
-        orders: [],
-        consumptionTotal: 0,
-      });
-      await loadMenu();
-      setSessionReady(true);
-      setError(null);
+      const ok = await loadApp();
+      if (!ok) throw new Error("Sessão não iniciada. Tente entrar novamente.");
       notify(`Bem-vindo, ${json.participation.displayName}!`);
     } catch (e) {
       notify(e instanceof Error ? e.message : "Erro ao verificar código", "error");

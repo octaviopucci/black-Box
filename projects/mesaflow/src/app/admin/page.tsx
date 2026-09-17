@@ -32,6 +32,14 @@ export default function AdminDashboardPage() {
     );
   }
 
+  if (!data.stats) {
+    return (
+      <div className="glass-card p-8 text-center">
+        <p className="text-muted">Não foi possível carregar o dashboard. Faça login novamente.</p>
+      </div>
+    );
+  }
+
   const s = data.stats;
   const cards = [
     { label: "Faturamento hoje", value: formatCurrency(s.revenue), icon: Banknote, accent: "text-success" },

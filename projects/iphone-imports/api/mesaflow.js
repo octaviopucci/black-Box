@@ -248,11 +248,44 @@ async function probeBlobPaths(runtimeOidcToken2) {
   }
 }
 
+// ../mesaflow/src/lib/admin-session-token.ts
+var import_crypto = require("crypto");
+var ADMIN_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
+function secret() {
+  return process.env.MESAFLOW_ADMIN_SESSION_SECRET || process.env.MESAFLOW_IDENTITY_SECRET || "mesaflow-dev-only-change-in-production";
+}
+function sign(payloadB64) {
+  return (0, import_crypto.createHmac)("sha256", secret()).update(payloadB64).digest("base64url");
+}
+function verifySig(payloadB64, sig) {
+  const expected = sign(payloadB64);
+  const sigBuf = Buffer.from(sig);
+  const expectedBuf = Buffer.from(expected);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto.timingSafeEqual)(sigBuf, expectedBuf);
+}
+function issueAdminSessionToken(userId, establishmentId, ttlMs = ADMIN_SESSION_TTL_MS) {
+  const claims = { userId, establishmentId, exp: Date.now() + ttlMs };
+  const payloadB64 = Buffer.from(JSON.stringify(claims)).toString("base64url");
+  return `${payloadB64}.${sign(payloadB64)}`;
+}
+function parseAdminSessionToken(token) {
+  const [payloadB64, sig] = token.split(".");
+  if (!payloadB64 || !sig || !verifySig(payloadB64, sig)) return null;
+  try {
+    const claims = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf8"));
+    if (!claims.userId || !claims.establishmentId || !claims.exp) return null;
+    if (Date.now() > claims.exp) return null;
+    return claims;
+  } catch {
+    return null;
+  }
+}
+
 // ../mesaflow/src/lib/crypto-utils.ts
-var import_crypto2 = require("crypto");
+var import_crypto3 = require("crypto");
 
 // ../mesaflow/node_modules/bcryptjs/index.js
-var import_crypto = __toESM(require("crypto"), 1);
+var import_crypto2 = __toESM(require("crypto"), 1);
 var randomFallback = null;
 function randomBytes(len) {
   try {
@@ -260,7 +293,7 @@ function randomBytes(len) {
   } catch {
   }
   try {
-    return import_crypto.default.randomBytes(len);
+    return import_crypto2.default.randomBytes(len);
   } catch {
   }
   if (!randomFallback) {
@@ -1836,14 +1869,14 @@ function hashPassword(password) {
 }
 function verifyPassword(password, passwordHash) {
   if (passwordHash.startsWith("$2")) return compareSync(password, passwordHash);
-  const legacyHash = (0, import_crypto2.createHash)("sha256").update(`mesaflow:${password}`).digest("hex");
+  const legacyHash = (0, import_crypto3.createHash)("sha256").update(`mesaflow:${password}`).digest("hex");
   return passwordHash === legacyHash;
 }
 function id(prefix = "") {
-  return `${prefix}${(0, import_crypto2.randomBytes)(8).toString("hex")}`;
+  return `${prefix}${(0, import_crypto3.randomBytes)(8).toString("hex")}`;
 }
 function sessionToken() {
-  return (0, import_crypto2.randomBytes)(32).toString("hex");
+  return (0, import_crypto3.randomBytes)(32).toString("hex");
 }
 
 // ../mesaflow/src/lib/events.ts
@@ -1942,7 +1975,7 @@ function productImageByName(name, preset = "default") {
 }
 
 // ../mesaflow/src/lib/provision.ts
-var import_crypto3 = require("crypto");
+var import_crypto4 = require("crypto");
 function slugify(name) {
   return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
 }
@@ -1956,9 +1989,9 @@ function uniqueSlug(store, base) {
   return slug;
 }
 function uniqueQrToken(store, pending) {
-  let token = (0, import_crypto3.randomBytes)(32).toString("hex");
+  let token = (0, import_crypto4.randomBytes)(32).toString("hex");
   while (Object.values(store.tables).some((table) => table.qrToken === token) || Object.values(pending).some((table) => table.qrToken === token)) {
-    token = (0, import_crypto3.randomBytes)(32).toString("hex");
+    token = (0, import_crypto4.randomBytes)(32).toString("hex");
   }
   return token;
 }
@@ -2892,23 +2925,33 @@ function purgeExpiredSessions(store) {
   }
 }
 function createSession(user) {
-  const store = getStore();
-  purgeExpiredSessions(store);
   const now = /* @__PURE__ */ new Date();
-  const session = {
-    token: sessionToken(),
+  const token = issueAdminSessionToken(user.id, user.establishmentId, SESSION_TTL_MS);
+  return {
+    token,
     userId: user.id,
     establishmentId: user.establishmentId,
     createdAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + SESSION_TTL_MS).toISOString()
   };
-  store.sessions[session.token] = session;
-  saveStore(store);
-  return session;
 }
 function validateSession(token) {
   if (!token) return null;
   const store = getStore();
+  const signed = parseAdminSessionToken(token);
+  if (signed) {
+    const user2 = store.users[signed.userId];
+    const establishment2 = store.establishments[signed.establishmentId];
+    if (!user2?.active || !establishment2) return null;
+    const session2 = {
+      token,
+      userId: user2.id,
+      establishmentId: establishment2.id,
+      createdAt: new Date(signed.exp - SESSION_TTL_MS).toISOString(),
+      expiresAt: new Date(signed.exp).toISOString()
+    };
+    return { session: session2, user: user2, establishment: establishment2 };
+  }
   purgeExpiredSessions(store);
   const session = store.sessions[token];
   if (!session) return null;
@@ -3515,21 +3558,21 @@ function clearClientCookie(res) {
 }
 
 // ../mesaflow/src/lib/identity-crypto.ts
-var import_crypto4 = require("crypto");
+var import_crypto5 = require("crypto");
 var DEV_FALLBACK_SECRET = "mesaflow-dev-only-change-in-production";
-function secret(name) {
+function secret2(name) {
   return process.env[name] || process.env.MESAFLOW_IDENTITY_SECRET || DEV_FALLBACK_SECRET;
 }
 function hashToken(token) {
-  return (0, import_crypto4.createHash)("sha256").update(token).digest("hex");
+  return (0, import_crypto5.createHash)("sha256").update(token).digest("hex");
 }
 function phoneLookupHash(establishmentId, phoneE164) {
-  return (0, import_crypto4.createHmac)("sha256", secret("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
+  return (0, import_crypto5.createHmac)("sha256", secret2("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
 }
 function encryptPhone(phoneE164) {
-  const key = (0, import_crypto4.createHash)("sha256").update(secret("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
-  const iv = (0, import_crypto4.randomBytes)(12);
-  const cipher = (0, import_crypto4.createCipheriv)("aes-256-gcm", key, iv);
+  const key = (0, import_crypto5.createHash)("sha256").update(secret2("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+  const iv = (0, import_crypto5.randomBytes)(12);
+  const cipher = (0, import_crypto5.createCipheriv)("aes-256-gcm", key, iv);
   const encrypted = Buffer.concat([cipher.update(phoneE164, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
   return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
@@ -3538,8 +3581,8 @@ function decryptPhone(ciphertext) {
   try {
     const [ivB64, tagB64, dataB64] = ciphertext.split(".");
     if (!ivB64 || !tagB64 || !dataB64) return null;
-    const key = (0, import_crypto4.createHash)("sha256").update(secret("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
-    const decipher = (0, import_crypto4.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
+    const key = (0, import_crypto5.createHash)("sha256").update(secret2("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+    const decipher = (0, import_crypto5.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
     decipher.setAuthTag(Buffer.from(tagB64, "base64url"));
     const decrypted = Buffer.concat([
       decipher.update(Buffer.from(dataB64, "base64url")),
@@ -3568,7 +3611,7 @@ function normalizePhoneE164(input) {
   return null;
 }
 function otpCodeHash(challengeId, code) {
-  return (0, import_crypto4.createHmac)("sha256", secret("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
+  return (0, import_crypto5.createHmac)("sha256", secret2("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
 }
 function generateOtpCode() {
   return String(Math.floor(1e5 + Math.random() * 9e5));
@@ -3599,34 +3642,67 @@ function publicOtpBypassHint() {
 }
 
 // ../mesaflow/src/lib/guest-session-token.ts
-var import_crypto5 = require("crypto");
+var import_crypto6 = require("crypto");
 var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
-function secret2() {
+function secret3() {
   return process.env.MESAFLOW_CLIENT_SESSION_SECRET || process.env.MESAFLOW_IDENTITY_SECRET || "mesaflow-dev-only-change-in-production";
 }
-function issueGuestSessionToken(participationId, ttlMs = CLIENT_SESSION_TTL_MS) {
-  const exp = Date.now() + ttlMs;
-  const payload = `${participationId}:${exp}`;
-  const sig = (0, import_crypto5.createHmac)("sha256", secret2()).update(payload).digest("base64url");
-  return `${Buffer.from(payload, "utf8").toString("base64url")}.${sig}`;
+function sign2(payloadB64) {
+  return (0, import_crypto6.createHmac)("sha256", secret3()).update(payloadB64).digest("base64url");
 }
-function parseGuestSessionToken(token) {
+function verifySig2(payloadB64, sig) {
+  const expected = sign2(payloadB64);
+  const sigBuf = Buffer.from(sig);
+  const expectedBuf = Buffer.from(expected);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto6.timingSafeEqual)(sigBuf, expectedBuf);
+}
+function claimsFromParticipation(participation, ttlMs = CLIENT_SESSION_TTL_MS) {
+  return {
+    v: 2,
+    id: participation.id,
+    establishmentId: participation.establishmentId,
+    commandId: participation.commandId,
+    tableId: participation.tableId,
+    phoneLookupHash: participation.phoneLookupHash,
+    phoneDisplay: participation.phoneDisplay,
+    displayName: participation.displayName,
+    participantIndex: participation.participantIndex,
+    status: participation.status,
+    joinedAt: participation.joinedAt,
+    verifiedAt: participation.verifiedAt,
+    exp: Date.now() + ttlMs
+  };
+}
+function issueGuestSessionToken(participation, ttlMs = CLIENT_SESSION_TTL_MS) {
+  const payloadB64 = Buffer.from(JSON.stringify(claimsFromParticipation(participation, ttlMs))).toString(
+    "base64url"
+  );
+  return `${payloadB64}.${sign2(payloadB64)}`;
+}
+function parseGuestTokenClaims(token) {
   const [payloadB64, sig] = token.split(".");
-  if (!payloadB64 || !sig) return null;
-  let payload;
+  if (!payloadB64 || !sig || !verifySig2(payloadB64, sig)) return null;
+  let raw;
   try {
-    payload = Buffer.from(payloadB64, "base64url").toString("utf8");
+    raw = Buffer.from(payloadB64, "base64url").toString("utf8");
   } catch {
     return null;
   }
-  const expected = (0, import_crypto5.createHmac)("sha256", secret2()).update(payload).digest("base64url");
-  const sigBuf = Buffer.from(sig);
-  const expectedBuf = Buffer.from(expected);
-  if (sigBuf.length !== expectedBuf.length || !(0, import_crypto5.timingSafeEqual)(sigBuf, expectedBuf)) return null;
-  const [participationId, expStr] = payload.split(":");
+  if (raw.startsWith("{")) {
+    try {
+      const claims = JSON.parse(raw);
+      if (claims.v !== 2 || !claims.id || !claims.establishmentId || !claims.tableId) return null;
+      if (Date.now() > claims.exp) return null;
+      return claims;
+    } catch {
+      return null;
+    }
+  }
+  const [participationId, expStr] = raw.split(":");
   if (!participationId || !expStr) return null;
-  if (Date.now() > Number(expStr)) return null;
-  return participationId;
+  const exp = Number(expStr);
+  if (!Number.isFinite(exp) || Date.now() > exp) return null;
+  return null;
 }
 
 // ../mesaflow/src/lib/guest.ts
@@ -3677,32 +3753,53 @@ function createGuestParticipation(input) {
   saveStore(store);
   return participation;
 }
-function createClientSession(participationId) {
-  const store = getStore();
-  const token = issueGuestSessionToken(participationId, CLIENT_SESSION_TTL_MS2);
+function createClientSession(participation) {
+  const token = issueGuestSessionToken(participation, CLIENT_SESSION_TTL_MS2);
   const now = /* @__PURE__ */ new Date();
   const session = {
     id: id("cs_"),
-    guestParticipationId: participationId,
+    guestParticipationId: participation.id,
     tokenHash: hashToken(token),
     createdAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + CLIENT_SESSION_TTL_MS2).toISOString(),
     lastSeenAt: now.toISOString()
   };
-  store.clientSessions[session.id] = session;
-  saveStore(store);
   return { token, session };
 }
-function resolveGuestSession(participationId) {
+function participationFromClaims(claims) {
   const store = getStore();
-  const participation = store.guestParticipations[participationId];
-  if (!participation || participation.status === "CLOSED") return null;
+  const existing = store.guestParticipations[claims.id];
+  if (existing && existing.status !== "CLOSED") return existing;
+  const table = store.tables[claims.tableId];
+  const command = table ? getOrOpenCommand(table) : null;
+  const participation = {
+    id: claims.id,
+    establishmentId: claims.establishmentId,
+    commandId: command?.id || claims.commandId,
+    tableId: claims.tableId,
+    phoneLookupHash: claims.phoneLookupHash,
+    phoneDisplay: claims.phoneDisplay,
+    displayName: claims.displayName,
+    participantIndex: claims.participantIndex,
+    status: claims.status,
+    joinedAt: claims.joinedAt,
+    verifiedAt: claims.verifiedAt,
+    orderCount: existing?.orderCount || 0,
+    lastOrderAt: existing?.lastOrderAt
+  };
+  store.guestParticipations[participation.id] = participation;
+  saveStore(store);
+  return participation;
+}
+function resolveGuestSession(participation) {
+  if (participation.status === "CLOSED") return null;
+  const store = getStore();
   const establishment = store.establishments[participation.establishmentId];
   if (!establishment) return null;
   const now = (/* @__PURE__ */ new Date()).toISOString();
   const session = {
-    id: `stateless_${participationId}`,
-    guestParticipationId: participationId,
+    id: `stateless_${participation.id}`,
+    guestParticipationId: participation.id,
     tokenHash: "",
     createdAt: now,
     expiresAt: now,
@@ -3713,8 +3810,11 @@ function resolveGuestSession(participationId) {
 function validateClientSession(token) {
   if (!token?.trim()) return null;
   const trimmed = token.trim();
-  const participationId = parseGuestSessionToken(trimmed);
-  if (participationId) return resolveGuestSession(participationId);
+  const claims = parseGuestTokenClaims(trimmed);
+  if (claims) {
+    const participation2 = participationFromClaims(claims);
+    return resolveGuestSession(participation2);
+  }
   const store = getStore();
   const tokenHash = hashToken(trimmed);
   const session = Object.values(store.clientSessions).find(
@@ -3722,10 +3822,9 @@ function validateClientSession(token) {
   );
   if (!session) return null;
   if (new Date(session.expiresAt).getTime() < Date.now()) return null;
-  session.lastSeenAt = (/* @__PURE__ */ new Date()).toISOString();
-  store.clientSessions[session.id] = session;
-  saveStore(store);
-  return resolveGuestSession(session.guestParticipationId);
+  const participation = store.guestParticipations[session.guestParticipationId];
+  if (!participation) return null;
+  return resolveGuestSession(participation);
 }
 function revokeClientSession(token) {
   if (!token?.trim()) return;
@@ -3749,7 +3848,7 @@ function joinGuestAtTable(input) {
     phoneE164: input.phoneE164,
     displayName: input.displayName
   });
-  const { token } = createClientSession(participation.id);
+  const { token } = createClientSession(participation);
   return {
     token,
     participation,
@@ -3831,8 +3930,8 @@ function verifyOtpChallenge(input) {
   const establishment = store.establishments[challenge.establishmentId];
   const table = store.tables[challenge.tableId];
   if (!establishment || !table) return { error: "Mesa indispon\xEDvel." };
-  const secret3 = store.guestPhoneSecrets[challenge.phoneLookupHash];
-  const phoneE164 = secret3 ? decryptPhone(secret3.phoneCiphertext) : null;
+  const secret4 = store.guestPhoneSecrets[challenge.phoneLookupHash];
+  const phoneE164 = secret4 ? decryptPhone(secret4.phoneCiphertext) : null;
   if (!phoneE164) return { error: "Telefone n\xE3o encontrado para este c\xF3digo." };
   const participation = createGuestParticipation({
     establishment,
@@ -3841,7 +3940,7 @@ function verifyOtpChallenge(input) {
     phoneE164,
     displayName: input.displayName
   });
-  const { token } = createClientSession(participation.id);
+  const { token } = createClientSession(participation);
   saveStore(store);
   return { token, participation };
 }
@@ -4199,8 +4298,11 @@ async function handler(req, res) {
       const resolved = resolveOrderLines(store, est.id, sectors, body.items);
       if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
       const command = getOrOpenCommand(tbl);
-      if (command.id !== guestAuth.participation.commandId) {
-        return json(res, 409, { error: "Comanda da participa\xE7\xE3o desatualizada. Recarregue a p\xE1gina." });
+      const participation = store.guestParticipations[guestAuth.participation.id] || guestAuth.participation;
+      if (participation.commandId !== command.id) {
+        participation.commandId = command.id;
+        store.guestParticipations[participation.id] = participation;
+        saveStore(store);
       }
       try {
         const order = createOrder({

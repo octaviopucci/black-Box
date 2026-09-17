@@ -10,7 +10,11 @@ import {
   phoneLookupHash,
 } from "./identity-crypto";
 import { isOtpBypassCode } from "./otp-bypass";
-import { issueGuestSessionToken, parseGuestSessionToken } from "./guest-session-token";
+import {
+  issueGuestSessionToken,
+  parseGuestTokenClaims,
+  type GuestTokenClaims,
+} from "./guest-session-token";
 import {
   findEstablishmentBySlug,
   findTableByQr,
@@ -98,33 +102,56 @@ export function createGuestParticipation(input: {
   return participation;
 }
 
-export function createClientSession(participationId: string): { token: string; session: ClientSession } {
-  const store = getStore();
-  const token = issueGuestSessionToken(participationId, CLIENT_SESSION_TTL_MS);
+export function createClientSession(participation: GuestParticipation): { token: string; session: ClientSession } {
+  const token = issueGuestSessionToken(participation, CLIENT_SESSION_TTL_MS);
   const now = new Date();
   const session: ClientSession = {
     id: id("cs_"),
-    guestParticipationId: participationId,
+    guestParticipationId: participation.id,
     tokenHash: hashToken(token),
     createdAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + CLIENT_SESSION_TTL_MS).toISOString(),
     lastSeenAt: now.toISOString(),
   };
-  store.clientSessions[session.id] = session;
-  saveStore(store);
   return { token, session };
 }
 
-function resolveGuestSession(participationId: string) {
+function participationFromClaims(claims: GuestTokenClaims): GuestParticipation {
   const store = getStore();
-  const participation = store.guestParticipations[participationId];
-  if (!participation || participation.status === "CLOSED") return null;
+  const existing = store.guestParticipations[claims.id];
+  if (existing && existing.status !== "CLOSED") return existing;
+
+  const table = store.tables[claims.tableId];
+  const command = table ? getOrOpenCommand(table) : null;
+  const participation: GuestParticipation = {
+    id: claims.id,
+    establishmentId: claims.establishmentId,
+    commandId: command?.id || claims.commandId,
+    tableId: claims.tableId,
+    phoneLookupHash: claims.phoneLookupHash,
+    phoneDisplay: claims.phoneDisplay,
+    displayName: claims.displayName,
+    participantIndex: claims.participantIndex,
+    status: claims.status,
+    joinedAt: claims.joinedAt,
+    verifiedAt: claims.verifiedAt,
+    orderCount: existing?.orderCount || 0,
+    lastOrderAt: existing?.lastOrderAt,
+  };
+  store.guestParticipations[participation.id] = participation;
+  saveStore(store);
+  return participation;
+}
+
+function resolveGuestSession(participation: GuestParticipation) {
+  if (participation.status === "CLOSED") return null;
+  const store = getStore();
   const establishment = store.establishments[participation.establishmentId];
   if (!establishment) return null;
   const now = new Date().toISOString();
   const session: ClientSession = {
-    id: `stateless_${participationId}`,
-    guestParticipationId: participationId,
+    id: `stateless_${participation.id}`,
+    guestParticipationId: participation.id,
     tokenHash: "",
     createdAt: now,
     expiresAt: now,
@@ -137,8 +164,11 @@ export function validateClientSession(token: string | undefined | null) {
   if (!token?.trim()) return null;
   const trimmed = token.trim();
 
-  const participationId = parseGuestSessionToken(trimmed);
-  if (participationId) return resolveGuestSession(participationId);
+  const claims = parseGuestTokenClaims(trimmed);
+  if (claims) {
+    const participation = participationFromClaims(claims);
+    return resolveGuestSession(participation);
+  }
 
   const store = getStore();
   const tokenHash = hashToken(trimmed);
@@ -148,10 +178,9 @@ export function validateClientSession(token: string | undefined | null) {
   if (!session) return null;
   if (new Date(session.expiresAt).getTime() < Date.now()) return null;
 
-  session.lastSeenAt = new Date().toISOString();
-  store.clientSessions[session.id] = session;
-  saveStore(store);
-  return resolveGuestSession(session.guestParticipationId);
+  const participation = store.guestParticipations[session.guestParticipationId];
+  if (!participation) return null;
+  return resolveGuestSession(participation);
 }
 
 export function revokeClientSession(token: string | undefined | null) {
@@ -184,7 +213,7 @@ export function joinGuestAtTable(input: {
       phoneE164: input.phoneE164,
       displayName: input.displayName,
     });
-  const { token } = createClientSession(participation.id);
+  const { token } = createClientSession(participation);
   return {
     token,
     participation,
@@ -310,7 +339,7 @@ export function verifyOtpChallenge(input: {
     phoneE164,
     displayName: input.displayName,
   });
-  const { token } = createClientSession(participation.id);
+  const { token } = createClientSession(participation);
   saveStore(store);
   return { token, participation };
 }

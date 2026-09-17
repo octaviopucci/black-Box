@@ -12,6 +12,7 @@ import {
   probeBlobPaths,
   type BlobEtags,
 } from "./blob-persistence";
+import { issueAdminSessionToken, parseAdminSessionToken } from "./admin-session-token";
 import { hashPassword, id, sessionToken, verifyPassword } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
@@ -305,24 +306,36 @@ function purgeExpiredSessions(store: MesaFlowStore) {
 }
 
 export function createSession(user: User): Session {
-  const store = getStore();
-  purgeExpiredSessions(store);
   const now = new Date();
-  const session: Session = {
-    token: sessionToken(),
+  const token = issueAdminSessionToken(user.id, user.establishmentId, SESSION_TTL_MS);
+  return {
+    token,
     userId: user.id,
     establishmentId: user.establishmentId,
     createdAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + SESSION_TTL_MS).toISOString(),
   };
-  store.sessions[session.token] = session;
-  saveStore(store);
-  return session;
 }
 
 export function validateSession(token: string | null | undefined) {
   if (!token) return null;
   const store = getStore();
+
+  const signed = parseAdminSessionToken(token);
+  if (signed) {
+    const user = store.users[signed.userId];
+    const establishment = store.establishments[signed.establishmentId];
+    if (!user?.active || !establishment) return null;
+    const session: Session = {
+      token,
+      userId: user.id,
+      establishmentId: establishment.id,
+      createdAt: new Date(signed.exp - SESSION_TTL_MS).toISOString(),
+      expiresAt: new Date(signed.exp).toISOString(),
+    };
+    return { session, user, establishment };
+  }
+
   purgeExpiredSessions(store);
   const session = store.sessions[token];
   if (!session) return null;
