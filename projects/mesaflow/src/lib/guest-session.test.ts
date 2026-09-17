@@ -103,6 +103,24 @@ async function run() {
   assert.ok("token" in verified && verified.participation);
   assert.equal(verified.participation!.displayName, "Bruno");
 
+  delete process.env.MESAFLOW_EVOLUTION_URL;
+  delete process.env.MESAFLOW_EVOLUTION_API_KEY;
+  delete process.env.MESAFLOW_EVOLUTION_INSTANCE;
+  const bypassRequest = requestOtpChallenge({
+    establishment: otpEst,
+    table: otpTable!,
+    phoneRaw: "+5511966554433",
+    purpose: "JOIN",
+  });
+  assert.ok("challengeId" in bypassRequest);
+  const bypassVerified = verifyOtpChallenge({
+    challengeId: bypassRequest.challengeId,
+    code: "010203",
+    displayName: "Carla",
+  });
+  assert.ok("token" in bypassVerified && bypassVerified.participation);
+  assert.equal(bypassVerified.participation!.displayName, "Carla");
+
   console.log("✓ MesaFlow guest-session tests passed");
 }
 
