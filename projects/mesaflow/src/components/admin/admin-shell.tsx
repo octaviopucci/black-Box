@@ -35,6 +35,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { session, logout, authHeaders } = useAuth();
   const [sectors, setSectors] = useState<Sector[]>([]);
+  const [persistWarning, setPersistWarning] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -43,7 +44,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       headers: authHeaders(),
     })
       .then((r) => r.json())
-      .then((json) => setSectors(json.sectors || []));
+      .then((json) => {
+        setSectors(json.sectors || []);
+        setPersistWarning(json.persist?.shared ? null : json.persist?.warning || null);
+      });
   }, [session?.establishment.slug, authHeaders]);
 
   function handleLogout() {
@@ -140,6 +144,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
+        {persistWarning && (
+          <div className="border-b border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning lg:px-8">
+            {persistWarning}
+          </div>
+        )}
         <main className="min-w-0 p-4 pb-24 lg:p-8">{children}</main>
         <nav className="print-hide fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-white/10 bg-surface/90 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden">
           {NAV.slice(0, 5).map(({ href, label, icon: Icon }) => (

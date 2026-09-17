@@ -12,6 +12,12 @@ import {
   probeBlobPaths,
   type BlobEtags,
 } from "./blob-persistence";
+import {
+  flushToRedis,
+  hydrateFromRedis,
+  probeRedis,
+  redisConfigured,
+} from "./redis-persistence";
 import { issueAdminSessionToken, parseAdminSessionToken } from "./admin-session-token";
 import { hashPassword, id, sessionToken, verifyPassword } from "./crypto-utils";
 import { emit } from "./events";
@@ -47,11 +53,15 @@ let identityDirty = false;
 let blobEtags: BlobEtags = {};
 let runtimeOidcToken: string | undefined;
 let lastBlobError: string | undefined;
+let lastRedisError: string | undefined;
+let lastPersistSource: "blob" | "redis" | "disk-only" | "none" = "none";
 
 export interface PersistResult {
   disk: boolean;
   blob: boolean;
   blobError?: string;
+  redis?: boolean;
+  redisError?: string;
 }
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -176,6 +186,10 @@ export function blobDiagnostics(hasOidcHeader = false) {
     access: BLOB_ACCESS,
     lastError: lastBlobError,
     etags: blobEtags,
+    redis: {
+      configured: redisConfigured(),
+      lastError: lastRedisError,
+    },
   };
 }
 
@@ -219,6 +233,26 @@ export async function hydratePersistentStore() {
     lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
   }
 
+  if (redisConfigured()) {
+    try {
+      const hydrated = await hydrateFromRedis();
+      if (hydrated) {
+        cache = hydrated.store;
+        blobEtags = hydrated.etags;
+        operationalDirty = false;
+        identityDirty = false;
+        writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
+        migrateProductImages(cache, false);
+        migrateLegacyGuestParticipations(cache);
+        lastRedisError = undefined;
+        return;
+      }
+    } catch (error) {
+      lastRedisError = error instanceof Error ? error.message : "redis hydrate failed";
+      console.warn("[mesaflow] redis hydrate failed", error);
+    }
+  }
+
   cache = null;
   const store = getStore();
   migrateLegacyGuestParticipations(store);
@@ -258,12 +292,60 @@ export async function flushPersistentStore(): Promise<PersistResult> {
 
   if (blobOk) {
     lastBlobError = undefined;
+    lastPersistSource = "blob";
     return { disk: true, blob: true };
   }
 
   lastBlobError = blobError || "blob persist failed";
   console.warn("[mesaflow] blob persist failed", lastBlobError);
+
+  if (redisConfigured()) {
+    const redisResult = await flushToRedis({
+      store: cache,
+      etags: blobEtags,
+      flushOperational: operationalDirty,
+      flushIdentity: identityDirty,
+    });
+    if (redisResult.ok) {
+      operationalDirty = false;
+      identityDirty = false;
+      lastRedisError = undefined;
+      lastPersistSource = "redis";
+      return { disk: true, blob: false, blobError: lastBlobError, redis: true };
+    }
+    lastRedisError = redisResult.error || "redis persist failed";
+    console.warn("[mesaflow] redis persist failed", lastRedisError);
+    return {
+      disk: true,
+      blob: false,
+      blobError: lastBlobError,
+      redis: false,
+      redisError: lastRedisError,
+    };
+  }
+
   return { disk: true, blob: false, blobError: lastBlobError };
+}
+
+export async function probeRedisStorage() {
+  return probeRedis();
+}
+
+export function persistStatus() {
+  return {
+    source: lastPersistSource,
+    blobError: lastBlobError,
+    redisConfigured: redisConfigured(),
+    redisError: lastRedisError,
+    shared:
+      lastPersistSource === "blob" ||
+      lastPersistSource === "redis" ||
+      (!process.env.VERCEL && lastPersistSource === "disk-only"),
+    warning:
+      process.env.VERCEL && lastPersistSource !== "blob" && lastPersistSource !== "redis"
+        ? "Pedidos não estão sendo compartilhados entre instâncias. Conecte Upstash Redis ou um Blob store novo com BLOB_READ_WRITE_TOKEN."
+        : undefined,
+  };
 }
 
 function notify(establishmentId: string, type: string, title: string, body: string) {

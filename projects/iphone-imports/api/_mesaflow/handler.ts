@@ -11,7 +11,9 @@ import {
   findTableByQr,
   blobDiagnostics,
   flushPersistentStore,
+  persistStatus,
   probeBlobStorage,
+  probeRedisStorage,
   getActiveCommand,
   getAdminSettings,
   getOrOpenCommand,
@@ -149,8 +151,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const hasOidcHeader = Boolean(readOidcHeader(req));
       const storage = blobDiagnostics(hasOidcHeader);
       const probe = await probeBlobStorage();
+      const redisProbe = await probeRedisStorage();
       const persist = await flushPersistentStore();
       const blobOk = probe.ok || (storage.hasToken && storage.configured);
+      const sharedOk = persist.blob || persist.redis === true;
       const establishments = Object.keys(store.establishments).length;
       return json(
         res,
@@ -159,12 +163,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ok: true,
           service: "mesaflow",
           blob: blobOk,
+          shared: sharedOk,
           establishments,
-          storage: { ...storage, probe, persist },
+          storage: { ...storage, probe, redisProbe, persist },
           setup:
-            blobOk && !persist.blobError
+            sharedOk
               ? undefined
-              : blobSetupHint({ ...storage, lastError: persist.blobError ?? storage.lastError }),
+              : persist.redisError
+                ? `Redis falhou: ${persist.redisError}. Verifique UPSTASH_REDIS_REST_URL/TOKEN.`
+                : blobSetupHint({ ...storage, lastError: persist.blobError ?? storage.lastError }),
         },
         { skipFlush: true },
       );
@@ -480,6 +487,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
       return json(res, 200, {
         establishment: est,
+        persist: persistStatus(),
         stats,
         orders,
         tables,

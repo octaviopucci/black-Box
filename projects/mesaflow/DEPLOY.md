@@ -50,6 +50,18 @@ curl https://loja-iphoneimports.vercel.app/api/mesaflow/health
 Se `blob: false`, siga o passo 4 de `projects/iphone-imports/DEPLOY.md` (conectar
 Blob ou adicionar `BLOB_READ_WRITE_TOKEN`).
 
+### Fallback: Upstash Redis (quando o Blob estiver suspenso)
+
+Se o health retornar `persist.blob: false` e `This store has been suspended`, os pedidos
+**não chegam ao restaurante** (cada instância serverless tem memória própria).
+
+1. Vercel → projeto **loja-iphoneimports** → **Storage** → **Create Database** → **Upstash Redis**
+2. **Connect to Project** → marque Production + Preview
+3. Redeploy — as variáveis `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN` são injetadas automaticamente
+4. Valide: `curl .../api/mesaflow/health` → `shared: true` ou `persist.redis: true`
+
+Alternativa: criar um **Blob store novo** (não suspenso) e adicionar `BLOB_READ_WRITE_TOKEN` manualmente.
+
 ## Verificação local
 
 ```bash
