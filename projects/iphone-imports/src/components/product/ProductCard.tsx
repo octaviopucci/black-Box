@@ -70,8 +70,8 @@ export function ProductCard({ product, priority, dark }: ProductCardProps) {
           <button
             onClick={handleFavorite}
             className={cn(
-              "absolute right-3 top-3 rounded-full bg-black/50 p-2 text-white backdrop-blur-sm transition-all hover:bg-brand-silver hover:text-brand-black",
-              isFavorite && "bg-brand-silver text-brand-black"
+              "absolute right-3 top-3 rounded-full bg-black/50 p-2 text-white backdrop-blur-sm transition-all hover:bg-brand-silver hover:text-white",
+              isFavorite && "bg-brand-silver text-white"
             )}
             aria-label={isFavorite ? "Remover dos favoritos" : "Favoritar"}
           >
@@ -81,7 +81,7 @@ export function ProductCard({ product, priority, dark }: ProductCardProps) {
           <button
             onClick={handleAddToCart}
             disabled={!product.stock}
-            className="absolute bottom-3 right-3 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-brand-silver text-brand-black opacity-0 shadow-lg transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 disabled:hidden"
+            className="absolute bottom-3 right-3 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-brand-silver text-white opacity-0 shadow-lg shadow-brand-silver/30 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 disabled:hidden"
             aria-label="Adicionar ao carrinho"
           >
             <Plus className="h-5 w-5" />

@@ -44,15 +44,15 @@ export function ToastContainer() {
         <div
           key={toast.id}
           className={cn(
-            "flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-lg",
+            "flex items-center gap-3 rounded-2xl border border-brand-silver/20 bg-brand-black px-4 py-3 text-white shadow-lg shadow-brand-silver/15",
             "animate-in fade-in slide-in-from-bottom-2 duration-300"
           )}
         >
           <CheckCircle className="h-5 w-5 shrink-0 text-brand-silver" />
-          <span className="text-sm font-medium text-brand-black">{toast.message}</span>
+          <span className="text-sm font-medium">{toast.message}</span>
           <button
             onClick={() => remove(toast.id)}
-            className="ml-1 rounded-full p-1 text-brand-gray hover:bg-brand-light"
+            className="ml-1 rounded-full p-1 text-brand-gray hover:bg-white/10"
             aria-label="Fechar notificação"
           >
             <X className="h-4 w-4" />

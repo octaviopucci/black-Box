@@ -72,7 +72,7 @@ export function CheckoutForm() {
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm focus:border-brand-black focus:outline-none"
+              className="w-full rounded-xl border border-brand-border-light px-4 py-3 text-sm transition-colors focus:border-brand-silver focus:outline-none focus:ring-2 focus:ring-brand-silver/20"
             />
           </div>
           <div>
@@ -85,7 +85,7 @@ export function CheckoutForm() {
               type="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm focus:border-brand-black focus:outline-none"
+              className="w-full rounded-xl border border-brand-border-light px-4 py-3 text-sm transition-colors focus:border-brand-silver focus:outline-none focus:ring-2 focus:ring-brand-silver/20"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -98,7 +98,7 @@ export function CheckoutForm() {
                 required
                 value={form.city}
                 onChange={(e) => setForm({ ...form, city: e.target.value })}
-                className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm focus:border-brand-black focus:outline-none"
+                className="w-full rounded-xl border border-brand-border-light px-4 py-3 text-sm transition-colors focus:border-brand-silver focus:outline-none focus:ring-2 focus:ring-brand-silver/20"
               />
             </div>
             <div>
@@ -110,7 +110,7 @@ export function CheckoutForm() {
                 required
                 value={form.state}
                 onChange={(e) => setForm({ ...form, state: e.target.value })}
-                className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm focus:outline-none"
+                className="w-full rounded-xl border border-brand-border-light px-4 py-3 text-sm transition-colors focus:border-brand-silver focus:outline-none focus:ring-2 focus:ring-brand-silver/20"
                 placeholder="SP"
               />
             </div>
@@ -158,7 +158,7 @@ export function CheckoutForm() {
           </button>
         </form>
 
-        <div className="rounded-2xl border border-brand-border bg-brand-light p-6 lg:col-span-2">
+        <div className="rounded-2xl border border-brand-border-light bg-brand-light p-6 lg:col-span-2">
           <h2 className="mb-4 text-lg font-bold">Resumo do pedido</h2>
           <div className="space-y-3">
             {items.map((item) => (

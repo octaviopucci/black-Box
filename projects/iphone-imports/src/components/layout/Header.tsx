@@ -20,7 +20,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-brand-silver/20 bg-brand-black/95 text-white backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-white/8 bg-brand-black/95 text-white backdrop-blur-xl">
         <div className="container-store">
           <div className="flex h-16 items-center gap-4 md:h-[72px]">
             <button
@@ -107,7 +107,7 @@ export function Header() {
               >
                 <ShoppingBag className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-silver text-[10px] font-black text-brand-black">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-silver text-[10px] font-black text-white shadow-md shadow-brand-silver/30">
                     {itemCount > 9 ? "9+" : itemCount}
                   </span>
                 )}

@@ -57,7 +57,7 @@ export function MaintenanceServices() {
           {services.map((service) => (
             <div
               key={service.title}
-              className="group rounded-2xl border border-brand-border bg-brand-surface/80 p-6 transition-all duration-300 hover:border-brand-silver/50 hover:shadow-[0_8px_32px_rgba(209,213,219,0.08)]"
+              className="group rounded-2xl border border-brand-border bg-brand-surface/80 p-6 transition-all duration-300 hover:border-brand-silver/40 hover:shadow-[0_8px_32px_rgba(255,106,0,0.12)]"
             >
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-silver/15 transition-colors group-hover:bg-brand-silver/25">

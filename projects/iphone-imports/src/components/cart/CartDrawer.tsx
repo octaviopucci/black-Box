@@ -19,10 +19,17 @@ export function CartDrawer() {
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/40" onClick={closeCart} />
-      <div className="absolute right-0 top-0 bottom-0 flex w-full max-w-md flex-col bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-brand-border p-4">
-          <h2 className="text-lg font-bold">Carrinho</h2>
-          <button onClick={closeCart} aria-label="Fechar carrinho">
+      <div className="absolute right-0 top-0 bottom-0 flex w-full max-w-md flex-col bg-white shadow-2xl shadow-brand-silver/10">
+        <div className="flex items-center justify-between border-b border-brand-silver/20 bg-brand-black px-4 py-4 text-white">
+          <h2 className="text-lg font-bold">
+            Carrinho
+            {items.length > 0 && (
+              <span className="ml-2 text-sm font-medium text-brand-gray">
+                ({items.length})
+              </span>
+            )}
+          </h2>
+          <button onClick={closeCart} className="rounded-lg p-1.5 transition-colors hover:bg-white/10" aria-label="Fechar carrinho">
             <X className="h-5 w-5" />
           </button>
         </div>
