@@ -8,6 +8,16 @@ export type BusinessType =
   | "cafeteria"
   | "rodizio";
 
+export type OperationMode =
+  | "a_la_carte"
+  | "rodizio"
+  | "buffet"
+  | "self_service"
+  | "peso_kg"
+  | "comanda"
+  | "personalizado"
+  | "outros";
+
 export type TableStatus = "LIVRE" | "OCUPADA" | "AGUARDANDO_PAGAMENTO" | "RESERVADA" | "INATIVA";
 
 export type OrderStatus =
@@ -27,6 +37,8 @@ export interface Establishment {
   slug: string;
   name: string;
   businessType?: BusinessType;
+  /** Default: a_la_carte */
+  operationMode?: OperationMode;
   logo?: string;
   tagline?: string;
   open: boolean;
@@ -62,6 +74,7 @@ export interface GuestParticipation {
   phoneLookupHash: string;
   phoneDisplay: string;
   displayName?: string;
+  comandaNumber?: string;
   participantIndex: number;
   status: GuestParticipationStatus;
   joinedAt: string;
@@ -161,6 +174,9 @@ export interface Product {
   active: boolean;
   variants: ProductVariant[];
   addons: ProductAddon[];
+  /** Order bumps shown in product modal / cart */
+  bumpProductIds?: string[];
+  upsellProductIds?: string[];
   rodizioIncluded: boolean;
   rodizioPremiumPrice?: number;
 }
@@ -382,6 +398,8 @@ export interface MesaFlowIdentityStore {
   clientSessions: Record<string, ClientSession>;
   otpChallenges: Record<string, OtpChallenge>;
   guestPhoneSecrets: Record<string, GuestPhoneSecret>;
+  /** hashToken(guestJwt) → ISO revokedAt — denylist so revoke works with JWT sessions */
+  revokedGuestTokenHashes: Record<string, string>;
 }
 
 export interface MesaFlowStore extends MesaFlowOperationalStore, MesaFlowIdentityStore {}

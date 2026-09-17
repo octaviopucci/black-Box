@@ -9,6 +9,7 @@ export async function POST(req: Request) {
     slug?: string;
     tableToken?: string;
     phone?: string;
+    comandaNumber?: string;
   };
   const result = verifyOtpChallenge({
     challengeId: String(body.challengeId || ""),
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
     slug: body.slug,
     tableToken: body.tableToken,
     phoneRaw: body.phone,
+    comandaNumber: body.comandaNumber,
   });
   if ("error" in result) return Response.json({ error: result.error }, { status: 400 });
   return jsonWithClientCookie(

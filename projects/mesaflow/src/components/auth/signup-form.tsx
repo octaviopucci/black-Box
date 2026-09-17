@@ -7,7 +7,8 @@ import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
-import type { BusinessType } from "@/lib/types";
+import { OPERATION_MODES } from "@/lib/operation-modes";
+import type { BusinessType, OperationMode } from "@/lib/types";
 
 const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
   { value: "restaurante", label: "Restaurante" },
@@ -26,6 +27,7 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [businessType, setBusinessType] = useState<BusinessType>("restaurante");
+  const [operationMode, setOperationMode] = useState<OperationMode>("a_la_carte");
   const [tableCount, setTableCount] = useState(8);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,15 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
     const res = await fetch(apiUrl("/auth/register"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ businessName, ownerName, email, password, businessType, tableCount }),
+      body: JSON.stringify({
+        businessName,
+        ownerName,
+        email,
+        password,
+        businessType,
+        operationMode,
+        tableCount,
+      }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -58,6 +68,11 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
       <Select value={businessType} onChange={(e) => setBusinessType(e.target.value as BusinessType)}>
         {BUSINESS_TYPES.map((t) => (
           <option key={t.value} value={t.value}>{t.label}</option>
+        ))}
+      </Select>
+      <Select value={operationMode} onChange={(e) => setOperationMode(e.target.value as OperationMode)}>
+        {OPERATION_MODES.map((mode) => (
+          <option key={mode.value} value={mode.value}>{mode.label}</option>
         ))}
       </Select>
       <Input placeholder="Seu nome" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} required />

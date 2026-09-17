@@ -3,15 +3,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, Select } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
-import type { Establishment } from "@/lib/types";
+import { OPERATION_MODES } from "@/lib/operation-modes";
+import type { Establishment, OperationMode } from "@/lib/types";
 
 type SettingsDraft = {
   name: string;
   tagline: string;
   open: boolean;
+  operationMode: OperationMode;
+  rodizioEnabled: boolean;
+  otpRequired: boolean;
 };
 
 function toDraft(establishment: Establishment): SettingsDraft {
@@ -19,6 +23,9 @@ function toDraft(establishment: Establishment): SettingsDraft {
     name: establishment.name,
     tagline: establishment.tagline || "",
     open: establishment.open,
+    operationMode: establishment.operationMode || "a_la_carte",
+    rodizioEnabled: establishment.rodizioEnabled,
+    otpRequired: establishment.settings.otpRequired !== false,
   };
 }
 
@@ -67,6 +74,9 @@ export default function AdminSettingsPage() {
           name: draft.name.trim(),
           tagline: draft.tagline.trim(),
           open: draft.open,
+          operationMode: draft.operationMode,
+          rodizioEnabled: draft.rodizioEnabled,
+          settings: { otpRequired: draft.otpRequired },
         }),
       });
       const json = await response.json();
@@ -107,9 +117,37 @@ export default function AdminSettingsPage() {
                 <div className="grid gap-4">
                   <label><span className="mb-1.5 block text-xs font-medium text-muted">Nome</span><Input required value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label>
                   <label><span className="mb-1.5 block text-xs font-medium text-muted">Frase de apresentação</span><Input value={draft.tagline} onChange={(event) => setDraft({ ...draft, tagline: event.target.value })} placeholder="Comida boa, do seu jeito" /></label>
+                  <label>
+                    <span className="mb-1.5 block text-xs font-medium text-muted">Modo de operação</span>
+                    <Select
+                      value={draft.operationMode}
+                      onChange={(event) =>
+                        setDraft({
+                          ...draft,
+                          operationMode: event.target.value as OperationMode,
+                          rodizioEnabled:
+                            event.target.value === "rodizio" ? true : draft.rodizioEnabled,
+                        })
+                      }
+                    >
+                      {OPERATION_MODES.map((mode) => (
+                        <option key={mode.value} value={mode.value}>
+                          {mode.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
                   <label className="flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-surface/50 p-4">
                     <span><span className="block text-sm font-semibold">Aceitando pedidos</span><span className="mt-0.5 block text-xs text-muted">O cardápio informa se a casa está aberta.</span></span>
                     <input type="checkbox" checked={draft.open} onChange={(event) => setDraft({ ...draft, open: event.target.checked })} className="h-5 w-5 shrink-0 accent-brand" />
+                  </label>
+                  <label className="flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-surface/50 p-4">
+                    <span><span className="block text-sm font-semibold">Rodízio ativo</span><span className="mt-0.5 block text-xs text-muted">Habilita rodadas e cardápio de rodízio.</span></span>
+                    <input type="checkbox" checked={draft.rodizioEnabled} onChange={(event) => setDraft({ ...draft, rodizioEnabled: event.target.checked })} className="h-5 w-5 shrink-0 accent-brand" />
+                  </label>
+                  <label className="flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-surface/50 p-4">
+                    <span><span className="block text-sm font-semibold">OTP no login do cliente</span><span className="mt-0.5 block text-xs text-muted">Exige verificação por WhatsApp/SMS ao entrar na mesa.</span></span>
+                    <input type="checkbox" checked={draft.otpRequired} onChange={(event) => setDraft({ ...draft, otpRequired: event.target.checked })} className="h-5 w-5 shrink-0 accent-brand" />
                   </label>
                 </div>
               </section>

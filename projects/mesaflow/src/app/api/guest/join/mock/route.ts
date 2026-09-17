@@ -9,6 +9,7 @@ export async function POST(req: Request) {
     tableToken?: string;
     phone?: string;
     displayName?: string;
+    comandaNumber?: string;
   };
   const est = findEstablishmentBySlug(String(body.slug || ""));
   if (!est) return Response.json({ error: "Estabelecimento não encontrado." }, { status: 404 });
@@ -24,7 +25,11 @@ export async function POST(req: Request) {
     table: tbl,
     phoneE164,
     displayName: body.displayName,
+    comandaNumber: body.comandaNumber,
   });
+  if ("error" in result) {
+    return Response.json({ error: result.error }, { status: result.status });
+  }
   return jsonWithClientCookie(
     {
       token: result.token,

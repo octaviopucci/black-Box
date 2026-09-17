@@ -67,6 +67,8 @@ export function buildDemoStore(): MesaFlowStore {
         { id: "a_bacon", name: "Bacon", price: 6 },
         { id: "a_cheddar", name: "Cheddar", price: 5 },
       ],
+      bumpProductIds: ["p_coca", "p_batata"],
+      upsellProductIds: ["p_chopp"],
       rodizioIncluded: false,
     },
     p_xsalada: {
@@ -85,6 +87,8 @@ export function buildDemoStore(): MesaFlowStore {
       active: true,
       variants: [],
       addons: [{ id: "a_ovo", name: "Ovo", price: 4 }],
+      bumpProductIds: ["p_coca", "p_salada"],
+      upsellProductIds: ["p_pudim"],
       rodizioIncluded: false,
     },
     p_pizza_calabresa: {
@@ -106,6 +110,8 @@ export function buildDemoStore(): MesaFlowStore {
         { id: "v_g", name: "Grande", priceDelta: 18 },
       ],
       addons: [{ id: "a_borda_cat", name: "Borda catupiry", price: 12 }],
+      bumpProductIds: ["p_chopp", "p_coca"],
+      upsellProductIds: ["p_brownie"],
       rodizioIncluded: true,
     },
     p_pizza_frango: {
@@ -587,6 +593,7 @@ export function buildDemoStore(): MesaFlowStore {
     clientSessions: {},
     otpChallenges: {},
     guestPhoneSecrets: {},
+    revokedGuestTokenHashes: {},
   };
 }
 

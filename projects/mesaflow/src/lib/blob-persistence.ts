@@ -78,7 +78,14 @@ function emptyOperational(): MesaFlowOperationalStore {
 }
 
 function emptyIdentity(): MesaFlowIdentityStore {
-  return { users: {}, sessions: {}, clientSessions: {}, otpChallenges: {}, guestPhoneSecrets: {} };
+  return {
+    users: {},
+    sessions: {},
+    clientSessions: {},
+    otpChallenges: {},
+    guestPhoneSecrets: {},
+    revokedGuestTokenHashes: {},
+  };
 }
 
 export function splitStore(store: MesaFlowStore): {
@@ -108,6 +115,7 @@ export function splitStore(store: MesaFlowStore): {
     clientSessions,
     otpChallenges,
     guestPhoneSecrets,
+    revokedGuestTokenHashes,
   } = store;
   return {
     operational: {
@@ -129,7 +137,14 @@ export function splitStore(store: MesaFlowStore): {
       auditEvents,
       orderCounter,
     },
-    identity: { users, sessions, clientSessions, otpChallenges, guestPhoneSecrets },
+    identity: {
+      users,
+      sessions,
+      clientSessions,
+      otpChallenges,
+      guestPhoneSecrets,
+      revokedGuestTokenHashes: revokedGuestTokenHashes || {},
+    },
   };
 }
 

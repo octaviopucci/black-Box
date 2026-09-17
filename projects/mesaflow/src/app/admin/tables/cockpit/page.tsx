@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Banknote, CheckCircle2, Split } from "lucide-react";
+import { ArrowLeft, Banknote, CheckCircle2, Split, UserX } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
@@ -217,6 +217,26 @@ export default function TableCockpitPage() {
     }
   }
 
+  async function kickParticipant(participationId: string, label: string) {
+    if (!window.confirm(`Remover ${label} da mesa?`)) return;
+    setBusy(`kick:${participationId}`);
+    setError("");
+    try {
+      const response = await fetch(apiUrl(`/admin/guests/${encodeURIComponent(participationId)}/kick`), {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(json.error || "Não foi possível remover o convidado.");
+      setFeedback(`${label} removido(a) da mesa.`);
+      await load();
+    } catch (kickError) {
+      setError(kickError instanceof Error ? kickError.message : "Falha ao remover convidado.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   if (!tableId) {
     return (
       <div className="glass-card p-8 text-center">
@@ -425,11 +445,27 @@ export default function TableCockpitPage() {
                 <ul className="space-y-3">
                   {summary.participants.map((participant) => (
                     <li key={participant.guestParticipationId} className="rounded-xl border border-white/5 p-3 text-sm">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <span className="font-medium">{participant.displayName}</span>
-                        {participant.isSettled ? (
-                          <CheckCircle2 className="h-4 w-4 text-success" />
-                        ) : null}
+                        <div className="flex items-center gap-2">
+                          {participant.isSettled ? (
+                            <CheckCircle2 className="h-4 w-4 text-success" />
+                          ) : null}
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            loading={busy === `kick:${participant.guestParticipationId}`}
+                            onClick={() =>
+                              void kickParticipant(
+                                participant.guestParticipationId,
+                                participant.displayName || "participante",
+                              )
+                            }
+                          >
+                            <UserX className="mr-1.5 h-3.5 w-3.5" />
+                            Kick
+                          </Button>
+                        </div>
                       </div>
                       <p className="mt-1 text-muted">
                         {formatCurrency(participant.paidTotal)} / {formatCurrency(participant.itemTotal)}
