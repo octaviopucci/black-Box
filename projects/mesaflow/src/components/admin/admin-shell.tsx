@@ -73,7 +73,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           href={href}
           className={cn(
             "flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-            isActive(href) ? "bg-brand/20 text-brand" : "text-muted hover:bg-surface-2 hover:text-ink",
+            isActive(href) ? "bg-brand/15 text-brand shadow-inner shadow-brand/5" : "text-muted hover:bg-white/5 hover:text-ink",
           )}
         >
           <Icon className="h-4 w-4" />
@@ -95,7 +95,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-dvh bg-surface text-ink">
-      <aside className="print-hide hidden w-64 shrink-0 border-r border-white/5 bg-surface-2/50 p-5 backdrop-blur lg:block">
+      <aside className="print-hide hidden w-64 shrink-0 border-r border-white/5 bg-surface-2/80 p-5 backdrop-blur-xl lg:block">
         <div className="mb-8">
           <Logo href="/admin" iconSize={36} />
           <p className="mt-3 truncate text-xs text-muted">{session?.establishment.name}</p>

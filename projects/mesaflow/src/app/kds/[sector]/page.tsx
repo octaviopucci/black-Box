@@ -13,7 +13,7 @@ export function generateStaticParams() {
 export default async function KdsPage({ params }: { params: Promise<{ sector: string }> }) {
   const { sector } = await params;
   return (
-    <Suspense fallback={<div className="min-h-dvh bg-[#111] p-4 text-white">Carregando KDS…</div>}>
+    <Suspense fallback={<div className="min-h-dvh bg-surface p-4 text-ink">Carregando KDS…</div>}>
       <KdsView sectorId={sector} />
     </Suspense>
   );

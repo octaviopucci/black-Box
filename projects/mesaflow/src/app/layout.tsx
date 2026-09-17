@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { AuthProvider } from "@/contexts/auth-context";
-import { BRAND_DESCRIPTION, BRAND_NAME, BRAND_TAGLINE, BRAND_TITLE } from "@/lib/brand";
+import { BRAND_DESCRIPTION, BRAND_NAME, BRAND_TAGLINE, BRAND_THEME_COLOR, BRAND_TITLE } from "@/lib/brand";
 import { asset } from "@/lib/assets";
 import "./globals.css";
 
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#18242C",
+  themeColor: BRAND_THEME_COLOR,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

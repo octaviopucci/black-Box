@@ -14,7 +14,7 @@ const STATUS: Record<TableStatus, { label: string; color: string }> = {
   LIVRE: { label: "Livre", color: "bg-success/15 text-success" },
   OCUPADA: { label: "Ocupada", color: "bg-brand/15 text-brand" },
   AGUARDANDO_PAGAMENTO: { label: "Aguardando pagamento", color: "bg-warning/15 text-warning" },
-  RESERVADA: { label: "Reservada", color: "bg-purple-500/15 text-purple-300" },
+  RESERVADA: { label: "Reservada", color: "bg-brand-soft/15 text-brand-soft" },
   INATIVA: { label: "Inativa", color: "bg-white/5 text-muted" },
 };
 

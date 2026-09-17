@@ -78,14 +78,14 @@ export function KdsView({ sectorId }: { sectorId: string }) {
 
   if (!resolvedSector) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-[#0a0a0a] text-muted">
+      <div className="flex min-h-dvh items-center justify-center bg-surface text-muted">
         Setor não informado. Abra o KDS pelo painel admin.
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-[#0a0a0a] p-4 text-white">
+    <div className="min-h-dvh bg-surface p-4 text-ink">
       <header className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
         <div className="flex items-center gap-4">
           <Link
@@ -112,7 +112,7 @@ export function KdsView({ sectorId }: { sectorId: string }) {
               key={order.id}
               className={cn(
                 "rounded-2xl border-2 p-5 transition",
-                late ? "border-danger bg-danger/10 shadow-lg shadow-danger/10" : "border-white/10 bg-[#141414]",
+                late ? "border-danger bg-danger/10 shadow-lg shadow-danger/10" : "border-white/10 bg-surface-2",
               )}
             >
               <div className="mb-4 flex items-baseline justify-between">
