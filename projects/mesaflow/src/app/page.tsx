@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignupSection } from "@/components/auth/signup-section";
 import { Logo } from "@/components/brand/logo";
-import { BRAND_DESCRIPTION, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+import { BRAND_DESCRIPTION, BRAND_NAME, BRAND_POSITIONING, BRAND_TAGLINE } from "@/lib/brand";
 import {
   ArrowRight,
   ChefHat,
@@ -82,8 +82,9 @@ export default function HomePage() {
             {BRAND_TAGLINE}
           </div>
           <h1 className="mx-auto max-w-3xl font-[family-name:var(--font-display)] text-4xl font-bold leading-[1.1] sm:text-6xl">
-            {BRAND_TAGLINE.replace(".", "")}
+            {BRAND_NAME}
           </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base text-brand sm:text-lg">{BRAND_POSITIONING}</p>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">{BRAND_DESCRIPTION}</p>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-muted/80">
             Para {ESTABLISHMENTS.join(", ")} e qualquer estabelecimento com atendimento por mesa.
