@@ -5,6 +5,7 @@ import {
   AlertCircle,
   CheckCircle2,
   ClipboardList,
+  Clock,
   Flame,
   Home,
   LogOut,
@@ -28,12 +29,21 @@ import {
 } from "@/lib/guest-orders-cache";
 import { cn } from "@/lib/cn";
 import { formatCurrency, formatTime, orderStatusLabel } from "@/lib/format";
+import {
+  productBadge,
+  suggestionsForCart,
+  suggestionsForClosing,
+  suggestionsForProduct,
+  type SoftSuggestion,
+} from "@/lib/menu-intelligence";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ui/product-image";
 import { Logo } from "@/components/brand/logo";
 import { BRAND_NAME } from "@/lib/brand";
 import { lineTotal } from "@/lib/order-math";
+import { SoftSuggestions } from "@/components/customer/soft-suggestions";
+import { ClosingSheet } from "@/components/customer/closing-sheet";
 
 type Tab = "menu" | "orders" | "comanda" | "rodizio";
 
@@ -106,13 +116,13 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const [tab, setTab] = useState<Tab>("menu");
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string | "all">("all");
-  const [availability, setAvailability] = useState<Product["availability"] | "all">("all");
   const [selected, setSelected] = useState<Product | null>(null);
   const [selectedVariantId, setSelectedVariantId] = useState("");
   const [selectedAddons, setSelectedAddons] = useState<Record<string, number>>({});
   const [itemNotes, setItemNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [closingOpen, setClosingOpen] = useState(false);
   const [rodizioPick, setRodizioPick] = useState<Record<string, number>>({});
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
 
@@ -320,6 +330,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       setOtpCode("");
       setSelected(null);
       setCartOpen(false);
+      setClosingOpen(false);
       setLoggingOut(false);
       notify("Você saiu da mesa.");
       void loadContext();
@@ -329,63 +340,67 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const filtered = useMemo(() => {
     if (!data) return [];
     return data.products.filter((p) => {
+      if (!p.active) return false;
       if (categoryId !== "all" && p.categoryId !== categoryId) return false;
-      if (availability !== "all" && p.availability !== availability) return false;
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [data, categoryId, availability, search]);
+  }, [data, categoryId, search]);
 
-  const featured = useMemo(() => data?.products.filter((p) => p.featured) || [], [data]);
+  const featured = useMemo(
+    () => data?.products.filter((p) => p.featured && p.active) || [],
+    [data],
+  );
 
-  const productById = useMemo(() => {
-    const map = new Map<string, Product>();
-    for (const product of data?.products || []) map.set(product.id, product);
-    return map;
-  }, [data]);
+  const activeCategory = useMemo(
+    () => (categoryId === "all" ? null : data?.categories.find((c) => c.id === categoryId) || null),
+    [categoryId, data],
+  );
 
   const selectedSuggestions = useMemo(() => {
-    if (!selected) return [] as Product[];
-    const ids = [
-      ...(selected.bumpProductIds || []),
-      ...(selected.upsellProductIds || []),
-    ];
-    const seen = new Set<string>([selected.id]);
-    const out: Product[] = [];
-    for (const id of ids) {
-      if (seen.has(id)) continue;
-      const product = productById.get(id);
-      if (!product || !product.active) continue;
-      seen.add(id);
-      out.push(product);
-    }
-    return out;
-  }, [selected, productById]);
+    if (!selected || !data) return [] as SoftSuggestion[];
+    return suggestionsForProduct(selected, data.products, data.categories);
+  }, [selected, data]);
 
   const cartSuggestions = useMemo(() => {
-    if (!data || cart.lines.length === 0) return [] as Product[];
-    const inCart = new Set(cart.lines.map((line) => line.product.id));
-    const seen = new Set<string>();
-    const out: Product[] = [];
-    for (const line of cart.lines) {
-      const ids = [
-        ...(line.product.bumpProductIds || []),
-        ...(line.product.upsellProductIds || []),
-      ];
-      for (const id of ids) {
-        if (inCart.has(id) || seen.has(id)) continue;
-        const product = productById.get(id);
-        if (!product || !product.active) continue;
-        seen.add(id);
-        out.push(product);
-      }
-    }
-    return out.slice(0, 6);
-  }, [cart.lines, productById, data]);
+    if (!data || cart.lines.length === 0) return [] as SoftSuggestion[];
+    return suggestionsForCart(cart.lines, data.products, data.categories);
+  }, [cart.lines, data]);
 
-  function addSuggestion(product: Product) {
+  const closingSuggestions = useMemo(() => {
+    if (!data || !guestMe) return [] as SoftSuggestion[];
+    const orderedProducts = guestMe.orders.flatMap((order) =>
+      order.items
+        .map((item) => data.products.find((p) => p.id === item.productId))
+        .filter((p): p is Product => Boolean(p)),
+    );
+    return suggestionsForClosing(orderedProducts, data.products, data.categories);
+  }, [data, guestMe]);
+
+  function addSuggestion(suggestion: SoftSuggestion) {
+    const { product } = suggestion;
+    if (product.variants.length > 0) {
+      setSelected(product);
+      setCartOpen(false);
+      setClosingOpen(false);
+      return;
+    }
     cart.add(product);
     notify(`${product.name} adicionado.`);
+  }
+
+  function openClosingOrBill() {
+    if (closingSuggestions.length === 0) {
+      void requestBill();
+      return;
+    }
+    setClosingOpen(true);
+  }
+
+  function handleClosingAdd(suggestion: SoftSuggestion) {
+    addSuggestion(suggestion);
+    setClosingOpen(false);
+    setTab("menu");
   }
 
   async function submitOrder() {
@@ -521,7 +536,8 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               <Logo variant="icon" href={null} iconSize={56} />
             </div>
             <h1 className="font-[family-name:var(--font-display)] text-xl font-bold">{est.name}</h1>
-            <p className="mt-1 text-sm text-muted">Mesa {tbl.number} · {context.participantCount} na mesa</p>
+            <p className="mt-1.5 text-sm text-muted">Cardápio da mesa · peça no seu ritmo</p>
+            <p className="mt-1 text-xs text-muted/80">Mesa {tbl.number} · {context.participantCount} na mesa</p>
           </div>
 
           {gateStep === "intro" && (
@@ -685,11 +701,22 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       </header>
 
       {tab === "menu" && (
-        <div className="px-4 pt-4">
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+        <div className="pt-4">
+          <div className="mb-4 px-4">
+            <div className="rounded-2xl border border-white/5 bg-gradient-to-br from-brand/10 via-surface-2/80 to-surface-2/40 px-4 py-3.5">
+              <p className="font-[family-name:var(--font-display)] text-base font-bold leading-snug">
+                {establishment.name}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                Escolha com calma — a gente sugere combinações quando fizer sentido
+              </p>
+            </div>
+          </div>
+
+          <div className="relative mb-4 px-4">
+            <Search className="absolute left-7 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <input
-              className="w-full rounded-xl border border-white/10 bg-surface-2/80 py-3 pl-10 pr-4 text-sm outline-none backdrop-blur focus:border-brand/50 focus:ring-2 focus:ring-brand/20"
+              className="w-full rounded-xl border border-white/10 bg-surface-2/80 py-3 pl-10 pr-4 text-sm outline-none backdrop-blur transition focus:border-brand/50 focus:ring-2 focus:ring-brand/20"
               placeholder="Buscar no cardápio…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -697,109 +724,133 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           </div>
 
           {featured.length > 0 && categoryId === "all" && !search && (
-            <section className="mb-6">
-              <h2 className="mb-3 text-sm font-semibold text-muted">Destaques</h2>
+            <section className="mb-6 px-4">
+              <h2 className="mb-3 text-sm font-semibold text-ink">Sugestões da casa</h2>
               <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-1">
-                {featured.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelected(p)}
-                    className="w-36 shrink-0 overflow-hidden rounded-2xl bg-surface-2 text-left ring-1 ring-white/5 transition active:scale-[0.98]"
-                  >
-                    <ProductImage
-                      src={p.image}
-                      alt={p.name}
-                      seed={p.id}
-                      width={144}
-                      height={96}
-                      className="h-24 w-full object-cover"
-                    />
-                    <div className="p-2">
-                      <p className="line-clamp-2 text-xs font-semibold">{p.name}</p>
-                      <p className="text-xs text-brand">{formatCurrency(p.price)}</p>
-                    </div>
-                  </button>
-                ))}
+                {featured.map((p) => {
+                  const badge = productBadge(p);
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => setSelected(p)}
+                      className="w-44 shrink-0 overflow-hidden rounded-2xl bg-surface-2 text-left ring-1 ring-white/5 transition duration-200 hover:ring-brand/20 active:scale-[0.98]"
+                    >
+                      <div className="relative">
+                        <ProductImage
+                          src={p.image}
+                          alt={p.name}
+                          seed={p.id}
+                          width={176}
+                          height={120}
+                          className="h-28 w-full object-cover"
+                        />
+                        {badge && (
+                          <span className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-sm">
+                            {badge}
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-2.5">
+                        <p className="line-clamp-2 text-sm font-semibold leading-snug">{p.name}</p>
+                        <p className="mt-1 text-sm font-bold text-brand">{formatCurrency(p.price)}</p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </section>
           )}
 
-          <div className="scrollbar-hide mb-3 flex gap-2 overflow-x-auto">
-            <button
-              onClick={() => setCategoryId("all")}
-              className={cn(
-                "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium",
-                categoryId === "all" ? "bg-brand text-white" : "bg-surface-3",
-              )}
-            >
-              Todos
-            </button>
-            {categories.map((c) => (
+          <div className="sticky top-[7.25rem] z-10 border-b border-white/5 bg-surface/90 pb-2 pt-1 backdrop-blur-xl">
+            <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4">
               <button
-                key={c.id}
-                onClick={() => setCategoryId(c.id)}
+                onClick={() => setCategoryId("all")}
                 className={cn(
-                  "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium",
-                  categoryId === c.id ? "bg-brand text-white" : "bg-surface-3",
+                  "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition duration-200",
+                  categoryId === "all"
+                    ? "bg-brand text-white shadow-md shadow-brand/20"
+                    : "bg-surface-3/90 text-muted hover:text-ink",
                 )}
               >
-                {c.emoji} {c.name}
+                Todos
               </button>
-            ))}
+              {categories.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setCategoryId(c.id)}
+                  className={cn(
+                    "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition duration-200",
+                    categoryId === c.id
+                      ? "bg-brand text-white shadow-md shadow-brand/20"
+                      : "bg-surface-3/90 text-muted hover:text-ink",
+                  )}
+                >
+                  {c.emoji} {c.name}
+                </button>
+              ))}
+            </div>
+            {activeCategory && (
+              <p className="mt-2 px-4 text-[11px] text-muted transition-opacity duration-200">
+                Explorando · {activeCategory.emoji} {activeCategory.name}
+              </p>
+            )}
           </div>
 
-          <div className="scrollbar-hide mb-4 flex gap-2 overflow-x-auto">
-            {([
-              ["all", "Tudo"],
-              ["VITRINE", "Vitrine"],
-              ["SOB_DEMANDA", "Feito na hora"],
-              ["AMBOS", "Ambos"],
-            ] as const).map(([value, label]) => (
-              <button
-                key={value}
-                onClick={() => setAvailability(value)}
-                className={cn(
-                  "shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-medium",
-                  availability === value ? "border-brand/40 bg-brand/10 text-brand" : "border-white/5 text-muted",
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          <div className="space-y-3">
-            {filtered.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setSelected(p)}
-                className="glass-card flex w-full gap-3 p-3 text-left transition active:scale-[0.99]"
-              >
-                <ProductImage
-                  src={p.image}
-                  alt={p.name}
-                  seed={p.id}
-                  width={80}
-                  height={80}
-                  className="h-20 w-20 shrink-0 rounded-xl object-cover"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold">{p.name}</p>
-                  <p className="line-clamp-2 text-xs text-muted">{p.description}</p>
-                  <span className="mt-1.5 inline-block rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-medium text-muted">
-                    {p.availability === "VITRINE" ? "Vitrine" : p.availability === "SOB_DEMANDA" ? "Feito na hora" : "Vitrine + cozinha"}
-                  </span>
-                  <p className="mt-1 text-sm font-bold text-brand">{formatCurrency(p.price)}</p>
-                </div>
-                <Plus className="mt-2 h-5 w-5 shrink-0 text-brand" />
-              </button>
-            ))}
+          <div className="space-y-3 px-4 pt-4">
+            {filtered.map((p) => {
+              const badge = productBadge(p);
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setSelected(p)}
+                  className="glass-card flex w-full gap-3.5 p-3 text-left transition duration-200 active:scale-[0.99]"
+                >
+                  <ProductImage
+                    src={p.image}
+                    alt={p.name}
+                    seed={p.id}
+                    width={96}
+                    height={96}
+                    className="h-24 w-24 shrink-0 rounded-xl object-cover"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start gap-2">
+                      <p className="flex-1 font-semibold leading-snug">{p.name}</p>
+                      <Plus className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
+                    </div>
+                    {badge && (
+                      <span className="mt-1 inline-block text-[10px] font-medium text-brand/80">
+                        {badge}
+                      </span>
+                    )}
+                    <p className="mt-1 line-clamp-2 text-xs text-muted">{p.description}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <p className="text-base font-bold text-brand">{formatCurrency(p.price)}</p>
+                      {p.prepMinutes > 0 && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-muted">
+                          <Clock className="h-3 w-3" />
+                          ~{p.prepMinutes} min
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
             {filtered.length === 0 && (
               <div className="rounded-2xl border border-dashed border-white/10 px-5 py-12 text-center">
                 <Search className="mx-auto mb-3 h-7 w-7 text-muted" />
                 <p className="font-semibold">Nada encontrado</p>
-                <p className="mt-1 text-xs text-muted">Tente outro nome, categoria ou disponibilidade.</p>
-                <button onClick={() => { setSearch(""); setCategoryId("all"); setAvailability("all"); }} className="mt-4 text-xs font-semibold text-brand">Limpar filtros</button>
+                <p className="mt-1 text-xs text-muted">Tente outro nome ou categoria.</p>
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setCategoryId("all");
+                  }}
+                  className="mt-4 text-xs font-semibold text-brand"
+                >
+                  Limpar filtros
+                </button>
               </div>
             )}
           </div>
@@ -875,7 +926,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 Total da mesa: {formatCurrency(data.tableTotal)}
               </p>
             )}
-            <Button className="mt-4 w-full" variant="secondary" onClick={requestBill}>
+            <Button className="mt-4 w-full" variant="secondary" onClick={openClosingOrBill}>
               <ClipboardList className="mr-2 h-4 w-4" />
               Pedir a conta
             </Button>
@@ -956,19 +1007,32 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       {selected && (
         <div className="fixed inset-0 z-40 flex items-end bg-black/60 p-0 sm:items-center sm:justify-center sm:p-4">
           <div className="max-h-[90dvh] w-full overflow-y-auto rounded-t-3xl border border-white/10 bg-surface-2 p-5 sm:max-w-md sm:rounded-3xl">
-            <div className="mb-4 flex items-start justify-between">
-              <h3 className="text-lg font-bold">{selected.name}</h3>
-              <button onClick={() => setSelected(null)}><X className="h-5 w-5" /></button>
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="text-lg font-bold leading-snug">{selected.name}</h3>
+                {productBadge(selected) && (
+                  <p className="mt-1 text-[11px] font-medium text-brand/80">{productBadge(selected)}</p>
+                )}
+              </div>
+              <button type="button" onClick={() => setSelected(null)} aria-label="Fechar">
+                <X className="h-5 w-5" />
+              </button>
             </div>
             <ProductImage
               src={selected.image}
               alt={selected.name}
               seed={selected.id}
-              width={400}
-              height={200}
-              className="mb-4 h-40 w-full rounded-xl object-cover"
+              width={480}
+              height={260}
+              className="mb-4 h-52 w-full rounded-2xl object-cover"
             />
-            <p className="mb-4 text-sm text-muted">{selected.description}</p>
+            <p className="mb-3 text-sm leading-relaxed text-muted">{selected.description}</p>
+            {selected.prepMinutes > 0 && (
+              <p className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted">
+                <Clock className="h-3.5 w-3.5" />
+                Preparo aproximado · {selected.prepMinutes} min
+              </p>
+            )}
             {selected.variants.length > 0 && (
               <fieldset className="mb-4">
                 <legend className="mb-2 text-sm font-semibold">Escolha uma opção</legend>
@@ -1006,28 +1070,16 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               <span className="mb-1.5 block text-xs font-medium text-muted">Observação (opcional)</span>
               <input value={itemNotes} onChange={(event) => setItemNotes(event.target.value)} maxLength={160} placeholder="Ex.: sem cebola" className="w-full rounded-xl border border-white/10 bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand/50" />
             </label>
-            {selectedSuggestions.length > 0 && (
-              <div className="mb-4 rounded-2xl border border-white/5 bg-surface/60 p-3">
-                <p className="mb-2 text-xs font-semibold text-muted">Complete seu pedido</p>
-                <ul className="space-y-2">
-                  {selectedSuggestions.map((product) => (
-                    <li key={product.id} className="flex items-center justify-between gap-2 text-sm">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium">{product.name}</p>
-                        <p className="text-xs text-brand">{formatCurrency(product.price)}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => addSuggestion(product)}
-                        className="shrink-0 rounded-lg bg-brand/15 px-2.5 py-1.5 text-xs font-semibold text-brand"
-                      >
-                        + Adicionar
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <SoftSuggestions
+              className="mb-4"
+              title={
+                selectedSuggestions.some((s) => s.tone === "pairing")
+                  ? "Combina bem com"
+                  : "Para acompanhar"
+              }
+              suggestions={selectedSuggestions}
+              onAdd={addSuggestion}
+            />
             <p className="mb-4 text-xl font-bold text-brand">
               {formatCurrency(
                 selected.price +
@@ -1085,32 +1137,35 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               </div>
             ))}
             {cartSuggestions.length > 0 && (
-              <div className="mb-4 rounded-2xl border border-white/5 bg-surface-2/80 p-3">
-                <p className="mb-2 text-xs font-semibold text-muted">Complete seu pedido</p>
-                <ul className="space-y-2">
-                  {cartSuggestions.map((product) => (
-                    <li key={product.id} className="flex items-center justify-between gap-2 text-sm">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium">{product.name}</p>
-                        <p className="text-xs text-brand">{formatCurrency(product.price)}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => addSuggestion(product)}
-                        className="shrink-0 rounded-lg bg-brand/15 px-2.5 py-1.5 text-xs font-semibold text-brand"
-                      >
-                        + Adicionar
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <SoftSuggestions
+                className="mb-4"
+                title={
+                  cartSuggestions.some((s) => /bebida/i.test(s.reason))
+                    ? "Falta uma bebida?"
+                    : "Para completar"
+                }
+                suggestions={cartSuggestions}
+                onAdd={addSuggestion}
+                compact
+              />
             )}
             <Button className="mt-4 w-full" size="lg" loading={submitting} onClick={submitOrder} disabled={submitting}>
               Confirmar pedido · {formatCurrency(cart.total)}
             </Button>
           </div>
         </div>
+      )}
+
+      {closingOpen && (
+        <ClosingSheet
+          suggestions={closingSuggestions}
+          onAddContinue={handleClosingAdd}
+          onRequestBill={() => {
+            setClosingOpen(false);
+            void requestBill();
+          }}
+          onDismiss={() => setClosingOpen(false)}
+        />
       )}
 
       {toast && (
