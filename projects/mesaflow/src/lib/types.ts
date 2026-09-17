@@ -176,6 +176,8 @@ export interface Table {
   qrToken: string;
 }
 
+export type ClosingScope = "SELF" | "SELECTED" | "TABLE";
+
 export interface Command {
   id: string;
   establishmentId: string;
@@ -185,6 +187,8 @@ export interface Command {
   status: "ABERTA" | "FECHADA" | "PAGAMENTO_SOLICITADO";
   guestCount: number;
   total: number;
+  closingRequestedAt?: string;
+  lastClosingScope?: ClosingScope;
 }
 
 export interface OrderItemAddon {
@@ -266,6 +270,51 @@ export interface RodizioRound {
   sentAt?: string;
 }
 
+export interface ClosingRequest {
+  id: string;
+  establishmentId: string;
+  commandId: string;
+  tableId: string;
+  requestedByGuestParticipationId: string;
+  scope: ClosingScope;
+  targetGuestParticipationIds: string[];
+  status: "PENDING" | "CANCELLED" | "CONFIRMED" | "SETTLED";
+  createdAt: string;
+  cancelledAt?: string;
+  confirmedAt?: string;
+  confirmedByUserId?: string;
+  settledAt?: string;
+  settledByUserId?: string;
+}
+
+export interface OrderItemSplit {
+  id: string;
+  orderItemId: string;
+  orderId: string;
+  commandId: string;
+  guestParticipationId: string;
+  quantity: number;
+  createdAt: string;
+}
+
+export type PaymentMethod = "cash" | "credit" | "debit" | "pix" | "other";
+export type PaymentStatus = "registered" | "voided";
+
+export interface Payment {
+  id: string;
+  establishmentId: string;
+  commandId: string;
+  guestParticipationId?: string;
+  amount: number;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  registeredByUserId: string;
+  registeredAt: string;
+  note?: string;
+  voidedAt?: string;
+  voidedByUserId?: string;
+}
+
 export interface Notification {
   id: string;
   establishmentId: string;
@@ -273,6 +322,37 @@ export interface Notification {
   title: string;
   body: string;
   read: boolean;
+  createdAt: string;
+  commandId?: string;
+  tableId?: string;
+  actionUrl?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export type IntegrationProvider = "ifood" | "rappi" | "whatsapp" | "erp" | "webhook";
+export type IntegrationStatus = "available" | "connected" | "error" | "disabled";
+
+export interface IntegrationConnection {
+  id: string;
+  establishmentId: string;
+  provider: IntegrationProvider;
+  status: IntegrationStatus;
+  label: string;
+  config: Record<string, string>;
+  connectedAt?: string;
+  lastSyncAt?: string;
+  lastError?: string;
+}
+
+export interface AuditEvent {
+  id: string;
+  establishmentId: string;
+  type: string;
+  actorType: "STAFF" | "SYSTEM";
+  actorUserId?: string;
+  targetType: string;
+  targetId: string;
+  metadata: Record<string, unknown>;
   createdAt: string;
 }
 
@@ -288,6 +368,11 @@ export interface MesaFlowOperationalStore {
   rodizios: Record<string, Rodizio>;
   rodizioRounds: Record<string, RodizioRound>;
   notifications: Record<string, Notification>;
+  closingRequests: Record<string, ClosingRequest>;
+  orderItemSplits: Record<string, OrderItemSplit>;
+  payments: Record<string, Payment>;
+  integrationConnections: Record<string, IntegrationConnection>;
+  auditEvents: Record<string, AuditEvent>;
   orderCounter: Record<string, number>;
 }
 

@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { parseKdsRoute } from "@/lib/parse-route";
 import { Logo } from "@/components/brand/logo";
@@ -86,6 +88,13 @@ export function KdsView({ sectorId }: { sectorId: string }) {
     <div className="min-h-dvh bg-[#0a0a0a] p-4 text-white">
       <header className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
         <div className="flex items-center gap-4">
+          <Link
+            href="/admin"
+            className="rounded-xl bg-white/10 p-2 text-white/70 transition hover:bg-white/15 hover:text-white"
+            aria-label="Voltar ao painel"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
           <Logo variant="icon" href={null} iconSize={36} />
           <div>
             <p className="text-xs uppercase tracking-widest text-brand">KDS · {BRAND_NAME}</p>

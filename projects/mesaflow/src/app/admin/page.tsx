@@ -1,7 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Banknote, Clock, ShoppingBag, Users } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 import { useAdminData } from "@/hooks/use-admin-data";
+import { apiUrl } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 
@@ -16,11 +19,36 @@ type Dash = {
     pending: number;
     topProducts: { name: string; qty: number }[];
   };
-  notifications: { id: string; title: string; body: string; createdAt: string }[];
+  notifications: {
+    id: string;
+    title: string;
+    body: string;
+    createdAt: string;
+    read: boolean;
+    actionUrl?: string;
+    tableId?: string;
+  }[];
 };
 
 export default function AdminDashboardPage() {
-  const { data, loading, establishment } = useAdminData<Dash>();
+  const router = useRouter();
+  const { authHeaders } = useAuth();
+  const { data, loading, establishment, load } = useAdminData<Dash>();
+
+  async function openNotification(notification: Dash["notifications"][number]) {
+    await fetch(apiUrl(`/admin/notifications/${encodeURIComponent(notification.id)}/read`), {
+      method: "POST",
+      headers: authHeaders(),
+    }).catch(() => undefined);
+    await load();
+    if (notification.actionUrl) {
+      router.push(notification.actionUrl);
+      return;
+    }
+    if (notification.tableId) {
+      router.push(`/admin/tables/${notification.tableId}/cockpit`);
+    }
+  }
 
   if (loading || !data) {
     return (
@@ -91,9 +119,18 @@ export default function AdminDashboardPage() {
           <h2 className="mb-4 font-[family-name:var(--font-display)] font-semibold">Notificações</h2>
           <ul className="max-h-64 space-y-3 overflow-y-auto">
             {data.notifications.map((n) => (
-              <li key={n.id} className="rounded-xl border border-white/5 bg-surface/50 p-3 text-sm">
-                <p className="font-medium">{n.title}</p>
-                <p className="text-muted">{n.body}</p>
+              <li key={n.id}>
+                <button
+                  type="button"
+                  onClick={() => openNotification(n)}
+                  className={cn(
+                    "w-full rounded-xl border p-3 text-left text-sm transition hover:border-brand/20",
+                    n.read ? "border-white/5 bg-surface/30" : "border-brand/20 bg-brand/5",
+                  )}
+                >
+                  <p className="font-medium">{n.title}</p>
+                  <p className="text-muted">{n.body}</p>
+                </button>
               </li>
             ))}
             {data.notifications.length === 0 && <p className="text-muted">Nenhuma notificação.</p>}

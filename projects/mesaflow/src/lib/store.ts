@@ -28,6 +28,7 @@ import { PRODUCT_IMAGES, productImageByName } from "./product-images";
 import { provisionEstablishment, type RegisterInput } from "./provision";
 import { buildDemoStore } from "./seed";
 import type {
+  ClosingRequest,
   Command,
   Establishment,
   MesaFlowStore,
@@ -86,6 +87,11 @@ function emptyStore(): MesaFlowStore {
     rodizios: {},
     rodizioRounds: {},
     notifications: {},
+    closingRequests: {},
+    orderItemSplits: {},
+    payments: {},
+    integrationConnections: {},
+    auditEvents: {},
     orderCounter: {},
   };
 }
@@ -120,6 +126,7 @@ function load(): MesaFlowStore {
   if (existsSync(DATA_PATH)) {
     try {
       cache = { ...emptyStore(), ...JSON.parse(readFileSync(DATA_PATH, "utf8")) };
+      migrateOperationalCollections(cache!);
       migrateProductImages(cache!);
       return cache!;
     } catch {
@@ -136,6 +143,14 @@ function persist(markIdentity = true) {
   writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
   operationalDirty = true;
   if (markIdentity) identityDirty = true;
+}
+
+function migrateOperationalCollections(store: MesaFlowStore) {
+  store.closingRequests ||= {};
+  store.orderItemSplits ||= {};
+  store.payments ||= {};
+  store.integrationConnections ||= {};
+  store.auditEvents ||= {};
 }
 
 function migrateLegacyGuestParticipations(store: MesaFlowStore) {
@@ -363,7 +378,13 @@ export function persistStatus() {
   };
 }
 
-function notify(establishmentId: string, type: string, title: string, body: string) {
+function notify(
+  establishmentId: string,
+  type: string,
+  title: string,
+  body: string,
+  extra?: Pick<Notification, "commandId" | "tableId" | "actionUrl" | "metadata">,
+) {
   const store = getStore();
   const n: Notification = {
     id: id("ntf_"),
@@ -373,6 +394,7 @@ function notify(establishmentId: string, type: string, title: string, body: stri
     body,
     read: false,
     createdAt: new Date().toISOString(),
+    ...extra,
   };
   store.notifications[n.id] = n;
   saveStore(store);
@@ -1032,17 +1054,53 @@ export function updateOrderStatus(
 
 export function requestBill(tableId: string) {
   const store = getStore();
+  migrateOperationalCollections(store);
   const table = store.tables[tableId];
   if (!table) return null;
   const cmd = getActiveCommand(table);
   if (!cmd) return null;
   if (cmd.status === "PAGAMENTO_SOLICITADO") return cmd;
   cmd.status = "PAGAMENTO_SOLICITADO";
+  cmd.closingRequestedAt = new Date().toISOString();
+  cmd.lastClosingScope = "TABLE";
   table.status = "AGUARDANDO_PAGAMENTO";
   store.commands[cmd.id] = cmd;
   store.tables[tableId] = table;
+
+  const participations = Object.values(store.guestParticipations).filter(
+    (entry) => entry.commandId === cmd.id && entry.status !== "CLOSED",
+  );
+  const pending = Object.values(store.closingRequests).find(
+    (entry) => entry.commandId === cmd.id && entry.status === "PENDING",
+  );
+  if (!pending) {
+    const request: ClosingRequest = {
+      id: id("clr_"),
+      establishmentId: cmd.establishmentId,
+      commandId: cmd.id,
+      tableId: table.id,
+      requestedByGuestParticipationId:
+        participations[0]?.id || `gp_legacy_${cmd.id}`,
+      scope: "TABLE",
+      targetGuestParticipationIds: participations.map((entry) => entry.id),
+      status: "PENDING",
+      createdAt: cmd.closingRequestedAt!,
+    };
+    store.closingRequests[request.id] = request;
+  }
+
   saveStore(store);
-  notify(table.establishmentId, "bill.request", "Conta solicitada", `Mesa ${table.number}`);
+  notify(
+    table.establishmentId,
+    "bill.request",
+    "Conta solicitada",
+    `Mesa ${table.number} aguarda fechamento.`,
+    {
+      commandId: cmd.id,
+      tableId: table.id,
+      actionUrl: `/admin/tables/${table.id}/cockpit`,
+    },
+  );
   emit({ type: "command.updated", commandId: cmd.id, establishmentId: table.establishmentId });
   return cmd;
 }
