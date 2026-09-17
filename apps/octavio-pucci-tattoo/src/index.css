@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #070707;
+  --paper: #ddd5c8;
+  --accent: #a8895a;
+  --mute: #7a7268;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  ::selection {
+    background: rgba(168, 137, 90, 0.35);
+    color: #fff;
+  }
+}
+
+@layer components {
+  .cta-primary {
+    @apply inline-flex items-center gap-2 border border-copper/60 bg-copper/10 px-6 py-3.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-parchment transition-all duration-500 ease-steel hover:border-copper hover:bg-copper/20;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center gap-2 px-2 py-3.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-parchment/60 transition-colors duration-300 hover:text-parchment;
+  }
+
+  .section-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.38em] text-copper;
+  }
+
+  .hairline {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-parchment/15 to-transparent;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .mask-fade-r {
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  }
+
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+}
