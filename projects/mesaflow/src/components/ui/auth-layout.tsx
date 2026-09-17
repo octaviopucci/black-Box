@@ -1,5 +1,6 @@
 import { Logo } from "@/components/brand/logo";
-import { QrCode, Sparkles, UtensilsCrossed } from "lucide-react";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+import { ChefHat, Sparkles, Users } from "lucide-react";
 
 export function AuthLayout({
   title,
@@ -18,9 +19,9 @@ export function AuthLayout({
           <Logo variant="vertical" href={null} className="mb-10 max-w-[260px]" />
           <ul className="w-full max-w-sm space-y-4">
             {[
-              { icon: QrCode, text: "QR Code por mesa em segundos" },
-              { icon: Sparkles, text: "Cardápio bonito no celular do cliente" },
-              { icon: UtensilsCrossed, text: "Pedidos direto na cozinha e no bar" },
+              { icon: Sparkles, text: "Experiência digital conectada à mesa" },
+              { icon: Users, text: "Cliente, pedido, cozinha e operação em tempo real" },
+              { icon: ChefHat, text: "Painel completo para o seu estabelecimento" },
             ].map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-center gap-3 text-sm text-ink/90">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 ring-1 ring-brand/20">
@@ -30,7 +31,7 @@ export function AuthLayout({
               </li>
             ))}
           </ul>
-          <p className="mt-12 text-xs text-muted">© MesaFlow · Seu pedido, sem espera</p>
+          <p className="mt-12 text-xs text-muted">© {BRAND_NAME} · {BRAND_TAGLINE}</p>
         </div>
 
         <div className="flex items-center justify-center p-6 sm:p-10">

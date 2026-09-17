@@ -1,44 +1,56 @@
 import Link from "next/link";
 import { SignupSection } from "@/components/auth/signup-section";
 import { Logo } from "@/components/brand/logo";
+import { BRAND_DESCRIPTION, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
 import {
   ArrowRight,
   ChefHat,
-  QrCode,
+  LayoutDashboard,
   Smartphone,
   Sparkles,
   TrendingUp,
+  Users,
   Zap,
 } from "lucide-react";
 import { DEMO_ESTABLISHMENT_SLUG, DEMO_LOGIN } from "@/lib/demo";
 
 const FEATURES = [
   {
-    icon: QrCode,
-    title: "QR na mesa",
-    desc: "Cliente escaneia e abre o cardápio em segundos — sem app para instalar.",
-  },
-  {
     icon: Smartphone,
-    title: "Cardápio mobile",
-    desc: "Fotos, categorias, destaques e carrinho com UX pensada para o celular.",
+    title: "Experiência na mesa",
+    desc: "Cliente pede pelo celular — cardápio, carrinho e acompanhamento em tempo real.",
   },
   {
     icon: ChefHat,
-    title: "KDS em tempo real",
-    desc: "Cozinha, balcão e bar recebem pedidos instantaneamente.",
+    title: "Cozinha e bar conectados",
+    desc: "Pedidos chegam instantaneamente no KDS. Cozinha, balcão e bar em sincronia.",
   },
   {
-    icon: TrendingUp,
+    icon: Users,
+    title: "Operação integrada",
+    desc: "Mesas, comandas, rodízio e fechamento — tudo em um fluxo único.",
+  },
+  {
+    icon: LayoutDashboard,
     title: "Painel completo",
-    desc: "Dashboard, mesas, pedidos e QR Codes em um painel simples.",
+    desc: "Dashboard, pedidos, produtos e QR Codes em um painel simples para o time.",
   },
 ];
 
+const ESTABLISHMENTS = [
+  "restaurantes",
+  "bares",
+  "lanchonetes",
+  "cafeterias",
+  "padarias",
+  "pizzarias",
+  "rodízios",
+];
+
 const STEPS = [
-  { n: "01", title: "Cadastre", desc: "Crie sua conta em 2 minutos" },
+  { n: "01", title: "Cadastre", desc: "Crie sua conta em poucos minutos" },
   { n: "02", title: "Configure", desc: "Mesas, cardápio e setores prontos" },
-  { n: "03", title: "Imprima QR", desc: "Cole nas mesas e comece a vender" },
+  { n: "03", title: "Ative", desc: "QR nas mesas e operação rodando" },
 ];
 
 export default function HomePage() {
@@ -67,29 +79,28 @@ export default function HomePage() {
         <section className="text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand">
             <Sparkles className="h-3.5 w-3.5" />
-            Seu pedido, sem espera
+            {BRAND_TAGLINE}
           </div>
           <h1 className="mx-auto max-w-3xl font-[family-name:var(--font-display)] text-4xl font-bold leading-[1.1] sm:text-6xl">
-            Pedidos por QR Code com{" "}
-            <span className="text-gradient">experiência premium</span>
+            {BRAND_TAGLINE.replace(".", "")}
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
-            QR na mesa → cardápio no celular → pedido direto na cozinha.
-            Simples para o cliente, poderoso para o seu negócio.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">{BRAND_DESCRIPTION}</p>
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted/80">
+            Para {ESTABLISHMENTS.join(", ")} e qualquer estabelecimento com atendimento por mesa.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            href="#cadastro"
-            className="inline-flex items-center gap-2 rounded-2xl bg-brand px-8 py-4 text-base font-semibold text-white shadow-xl shadow-brand/25 transition hover:bg-brand-dark"
-          >
-            Criar minha conta
-            <ArrowRight className="h-4 w-4" />
-          </Link>
             <Link
-              href={`/m/${DEMO_ESTABLISHMENT_SLUG}/mesa-8`}
+              href="#cadastro"
+              className="inline-flex items-center gap-2 rounded-2xl bg-brand px-8 py-4 text-base font-semibold text-white shadow-xl shadow-brand/25 transition hover:bg-brand-dark"
+            >
+              Conhecer o {BRAND_NAME}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="#como-funciona"
               className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold backdrop-blur transition hover:bg-white/10"
             >
-              Ver demo ao vivo
+              Ver como funciona
             </Link>
           </div>
         </section>
@@ -106,10 +117,13 @@ export default function HomePage() {
           ))}
         </section>
 
-        <section className="mt-24">
+        <section id="como-funciona" className="mt-24 scroll-mt-8">
           <h2 className="text-center font-[family-name:var(--font-display)] text-2xl font-bold sm:text-3xl">
             Como funciona
           </h2>
+          <p className="mx-auto mt-3 max-w-xl text-center text-sm text-muted">
+            O cliente pede. O restaurante recebe. Tudo acontece {BRAND_NAME}.
+          </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {STEPS.map(({ n, title, desc }) => (
               <div key={n} className="relative text-center">
@@ -128,7 +142,9 @@ export default function HomePage() {
               <span className="text-sm font-semibold uppercase tracking-wider">Demo gratuita</span>
             </div>
             <h3 className="font-[family-name:var(--font-display)] text-2xl font-bold">Ponto do Sabor</h3>
-            <p className="mt-2 text-muted">Explore o cardápio, faça pedidos e veja o painel admin funcionando.</p>
+            <p className="mt-2 text-muted">
+              Explore o cardápio, faça pedidos e veja o painel admin do {BRAND_NAME} funcionando.
+            </p>
             <dl className="mt-6 space-y-2 text-sm">
               <div className="flex justify-between border-b border-white/5 py-2">
                 <dt className="text-muted">Admin</dt>
@@ -144,6 +160,12 @@ export default function HomePage() {
                 Painel admin
               </Link>
               <Link
+                href={`/m/${DEMO_ESTABLISHMENT_SLUG}/mesa-8`}
+                className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold transition hover:bg-white/5"
+              >
+                Mesa demo
+              </Link>
+              <Link
                 href={`/kds/sec_cozinha?slug=${DEMO_ESTABLISHMENT_SLUG}`}
                 className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold transition hover:bg-white/5"
               >
@@ -154,11 +176,11 @@ export default function HomePage() {
 
           <div className="glass-card flex flex-col items-center justify-center p-8 text-center">
             <div className="animate-float mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-brand/15 ring-1 ring-brand/30">
-              <QrCode className="h-12 w-12 text-brand" />
+              <TrendingUp className="h-12 w-12 text-brand" />
             </div>
-            <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">Pronto para começar?</h3>
+            <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">Tudo da mesa, em um só lugar</h3>
             <p className="mt-2 max-w-xs text-sm text-muted">
-              Escaneie um QR Code e o cliente pede direto do celular.
+              Cardápio, pedido, cozinha e operação conectados à mesa — sem complicação.
             </p>
             <Link
               href="#cadastro"
@@ -174,7 +196,7 @@ export default function HomePage() {
       </main>
 
       <footer className="relative border-t border-white/5 py-8 text-center text-xs text-muted">
-        MesaFlow · Garçom digital + pedidos em tempo real
+        {BRAND_NAME} · {BRAND_DESCRIPTION}
       </footer>
     </div>
   );

@@ -30,6 +30,7 @@ import { formatCurrency, formatTime, orderStatusLabel } from "@/lib/format";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ui/product-image";
+import { BRAND_NAME } from "@/lib/brand";
 import { lineTotal } from "@/lib/order-math";
 
 type Tab = "menu" | "orders" | "comanda" | "rodizio";
@@ -417,6 +418,9 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       <div className="flex min-h-dvh flex-col items-center justify-center bg-surface p-6">
         <div className="glass-card w-full max-w-sm p-8">
           <div className="mb-6 text-center">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">
+              Bem-vindo ao {BRAND_NAME}
+            </p>
             <span className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/15 text-3xl ring-1 ring-brand/20">
               🍽️
             </span>
