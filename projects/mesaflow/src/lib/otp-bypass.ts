@@ -21,3 +21,10 @@ export function isOtpBypassCode(code: string): boolean {
   if (!bypass) return false;
   return code.trim() === bypass;
 }
+
+/** Expõe hint para UI demo — só quando bypass está ativo. */
+export function publicOtpBypassHint() {
+  const code = otpBypassCode();
+  if (!code) return { active: false as const };
+  return { active: true as const, code };
+}

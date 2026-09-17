@@ -8,6 +8,7 @@ import {
   otpRequiredForEstablishment,
   validateClientSession,
 } from "@/lib/guest";
+import { publicOtpBypassHint } from "@/lib/otp-bypass";
 import { readClientToken } from "../_shared";
 
 export async function GET(req: Request) {
@@ -32,6 +33,7 @@ export async function GET(req: Request) {
     table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
     command,
     otpRequired: otpRequiredForEstablishment(est),
+    otpBypass: publicOtpBypassHint(),
     hasSession: Boolean(guestAuth),
     ...summary,
   });

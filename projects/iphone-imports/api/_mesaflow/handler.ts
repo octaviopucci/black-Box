@@ -47,6 +47,7 @@ import {
   revokeClientSession,
 } from "../../../mesaflow/src/lib/guest";
 import { normalizePhoneE164 } from "../../../mesaflow/src/lib/identity-crypto";
+import { publicOtpBypassHint } from "../../../mesaflow/src/lib/otp-bypass";
 import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
 import type { OrderLineInput, OrderStatus } from "../../../mesaflow/src/lib/types";
 
@@ -179,6 +180,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
         command,
         otpRequired: otpRequiredForEstablishment(est),
+        otpBypass: publicOtpBypassHint(),
         hasSession: Boolean(guestAuth),
         ...summary,
       });

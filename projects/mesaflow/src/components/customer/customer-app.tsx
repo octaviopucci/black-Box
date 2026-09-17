@@ -45,6 +45,7 @@ type TableContext = {
   table: Pick<Table, "id" | "number" | "name" | "status">;
   command: Command | null;
   otpRequired: boolean;
+  otpBypass?: { active: boolean; code?: string };
   hasSession: boolean;
   participantCount: number;
   tableTotal: number;
@@ -391,7 +392,9 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               </Button>
               <p className="text-center text-xs text-muted">
                 {context.otpRequired
-                  ? "Enviaremos um código por WhatsApp para confirmar sua identidade."
+                  ? context.otpBypass?.active
+                    ? `Demo: após enviar, use o código ${context.otpBypass.code} (WhatsApp real em breve).`
+                    : "Enviaremos um código por WhatsApp para confirmar sua identidade."
                   : "Modo demo — sem verificação por WhatsApp."}
               </p>
             </div>
@@ -399,6 +402,11 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
           {gateStep === "otp" && (
             <div className="space-y-4">
+              {context.otpBypass?.active && (
+                <p className="rounded-xl border border-brand/20 bg-brand/10 px-3 py-2 text-center text-xs text-brand">
+                  Demo: código <span className="font-bold tracking-widest">{context.otpBypass.code}</span>
+                </p>
+              )}
               <label className="block">
                 <span className="mb-1.5 block text-xs font-medium text-muted">Código de 6 dígitos</span>
                 <input
