@@ -112,6 +112,10 @@ function readBearer(req: VercelRequest) {
   return match ? match[1].trim() : undefined;
 }
 
+function readGuestToken(req: VercelRequest) {
+  return readBearer(req) || parseClientCookie(req);
+}
+
 function adminAuth(req: VercelRequest) {
   const auth = validateSession(readBearer(req));
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
@@ -174,7 +178,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!tbl) return json(res, 404, { error: "Mesa inválida ou QR expirado." });
       const command = getActiveCommand(tbl);
       const summary = guestTableSummary(est.id, command?.id);
-      const guestAuth = validateClientSession(parseClientCookie(req));
+      const guestAuth = validateClientSession(readGuestToken(req));
       return json(res, 200, {
         establishment: { id: est.id, slug: est.slug, name: est.name, open: est.open, rodizioEnabled: est.rodizioEnabled },
         table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
@@ -187,7 +191,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "GET" && path === "/guest/me") {
-      const guestAuth = validateClientSession(parseClientCookie(req));
+      const guestAuth = validateClientSession(readGuestToken(req));
       if (!guestAuth) return json(res, 401, { error: "Sessão de cliente inválida." });
       const orders = Object.values(store.orders)
         .filter((o) => o.guestParticipationId === guestAuth.participation.id)
@@ -221,6 +225,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
       setClientCookie(res, result.token);
       return json(res, 200, {
+        token: result.token,
         participation: publicParticipation(result.participation),
         message: result.message,
       });
@@ -265,11 +270,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
       if ("error" in result) return json(res, 400, { error: result.error });
       setClientCookie(res, result.token);
-      return json(res, 200, { participation: publicParticipation(result.participation) });
+      return json(res, 200, {
+        token: result.token,
+        participation: publicParticipation(result.participation),
+      });
     }
 
     if (req.method === "POST" && path === "/guest/logout") {
-      revokeClientSession(parseClientCookie(req));
+      revokeClientSession(readGuestToken(req));
       clearClientCookie(res);
       return json(res, 200, { ok: true });
     }
@@ -319,7 +327,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/orders") {
-      const guestAuth = validateClientSession(parseClientCookie(req));
+      const guestAuth = validateClientSession(readGuestToken(req));
       if (!guestAuth) return json(res, 401, { error: "Sessão de cliente obrigatória." });
       if (guestAuth.participation.status !== "OPEN") {
         return json(res, 403, { error: "Sua participação não permite novos pedidos." });
@@ -566,7 +574,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/rodizio/round") {
-      const guestAuth = validateClientSession(parseClientCookie(req));
+      const guestAuth = validateClientSession(readGuestToken(req));
       if (!guestAuth) return json(res, 401, { error: "Sessão de cliente obrigatória." });
       if (guestAuth.participation.status !== "OPEN") {
         return json(res, 403, { error: "Sua participação não permite novos pedidos." });

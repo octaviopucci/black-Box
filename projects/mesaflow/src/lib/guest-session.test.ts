@@ -121,6 +121,13 @@ async function run() {
   assert.ok("token" in bypassVerified && bypassVerified.participation);
   assert.equal(bypassVerified.participation!.displayName, "Carla");
 
+  const { parseGuestSessionToken, issueGuestSessionToken } = await import("./guest-session-token");
+  const signed = issueGuestSessionToken(first.participation.id);
+  assert.equal(parseGuestSessionToken(signed), first.participation.id);
+  const signedSession = validateClientSession(signed);
+  assert.ok(signedSession);
+  assert.equal(signedSession.participation.id, first.participation.id);
+
   const directBypass = verifyOtpChallenge({
     challengeId: "otp_missing",
     code: "010203",

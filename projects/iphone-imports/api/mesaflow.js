@@ -3573,9 +3573,6 @@ function otpCodeHash(challengeId, code) {
 function generateOtpCode() {
   return String(Math.floor(1e5 + Math.random() * 9e5));
 }
-function generateClientSessionToken() {
-  return (0, import_crypto4.randomBytes)(32).toString("base64url");
-}
 
 // ../mesaflow/src/lib/otp-bypass.ts
 var DEFAULT_OTP_BYPASS_CODE = "010203";
@@ -3601,8 +3598,39 @@ function publicOtpBypassHint() {
   return { active: true, code };
 }
 
-// ../mesaflow/src/lib/guest.ts
+// ../mesaflow/src/lib/guest-session-token.ts
+var import_crypto5 = require("crypto");
 var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
+function secret2() {
+  return process.env.MESAFLOW_CLIENT_SESSION_SECRET || process.env.MESAFLOW_IDENTITY_SECRET || "mesaflow-dev-only-change-in-production";
+}
+function issueGuestSessionToken(participationId, ttlMs = CLIENT_SESSION_TTL_MS) {
+  const exp = Date.now() + ttlMs;
+  const payload = `${participationId}:${exp}`;
+  const sig = (0, import_crypto5.createHmac)("sha256", secret2()).update(payload).digest("base64url");
+  return `${Buffer.from(payload, "utf8").toString("base64url")}.${sig}`;
+}
+function parseGuestSessionToken(token) {
+  const [payloadB64, sig] = token.split(".");
+  if (!payloadB64 || !sig) return null;
+  let payload;
+  try {
+    payload = Buffer.from(payloadB64, "base64url").toString("utf8");
+  } catch {
+    return null;
+  }
+  const expected = (0, import_crypto5.createHmac)("sha256", secret2()).update(payload).digest("base64url");
+  const sigBuf = Buffer.from(sig);
+  const expectedBuf = Buffer.from(expected);
+  if (sigBuf.length !== expectedBuf.length || !(0, import_crypto5.timingSafeEqual)(sigBuf, expectedBuf)) return null;
+  const [participationId, expStr] = payload.split(":");
+  if (!participationId || !expStr) return null;
+  if (Date.now() > Number(expStr)) return null;
+  return participationId;
+}
+
+// ../mesaflow/src/lib/guest.ts
+var CLIENT_SESSION_TTL_MS2 = 24 * 60 * 60 * 1e3;
 var OTP_TTL_MS = 5 * 60 * 1e3;
 var OTP_MAX_ATTEMPTS = 5;
 function otpRequiredForEstablishment(est) {
@@ -3651,37 +3679,53 @@ function createGuestParticipation(input) {
 }
 function createClientSession(participationId) {
   const store = getStore();
-  const token = generateClientSessionToken();
+  const token = issueGuestSessionToken(participationId, CLIENT_SESSION_TTL_MS2);
   const now = /* @__PURE__ */ new Date();
   const session = {
     id: id("cs_"),
     guestParticipationId: participationId,
     tokenHash: hashToken(token),
     createdAt: now.toISOString(),
-    expiresAt: new Date(now.getTime() + CLIENT_SESSION_TTL_MS).toISOString(),
+    expiresAt: new Date(now.getTime() + CLIENT_SESSION_TTL_MS2).toISOString(),
     lastSeenAt: now.toISOString()
   };
   store.clientSessions[session.id] = session;
   saveStore(store);
   return { token, session };
 }
+function resolveGuestSession(participationId) {
+  const store = getStore();
+  const participation = store.guestParticipations[participationId];
+  if (!participation || participation.status === "CLOSED") return null;
+  const establishment = store.establishments[participation.establishmentId];
+  if (!establishment) return null;
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const session = {
+    id: `stateless_${participationId}`,
+    guestParticipationId: participationId,
+    tokenHash: "",
+    createdAt: now,
+    expiresAt: now,
+    lastSeenAt: now
+  };
+  return { session, participation, establishment };
+}
 function validateClientSession(token) {
   if (!token?.trim()) return null;
+  const trimmed = token.trim();
+  const participationId = parseGuestSessionToken(trimmed);
+  if (participationId) return resolveGuestSession(participationId);
   const store = getStore();
-  const tokenHash = hashToken(token.trim());
+  const tokenHash = hashToken(trimmed);
   const session = Object.values(store.clientSessions).find(
     (entry) => entry.tokenHash === tokenHash && !entry.revokedAt
   );
   if (!session) return null;
   if (new Date(session.expiresAt).getTime() < Date.now()) return null;
-  const participation = store.guestParticipations[session.guestParticipationId];
-  if (!participation || participation.status === "CLOSED") return null;
   session.lastSeenAt = (/* @__PURE__ */ new Date()).toISOString();
   store.clientSessions[session.id] = session;
   saveStore(store);
-  const establishment = store.establishments[participation.establishmentId];
-  if (!establishment) return null;
-  return { session, participation, establishment };
+  return resolveGuestSession(session.guestParticipationId);
 }
 function revokeClientSession(token) {
   if (!token?.trim()) return;
@@ -3787,8 +3831,8 @@ function verifyOtpChallenge(input) {
   const establishment = store.establishments[challenge.establishmentId];
   const table = store.tables[challenge.tableId];
   if (!establishment || !table) return { error: "Mesa indispon\xEDvel." };
-  const secret2 = store.guestPhoneSecrets[challenge.phoneLookupHash];
-  const phoneE164 = secret2 ? decryptPhone(secret2.phoneCiphertext) : null;
+  const secret3 = store.guestPhoneSecrets[challenge.phoneLookupHash];
+  const phoneE164 = secret3 ? decryptPhone(secret3.phoneCiphertext) : null;
   if (!phoneE164) return { error: "Telefone n\xE3o encontrado para este c\xF3digo." };
   const participation = createGuestParticipation({
     establishment,
@@ -3962,6 +4006,9 @@ function readBearer(req) {
   const match = typeof authorization === "string" && authorization.match(/^Bearer\s+(.+)$/i);
   return match ? match[1].trim() : void 0;
 }
+function readGuestToken(req) {
+  return readBearer(req) || parseClientCookie(req);
+}
 function adminAuth(req) {
   const auth = validateSession(readBearer(req));
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
@@ -4011,7 +4058,7 @@ async function handler(req, res) {
       if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida ou QR expirado." });
       const command = getActiveCommand(tbl);
       const summary = guestTableSummary(est.id, command?.id);
-      const guestAuth = validateClientSession(parseClientCookie(req));
+      const guestAuth = validateClientSession(readGuestToken(req));
       return json(res, 200, {
         establishment: { id: est.id, slug: est.slug, name: est.name, open: est.open, rodizioEnabled: est.rodizioEnabled },
         table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
@@ -4023,7 +4070,7 @@ async function handler(req, res) {
       });
     }
     if (req.method === "GET" && path === "/guest/me") {
-      const guestAuth = validateClientSession(parseClientCookie(req));
+      const guestAuth = validateClientSession(readGuestToken(req));
       if (!guestAuth) return json(res, 401, { error: "Sess\xE3o de cliente inv\xE1lida." });
       const orders = Object.values(store.orders).filter((o) => o.guestParticipationId === guestAuth.participation.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       const consumptionTotal = orders.filter((o) => o.status !== "CANCELADO").reduce((sum, order) => sum + order.total, 0);
@@ -4052,6 +4099,7 @@ async function handler(req, res) {
       });
       setClientCookie(res, result.token);
       return json(res, 200, {
+        token: result.token,
         participation: publicParticipation(result.participation),
         message: result.message
       });
@@ -4087,10 +4135,13 @@ async function handler(req, res) {
       });
       if ("error" in result) return json(res, 400, { error: result.error });
       setClientCookie(res, result.token);
-      return json(res, 200, { participation: publicParticipation(result.participation) });
+      return json(res, 200, {
+        token: result.token,
+        participation: publicParticipation(result.participation)
+      });
     }
     if (req.method === "POST" && path === "/guest/logout") {
-      revokeClientSession(parseClientCookie(req));
+      revokeClientSession(readGuestToken(req));
       clearClientCookie(res);
       return json(res, 200, { ok: true });
     }
@@ -4131,7 +4182,7 @@ async function handler(req, res) {
       return json(res, 200, { orders });
     }
     if (req.method === "POST" && path === "/orders") {
-      const guestAuth = validateClientSession(parseClientCookie(req));
+      const guestAuth = validateClientSession(readGuestToken(req));
       if (!guestAuth) return json(res, 401, { error: "Sess\xE3o de cliente obrigat\xF3ria." });
       if (guestAuth.participation.status !== "OPEN") {
         return json(res, 403, { error: "Sua participa\xE7\xE3o n\xE3o permite novos pedidos." });
@@ -4337,7 +4388,7 @@ async function handler(req, res) {
       }
     }
     if (req.method === "POST" && path === "/rodizio/round") {
-      const guestAuth = validateClientSession(parseClientCookie(req));
+      const guestAuth = validateClientSession(readGuestToken(req));
       if (!guestAuth) return json(res, 401, { error: "Sess\xE3o de cliente obrigat\xF3ria." });
       if (guestAuth.participation.status !== "OPEN") {
         return json(res, 403, { error: "Sua participa\xE7\xE3o n\xE3o permite novos pedidos." });

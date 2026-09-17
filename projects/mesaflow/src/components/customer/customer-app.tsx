@@ -19,6 +19,7 @@ import {
 import { useCart } from "@/contexts/cart-context";
 import { useRealtime } from "@/hooks/use-realtime";
 import { apiUrl } from "@/lib/api";
+import { clearGuestToken, getStoredGuestToken, storeGuestToken } from "@/lib/guest-client-storage";
 import { cn } from "@/lib/cn";
 import { formatCurrency, formatTime, orderStatusLabel } from "@/lib/format";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
@@ -69,7 +70,12 @@ type GateStep = "intro" | "otp";
 const STATUS_STEPS = ["NOVO", "ACEITO", "EM_PREPARO", "PRONTO", "ENTREGUE"] as const;
 
 function apiFetch(path: string, init?: RequestInit) {
-  return fetch(apiUrl(path), { ...init, credentials: "include" });
+  const headers = new Headers(init?.headers);
+  const token = getStoredGuestToken();
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+  return fetch(apiUrl(path), { ...init, headers, credentials: "include" });
 }
 
 export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: string }) {
@@ -192,6 +198,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Não foi possível entrar na mesa");
+      if (json.token) storeGuestToken(json.token);
       await loadApp();
       if (json.message) notify(json.message);
     } catch (e) {
@@ -239,7 +246,15 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Código inválido");
-      await loadApp();
+      if (json.token) storeGuestToken(json.token);
+      setGuestMe({
+        participation: json.participation,
+        orders: [],
+        consumptionTotal: 0,
+      });
+      await loadMenu();
+      setSessionReady(true);
+      setError(null);
       notify(`Bem-vindo, ${json.participation.displayName}!`);
     } catch (e) {
       notify(e instanceof Error ? e.message : "Erro ao verificar código", "error");

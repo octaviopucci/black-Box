@@ -27,6 +27,7 @@ export async function POST(req: Request) {
   });
   return jsonWithClientCookie(
     {
+      token: result.token,
       participation: publicParticipation(result.participation),
       message: result.message,
     },
