@@ -56,7 +56,7 @@ export function Logo({
 
   const src = showTagline ? asset("/brand/logo-horizontal.png") : asset("/brand/logo-navy-bg.png");
   const width = showTagline ? 220 : 160;
-  const height = showTagline ? 48 : 36;
+  const height = showTagline ? 124 : 90;
 
   return wrap(
     <Image
@@ -65,7 +65,7 @@ export function Logo({
       width={width}
       height={height}
       className="h-auto w-auto"
-      style={{ maxHeight: showTagline ? 48 : 36 }}
+      style={{ maxHeight: showTagline ? 124 : 40, maxWidth: showTagline ? 220 : 160 }}
       priority
     />,
   );

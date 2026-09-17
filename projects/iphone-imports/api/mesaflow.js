@@ -89,6 +89,11 @@ function emptyOperational() {
     rodizios: {},
     rodizioRounds: {},
     notifications: {},
+    closingRequests: {},
+    orderItemSplits: {},
+    payments: {},
+    integrationConnections: {},
+    auditEvents: {},
     orderCounter: {}
   };
 }
@@ -110,6 +115,11 @@ function splitStore(store) {
     rodizios,
     rodizioRounds,
     notifications,
+    closingRequests,
+    orderItemSplits,
+    payments,
+    integrationConnections,
+    auditEvents,
     orderCounter,
     clientSessions,
     otpChallenges,
@@ -128,6 +138,11 @@ function splitStore(store) {
       rodizios,
       rodizioRounds,
       notifications,
+      closingRequests,
+      orderItemSplits,
+      payments,
+      integrationConnections,
+      auditEvents,
       orderCounter
     },
     identity: { users, sessions, clientSessions, otpChallenges, guestPhoneSecrets }
@@ -2151,7 +2166,7 @@ function provisionEstablishment(store, input) {
     id: estId,
     slug,
     name: input.businessName,
-    tagline: `${typeLabel} \xB7 pedidos por QR Code`,
+    tagline: `${typeLabel} \xB7 atendimento por mesa`,
     logo: "\u{1F37D}\uFE0F",
     open: true,
     rodizioEnabled: input.businessType === "rodizio",
@@ -2776,13 +2791,64 @@ function buildDemoStore() {
   ];
   cmd4.total = demoOrders.filter((o) => o.commandId === cmd4.id).reduce((s, o) => s + o.total, 0);
   cmd8.total = demoOrders.filter((o) => o.commandId === cmd8.id).reduce((s, o) => s + o.total, 0);
+  const guestParticipations = {
+    gp_demo_4a: {
+      id: "gp_demo_4a",
+      establishmentId: EST_ID,
+      commandId: cmd4.id,
+      tableId: "tbl_4",
+      phoneLookupHash: "demo_hash_4a",
+      phoneDisplay: "+55 ** *****-1001",
+      displayName: "Ana",
+      participantIndex: 1,
+      status: "OPEN",
+      joinedAt: new Date(Date.now() - 40 * 6e4).toISOString(),
+      verifiedAt: new Date(Date.now() - 40 * 6e4).toISOString(),
+      orderCount: 2,
+      lastOrderAt: demoOrders[1]?.createdAt
+    },
+    gp_demo_4b: {
+      id: "gp_demo_4b",
+      establishmentId: EST_ID,
+      commandId: cmd4.id,
+      tableId: "tbl_4",
+      phoneLookupHash: "demo_hash_4b",
+      phoneDisplay: "+55 ** *****-1002",
+      displayName: "Bruno",
+      participantIndex: 2,
+      status: "OPEN",
+      joinedAt: new Date(Date.now() - 35 * 6e4).toISOString(),
+      verifiedAt: new Date(Date.now() - 35 * 6e4).toISOString(),
+      orderCount: 1,
+      lastOrderAt: demoOrders[2]?.createdAt
+    },
+    gp_demo_8a: {
+      id: "gp_demo_8a",
+      establishmentId: EST_ID,
+      commandId: cmd8.id,
+      tableId: "tbl_8",
+      phoneLookupHash: "demo_hash_8a",
+      phoneDisplay: "+55 ** *****-2001",
+      displayName: "Carla",
+      participantIndex: 1,
+      status: "OPEN",
+      joinedAt: new Date(Date.now() - 15 * 6e4).toISOString(),
+      verifiedAt: new Date(Date.now() - 15 * 6e4).toISOString(),
+      orderCount: 1,
+      lastOrderAt: demoOrders[0]?.createdAt
+    }
+  };
+  demoOrders[0].guestParticipationId = "gp_demo_8a";
+  demoOrders[1].guestParticipationId = "gp_demo_4a";
+  demoOrders[2].guestParticipationId = "gp_demo_4b";
+  demoOrders[3].guestParticipationId = "gp_demo_4a";
   return {
     establishments: {
       [EST_ID]: {
         id: EST_ID,
         slug: DEMO_SLUG,
         name: "Ponto do Sabor",
-        tagline: "Gar\xE7om digital na sua mesa",
+        tagline: "Seu pedido, sem espera.",
         logo: "\u{1F37D}\uFE0F",
         open: true,
         rodizioEnabled: true,
@@ -2805,6 +2871,15 @@ function buildDemoStore() {
         passwordHash: hashPassword("demo123"),
         name: "Carlos Mendes",
         role: "OWNER",
+        active: true
+      },
+      user_waiter: {
+        id: "user_waiter",
+        establishmentId: EST_ID,
+        email: "garcom@pontodosabor.com",
+        passwordHash: hashPassword("demo123"),
+        name: "Jo\xE3o Gar\xE7om",
+        role: "WAITER",
         active: true
       }
     },
@@ -2832,8 +2907,13 @@ function buildDemoStore() {
     },
     rodizioRounds: {},
     notifications: {},
+    closingRequests: {},
+    orderItemSplits: {},
+    payments: {},
+    integrationConnections: {},
+    auditEvents: {},
     orderCounter: { [EST_ID]: 1294 },
-    guestParticipations: {},
+    guestParticipations,
     clientSessions: {},
     otpChallenges: {},
     guestPhoneSecrets: {}
@@ -2869,6 +2949,11 @@ function emptyStore() {
     rodizios: {},
     rodizioRounds: {},
     notifications: {},
+    closingRequests: {},
+    orderItemSplits: {},
+    payments: {},
+    integrationConnections: {},
+    auditEvents: {},
     orderCounter: {}
   };
 }
@@ -2896,6 +2981,7 @@ function load() {
   if ((0, import_fs.existsSync)(DATA_PATH)) {
     try {
       cache = { ...emptyStore(), ...JSON.parse((0, import_fs.readFileSync)(DATA_PATH, "utf8")) };
+      migrateOperationalCollections(cache);
       migrateProductImages(cache);
       return cache;
     } catch {
@@ -2910,6 +2996,13 @@ function persist(markIdentity = true) {
   (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
   operationalDirty = true;
   if (markIdentity) identityDirty = true;
+}
+function migrateOperationalCollections(store) {
+  store.closingRequests ||= {};
+  store.orderItemSplits ||= {};
+  store.payments ||= {};
+  store.integrationConnections ||= {};
+  store.auditEvents ||= {};
 }
 function migrateLegacyGuestParticipations(store) {
   let changed = false;
@@ -3094,7 +3187,7 @@ function persistStatus() {
     warning: process.env.VERCEL && lastPersistSource !== "blob" && lastPersistSource !== "redis" && !redisReady ? "Pedidos n\xE3o est\xE3o sendo compartilhados entre inst\xE2ncias. Conecte Upstash Redis ou um Blob store novo com BLOB_READ_WRITE_TOKEN." : void 0
   };
 }
-function notify(establishmentId, type, title, body) {
+function notify(establishmentId, type, title, body, extra) {
   const store = getStore();
   const n = {
     id: id("ntf_"),
@@ -3103,7 +3196,8 @@ function notify(establishmentId, type, title, body) {
     title,
     body,
     read: false,
-    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    ...extra
   };
   store.notifications[n.id] = n;
   saveStore(store);
@@ -3637,17 +3731,50 @@ function updateOrderStatus(orderId, status, establishmentId) {
 }
 function requestBill(tableId) {
   const store = getStore();
+  migrateOperationalCollections(store);
   const table = store.tables[tableId];
   if (!table) return null;
   const cmd = getActiveCommand(table);
   if (!cmd) return null;
   if (cmd.status === "PAGAMENTO_SOLICITADO") return cmd;
   cmd.status = "PAGAMENTO_SOLICITADO";
+  cmd.closingRequestedAt = (/* @__PURE__ */ new Date()).toISOString();
+  cmd.lastClosingScope = "TABLE";
   table.status = "AGUARDANDO_PAGAMENTO";
   store.commands[cmd.id] = cmd;
   store.tables[tableId] = table;
+  const participations = Object.values(store.guestParticipations).filter(
+    (entry) => entry.commandId === cmd.id && entry.status !== "CLOSED"
+  );
+  const pending = Object.values(store.closingRequests).find(
+    (entry) => entry.commandId === cmd.id && entry.status === "PENDING"
+  );
+  if (!pending) {
+    const request = {
+      id: id("clr_"),
+      establishmentId: cmd.establishmentId,
+      commandId: cmd.id,
+      tableId: table.id,
+      requestedByGuestParticipationId: participations[0]?.id || `gp_legacy_${cmd.id}`,
+      scope: "TABLE",
+      targetGuestParticipationIds: participations.map((entry) => entry.id),
+      status: "PENDING",
+      createdAt: cmd.closingRequestedAt
+    };
+    store.closingRequests[request.id] = request;
+  }
   saveStore(store);
-  notify(table.establishmentId, "bill.request", "Conta solicitada", `Mesa ${table.number}`);
+  notify(
+    table.establishmentId,
+    "bill.request",
+    "Conta solicitada",
+    `Mesa ${table.number} aguarda fechamento.`,
+    {
+      commandId: cmd.id,
+      tableId: table.id,
+      actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`
+    }
+  );
   emit({ type: "command.updated", commandId: cmd.id, establishmentId: table.establishmentId });
   return cmd;
 }
@@ -3717,6 +3844,509 @@ function dashboardStats(establishmentId) {
     pending,
     topProducts
   };
+}
+
+// ../mesaflow/src/lib/accounting.ts
+function getParticipantItemTotal(orders, splits, guestParticipationId) {
+  const splitMap = /* @__PURE__ */ new Map();
+  for (const split of splits) {
+    const list2 = splitMap.get(split.orderItemId) ?? [];
+    list2.push(split);
+    splitMap.set(split.orderItemId, list2);
+  }
+  let total = 0;
+  for (const order of orders) {
+    for (const item of order.items) {
+      const itemSplits = splitMap.get(item.id) ?? [];
+      const participantSplit = itemSplits.find(
+        (split) => split.guestParticipationId === guestParticipationId
+      );
+      if (participantSplit) {
+        const lineTotalValue = lineTotal(item);
+        const unitShare = item.qty > 0 ? lineTotalValue / item.qty : 0;
+        total += unitShare * participantSplit.quantity;
+        continue;
+      }
+      if (itemSplits.length === 0 && order.guestParticipationId === guestParticipationId) {
+        total += lineTotal(item);
+      }
+    }
+  }
+  return total;
+}
+function getCommandTotal(orders) {
+  return orders.filter((order) => order.status !== "CANCELADO").reduce((sum, order) => sum + order.total, 0);
+}
+function getParticipantPaidTotal(payments, guestParticipationId) {
+  return payments.filter(
+    (payment) => payment.status === "registered" && payment.guestParticipationId === guestParticipationId
+  ).reduce((sum, payment) => sum + payment.amount, 0);
+}
+function getCommandPaidTotal(payments) {
+  return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
+}
+
+// ../mesaflow/src/lib/closing.ts
+function buildClosingSummary(orders, participations, splits, payments) {
+  const activeOrders = orders.filter((order) => order.status !== "CANCELADO");
+  const commandTotal = getCommandTotal(activeOrders);
+  const paidTotal = getCommandPaidTotal(payments);
+  const remainingTotal = Math.max(0, commandTotal - paidTotal);
+  const participants = participations.map((participation) => {
+    const itemTotal = getParticipantItemTotal(activeOrders, splits, participation.id);
+    const participantPaid = getParticipantPaidTotal(payments, participation.id);
+    const participantRemaining = Math.max(0, itemTotal - participantPaid);
+    const displayName = participation.displayName?.trim() || `Participante ${participation.participantIndex}`;
+    return {
+      guestParticipationId: participation.id,
+      displayName,
+      itemTotal,
+      paidTotal: participantPaid,
+      remainingTotal: participantRemaining,
+      isSettled: participantRemaining <= 9e-3
+    };
+  });
+  const canSettle = remainingTotal <= 9e-3 && participants.every((participant) => participant.isSettled || participant.itemTotal <= 9e-3);
+  return {
+    commandTotal,
+    paidTotal,
+    remainingTotal,
+    canSettle,
+    participants
+  };
+}
+
+// ../mesaflow/src/lib/payments.ts
+function validatePaymentAmount(amount, maxAmount) {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return "Informe um valor maior que zero.";
+  }
+  if (maxAmount !== void 0 && amount > maxAmount + 9e-3) {
+    return "Valor acima do saldo pendente.";
+  }
+  return null;
+}
+
+// ../mesaflow/src/lib/store-operations.ts
+var PAYMENT_METHODS = /* @__PURE__ */ new Set(["cash", "credit", "debit", "pix", "other"]);
+function invalid2(error, status = 400) {
+  return { error, status };
+}
+function ensureOperationalCollections(store) {
+  store.closingRequests ||= {};
+  store.orderItemSplits ||= {};
+  store.payments ||= {};
+  store.integrationConnections ||= {};
+  store.auditEvents ||= {};
+}
+function recordAudit(store, input) {
+  ensureOperationalCollections(store);
+  const event = {
+    id: id("aud_"),
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    ...input
+  };
+  store.auditEvents[event.id] = event;
+}
+function notifyStaff(store, establishmentId, type, title, body, extra) {
+  const notification = {
+    id: id("ntf_"),
+    establishmentId,
+    type,
+    title,
+    body,
+    read: false,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    ...extra
+  };
+  store.notifications[notification.id] = notification;
+  emit({ type: "notification", notificationId: notification.id, establishmentId });
+}
+function commandOrders(store, commandId) {
+  return Object.values(store.orders).filter((order) => order.commandId === commandId);
+}
+function commandParticipations(store, commandId) {
+  return Object.values(store.guestParticipations).filter(
+    (participation) => participation.commandId === commandId && participation.status !== "CLOSED"
+  );
+}
+function commandSplits(store, commandId) {
+  return Object.values(store.orderItemSplits).filter((split) => split.commandId === commandId);
+}
+function commandPayments(store, commandId) {
+  return Object.values(store.payments).filter((payment) => payment.commandId === commandId);
+}
+function commandClosingRequests(store, commandId) {
+  return Object.values(store.closingRequests).filter((request) => request.commandId === commandId);
+}
+function getTableCockpit(establishmentId, tableId) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) return null;
+  const command = (table.commandId ? store.commands[table.commandId] : null) || Object.values(store.commands).find(
+    (entry) => entry.establishmentId === establishmentId && entry.tableId === tableId && entry.status !== "FECHADA"
+  ) || null;
+  if (!command) {
+    return { table, command: null, orders: [], participations: [], splits: [], payments: [], closingRequests: [], summary: null };
+  }
+  const orders = commandOrders(store, command.id);
+  const participations = commandParticipations(store, command.id);
+  const splits = commandSplits(store, command.id);
+  const payments = commandPayments(store, command.id);
+  const closingRequests = commandClosingRequests(store, command.id);
+  const summary = buildClosingSummary(orders, participations, splits, payments);
+  return {
+    table,
+    command,
+    orders,
+    participations,
+    splits,
+    payments,
+    closingRequests,
+    summary
+  };
+}
+function replaceOrderItemSplits(establishmentId, commandId, body, actorUserId) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const command = store.commands[commandId];
+  if (!command || command.establishmentId !== establishmentId) {
+    return invalid2("Comanda n\xE3o encontrada.", 404);
+  }
+  if (command.status === "FECHADA") {
+    return invalid2("Comanda j\xE1 encerrada.", 409);
+  }
+  if (!body || typeof body !== "object" || !Array.isArray(body.splits)) {
+    return invalid2("Informe a lista de divis\xF5es por item.");
+  }
+  const entries = body.splits;
+  const orders = commandOrders(store, command.id).filter((order) => order.status !== "CANCELADO");
+  const participations = new Set(commandParticipations(store, command.id).map((entry) => entry.id));
+  const itemMap = /* @__PURE__ */ new Map();
+  for (const order of orders) {
+    for (const item of order.items) {
+      itemMap.set(item.id, { orderId: order.id, qty: item.qty });
+    }
+  }
+  const grouped = /* @__PURE__ */ new Map();
+  const nextSplits = [];
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  for (const entry of entries) {
+    if (typeof entry.orderItemId !== "string" || typeof entry.guestParticipationId !== "string" || typeof entry.quantity !== "number" || !Number.isFinite(entry.quantity) || entry.quantity <= 0) {
+      return invalid2("Divis\xE3o de item inv\xE1lida.");
+    }
+    const item = itemMap.get(entry.orderItemId);
+    if (!item) return invalid2("Item de pedido n\xE3o pertence \xE0 comanda.");
+    if (!participations.has(entry.guestParticipationId)) {
+      return invalid2("Participante inv\xE1lido para esta comanda.");
+    }
+    grouped.set(entry.orderItemId, (grouped.get(entry.orderItemId) || 0) + entry.quantity);
+    nextSplits.push({
+      id: id("ois_"),
+      orderItemId: entry.orderItemId,
+      orderId: item.orderId,
+      commandId,
+      guestParticipationId: entry.guestParticipationId,
+      quantity: entry.quantity,
+      createdAt: now
+    });
+  }
+  for (const [orderItemId, itemInfo] of itemMap.entries()) {
+    const assigned = grouped.get(orderItemId) || 0;
+    if (assigned > 0 && Math.abs(assigned - itemInfo.qty) > 1e-4) {
+      return invalid2("A soma das divis\xF5es deve corresponder \xE0 quantidade do item.");
+    }
+  }
+  for (const [splitId, split] of Object.entries(store.orderItemSplits)) {
+    if (split.commandId === commandId) delete store.orderItemSplits[splitId];
+  }
+  for (const split of nextSplits) {
+    store.orderItemSplits[split.id] = split;
+  }
+  recordAudit(store, {
+    establishmentId,
+    type: "splits.updated",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "command",
+    targetId: commandId,
+    metadata: { count: nextSplits.length }
+  });
+  saveStore(store);
+  return { value: { splits: nextSplits } };
+}
+function registerPayment(establishmentId, commandId, body, actorUser) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const command = store.commands[commandId];
+  if (!command || command.establishmentId !== establishmentId) {
+    return invalid2("Comanda n\xE3o encontrada.", 404);
+  }
+  if (command.status === "FECHADA") {
+    return invalid2("Comanda j\xE1 encerrada.", 409);
+  }
+  if (!body || typeof body !== "object") return invalid2("Corpo inv\xE1lido.");
+  const payload = body;
+  const amount = Number(payload.amount);
+  const method = payload.method;
+  if (!method || !PAYMENT_METHODS.has(method)) {
+    return invalid2("Forma de pagamento inv\xE1lida.");
+  }
+  const amountError = validatePaymentAmount(amount);
+  if (amountError) return invalid2(amountError);
+  const participations = commandParticipations(store, command.id);
+  if (payload.guestParticipationId) {
+    const participation = participations.find((entry) => entry.id === payload.guestParticipationId);
+    if (!participation) return invalid2("Participante inv\xE1lido para esta comanda.");
+  }
+  const orders = commandOrders(store, command.id);
+  const splits = commandSplits(store, command.id);
+  const payments = commandPayments(store, command.id);
+  const summary = buildClosingSummary(orders, participations, splits, payments);
+  const maxAmount = payload.guestParticipationId ? summary.participants.find((entry) => entry.guestParticipationId === payload.guestParticipationId)?.remainingTotal : summary.remainingTotal;
+  const maxError = validatePaymentAmount(amount, maxAmount);
+  if (maxError) return invalid2(maxError);
+  const payment = {
+    id: id("pay_"),
+    establishmentId,
+    commandId,
+    guestParticipationId: payload.guestParticipationId,
+    amount,
+    method,
+    status: "registered",
+    registeredByUserId: actorUser.id,
+    registeredAt: (/* @__PURE__ */ new Date()).toISOString(),
+    note: typeof payload.note === "string" ? payload.note.trim() : void 0
+  };
+  store.payments[payment.id] = payment;
+  recordAudit(store, {
+    establishmentId,
+    type: "payment.registered",
+    actorType: "STAFF",
+    actorUserId: actorUser.id,
+    targetType: "payment",
+    targetId: payment.id,
+    metadata: { commandId, amount, method }
+  });
+  const table = store.tables[command.tableId];
+  notifyStaff(
+    store,
+    establishmentId,
+    "payment.registered",
+    "Pagamento registrado",
+    `Mesa ${table?.number || "?"} \xB7 ${amount.toFixed(2)}`,
+    {
+      commandId,
+      tableId: command.tableId,
+      actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(command.tableId)}`
+    }
+  );
+  saveStore(store);
+  const nextSummary = buildClosingSummary(
+    orders,
+    participations,
+    splits,
+    [...payments, payment]
+  );
+  return { value: { payment, summary: nextSummary } };
+}
+function voidPayment(establishmentId, paymentId, actorUser) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const payment = store.payments[paymentId];
+  if (!payment || payment.establishmentId !== establishmentId) {
+    return invalid2("Pagamento n\xE3o encontrado.", 404);
+  }
+  if (payment.status === "voided") {
+    return { value: { payment } };
+  }
+  const command = store.commands[payment.commandId];
+  if (!command || command.status === "FECHADA") {
+    return invalid2("N\xE3o \xE9 poss\xEDvel estornar pagamento de comanda encerrada.", 409);
+  }
+  payment.status = "voided";
+  payment.voidedAt = (/* @__PURE__ */ new Date()).toISOString();
+  payment.voidedByUserId = actorUser.id;
+  store.payments[paymentId] = payment;
+  recordAudit(store, {
+    establishmentId,
+    type: "payment.voided",
+    actorType: "STAFF",
+    actorUserId: actorUser.id,
+    targetType: "payment",
+    targetId: payment.id,
+    metadata: { commandId: payment.commandId }
+  });
+  saveStore(store);
+  return { value: { payment } };
+}
+function confirmClosingRequest(establishmentId, closingRequestId, actorUser) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const request = store.closingRequests[closingRequestId];
+  if (!request || request.establishmentId !== establishmentId) {
+    return invalid2("Solicita\xE7\xE3o de fechamento n\xE3o encontrada.", 404);
+  }
+  if (request.status === "CONFIRMED" || request.status === "SETTLED") {
+    return { value: { closingRequest: request } };
+  }
+  if (request.status !== "PENDING") {
+    return invalid2("Solicita\xE7\xE3o n\xE3o est\xE1 pendente.", 409);
+  }
+  const command = store.commands[request.commandId];
+  if (!command) return invalid2("Comanda n\xE3o encontrada.", 404);
+  const orders = commandOrders(store, command.id);
+  const participations = commandParticipations(store, command.id);
+  const splits = commandSplits(store, command.id);
+  const payments = commandPayments(store, command.id);
+  const summary = buildClosingSummary(orders, participations, splits, payments);
+  const targetIds = request.scope === "TABLE" ? participations.map((entry) => entry.id) : request.targetGuestParticipationIds;
+  const targetsSettled = targetIds.every((targetId) => {
+    const participant = summary.participants.find((entry) => entry.guestParticipationId === targetId);
+    return participant?.isSettled ?? false;
+  });
+  if (!targetsSettled) {
+    return invalid2("Pagamentos pendentes para confirmar o fechamento.", 409);
+  }
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  request.status = "CONFIRMED";
+  request.confirmedAt = now;
+  request.confirmedByUserId = actorUser.id;
+  store.closingRequests[closingRequestId] = request;
+  for (const participationId of targetIds) {
+    const participation = store.guestParticipations[participationId];
+    if (!participation) continue;
+    participation.status = "CLOSED";
+    participation.closedAt = now;
+    participation.closedByUserId = actorUser.id;
+    store.guestParticipations[participationId] = participation;
+  }
+  recordAudit(store, {
+    establishmentId,
+    type: "closing.confirmed",
+    actorType: "STAFF",
+    actorUserId: actorUser.id,
+    targetType: "closing_request",
+    targetId: request.id,
+    metadata: { commandId: request.commandId, scope: request.scope }
+  });
+  saveStore(store);
+  return { value: { closingRequest: request } };
+}
+function settleCommand(establishmentId, commandId, actorUser) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const command = store.commands[commandId];
+  if (!command || command.establishmentId !== establishmentId) {
+    return invalid2("Comanda n\xE3o encontrada.", 404);
+  }
+  if (command.status === "FECHADA") {
+    const table2 = store.tables[command.tableId];
+    return { value: { command, table: table2 } };
+  }
+  const orders = commandOrders(store, command.id);
+  const participations = commandParticipations(store, command.id);
+  const splits = commandSplits(store, command.id);
+  const payments = commandPayments(store, command.id);
+  const summary = buildClosingSummary(orders, participations, splits, payments);
+  if (!summary.canSettle) {
+    return invalid2("Ainda h\xE1 saldo pendente para encerrar a comanda.", 409);
+  }
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  command.status = "FECHADA";
+  command.closedAt = now;
+  store.commands[commandId] = command;
+  const table = store.tables[command.tableId];
+  if (table) {
+    table.status = "LIVRE";
+    table.commandId = void 0;
+    store.tables[table.id] = table;
+  }
+  for (const participation of Object.values(store.guestParticipations)) {
+    if (participation.commandId !== commandId || participation.status === "CLOSED") continue;
+    participation.status = "CLOSED";
+    participation.closedAt = now;
+    participation.closedByUserId = actorUser.id;
+    store.guestParticipations[participation.id] = participation;
+  }
+  for (const request of Object.values(store.closingRequests)) {
+    if (request.commandId !== commandId || request.status === "SETTLED") continue;
+    request.status = "SETTLED";
+    request.settledAt = now;
+    request.settledByUserId = actorUser.id;
+    store.closingRequests[request.id] = request;
+  }
+  recordAudit(store, {
+    establishmentId,
+    type: "command.settled",
+    actorType: "STAFF",
+    actorUserId: actorUser.id,
+    targetType: "command",
+    targetId: commandId,
+    metadata: { tableId: command.tableId }
+  });
+  saveStore(store);
+  emit({ type: "command.updated", commandId, establishmentId });
+  return { value: { command, table } };
+}
+function markNotificationRead(establishmentId, notificationId) {
+  const store = getStore();
+  const notification = store.notifications[notificationId];
+  if (!notification || notification.establishmentId !== establishmentId) {
+    return invalid2("Notifica\xE7\xE3o n\xE3o encontrada.", 404);
+  }
+  notification.read = true;
+  store.notifications[notificationId] = notification;
+  saveStore(store);
+  return { value: { notification } };
+}
+var INTEGRATION_CATALOG = [
+  { provider: "ifood", label: "iFood", description: "Receba pedidos do marketplace no painel." },
+  { provider: "rappi", label: "Rappi", description: "Sincronize card\xE1pio e pedidos delivery." },
+  { provider: "whatsapp", label: "WhatsApp", description: "Atendimento e confirma\xE7\xF5es por mensagem." },
+  { provider: "erp", label: "ERP / PDV", description: "Exporte vendas para seu sistema financeiro." },
+  { provider: "webhook", label: "Webhook", description: "Envie eventos para sua pr\xF3pria API." }
+];
+function listIntegrations(establishmentId) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const existing = Object.values(store.integrationConnections).filter(
+    (entry) => entry.establishmentId === establishmentId
+  );
+  const byProvider = new Map(existing.map((entry) => [entry.provider, entry]));
+  const items = INTEGRATION_CATALOG.map((item) => {
+    const connection = byProvider.get(item.provider);
+    return {
+      provider: item.provider,
+      label: item.label,
+      description: item.description,
+      status: connection?.status || "available",
+      connection,
+      canConnect: !connection || connection.status === "available" || connection.status === "disabled"
+    };
+  });
+  return { items };
+}
+function ensureIntegrationCatalog(establishmentId) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  for (const item of INTEGRATION_CATALOG) {
+    const existing = Object.values(store.integrationConnections).find(
+      (entry) => entry.establishmentId === establishmentId && entry.provider === item.provider
+    );
+    if (existing) continue;
+    const connection = {
+      id: id("int_"),
+      establishmentId,
+      provider: item.provider,
+      status: "available",
+      label: item.label,
+      config: {}
+    };
+    store.integrationConnections[connection.id] = connection;
+  }
+  saveStore(store);
 }
 
 // ../mesaflow/src/lib/guest-cookie-web.ts
@@ -4315,6 +4945,11 @@ function adminAuth(req) {
   const auth = validateSession(readBearer(req));
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
 }
+function staffAuth(req, roles) {
+  const auth = validateSession(readBearer(req));
+  const allowed = roles ?? ["OWNER", "MANAGER", "COUNTER", "WAITER"];
+  return auth && allowed.includes(auth.user.role) ? auth : null;
+}
 function kitchenAuth(req) {
   const auth = validateSession(readBearer(req));
   if (!auth) return null;
@@ -4670,6 +5305,80 @@ async function handler(req, res) {
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, { table: result.value });
       }
+    }
+    const cockpitMatch = path.match(/^\/admin\/tables\/([^/]+)\/cockpit$/);
+    if (cockpitMatch) {
+      const auth = staffAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "GET") {
+        const cockpit = getTableCockpit(auth.establishment.id, cockpitMatch[1]);
+        if (!cockpit) return json(res, 404, { error: "Mesa n\xE3o encontrada." });
+        return json(res, 200, cockpit);
+      }
+    }
+    const commandPaymentsMatch = path.match(/^\/admin\/commands\/([^/]+)\/payments$/);
+    if (commandPaymentsMatch && req.method === "POST") {
+      const auth = staffAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const result = registerPayment(
+        auth.establishment.id,
+        commandPaymentsMatch[1],
+        req.body,
+        auth.user
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 201, result.value);
+    }
+    const commandSettleMatch = path.match(/^\/admin\/commands\/([^/]+)\/settle$/);
+    if (commandSettleMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER"]);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const result = settleCommand(auth.establishment.id, commandSettleMatch[1], auth.user);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+    const commandSplitsMatch = path.match(/^\/admin\/commands\/([^/]+)\/splits$/);
+    if (commandSplitsMatch && req.method === "PUT") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER"]);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const result = replaceOrderItemSplits(
+        auth.establishment.id,
+        commandSplitsMatch[1],
+        req.body,
+        auth.user.id
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+    const closingConfirmMatch = path.match(/^\/admin\/closing\/([^/]+)\/confirm$/);
+    if (closingConfirmMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER"]);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const result = confirmClosingRequest(auth.establishment.id, closingConfirmMatch[1], auth.user);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+    const paymentVoidMatch = path.match(/^\/admin\/payments\/([^/]+)\/void$/);
+    if (paymentVoidMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER"]);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const result = voidPayment(auth.establishment.id, paymentVoidMatch[1], auth.user);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+    const notificationReadMatch = path.match(/^\/admin\/notifications\/([^/]+)\/read$/);
+    if (notificationReadMatch && req.method === "POST") {
+      const auth = staffAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const result = markNotificationRead(auth.establishment.id, notificationReadMatch[1]);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+    if (req.method === "GET" && path === "/admin/integrations") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      ensureIntegrationCatalog(auth.establishment.id);
+      return json(res, 200, listIntegrations(auth.establishment.id));
     }
     const regenerateQrMatch = path.match(/^\/admin\/tables\/([^/]+)\/regenerate-qr$/);
     if (regenerateQrMatch) {

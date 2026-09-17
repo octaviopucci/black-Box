@@ -190,6 +190,14 @@ export default function AdminTablesPage() {
                   <button onClick={() => copyLink(table)} className="flex items-center justify-center gap-1.5 rounded-lg bg-surface-3 px-2 py-2 text-xs text-muted hover:text-ink"><Copy className="h-3.5 w-3.5" /> Copiar link</button>
                   <Link href={menuPath(table)} target="_blank" className="flex items-center justify-center gap-1.5 rounded-lg bg-surface-3 px-2 py-2 text-xs text-muted hover:text-ink"><ExternalLink className="h-3.5 w-3.5" /> Cardápio</Link>
                 </div>
+                {(table.status === "OCUPADA" || table.status === "AGUARDANDO_PAGAMENTO") && (
+                  <Link
+                    href={`/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`}
+                    className="mt-2 flex items-center justify-center rounded-lg bg-brand/15 px-2 py-2 text-xs font-semibold text-brand hover:bg-brand/20"
+                  >
+                    Abrir cockpit
+                  </Link>
+                )}
               </div>
               <div className="grid grid-cols-3 border-t border-white/5">
                 <button disabled={busyId === table.id} onClick={() => openEdit(table)} className="flex justify-center p-3 text-muted hover:bg-white/5 hover:text-ink" aria-label={`Editar Mesa ${table.number}`}><Pencil className="h-4 w-4" /></button>

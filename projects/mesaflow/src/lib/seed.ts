@@ -1,7 +1,7 @@
 import { hashPassword, id } from "./crypto-utils";
 import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "./demo";
 import { productImage } from "./product-images";
-import type { Command, MesaFlowStore, Order, OrderItem, OrderStatus, Product } from "./types";
+import type { Command, GuestParticipation, MesaFlowStore, Order, OrderItem, OrderStatus, Product } from "./types";
 
 const EST_ID = DEMO_ESTABLISHMENT_ID;
 const DEMO_SLUG = DEMO_ESTABLISHMENT_SLUG;
@@ -459,13 +459,66 @@ export function buildDemoStore(): MesaFlowStore {
   cmd4.total = demoOrders.filter((o) => o.commandId === cmd4.id).reduce((s, o) => s + o.total, 0);
   cmd8.total = demoOrders.filter((o) => o.commandId === cmd8.id).reduce((s, o) => s + o.total, 0);
 
+  const guestParticipations: Record<string, GuestParticipation> = {
+    gp_demo_4a: {
+      id: "gp_demo_4a",
+      establishmentId: EST_ID,
+      commandId: cmd4.id,
+      tableId: "tbl_4",
+      phoneLookupHash: "demo_hash_4a",
+      phoneDisplay: "+55 ** *****-1001",
+      displayName: "Ana",
+      participantIndex: 1,
+      status: "OPEN",
+      joinedAt: new Date(Date.now() - 40 * 60000).toISOString(),
+      verifiedAt: new Date(Date.now() - 40 * 60000).toISOString(),
+      orderCount: 2,
+      lastOrderAt: demoOrders[1]?.createdAt,
+    },
+    gp_demo_4b: {
+      id: "gp_demo_4b",
+      establishmentId: EST_ID,
+      commandId: cmd4.id,
+      tableId: "tbl_4",
+      phoneLookupHash: "demo_hash_4b",
+      phoneDisplay: "+55 ** *****-1002",
+      displayName: "Bruno",
+      participantIndex: 2,
+      status: "OPEN",
+      joinedAt: new Date(Date.now() - 35 * 60000).toISOString(),
+      verifiedAt: new Date(Date.now() - 35 * 60000).toISOString(),
+      orderCount: 1,
+      lastOrderAt: demoOrders[2]?.createdAt,
+    },
+    gp_demo_8a: {
+      id: "gp_demo_8a",
+      establishmentId: EST_ID,
+      commandId: cmd8.id,
+      tableId: "tbl_8",
+      phoneLookupHash: "demo_hash_8a",
+      phoneDisplay: "+55 ** *****-2001",
+      displayName: "Carla",
+      participantIndex: 1,
+      status: "OPEN",
+      joinedAt: new Date(Date.now() - 15 * 60000).toISOString(),
+      verifiedAt: new Date(Date.now() - 15 * 60000).toISOString(),
+      orderCount: 1,
+      lastOrderAt: demoOrders[0]?.createdAt,
+    },
+  };
+
+  demoOrders[0].guestParticipationId = "gp_demo_8a";
+  demoOrders[1].guestParticipationId = "gp_demo_4a";
+  demoOrders[2].guestParticipationId = "gp_demo_4b";
+  demoOrders[3].guestParticipationId = "gp_demo_4a";
+
   return {
     establishments: {
       [EST_ID]: {
         id: EST_ID,
         slug: DEMO_SLUG,
         name: "Ponto do Sabor",
-        tagline: "Garçom digital na sua mesa",
+        tagline: "Seu pedido, sem espera.",
         logo: "🍽️",
         open: true,
         rodizioEnabled: true,
@@ -488,6 +541,15 @@ export function buildDemoStore(): MesaFlowStore {
         passwordHash: hashPassword("demo123"),
         name: "Carlos Mendes",
         role: "OWNER",
+        active: true,
+      },
+      user_waiter: {
+        id: "user_waiter",
+        establishmentId: EST_ID,
+        email: "garcom@pontodosabor.com",
+        passwordHash: hashPassword("demo123"),
+        name: "João Garçom",
+        role: "WAITER",
         active: true,
       },
     },
@@ -515,8 +577,13 @@ export function buildDemoStore(): MesaFlowStore {
     },
     rodizioRounds: {},
     notifications: {},
+    closingRequests: {},
+    orderItemSplits: {},
+    payments: {},
+    integrationConnections: {},
+    auditEvents: {},
     orderCounter: { [EST_ID]: 1294 },
-    guestParticipations: {},
+    guestParticipations,
     clientSessions: {},
     otpChallenges: {},
     guestPhoneSecrets: {},

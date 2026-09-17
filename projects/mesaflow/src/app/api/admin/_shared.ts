@@ -1,12 +1,21 @@
 import { validateSession } from "@/lib/store";
+import type { UserRole } from "@/lib/types";
 
-export function requireAdmin(req: Request) {
+function readAuth(req: Request) {
   const authorization = req.headers.get("authorization") || "";
   const match = authorization.match(/^Bearer\s+(.+)$/i);
-  const auth = validateSession(match?.[1]?.trim());
-  return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER")
-    ? auth
-    : null;
+  return validateSession(match?.[1]?.trim());
+}
+
+export function requireAdmin(req: Request) {
+  const auth = readAuth(req);
+  return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
+}
+
+export function requireStaff(req: Request, roles?: UserRole[]) {
+  const auth = readAuth(req);
+  const allowed = roles ?? ["OWNER", "MANAGER", "COUNTER", "WAITER"];
+  return auth && allowed.includes(auth.user.role) ? auth : null;
 }
 
 export async function readJson(req: Request): Promise<unknown> {

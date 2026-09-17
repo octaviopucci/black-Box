@@ -35,6 +35,17 @@ import {
   updateOrderStatus,
 } from "../../../mesaflow/src/lib/store";
 import {
+  confirmClosingRequest,
+  ensureIntegrationCatalog,
+  getTableCockpit,
+  listIntegrations,
+  markNotificationRead,
+  registerPayment,
+  replaceOrderItemSplits,
+  settleCommand,
+  voidPayment,
+} from "../../../mesaflow/src/lib/store-operations";
+import {
   clearClientCookie,
   parseClientCookie,
   setClientCookie,
@@ -122,6 +133,12 @@ function readGuestToken(req: VercelRequest) {
 function adminAuth(req: VercelRequest) {
   const auth = validateSession(readBearer(req));
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
+}
+
+function staffAuth(req: VercelRequest, roles?: string[]) {
+  const auth = validateSession(readBearer(req));
+  const allowed = roles ?? ["OWNER", "MANAGER", "COUNTER", "WAITER"];
+  return auth && allowed.includes(auth.user.role) ? auth : null;
 }
 
 function kitchenAuth(req: VercelRequest) {
@@ -559,6 +576,88 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, { table: result.value });
       }
+    }
+
+    const cockpitMatch = path.match(/^\/admin\/tables\/([^/]+)\/cockpit$/);
+    if (cockpitMatch) {
+      const auth = staffAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "GET") {
+        const cockpit = getTableCockpit(auth.establishment.id, cockpitMatch[1]);
+        if (!cockpit) return json(res, 404, { error: "Mesa não encontrada." });
+        return json(res, 200, cockpit);
+      }
+    }
+
+    const commandPaymentsMatch = path.match(/^\/admin\/commands\/([^/]+)\/payments$/);
+    if (commandPaymentsMatch && req.method === "POST") {
+      const auth = staffAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = registerPayment(
+        auth.establishment.id,
+        commandPaymentsMatch[1],
+        req.body,
+        auth.user,
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 201, result.value);
+    }
+
+    const commandSettleMatch = path.match(/^\/admin\/commands\/([^/]+)\/settle$/);
+    if (commandSettleMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER"]);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = settleCommand(auth.establishment.id, commandSettleMatch[1], auth.user);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    const commandSplitsMatch = path.match(/^\/admin\/commands\/([^/]+)\/splits$/);
+    if (commandSplitsMatch && req.method === "PUT") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER"]);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = replaceOrderItemSplits(
+        auth.establishment.id,
+        commandSplitsMatch[1],
+        req.body,
+        auth.user.id,
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    const closingConfirmMatch = path.match(/^\/admin\/closing\/([^/]+)\/confirm$/);
+    if (closingConfirmMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER"]);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = confirmClosingRequest(auth.establishment.id, closingConfirmMatch[1], auth.user);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    const paymentVoidMatch = path.match(/^\/admin\/payments\/([^/]+)\/void$/);
+    if (paymentVoidMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER"]);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = voidPayment(auth.establishment.id, paymentVoidMatch[1], auth.user);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    const notificationReadMatch = path.match(/^\/admin\/notifications\/([^/]+)\/read$/);
+    if (notificationReadMatch && req.method === "POST") {
+      const auth = staffAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = markNotificationRead(auth.establishment.id, notificationReadMatch[1]);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    if (req.method === "GET" && path === "/admin/integrations") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      ensureIntegrationCatalog(auth.establishment.id);
+      return json(res, 200, listIntegrations(auth.establishment.id));
     }
 
     const regenerateQrMatch = path.match(/^\/admin\/tables\/([^/]+)\/regenerate-qr$/);

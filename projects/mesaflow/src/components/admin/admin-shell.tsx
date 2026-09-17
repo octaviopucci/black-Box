@@ -10,6 +10,7 @@ import {
   LogOut,
   Menu,
   QrCode,
+  Plug,
   Settings,
   ShoppingBag,
   Table2,
@@ -27,6 +28,7 @@ const NAV = [
   { href: "/admin/products", label: "Produtos", icon: LayoutGrid },
   { href: "/admin/tables", label: "Mesas", icon: Table2 },
   { href: "/admin/qrcodes", label: "QR Codes", icon: QrCode },
+  { href: "/admin/integrations", label: "Integrações", icon: Plug },
   { href: "/admin/settings", label: "Ajustes", icon: Settings },
 ];
 
