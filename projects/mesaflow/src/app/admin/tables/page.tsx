@@ -192,7 +192,7 @@ export default function AdminTablesPage() {
                 </div>
                 {(table.status === "OCUPADA" || table.status === "AGUARDANDO_PAGAMENTO") && (
                   <Link
-                    href={`/admin/tables/${table.id}/cockpit`}
+                    href={`/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`}
                     className="mt-2 flex items-center justify-center rounded-lg bg-brand/15 px-2 py-2 text-xs font-semibold text-brand hover:bg-brand/20"
                   >
                     Abrir cockpit

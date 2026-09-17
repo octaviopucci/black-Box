@@ -305,7 +305,11 @@ export function registerPayment(
     "payment.registered",
     "Pagamento registrado",
     `Mesa ${table?.number || "?"} · ${amount.toFixed(2)}`,
-    { commandId, tableId: command.tableId, actionUrl: `/admin/tables/${command.tableId}/cockpit` },
+    {
+      commandId,
+      tableId: command.tableId,
+      actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(command.tableId)}`,
+    },
   );
 
   saveStore(store);

@@ -1098,7 +1098,7 @@ export function requestBill(tableId: string) {
     {
       commandId: cmd.id,
       tableId: table.id,
-      actionUrl: `/admin/tables/${table.id}/cockpit`,
+      actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`,
     },
   );
   emit({ type: "command.updated", commandId: cmd.id, establishmentId: table.establishmentId });

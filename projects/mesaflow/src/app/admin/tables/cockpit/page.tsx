@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Banknote, CheckCircle2, Split } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
@@ -49,8 +49,8 @@ type CockpitData = {
 const PAYMENT_METHODS: PaymentMethod[] = ["cash", "credit", "debit", "pix", "other"];
 
 export default function TableCockpitPage() {
-  const params = useParams<{ id: string }>();
-  const tableId = params.id;
+  const searchParams = useSearchParams();
+  const tableId = searchParams.get("table") || "";
   const { authHeaders } = useAuth();
   const [data, setData] = useState<CockpitData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,6 +65,12 @@ export default function TableCockpitPage() {
   });
 
   const load = useCallback(async () => {
+    if (!tableId) {
+      setLoading(false);
+      setError("Mesa não informada.");
+      setData(null);
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -76,6 +82,7 @@ export default function TableCockpitPage() {
       setData(json);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Falha ao carregar o cockpit.");
+      setData(null);
     } finally {
       setLoading(false);
     }
@@ -210,6 +217,17 @@ export default function TableCockpitPage() {
     }
   }
 
+  if (!tableId) {
+    return (
+      <div className="glass-card p-8 text-center">
+        <p className="text-muted">Selecione uma mesa para abrir o cockpit.</p>
+        <Link href="/admin/tables" className="mt-4 inline-block text-brand hover:underline">
+          Voltar para mesas
+        </Link>
+      </div>
+    );
+  }
+
   if (loading) {
     return <div className="skeleton h-96 rounded-2xl" />;
   }
@@ -317,7 +335,7 @@ export default function TableCockpitPage() {
                     </div>
                   ))}
                   <p className="text-xs text-muted">
-                    Cada item inteiro é atribuído a um participante. Use salvar após ajustar no backend.
+                    Cada item inteiro é atribuído a um participante.
                   </p>
                   <Button onClick={saveSplits} loading={busy === "splits"} variant="secondary">
                     Salvar divisão

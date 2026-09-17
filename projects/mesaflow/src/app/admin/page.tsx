@@ -46,7 +46,7 @@ export default function AdminDashboardPage() {
       return;
     }
     if (notification.tableId) {
-      router.push(`/admin/tables/${notification.tableId}/cockpit`);
+      router.push(`/admin/tables/cockpit?table=${encodeURIComponent(notification.tableId)}`);
     }
   }
 
