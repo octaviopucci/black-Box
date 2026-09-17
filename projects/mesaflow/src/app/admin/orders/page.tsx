@@ -45,11 +45,16 @@ export default function AdminOrdersPage() {
   async function advance(order: Order) {
     const next = NEXT[order.status];
     if (!next) return;
-    await fetch(apiUrl(`/orders/${order.id}`), {
+    const res = await fetch(apiUrl(`/orders/${order.id}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ status: next }),
     });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      alert(json.error || "Não foi possível atualizar o pedido.");
+      return;
+    }
     load();
   }
 

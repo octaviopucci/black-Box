@@ -18,7 +18,19 @@ export type BlobEtags = {
 };
 
 function blobReadWriteToken() {
-  return process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+  const direct = [
+    process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN,
+    process.env.BLOB_READ_WRITE_TOKEN,
+  ].find((value) => value?.trim());
+  if (direct) return direct.trim();
+
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!value?.trim()) continue;
+    if (key.includes("BLOB") && /TOKEN|RW/i.test(key) && value.startsWith("vercel_blob_rw_")) {
+      return value.trim();
+    }
+  }
+  return undefined;
 }
 
 function blobStoreId() {

@@ -1,4 +1,4 @@
-import { dashboardStats, getStore } from "@/lib/store";
+import { dashboardStats, getStore, persistStatus } from "@/lib/store";
 import { requireAdmin } from "../_shared";
 
 export async function GET(req: Request) {
@@ -22,6 +22,7 @@ export async function GET(req: Request) {
   const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
   return Response.json({
     establishment: est,
+    persist: persistStatus(),
     stats,
     orders,
     tables,
