@@ -2,6 +2,7 @@ import {
   createOrder,
   getOrOpenCommand,
   getStore,
+  saveStore,
   validateSession,
 } from "@/lib/store";
 import { validateClientSession } from "@/lib/guest";
@@ -57,8 +58,11 @@ export async function POST(req: Request) {
   if (!resolved.ok) return Response.json({ error: resolved.error }, { status: resolved.status });
 
   const command = getOrOpenCommand(tbl);
-  if (command.id !== guestAuth.participation.commandId) {
-    return Response.json({ error: "Comanda da participação desatualizada. Recarregue a página." }, { status: 409 });
+  const participation = store.guestParticipations[guestAuth.participation.id] || guestAuth.participation;
+  if (participation.commandId !== command.id) {
+    participation.commandId = command.id;
+    store.guestParticipations[participation.id] = participation;
+    saveStore(store);
   }
 
   try {

@@ -16,6 +16,7 @@ import {
   getAdminSettings,
   getOrOpenCommand,
   getStore,
+  saveStore,
   hydratePersistentStore,
   listAdminProducts,
   listAdminTables,
@@ -353,8 +354,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
 
       const command = getOrOpenCommand(tbl);
-      if (command.id !== guestAuth.participation.commandId) {
-        return json(res, 409, { error: "Comanda da participação desatualizada. Recarregue a página." });
+      const participation = store.guestParticipations[guestAuth.participation.id] || guestAuth.participation;
+      if (participation.commandId !== command.id) {
+        participation.commandId = command.id;
+        store.guestParticipations[participation.id] = participation;
+        saveStore(store);
       }
 
       try {
