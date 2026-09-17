@@ -154,7 +154,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const redisProbe = await probeRedisStorage();
       const persist = await flushPersistentStore();
       const blobOk = probe.ok || (storage.hasToken && storage.configured);
-      const sharedOk = persist.blob || persist.redis === true;
+      const sharedOk =
+        persist.blob === true ||
+        persist.redis === true ||
+        (redisProbe.ok === true && storage.redis?.configured === true);
       const establishments = Object.keys(store.establishments).length;
       return json(
         res,

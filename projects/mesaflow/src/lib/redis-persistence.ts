@@ -155,3 +155,10 @@ export async function probeRedis(): Promise<{ ok: boolean; error?: string }> {
   if (pong !== "PONG") return { ok: false, error: "redis ping failed" };
   return { ok: true };
 }
+
+export async function redisHasStoreData(): Promise<boolean> {
+  if (!redisConfigured()) return false;
+  const operational = await redisCommand<string>(["GET", OPERATIONAL_KEY]);
+  const identity = await redisCommand<string>(["GET", IDENTITY_KEY]);
+  return Boolean(operational || identity);
+}
