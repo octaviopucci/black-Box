@@ -7,6 +7,7 @@ import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { useRealtime } from "@/hooks/use-realtime";
 import { apiUrl } from "@/lib/api";
+import { BRAND_NAME } from "@/lib/brand";
 import { DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
 import { minutesSince } from "@/lib/format";
 import type { Order, OrderStatus, Sector } from "@/lib/types";
@@ -87,7 +88,7 @@ export function KdsView({ sectorId }: { sectorId: string }) {
         <div className="flex items-center gap-4">
           <Logo variant="icon" href={null} iconSize={36} />
           <div>
-            <p className="text-xs uppercase tracking-widest text-brand">KDS · MesaFlow</p>
+            <p className="text-xs uppercase tracking-widest text-brand">KDS · {BRAND_NAME}</p>
             <h1 className="text-3xl font-bold">{sectorName}</h1>
           </div>
         </div>

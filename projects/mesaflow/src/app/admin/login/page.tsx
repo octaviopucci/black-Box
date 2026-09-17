@@ -8,6 +8,7 @@ import { apiUrl } from "@/lib/api";
 import { AuthLayout } from "@/components/ui/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BRAND_NAME } from "@/lib/brand";
 import { DEMO_LOGIN } from "@/lib/demo";
 
 export default function AdminLoginPage() {
@@ -42,7 +43,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <AuthLayout title="Bem-vindo de volta" subtitle="Entre no painel do seu estabelecimento">
+    <AuthLayout title="Bem-vindo de volta" subtitle={`Entre no painel ${BRAND_NAME} do seu estabelecimento`}>
       <form onSubmit={onSubmit} className="space-y-4">
         {error && (
           <p className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">{error}</p>

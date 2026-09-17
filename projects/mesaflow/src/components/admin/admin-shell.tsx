@@ -22,7 +22,7 @@ import { cn } from "@/lib/cn";
 import type { Sector } from "@/lib/types";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingBag },
   { href: "/admin/products", label: "Produtos", icon: LayoutGrid },
   { href: "/admin/tables", label: "Mesas", icon: Table2 },

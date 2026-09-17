@@ -72,7 +72,7 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
     id: estId,
     slug,
     name: input.businessName,
-    tagline: `${typeLabel} · pedidos por QR Code`,
+    tagline: `${typeLabel} · atendimento por mesa`,
     logo: "🍽️",
     open: true,
     rodizioEnabled: input.businessType === "rodizio",

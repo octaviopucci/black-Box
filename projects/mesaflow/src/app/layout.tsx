@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { AuthProvider } from "@/contexts/auth-context";
+import { BRAND_DESCRIPTION, BRAND_NAME, BRAND_TAGLINE, BRAND_TITLE } from "@/lib/brand";
 import { asset } from "@/lib/assets";
 import "./globals.css";
 
@@ -11,9 +12,21 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "MesaFlow — Seu pedido, sem espera",
-  description: "Garçom digital + pedidos por QR Code para restaurantes, bares e padarias.",
-  applicationName: "MesaFlow",
+  title: BRAND_TITLE,
+  description: BRAND_DESCRIPTION,
+  applicationName: BRAND_NAME,
+  openGraph: {
+    title: BRAND_TITLE,
+    description: BRAND_DESCRIPTION,
+    siteName: BRAND_NAME,
+    type: "website",
+    locale: "pt_BR",
+  },
+  twitter: {
+    card: "summary",
+    title: BRAND_TITLE,
+    description: BRAND_DESCRIPTION,
+  },
   icons: {
     icon: [
       { url: asset("/brand/icon-16.png"), sizes: "16x16", type: "image/png" },
@@ -25,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1A1A1A",
+  themeColor: "#18242C",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

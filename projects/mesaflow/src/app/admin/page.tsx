@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold">Dashboard</h1>
+        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold">Visão geral</h1>
         <p className="mt-1 text-muted">{establishment?.name}</p>
       </div>
 
