@@ -3,7 +3,7 @@ import {
   getOrOpenCommand,
   getStore,
   saveStore,
-  validateSession,
+  validateActiveSession,
 } from "@/lib/store";
 import { validateClientSession } from "@/lib/guest";
 import { resolveOrderLines } from "@/lib/order-resolve";
@@ -12,7 +12,7 @@ import { readAdminSessionToken } from "@/lib/staff-auth-request";
 import type { OrderLineInput } from "@/lib/types";
 
 export async function GET(req: Request) {
-  const auth = validateSession(readAdminSessionToken(req));
+  const auth = validateActiveSession(readAdminSessionToken(req));
   const allowed = ["OWNER", "MANAGER", "WAITER", "COUNTER"];
   if (!auth || !allowed.includes(auth.user.role)) {
     return Response.json({ error: "Não autorizado." }, { status: 401 });

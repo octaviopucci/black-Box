@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     tableCount: Number(body.tableCount) || 5,
     privacyConsent: body.privacyConsent,
     inviteCode: body.inviteCode,
+    plan: body.plan,
   });
   if (result.error) {
     return withRateLimitHeaders(Response.json({ error: result.error }, { status: 400 }), rl);

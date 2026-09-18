@@ -7,7 +7,7 @@ const tempDir = mkdtempSync(join(tmpdir(), "mesaflow-platform-"));
 process.env.MESAFLOW_DATA = join(tempDir, "store.json");
 
 async function run() {
-  const { loginUser, registerEstablishment, getStore } = await import("./store");
+  const { loginUser, registerEstablishment, getStore, validateActiveSession } = await import("./store");
   const {
     loginPlatformUser,
     validatePlatformSession,
@@ -15,6 +15,7 @@ async function run() {
     getMerchantDetail,
     platformDashboard,
     updateMerchantStatus,
+    updateMerchant,
   } = await import("./platform-store");
   const { parsePlatformSessionToken } = await import("./platform-session-token");
   const { parseAdminSessionToken } = await import("./admin-session-token");
@@ -38,6 +39,7 @@ async function run() {
   const demo = merchants.find((m) => m.slug === "ponto-do-sabor");
   assert.ok(demo, "demo merchant found");
   assert.equal(demo!.plan, "premium");
+  assert.equal(demo!.platformStatus, "active");
 
   const detail = getMerchantDetail(demo!.id);
   assert.ok(detail?.tables.length > 0, "merchant detail includes tables");
@@ -55,16 +57,39 @@ async function run() {
     password: "SenhaTeste1",
     businessType: "lanchonete",
     tableCount: 5,
+    plan: "premium",
     privacyConsent: {
       acceptedAt: new Date().toISOString(),
       policyVersion: PRIVACY_POLICY_VERSION,
     },
   });
   assert.ok(signup.session, signup.error);
+  assert.equal(signup.establishment!.platformStatus, "pending");
+  assert.equal(signup.establishment!.plan, "premium");
+
+  const pendingLogin = loginUser("maria.platform.test@example.com", "SenhaTeste1");
+  assert.ok(pendingLogin.session, pendingLogin.error);
+
+  const pendingApi = validateActiveSession(pendingLogin.session!.token);
+  assert.equal(pendingApi, null, "pending merchant blocked from operational admin API");
+
   const newMerchants = listMerchants({ q: "maria.platform.test" });
   assert.equal(newMerchants.length, 1);
-  assert.equal(newMerchants[0].plan, "essencial");
-  assert.equal(newMerchants[0].platformStatus, "active");
+  assert.equal(newMerchants[0].plan, "premium");
+  assert.equal(newMerchants[0].platformStatus, "pending");
+
+  const approved = updateMerchantStatus(newMerchants[0].id, "active");
+  assert.ok("value" in approved);
+  assert.equal(approved.value.platformStatus, "active");
+
+  const allowed = loginUser("maria.platform.test@example.com", "SenhaTeste1");
+  assert.ok(allowed.session, allowed.error);
+  const activeApi = validateActiveSession(allowed.session!.token);
+  assert.ok(activeApi, "approved merchant can use admin API");
+
+  const planChanged = updateMerchant(newMerchants[0].id, { plan: "custom" });
+  assert.ok("value" in planChanged);
+  assert.equal(planChanged.value.plan, "custom");
 
   const suspended = updateMerchantStatus(newMerchants[0].id, "suspended", "teste");
   assert.ok("value" in suspended);
@@ -75,8 +100,8 @@ async function run() {
 
   const reactivated = updateMerchantStatus(newMerchants[0].id, "active");
   assert.ok("value" in reactivated);
-  const allowed = loginUser("maria.platform.test@example.com", "SenhaTeste1");
-  assert.ok(allowed.session, allowed.error);
+  const allowedAgain = loginUser("maria.platform.test@example.com", "SenhaTeste1");
+  assert.ok(allowedAgain.session, allowedAgain.error);
 
   console.log("platform.test.ts — all assertions passed");
 }

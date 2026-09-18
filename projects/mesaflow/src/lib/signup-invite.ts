@@ -1,5 +1,4 @@
 import { timingSafeEqual } from "crypto";
-import { isProductionEnv } from "./production-secrets";
 
 function safeEqual(a: string, b: string): boolean {
   const bufA = Buffer.from(a);
@@ -8,14 +7,13 @@ function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(bufA, bufB);
 }
 
-/** Em dev signup aberto; em prod fechado salvo MESAFLOW_SIGNUP_OPEN=1 ou invite válido. */
-export function signupOpenWithoutInvite(): boolean {
-  if (!isProductionEnv()) return true;
-  return process.env.MESAFLOW_SIGNUP_OPEN === "1";
+/** Signup aberto por padrão; convite obrigatório só com MESAFLOW_SIGNUP_INVITE_ONLY=1. */
+export function signupRequiresInvite(): boolean {
+  return process.env.MESAFLOW_SIGNUP_INVITE_ONLY === "1";
 }
 
-export function signupRequiresInvite(): boolean {
-  return !signupOpenWithoutInvite();
+export function signupOpenWithoutInvite(): boolean {
+  return !signupRequiresInvite();
 }
 
 export function validateSignupInvite(code: string | undefined | null): boolean {

@@ -6,10 +6,10 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { usePlatformAuth } from "@/contexts/platform-auth-context";
 import { Button } from "@/components/ui/button";
-import { staffFetch } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
-import { PLAN_LABELS } from "@/lib/platform-plans";
+import { PLAN_LABELS, PLAN_OPTIONS } from "@/lib/platform-plans";
+import { PLATFORM_STATUS_LABELS } from "@/lib/platform-status";
 import type { PlatformPlan, PlatformStatus } from "@/lib/types";
 
 type MerchantDetail = {
@@ -41,7 +41,13 @@ type MerchantDetail = {
   analytics30d: { sales: { revenue: number; ordersCount: number; paymentsCollected: number } };
 };
 
-const STATUS_OPTIONS: PlatformStatus[] = ["active", "inactive", "suspended"];
+const STATUS_ACTIONS: { status: PlatformStatus; label: string; variant?: "primary" | "secondary" }[] = [
+  { status: "active", label: "Aprovar / Ativar", variant: "primary" },
+  { status: "pending", label: "Marcar pendente" },
+  { status: "rejected", label: "Rejeitar" },
+  { status: "inactive", label: "Desativar" },
+  { status: "suspended", label: "Suspender" },
+];
 
 function PlatformMerchantDetailContent() {
   const searchParams = useSearchParams();
@@ -51,6 +57,7 @@ function PlatformMerchantDetailContent() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<PlatformPlan>("essencial");
 
   const load = useCallback(async () => {
     if (!id) {
@@ -61,8 +68,12 @@ function PlatformMerchantDetailContent() {
     setLoading(true);
     const res = await fetchApi(`/platform/merchants/${id}`);
     const json = await res.json();
-    if (res.ok) setMerchant(json.merchant);
-    else setMerchant(null);
+    if (res.ok) {
+      setMerchant(json.merchant);
+      setSelectedPlan(json.merchant.plan);
+    } else {
+      setMerchant(null);
+    }
     setLoading(false);
   }, [fetchApi, id]);
 
@@ -70,18 +81,14 @@ function PlatformMerchantDetailContent() {
     load();
   }, [load]);
 
-  async function updateStatus(status: PlatformStatus) {
+  async function patchMerchant(body: Record<string, unknown>) {
     if (!merchant || !id) return;
-    const reason =
-      status === "suspended"
-        ? window.prompt("Motivo da suspensão (opcional):") || undefined
-        : undefined;
     setSaving(true);
     setError("");
     const res = await fetchApi(`/platform/merchants/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ platformStatus: status, reason }),
+      body: JSON.stringify(body),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -90,7 +97,23 @@ function PlatformMerchantDetailContent() {
       return;
     }
     setMerchant(json.merchant);
+    setSelectedPlan(json.merchant.plan);
     setSaving(false);
+  }
+
+  async function updateStatus(status: PlatformStatus) {
+    const needsReason = status === "suspended" || status === "rejected";
+    const reason = needsReason
+      ? window.prompt(
+          status === "rejected" ? "Motivo da rejeição (opcional):" : "Motivo da suspensão (opcional):",
+        ) || undefined
+      : undefined;
+    await patchMerchant({ platformStatus: status, reason });
+  }
+
+  async function savePlan() {
+    if (!merchant || selectedPlan === merchant.plan) return;
+    await patchMerchant({ plan: selectedPlan });
   }
 
   if (!id) {
@@ -152,24 +175,62 @@ function PlatformMerchantDetailContent() {
       )}
 
       <div className="glass-panel p-5">
-        <h3 className="font-semibold text-ink">Ações administrativas</h3>
+        <h3 className="font-semibold text-ink">Aprovação e status</h3>
         <p className="mt-1 text-xs text-muted">
-          Status atual: <strong className="text-ink">{merchant.platformStatus}</strong>
+          Status atual:{" "}
+          <strong className="text-ink">{PLATFORM_STATUS_LABELS[merchant.platformStatus]}</strong>
           {merchant.suspendedReason ? ` — ${merchant.suspendedReason}` : ""}
         </p>
+        {merchant.platformStatus === "pending" && (
+          <p className="mt-2 text-sm text-warning">
+            Este lojista concluiu o cadastro e aguarda aprovação para operar o painel admin.
+          </p>
+        )}
         <div className="mt-4 flex flex-wrap gap-2">
-          {STATUS_OPTIONS.map((status) => (
+          {STATUS_ACTIONS.map(({ status, label, variant }) => (
             <Button
               key={status}
               size="sm"
-              variant={merchant.platformStatus === status ? "primary" : "secondary"}
+              variant={merchant.platformStatus === status ? "primary" : variant ?? "secondary"}
               disabled={saving || merchant.platformStatus === status}
               onClick={() => updateStatus(status)}
-              className={cn(status === "active" && merchant.platformStatus !== status && "hover:bg-success/20")}
+              className={cn(
+                status === "active" && merchant.platformStatus !== status && "hover:bg-success/20",
+              )}
             >
-              {status === "active" ? "Ativar" : status === "inactive" ? "Desativar" : "Suspender"}
+              {label}
             </Button>
           ))}
+        </div>
+      </div>
+
+      <div className="glass-panel p-5">
+        <h3 className="font-semibold text-ink">Plano comercial</h3>
+        <p className="mt-1 text-xs text-muted">
+          Plano atual: <strong className="text-ink">{PLAN_LABELS[merchant.plan]}</strong>
+          {merchant.planStartedAt
+            ? ` · desde ${new Date(merchant.planStartedAt).toLocaleDateString("pt-BR")}`
+            : ""}
+        </p>
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <select
+            value={selectedPlan}
+            onChange={(e) => setSelectedPlan(e.target.value as PlatformPlan)}
+            className="rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-sm text-ink"
+          >
+            {PLAN_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <Button
+            size="sm"
+            disabled={saving || selectedPlan === merchant.plan}
+            onClick={() => savePlan()}
+          >
+            Salvar plano
+          </Button>
         </div>
       </div>
 
@@ -182,7 +243,8 @@ function PlatformMerchantDetailContent() {
             label: "Última atividade",
             value: merchant.lastActivityAt
               ? new Date(merchant.lastActivityAt).toLocaleString("pt-BR")
-              : "—" },
+              : "—",
+          },
         ].map((item) => (
           <div key={item.label} className="glass-panel p-4">
             <p className="text-xs uppercase tracking-wider text-muted">{item.label}</p>

@@ -26,3 +26,26 @@ export function resolvePlan(plan: PlatformPlan | undefined): PlatformPlan {
 export function planAnnualRevenue(plan: PlatformPlan | undefined): number {
   return PLAN_ANNUAL_PRICE[resolvePlan(plan)];
 }
+
+export const PLAN_OPTIONS: { value: PlatformPlan; label: string; description: string }[] = [
+  {
+    value: "essencial",
+    label: PLAN_LABELS.essencial,
+    description: "Até 10 mesas · ideal para começar",
+  },
+  {
+    value: "premium",
+    label: PLAN_LABELS.premium,
+    description: "Mesas ilimitadas · recursos avançados",
+  },
+  {
+    value: "custom",
+    label: PLAN_LABELS.custom,
+    description: "Operação sob medida · suporte dedicado",
+  },
+];
+
+export function parsePlatformPlan(value: unknown): PlatformPlan | null {
+  if (value === "essencial" || value === "premium" || value === "custom") return value;
+  return null;
+}

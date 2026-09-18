@@ -1,6 +1,7 @@
 import { dashboardAnalytics, type DashboardPeriod } from "@/lib/dashboard-analytics";
 import { planAnnualRevenue, resolvePlan } from "@/lib/platform-plans";
 import { getStore } from "@/lib/store";
+import { resolvePlatformStatus } from "@/lib/platform-status";
 import type { Establishment, PlatformPlan, PlatformStatus, User } from "@/lib/types";
 
 const MS_DAY = 24 * 60 * 60 * 1000;
@@ -11,10 +12,6 @@ export type MerchantListFilters = {
   status?: PlatformStatus | "all";
   plan?: PlatformPlan | "all";
 };
-
-export function resolvePlatformStatus(establishment: Establishment): PlatformStatus {
-  return establishment.platformStatus ?? "active";
-}
 
 function establishmentOwner(establishmentId: string): User | undefined {
   const store = getStore();

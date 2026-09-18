@@ -25,6 +25,13 @@ import { hashPassword, id, sessionToken, verifyPassword } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
 import { PRODUCT_IMAGES, productImageByName } from "./product-images";
+import { parsePlatformPlan } from "./platform-plans";
+import {
+  isMerchantAdminOperational,
+  isMerchantLoginAllowed,
+  merchantLoginBlockedMessage,
+  resolvePlatformStatus,
+} from "./platform-status";
 import { provisionEstablishment, type RegisterInput } from "./provision";
 import { buildDemoStore } from "./seed";
 import type {
@@ -539,11 +546,20 @@ export function validateSession(token: string | null | undefined) {
   return { session, user, establishment };
 }
 
+/** Sessão válida + lojista aprovado (status active). */
+export function validateActiveSession(token: string | null | undefined) {
+  const auth = validateSession(token);
+  if (!auth) return null;
+  if (!isMerchantAdminOperational(resolvePlatformStatus(auth.establishment))) return null;
+  return auth;
+}
+
 export function registerEstablishment(
   input: Omit<RegisterInput, "passwordHash"> & {
     password: string;
     privacyConsent?: unknown;
     inviteCode?: string;
+    plan?: string;
   },
 ) {
   const store = getStore();
@@ -566,6 +582,11 @@ export function registerEstablishment(
     return { error: "Nome do negócio e responsável são obrigatórios." };
   }
 
+  const plan = parsePlatformPlan(input.plan);
+  if (input.plan && !plan) {
+    return { error: "Plano inválido. Escolha essencial, premium ou custom." };
+  }
+
   const { establishment, user } = provisionEstablishment(store, {
     businessName: input.businessName.trim(),
     ownerName: input.ownerName.trim(),
@@ -574,6 +595,7 @@ export function registerEstablishment(
     businessType: input.businessType,
     operationMode: input.operationMode,
     tableCount: input.tableCount,
+    plan: plan ?? undefined,
   });
   user.privacyConsent = consent;
   store.users[user.id] = user;
@@ -635,14 +657,9 @@ export function loginUser(email: string, password: string) {
   }
   const establishment = store.establishments[user.establishmentId];
   if (!establishment) return { error: "Estabelecimento não encontrado." };
-  const platformStatus = establishment.platformStatus ?? "active";
-  if (platformStatus !== "active") {
-    return {
-      error:
-        platformStatus === "suspended"
-          ? "Conta suspensa pela operação NA MESA. Entre em contato com o suporte."
-          : "Conta inativa. Entre em contato com o suporte NA MESA.",
-    };
+  const platformStatus = resolvePlatformStatus(establishment);
+  if (!isMerchantLoginAllowed(platformStatus)) {
+    return { error: merchantLoginBlockedMessage(platformStatus) };
   }
   user.lastLoginAt = new Date().toISOString();
   store.users[user.id] = user;

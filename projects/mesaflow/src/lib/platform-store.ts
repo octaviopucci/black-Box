@@ -1,10 +1,11 @@
 import { appendAuditEvent } from "./audit-log";
 import { issuePlatformSessionToken, parsePlatformSessionToken } from "./platform-session-token";
 import { getMerchantDetail, listMerchants, platformDashboard } from "./platform-analytics";
+import { parsePlatformPlan } from "./platform-plans";
 import { hashPassword, id, verifyPassword } from "./crypto-utils";
 import { PLATFORM_OWNER_LOGIN } from "./demo";
 import { getStore, saveStore } from "./store";
-import type { PlatformStatus, PlatformUser } from "./types";
+import type { PlatformPlan, PlatformStatus, PlatformUser } from "./types";
 
 const PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -86,22 +87,44 @@ export function ensurePlatformOwnerSeed() {
   return user;
 }
 
-export function updateMerchantStatus(
-  establishmentId: string,
-  status: PlatformStatus,
-  reason?: string,
-) {
+export type MerchantPatch = {
+  platformStatus?: PlatformStatus;
+  plan?: PlatformPlan;
+  reason?: string;
+};
+
+export function updateMerchant(establishmentId: string, patch: MerchantPatch) {
   const store = getStore();
   const establishment = store.establishments[establishmentId];
   if (!establishment) return { error: "Estabelecimento não encontrado.", status: 404 };
 
-  establishment.platformStatus = status;
-  if (status === "suspended") {
-    establishment.suspendedAt = new Date().toISOString();
-    establishment.suspendedReason = reason?.trim() || undefined;
-  } else {
-    establishment.suspendedAt = undefined;
-    establishment.suspendedReason = undefined;
+  const metadata: Record<string, unknown> = {};
+
+  if (patch.platformStatus !== undefined) {
+    establishment.platformStatus = patch.platformStatus;
+    if (patch.platformStatus === "suspended" || patch.platformStatus === "rejected") {
+      establishment.suspendedAt = new Date().toISOString();
+      establishment.suspendedReason = patch.reason?.trim() || undefined;
+    } else {
+      establishment.suspendedAt = undefined;
+      establishment.suspendedReason = undefined;
+    }
+    metadata.status = patch.platformStatus;
+    metadata.reason = patch.reason?.trim() || null;
+  }
+
+  if (patch.plan !== undefined) {
+    const nextPlan = parsePlatformPlan(patch.plan);
+    if (!nextPlan) return { error: "Plano inválido.", status: 400 };
+    if (establishment.plan !== nextPlan) {
+      establishment.plan = nextPlan;
+      establishment.planStartedAt = new Date().toISOString();
+      metadata.plan = nextPlan;
+    }
+  }
+
+  if (Object.keys(metadata).length === 0) {
+    return { error: "Nenhuma alteração informada.", status: 400 };
   }
 
   appendAuditEvent(store, {
@@ -110,10 +133,19 @@ export function updateMerchantStatus(
     actorType: "PLATFORM",
     targetType: "establishment",
     targetId: establishmentId,
-    metadata: { status, reason: reason?.trim() || null },
+    metadata,
   });
   saveStore(store);
   return { value: getMerchantDetail(establishmentId)! };
+}
+
+/** @deprecated Use updateMerchant */
+export function updateMerchantStatus(
+  establishmentId: string,
+  status: PlatformStatus,
+  reason?: string,
+) {
+  return updateMerchant(establishmentId, { platformStatus: status, reason });
 }
 
 export { listMerchants, getMerchantDetail, platformDashboard };

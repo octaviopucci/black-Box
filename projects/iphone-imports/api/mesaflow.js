@@ -2221,6 +2221,78 @@ var init_product_images = __esm({
   }
 });
 
+// ../mesaflow/src/lib/platform-plans.ts
+function resolvePlan(plan) {
+  return plan ?? "essencial";
+}
+function planAnnualRevenue(plan) {
+  return PLAN_ANNUAL_PRICE[resolvePlan(plan)];
+}
+function parsePlatformPlan(value) {
+  if (value === "essencial" || value === "premium" || value === "custom") return value;
+  return null;
+}
+var PLAN_ANNUAL_PRICE, PLAN_LABELS, PLAN_OPTIONS;
+var init_platform_plans = __esm({
+  "../mesaflow/src/lib/platform-plans.ts"() {
+    "use strict";
+    PLAN_ANNUAL_PRICE = {
+      essencial: 997,
+      premium: 1997,
+      custom: 2997
+    };
+    PLAN_LABELS = {
+      essencial: "Essencial",
+      premium: "Premium",
+      custom: "Custom"
+    };
+    PLAN_OPTIONS = [
+      {
+        value: "essencial",
+        label: PLAN_LABELS.essencial,
+        description: "At\xE9 10 mesas \xB7 ideal para come\xE7ar"
+      },
+      {
+        value: "premium",
+        label: PLAN_LABELS.premium,
+        description: "Mesas ilimitadas \xB7 recursos avan\xE7ados"
+      },
+      {
+        value: "custom",
+        label: PLAN_LABELS.custom,
+        description: "Opera\xE7\xE3o sob medida \xB7 suporte dedicado"
+      }
+    ];
+  }
+});
+
+// ../mesaflow/src/lib/platform-status.ts
+function resolvePlatformStatus(establishment) {
+  return establishment.platformStatus ?? "active";
+}
+function isMerchantLoginAllowed(status) {
+  return status === "active" || status === "pending";
+}
+function merchantLoginBlockedMessage(status) {
+  switch (status) {
+    case "pending":
+      return "Cadastro aguardando aprova\xE7\xE3o da plataforma NA MESA.";
+    case "rejected":
+      return "Cadastro n\xE3o aprovado. Entre em contato com o suporte NA MESA.";
+    case "suspended":
+      return "Conta suspensa pela opera\xE7\xE3o NA MESA. Entre em contato com o suporte.";
+    case "inactive":
+      return "Conta inativa. Entre em contato com o suporte NA MESA.";
+    default:
+      return "Acesso indispon\xEDvel. Entre em contato com o suporte NA MESA.";
+  }
+}
+var init_platform_status = __esm({
+  "../mesaflow/src/lib/platform-status.ts"() {
+    "use strict";
+  }
+});
+
 // ../mesaflow/src/lib/operation-modes.ts
 function isOperationMode(value) {
   return typeof value === "string" && OPERATION_MODE_VALUES.has(value);
@@ -2323,9 +2395,9 @@ function provisionEstablishment(store, input) {
       minIntervalRodizioSec: 120,
       otpRequired: true
     },
-    plan: "essencial",
+    plan: parsePlatformPlan(input.plan) ?? "essencial",
     planStartedAt: now,
-    platformStatus: "active",
+    platformStatus: "pending",
     createdAt: now
   };
   const user = {
@@ -2501,6 +2573,7 @@ var init_provision = __esm({
     import_crypto4 = require("crypto");
     init_product_images();
     init_operation_modes();
+    init_platform_plans();
     TYPE_LABELS = {
       restaurante: "Restaurante",
       lanchonete: "Lanchonete",
@@ -3598,9 +3671,11 @@ function safeEqual(a, b) {
   if (bufA.length !== bufB.length) return false;
   return (0, import_crypto5.timingSafeEqual)(bufA, bufB);
 }
+function signupRequiresInvite() {
+  return process.env.MESAFLOW_SIGNUP_INVITE_ONLY === "1";
+}
 function signupOpenWithoutInvite() {
-  if (!isProductionEnv()) return true;
-  return process.env.MESAFLOW_SIGNUP_OPEN === "1";
+  return !signupRequiresInvite();
 }
 function validateSignupInvite(code) {
   if (signupOpenWithoutInvite()) return true;
@@ -3618,7 +3693,6 @@ var init_signup_invite = __esm({
   "../mesaflow/src/lib/signup-invite.ts"() {
     "use strict";
     import_crypto5 = require("crypto");
-    init_production_secrets();
   }
 });
 
@@ -3695,29 +3769,7 @@ var init_platform_session_token = __esm({
   }
 });
 
-// ../mesaflow/src/lib/platform-plans.ts
-function resolvePlan(plan) {
-  return plan ?? "essencial";
-}
-function planAnnualRevenue(plan) {
-  return PLAN_ANNUAL_PRICE[resolvePlan(plan)];
-}
-var PLAN_ANNUAL_PRICE;
-var init_platform_plans = __esm({
-  "../mesaflow/src/lib/platform-plans.ts"() {
-    "use strict";
-    PLAN_ANNUAL_PRICE = {
-      essencial: 997,
-      premium: 1997,
-      custom: 2997
-    };
-  }
-});
-
 // ../mesaflow/src/lib/platform-analytics.ts
-function resolvePlatformStatus(establishment) {
-  return establishment.platformStatus ?? "active";
-}
 function establishmentOwner(establishmentId) {
   const store = getStore();
   return Object.values(store.users).find(
@@ -3912,6 +3964,7 @@ var init_platform_analytics = __esm({
     init_dashboard_analytics();
     init_platform_plans();
     init_store();
+    init_platform_status();
     MS_DAY = 24 * 60 * 60 * 1e3;
     INACTIVE_DAYS_THRESHOLD = 14;
   }
@@ -3927,6 +3980,7 @@ __export(platform_store_exports, {
   loginPlatformUser: () => loginPlatformUser,
   platformDashboard: () => platformDashboard,
   publicPlatformUser: () => publicPlatformUser,
+  updateMerchant: () => updateMerchant,
   updateMerchantStatus: () => updateMerchantStatus,
   validatePlatformSession: () => validatePlatformSession
 });
@@ -3992,17 +4046,34 @@ function ensurePlatformOwnerSeed() {
   saveStore(store);
   return user;
 }
-function updateMerchantStatus(establishmentId, status, reason) {
+function updateMerchant(establishmentId, patch) {
   const store = getStore();
   const establishment = store.establishments[establishmentId];
   if (!establishment) return { error: "Estabelecimento n\xE3o encontrado.", status: 404 };
-  establishment.platformStatus = status;
-  if (status === "suspended") {
-    establishment.suspendedAt = (/* @__PURE__ */ new Date()).toISOString();
-    establishment.suspendedReason = reason?.trim() || void 0;
-  } else {
-    establishment.suspendedAt = void 0;
-    establishment.suspendedReason = void 0;
+  const metadata = {};
+  if (patch.platformStatus !== void 0) {
+    establishment.platformStatus = patch.platformStatus;
+    if (patch.platformStatus === "suspended" || patch.platformStatus === "rejected") {
+      establishment.suspendedAt = (/* @__PURE__ */ new Date()).toISOString();
+      establishment.suspendedReason = patch.reason?.trim() || void 0;
+    } else {
+      establishment.suspendedAt = void 0;
+      establishment.suspendedReason = void 0;
+    }
+    metadata.status = patch.platformStatus;
+    metadata.reason = patch.reason?.trim() || null;
+  }
+  if (patch.plan !== void 0) {
+    const nextPlan = parsePlatformPlan(patch.plan);
+    if (!nextPlan) return { error: "Plano inv\xE1lido.", status: 400 };
+    if (establishment.plan !== nextPlan) {
+      establishment.plan = nextPlan;
+      establishment.planStartedAt = (/* @__PURE__ */ new Date()).toISOString();
+      metadata.plan = nextPlan;
+    }
+  }
+  if (Object.keys(metadata).length === 0) {
+    return { error: "Nenhuma altera\xE7\xE3o informada.", status: 400 };
   }
   appendAuditEvent(store, {
     establishmentId,
@@ -4010,10 +4081,13 @@ function updateMerchantStatus(establishmentId, status, reason) {
     actorType: "PLATFORM",
     targetType: "establishment",
     targetId: establishmentId,
-    metadata: { status, reason: reason?.trim() || null }
+    metadata
   });
   saveStore(store);
   return { value: getMerchantDetail(establishmentId) };
+}
+function updateMerchantStatus(establishmentId, status, reason) {
+  return updateMerchant(establishmentId, { platformStatus: status, reason });
 }
 var PLATFORM_SESSION_TTL_MS2;
 var init_platform_store = __esm({
@@ -4022,6 +4096,7 @@ var init_platform_store = __esm({
     init_audit_log();
     init_platform_session_token();
     init_platform_analytics();
+    init_platform_plans();
     init_crypto_utils();
     init_demo();
     init_store();
@@ -4429,6 +4504,10 @@ function registerEstablishment(input) {
   if (!input.businessName.trim() || !input.ownerName.trim()) {
     return { error: "Nome do neg\xF3cio e respons\xE1vel s\xE3o obrigat\xF3rios." };
   }
+  const plan = parsePlatformPlan(input.plan);
+  if (input.plan && !plan) {
+    return { error: "Plano inv\xE1lido. Escolha essencial, premium ou custom." };
+  }
   const { establishment, user } = provisionEstablishment(store, {
     businessName: input.businessName.trim(),
     ownerName: input.ownerName.trim(),
@@ -4436,7 +4515,8 @@ function registerEstablishment(input) {
     passwordHash: hashPassword(input.password),
     businessType: input.businessType,
     operationMode: input.operationMode,
-    tableCount: input.tableCount
+    tableCount: input.tableCount,
+    plan: plan ?? void 0
   });
   user.privacyConsent = consent;
   store.users[user.id] = user;
@@ -4490,11 +4570,9 @@ function loginUser(email, password) {
   }
   const establishment = store.establishments[user.establishmentId];
   if (!establishment) return { error: "Estabelecimento n\xE3o encontrado." };
-  const platformStatus = establishment.platformStatus ?? "active";
-  if (platformStatus !== "active") {
-    return {
-      error: platformStatus === "suspended" ? "Conta suspensa pela opera\xE7\xE3o NA MESA. Entre em contato com o suporte." : "Conta inativa. Entre em contato com o suporte NA MESA."
-    };
+  const platformStatus = resolvePlatformStatus(establishment);
+  if (!isMerchantLoginAllowed(platformStatus)) {
+    return { error: merchantLoginBlockedMessage(platformStatus) };
   }
   user.lastLoginAt = (/* @__PURE__ */ new Date()).toISOString();
   store.users[user.id] = user;
@@ -5146,6 +5224,8 @@ var init_store = __esm({
     init_events();
     init_order_math();
     init_product_images();
+    init_platform_plans();
+    init_platform_status();
     init_provision();
     init_seed();
     init_audit_log();
