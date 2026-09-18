@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import { resolveSecret } from "./production-secrets";
 
 const ADMIN_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -9,10 +10,9 @@ export type AdminTokenClaims = {
 };
 
 function secret() {
-  return (
-    process.env.MESAFLOW_ADMIN_SESSION_SECRET ||
-    process.env.MESAFLOW_IDENTITY_SECRET ||
-    "mesaflow-dev-only-change-in-production"
+  return resolveSecret(
+    ["MESAFLOW_ADMIN_SESSION_SECRET", "MESAFLOW_IDENTITY_SECRET"],
+    "admin session signing",
   );
 }
 

@@ -79,7 +79,7 @@ import {
 import { normalizePhoneE164 } from "../../../mesaflow/src/lib/identity-crypto";
 import { parseBase64UploadBody, uploadProductImage } from "../../../mesaflow/src/lib/media-upload";
 import { isOperationMode } from "../../../mesaflow/src/lib/operation-modes";
-import { publicOtpBypassHint } from "../../../mesaflow/src/lib/otp-bypass";
+import { resolveGuestTableContext } from "../../../mesaflow/src/lib/guest-table-context";
 import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
 import type { OperationMode, OrderLineInput, OrderStatus } from "../../../mesaflow/src/lib/types";
 
@@ -224,30 +224,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "GET" && path === "/guest/table-context") {
       const slug = String(req.query?.slug || "");
       const tableToken = String(req.query?.tableToken || "");
-      const est = findEstablishmentBySlug(slug);
-      if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
-      const tbl = findTableByQr(est.id, tableToken);
-      if (!tbl) return json(res, 404, { error: "Mesa inválida ou QR expirado." });
-      const command = getActiveCommand(tbl);
-      const summary = guestTableSummary(est.id, command?.id);
-      const guestAuth = validateClientSession(readGuestToken(req));
-      return json(res, 200, {
-        establishment: {
-          id: est.id,
-          slug: est.slug,
-          name: est.name,
-          open: est.open,
-          rodizioEnabled: est.rodizioEnabled,
-          operationMode: est.operationMode || "a_la_carte",
-        },
-        table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
-        command,
-        otpRequired: otpRequiredForEstablishment(est),
-        otpBypass: publicOtpBypassHint(),
-        hasSession: Boolean(guestAuth),
-        operationMode: est.operationMode || "a_la_carte",
-        ...summary,
-      });
+      const result = resolveGuestTableContext(slug, tableToken, readGuestToken(req));
+      if (!result.ok) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.data);
     }
 
     if (req.method === "GET" && path === "/guest/me") {

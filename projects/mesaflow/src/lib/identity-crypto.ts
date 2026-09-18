@@ -1,9 +1,8 @@
-import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes } from "crypto";
-
-const DEV_FALLBACK_SECRET = "mesaflow-dev-only-change-in-production";
+import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, randomInt } from "crypto";
+import { resolveSecret } from "./production-secrets";
 
 function secret(name: string): string {
-  return process.env[name] || process.env.MESAFLOW_IDENTITY_SECRET || DEV_FALLBACK_SECRET;
+  return resolveSecret([name, "MESAFLOW_IDENTITY_SECRET"], name);
 }
 
 export function hashToken(token: string): string {
@@ -68,7 +67,7 @@ export function otpCodeHash(challengeId: string, code: string): string {
 }
 
 export function generateOtpCode(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(randomInt(100000, 1000000));
 }
 
 export function generateClientSessionToken(): string {
