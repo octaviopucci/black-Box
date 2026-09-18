@@ -1,4 +1,5 @@
 import { buildClosingSummary } from "@/lib/closing";
+import { clearPaymentConfirmationIfUnsettled, getGuestPaymentStatus } from "@/lib/guest-payment";
 import { validatePaymentAmount } from "@/lib/payments";
 import { id } from "@/lib/crypto-utils";
 import { emit } from "@/lib/events";
@@ -347,6 +348,10 @@ export function voidPayment(
   payment.voidedByUserId = actorUser.id;
   store.payments[paymentId] = payment;
 
+  if (payment.guestParticipationId) {
+    clearPaymentConfirmationIfUnsettled(store, payment.guestParticipationId);
+  }
+
   recordAudit(store, {
     establishmentId,
     type: "payment.voided",
@@ -358,6 +363,63 @@ export function voidPayment(
   });
   saveStore(store);
   return { value: { payment } };
+}
+
+export function confirmGuestPayment(
+  establishmentId: string,
+  participationId: string,
+  actorUser: User,
+): MutationResult<{ participation: GuestParticipation }> {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const participation = store.guestParticipations[participationId];
+  if (!participation || participation.establishmentId !== establishmentId) {
+    return invalid("Participação não encontrada.", 404);
+  }
+  if (participation.status === "CLOSED") {
+    return invalid("Participante já saiu da mesa.", 409);
+  }
+  if (participation.paymentConfirmedAt) {
+    return { value: { participation } };
+  }
+
+  const paymentStatus = getGuestPaymentStatus(participation);
+  if (paymentStatus.itemTotal > 0.009 && !paymentStatus.isSettled) {
+    return invalid("Registre o pagamento completo antes de confirmar.", 409);
+  }
+
+  const now = new Date().toISOString();
+  participation.paymentConfirmedAt = now;
+  participation.paymentConfirmedByUserId = actorUser.id;
+  store.guestParticipations[participationId] = participation;
+
+  const table = store.tables[participation.tableId];
+  notifyStaff(
+    store,
+    establishmentId,
+    "payment.confirmed",
+    "Pagamento confirmado",
+    `${participation.displayName || "Cliente"} · Mesa ${table?.number || "?"} — pode sair da mesa`,
+    {
+      commandId: participation.commandId,
+      tableId: participation.tableId,
+      actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(participation.tableId)}`,
+      metadata: { guestParticipationId: participationId },
+    },
+  );
+
+  recordAudit(store, {
+    establishmentId,
+    type: "payment.confirmed",
+    actorType: "STAFF",
+    actorUserId: actorUser.id,
+    targetType: "guest_participation",
+    targetId: participationId,
+    metadata: { commandId: participation.commandId, tableId: participation.tableId },
+  });
+
+  saveStore(store);
+  return { value: { participation } };
 }
 
 export function confirmClosingRequest(

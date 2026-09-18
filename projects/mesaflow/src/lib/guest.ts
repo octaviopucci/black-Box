@@ -465,6 +465,7 @@ export function publicParticipation(gp: GuestParticipation) {
     phoneDisplay: gp.phoneDisplay,
     orderCount: gp.orderCount,
     comandaNumber: gp.comandaNumber,
+    paymentConfirmedAt: gp.paymentConfirmedAt,
   };
 }
 

@@ -82,6 +82,9 @@ export interface GuestParticipation {
   closingRequestedAt?: string;
   closedAt?: string;
   closedByUserId?: string;
+  /** OK do restaurante — cliente pode sair da mesa após este timestamp */
+  paymentConfirmedAt?: string;
+  paymentConfirmedByUserId?: string;
   orderCount: number;
   lastOrderAt?: string;
 }

@@ -217,6 +217,25 @@ export default function TableCockpitPage() {
     }
   }
 
+  async function confirmPayment(participationId: string, label: string) {
+    setBusy(`confirm:${participationId}`);
+    setError("");
+    try {
+      const response = await fetch(
+        apiUrl(`/admin/guests/${encodeURIComponent(participationId)}/confirm-payment`),
+        { method: "POST", headers: authHeaders() },
+      );
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(json.error || "Não foi possível confirmar o pagamento.");
+      setFeedback(`Pagamento de ${label} confirmado — cliente pode sair da mesa.`);
+      await load();
+    } catch (confirmError) {
+      setError(confirmError instanceof Error ? confirmError.message : "Falha ao confirmar pagamento.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   async function kickParticipant(participationId: string, label: string) {
     if (!window.confirm(`Remover ${label} da mesa?`)) return;
     setBusy(`kick:${participationId}`);
@@ -443,35 +462,60 @@ export default function TableCockpitPage() {
               <div className="glass-card p-6">
                 <h2 className="mb-4 font-semibold">Participantes</h2>
                 <ul className="space-y-3">
-                  {summary.participants.map((participant) => (
-                    <li key={participant.guestParticipationId} className="rounded-xl border border-white/5 p-3 text-sm">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-medium">{participant.displayName}</span>
-                        <div className="flex items-center gap-2">
-                          {participant.isSettled ? (
-                            <CheckCircle2 className="h-4 w-4 text-success" />
-                          ) : null}
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            loading={busy === `kick:${participant.guestParticipationId}`}
-                            onClick={() =>
-                              void kickParticipant(
-                                participant.guestParticipationId,
-                                participant.displayName || "participante",
-                              )
-                            }
-                          >
-                            <UserX className="mr-1.5 h-3.5 w-3.5" />
-                            Kick
-                          </Button>
+                  {summary.participants.map((participant) => {
+                    const gp = data.participations.find((p) => p.id === participant.guestParticipationId);
+                    const paymentConfirmed = Boolean(gp?.paymentConfirmedAt);
+                    const canConfirm =
+                      !paymentConfirmed &&
+                      (participant.isSettled || participant.itemTotal <= 0.009);
+                    return (
+                      <li key={participant.guestParticipationId} className="rounded-xl border border-white/5 p-3 text-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium">{participant.displayName}</span>
+                          <div className="flex items-center gap-2">
+                            {paymentConfirmed ? (
+                              <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-success">
+                                OK pagamento
+                              </span>
+                            ) : participant.isSettled ? (
+                              <CheckCircle2 className="h-4 w-4 text-success" aria-label="Saldo quitado" />
+                            ) : null}
+                            {canConfirm && (
+                              <Button
+                                size="sm"
+                                loading={busy === `confirm:${participant.guestParticipationId}`}
+                                onClick={() =>
+                                  void confirmPayment(
+                                    participant.guestParticipationId,
+                                    participant.displayName || "participante",
+                                  )
+                                }
+                              >
+                                Confirmar pagamento
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              loading={busy === `kick:${participant.guestParticipationId}`}
+                              onClick={() =>
+                                void kickParticipant(
+                                  participant.guestParticipationId,
+                                  participant.displayName || "participante",
+                                )
+                              }
+                            >
+                              <UserX className="mr-1.5 h-3.5 w-3.5" />
+                              Kick
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                      <p className="mt-1 text-muted">
-                        {formatCurrency(participant.paidTotal)} / {formatCurrency(participant.itemTotal)}
-                      </p>
-                    </li>
-                  ))}
+                        <p className="mt-1 text-muted">
+                          {formatCurrency(participant.paidTotal)} / {formatCurrency(participant.itemTotal)}
+                        </p>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
