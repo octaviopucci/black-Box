@@ -16,6 +16,11 @@ const requiredFiles = [
   "admin/signup.html",
   "admin/products.html",
   "admin/settings.html",
+  "platform.html",
+  "platform/login.html",
+  "platform/merchants.html",
+  "platform/merchants/detail.html",
+  "privacidade.html",
   "brand/logo-icon.png",
   "brand/logo-vertical.png",
   "favicon.ico",
@@ -23,11 +28,44 @@ const requiredFiles = [
   "manifest.webmanifest",
 ];
 
+/** cleanUrl exige index.html quando Next exporta pasta RSC sem index. */
+const requiredCleanUrlIndexes = [
+  "platform/index.html",
+  "platform/login/index.html",
+  "platform/merchants/index.html",
+  "platform/merchants/detail/index.html",
+  "privacidade/index.html",
+];
+
+const requiredPlatformRewrites = [
+  "/mesaflow/platform/login",
+  "/mesaflow/platform/merchants/detail",
+  "/mesaflow/platform/merchants",
+  "/mesaflow/platform",
+  "/mesaflow/privacidade",
+];
+
+const requiredHandlerRoutes = [
+  "/platform/auth/login",
+  "/platform/auth/me",
+  "/platform/dashboard",
+  "/platform/merchants",
+];
+
 let failed = false;
+
 for (const rel of requiredFiles) {
   const path = join(mesaflowOut, rel);
   if (!existsSync(path)) {
     console.error(`✗ ausente: out/mesaflow/${rel}`);
+    failed = true;
+  }
+}
+
+for (const rel of requiredCleanUrlIndexes) {
+  const path = join(mesaflowOut, rel);
+  if (!existsSync(path)) {
+    console.error(`✗ cleanUrl index ausente: out/mesaflow/${rel}`);
     failed = true;
   }
 }
@@ -45,7 +83,11 @@ if (badRewrites.length > 0) {
   failed = true;
 }
 
-for (const route of ["/mesaflow/admin/products", "/mesaflow/admin/settings"]) {
+for (const route of [
+  "/mesaflow/admin/products",
+  "/mesaflow/admin/settings",
+  ...requiredPlatformRewrites,
+]) {
   const rewrite = (vercelJson.rewrites ?? []).find((candidate) => candidate.source === route);
   if (!rewrite || rewrite.destination !== route) {
     console.error(`✗ rewrite ausente ou inválido: ${route}`);
@@ -53,5 +95,13 @@ for (const route of ["/mesaflow/admin/products", "/mesaflow/admin/settings"]) {
   }
 }
 
+const handlerBundle = readFileSync(join(hostRoot, "api/mesaflow.js"), "utf8");
+for (const route of requiredHandlerRoutes) {
+  if (!handlerBundle.includes(route)) {
+    console.error(`✗ api/mesaflow.js sem rota ${route}`);
+    failed = true;
+  }
+}
+
 if (failed) process.exit(1);
-console.log("✓ mesaflow deploy artifacts OK");
+console.log("✓ mesaflow deploy artifacts OK (admin + platform static, rewrites, API)");

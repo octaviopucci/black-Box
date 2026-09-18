@@ -9,21 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-hook:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Vercel deploy hook (mesaflow)
-        env:
-          HOOK: ${{ secrets.MESAFLOW_VERCEL_DEPLOY_HOOK }}
-        run: |
-          if [ -n "$HOOK" ]; then
-            curl -fsS -X POST "$HOOK"
-            echo "Deploy hook triggered for mesaflow."
-          else
-            echo "MESAFLOW_VERCEL_DEPLOY_HOOK not configured — skipping."
-            echo "Configure em: Vercel → mesaflow → Settings → Deploy Hooks"
-          fi
-
+  # MesaFlow em produção vive em be-dois / loja-iphoneimports (build-mesaflow.mjs).
+  # Hook separado do projeto mesaflow standalone queimava cota free (100 deploys/dia).
   build-verify:
     runs-on: ubuntu-latest
     steps:
