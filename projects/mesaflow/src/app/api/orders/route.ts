@@ -18,7 +18,8 @@ function readBearer(req: Request) {
 
 export async function GET(req: Request) {
   const auth = validateSession(readBearer(req));
-  if (!auth || (auth.user.role !== "OWNER" && auth.user.role !== "MANAGER")) {
+  const allowed = ["OWNER", "MANAGER", "WAITER", "COUNTER"];
+  if (!auth || !allowed.includes(auth.user.role)) {
     return Response.json({ error: "Não autorizado." }, { status: 401 });
   }
   const url = new URL(req.url);

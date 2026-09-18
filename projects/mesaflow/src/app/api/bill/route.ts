@@ -1,11 +1,22 @@
-import { findEstablishmentBySlug, findTableByQr, requestBill } from "@/lib/store";
+import { validateClientSession } from "@/lib/guest";
+import { requestGuestClosing } from "@/lib/guest-closing";
+import { readClientToken } from "@/lib/guest-request";
 
+/** @deprecated Prefer POST /guest/closing/request with scope TABLE */
 export async function POST(req: Request) {
-  const { slug, tableToken } = await req.json();
-  const est = findEstablishmentBySlug(slug);
-  if (!est) return Response.json({ error: "Estabelecimento não encontrado." }, { status: 404 });
-  const table = findTableByQr(est.id, tableToken);
-  if (!table) return Response.json({ error: "Mesa inválida." }, { status: 404 });
-  const cmd = requestBill(table.id);
-  return Response.json({ ok: true, command: cmd });
+  const guestAuth = validateClientSession(readClientToken(req));
+  if (!guestAuth) {
+    return Response.json({ error: "Sessão de cliente obrigatória." }, { status: 401 });
+  }
+
+  const result = requestGuestClosing(guestAuth.participation.id, "TABLE");
+  if ("error" in result) {
+    return Response.json({ error: result.error }, { status: result.status });
+  }
+
+  return Response.json({
+    ok: true,
+    closingRequest: result.value.closingRequest,
+    scope: "TABLE",
+  });
 }

@@ -12,6 +12,18 @@ export function requireAdmin(req: Request) {
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
 }
 
+export function requireDashboard(req: Request) {
+  const auth = readAuth(req);
+  const allowed: UserRole[] = ["OWNER", "MANAGER", "COUNTER", "WAITER", "KITCHEN"];
+  return auth && allowed.includes(auth.user.role) ? auth : null;
+}
+
+export function requireKds(req: Request) {
+  const auth = readAuth(req);
+  const allowed: UserRole[] = ["OWNER", "MANAGER", "KITCHEN", "COUNTER"];
+  return auth && allowed.includes(auth.user.role) ? auth : null;
+}
+
 export function requireStaff(req: Request, roles?: UserRole[]) {
   const auth = readAuth(req);
   const allowed = roles ?? ["OWNER", "MANAGER", "COUNTER", "WAITER"];

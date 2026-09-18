@@ -444,15 +444,17 @@ export function verifyOtpChallenge(input: {
 export function guestTableSummary(establishmentId: string, commandId: string | undefined) {
   const store = getStore();
   if (!commandId) {
-    return { participantCount: 0, tableTotal: 0 };
+    return { participantCount: 0, tableTotal: 0, participants: [] as ReturnType<typeof publicParticipation>[] };
   }
-  const participants = Object.values(store.guestParticipations).filter(
-    (gp) => gp.commandId === commandId && gp.status !== "CLOSED",
-  );
+  const participants = Object.values(store.guestParticipations)
+    .filter((gp) => gp.commandId === commandId && gp.status !== "CLOSED")
+    .sort((a, b) => a.participantIndex - b.participantIndex)
+    .map(publicParticipation);
   const command = store.commands[commandId];
   return {
     participantCount: participants.length,
     tableTotal: command?.total || 0,
+    participants,
   };
 }
 

@@ -68,6 +68,7 @@ type TableContext = {
   hasSession: boolean;
   participantCount: number;
   tableTotal: number;
+  participants?: Array<{ id: string; displayName: string; participantIndex: number }>;
   operationMode?: string;
 };
 
@@ -405,8 +406,12 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   }
 
   function openClosingOrBill() {
-    if (closingSuggestions.length === 0) {
-      void requestBill();
+    if (guestMe?.participation.status === "CLOSING_REQUESTED") {
+      notify("Fechamento já solicitado — aguarde o atendimento.", "error");
+      return;
+    }
+    if (closingSuggestions.length === 0 && (context?.participantCount || 1) <= 1) {
+      void requestClosing("TABLE");
       return;
     }
     setClosingOpen(true);
@@ -468,19 +473,38 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     }
   }
 
-  async function requestBill() {
+  async function requestClosing(scope: "SELF" | "SELECTED" | "TABLE", targetIds?: string[]) {
     try {
-      const response = await apiFetch("/bill", {
+      const response = await apiFetch("/guest/closing/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, tableToken }),
+        body: JSON.stringify({ scope, targetGuestParticipationIds: targetIds }),
       });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível solicitar a conta.");
-      notify("Conta solicitada! Um atendente virá até sua mesa.");
+      const message =
+        scope === "SELF"
+          ? "Fechamento da sua parte solicitado!"
+          : scope === "SELECTED"
+            ? "Fechamento parcial solicitado!"
+            : "Conta da mesa solicitada! Um atendente virá até você.";
+      notify(message);
+      setClosingOpen(false);
       await refresh();
     } catch (billError) {
       notify(billError instanceof Error ? billError.message : "Erro ao solicitar a conta.", "error");
+    }
+  }
+
+  async function cancelClosing() {
+    try {
+      const response = await apiFetch("/guest/closing/cancel", { method: "POST" });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(json.error || "Não foi possível cancelar.");
+      notify("Solicitação de fechamento cancelada.");
+      await refresh();
+    } catch (cancelError) {
+      notify(cancelError instanceof Error ? cancelError.message : "Erro ao cancelar.", "error");
     }
   }
 
@@ -913,6 +937,31 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               </span>
             </div>
 
+            {guestMe?.participation.status === "CLOSING_REQUESTED" && (
+              <div className="mb-4 flex items-start gap-3 rounded-xl border border-brand/25 bg-brand/10 px-4 py-3">
+                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-brand">Fechamento solicitado</p>
+                  <p className="mt-0.5 text-xs text-muted">
+                    Novos pedidos estão pausados até o restaurante confirmar.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void cancelClosing()}
+                    className="mt-2 text-xs font-semibold text-brand underline"
+                  >
+                    Cancelar solicitação
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {context && context.participantCount > 1 && (
+              <p className="mb-3 text-xs text-muted">
+                {context.participantCount} participantes na mesa
+              </p>
+            )}
+
             {guestMe?.participation.paymentConfirmedAt && (
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-success/25 bg-success/10 px-4 py-3">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
@@ -962,7 +1011,8 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               </p>
             )}
 
-            {!guestMe?.participation.paymentConfirmedAt && (
+            {!guestMe?.participation.paymentConfirmedAt &&
+              guestMe?.participation.status !== "CLOSING_REQUESTED" && (
               <Button className="mt-4 w-full" variant="secondary" onClick={openClosingOrBill}>
                 <ClipboardList className="mr-2 h-4 w-4" />
                 Pedir a conta
@@ -1209,11 +1259,11 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       {closingOpen && (
         <ClosingSheet
           suggestions={closingSuggestions}
+          participantCount={context?.participantCount || 1}
+          participants={context?.participants || []}
+          selfParticipationId={guestMe?.participation.id}
           onAddContinue={handleClosingAdd}
-          onRequestBill={() => {
-            setClosingOpen(false);
-            void requestBill();
-          }}
+          onRequestClosing={(scope, targetIds) => void requestClosing(scope, targetIds)}
           onDismiss={() => setClosingOpen(false)}
         />
       )}

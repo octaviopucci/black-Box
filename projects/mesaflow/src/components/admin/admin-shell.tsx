@@ -21,7 +21,7 @@ import { Logo } from "@/components/brand/logo";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
 import { cn } from "@/lib/cn";
-import type { Sector } from "@/lib/types";
+import type { Sector, UserRole } from "@/lib/types";
 
 const NAV = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
@@ -33,6 +33,21 @@ const NAV = [
   { href: "/admin/integrations", label: "Integrações", icon: Plug },
   { href: "/admin/settings", label: "Ajustes", icon: Settings },
 ];
+
+const ROLE_NAV: Record<UserRole, string[] | "*"> = {
+  OWNER: "*",
+  MANAGER: "*",
+  WAITER: ["/admin", "/admin/orders", "/admin/tables", "/admin/operations", "/admin/qrcodes"],
+  KITCHEN: ["/admin", "/admin/orders", "/admin/operations"],
+  COUNTER: ["/admin", "/admin/orders", "/admin/tables", "/admin/operations", "/admin/qrcodes"],
+};
+
+function navForRole(role: UserRole | undefined) {
+  if (!role) return NAV;
+  const allowed = ROLE_NAV[role];
+  if (allowed === "*") return NAV;
+  return NAV.filter((item) => allowed.includes(item.href));
+}
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -67,9 +82,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   }, [pathname]);
 
+  const roleNav = navForRole(session?.user.role);
+  const mobileNav = roleNav.slice(0, 5);
+
   const navigation = (
     <nav className="space-y-1">
-      {NAV.map(({ href, label, icon: Icon }) => (
+      {roleNav.map(({ href, label, icon: Icon }) => (
         <Link
           key={href}
           href={href}
@@ -154,8 +172,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
         <main className="min-w-0 p-4 pb-24 lg:p-8">{children}</main>
-        <nav className="print-hide fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-white/10 bg-surface/90 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden">
-          {NAV.slice(0, 5).map(({ href, label, icon: Icon }) => (
+        <nav
+          className="print-hide fixed inset-x-0 bottom-0 z-30 grid border-t border-white/10 bg-surface/90 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden"
+          style={{ gridTemplateColumns: `repeat(${Math.max(mobileNav.length, 1)}, minmax(0, 1fr))` }}
+        >
+          {mobileNav.map(({ href, label, icon: Icon }) => (
             <Link key={href} href={href} className={cn("flex flex-col items-center gap-1 py-1 text-[10px]", isActive(href) ? "text-brand" : "text-muted")}>
               <Icon className="h-5 w-5" />
               {label}

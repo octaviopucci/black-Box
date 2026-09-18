@@ -1,6 +1,6 @@
 import { dashboardAnalytics, type DashboardPeriod } from "@/lib/dashboard-analytics";
 import { dashboardStats, getStore, persistStatus } from "@/lib/store";
-import { requireAdmin } from "../_shared";
+import { requireDashboard } from "../_shared";
 
 function parsePeriod(value: string | null): DashboardPeriod {
   if (value === "7d" || value === "30d") return value;
@@ -8,7 +8,7 @@ function parsePeriod(value: string | null): DashboardPeriod {
 }
 
 export async function GET(req: Request) {
-  const auth = requireAdmin(req);
+  const auth = requireDashboard(req);
   if (!auth) return Response.json({ error: "Não autorizado." }, { status: 401 });
   const est = auth.establishment;
   const { searchParams } = new URL(req.url);
