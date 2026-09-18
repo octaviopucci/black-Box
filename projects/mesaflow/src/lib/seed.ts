@@ -6,6 +6,7 @@ import type { Command, GuestParticipation, MesaFlowStore, Order, OrderItem, Orde
 const EST_ID = DEMO_ESTABLISHMENT_ID;
 const DEMO_SLUG = DEMO_ESTABLISHMENT_SLUG;
 
+/** Demo store with known QR tokens/passwords — never loaded in production unless MESAFLOW_ALLOW_DEMO_SEED=1. */
 export function buildDemoStore(): MesaFlowStore {
   const now = new Date().toISOString();
   const sectors = {

@@ -50,7 +50,10 @@ import type {
   OperationMode,
 } from "./types";
 import { dashboardAnalytics } from "./dashboard-analytics";
+import { purgeStaleData } from "./data-retention";
 import { isOperationMode } from "./operation-modes";
+import { consentRequiredMessage, validatePrivacyConsent } from "./privacy-policy";
+import { isProductionEnv } from "./production-secrets";
 
 const DATA_PATH =
   process.env.MESAFLOW_DATA ||
@@ -141,9 +144,20 @@ function load(): MesaFlowStore {
       /* fallthrough */
     }
   }
+  if (isProductionEnv() && process.env.MESAFLOW_ALLOW_DEMO_SEED !== "1") {
+    cache = emptyStore();
+    migrateOperationalCollections(cache);
+    return cache;
+  }
   cache = buildDemoStore();
   persist();
   return cache;
+}
+
+function runRetentionPurge(store: MesaFlowStore) {
+  const stats = purgeStaleData(store);
+  const total = Object.values(stats).reduce((sum, n) => sum + n, 0);
+  if (total > 0) saveStore(store);
 }
 
 function persist(markIdentity = true) {
@@ -181,8 +195,16 @@ function migrateLegacyGuestParticipations(store: MesaFlowStore) {
   if (changed) persist(false);
 }
 
+let productionPlatformSeeded = false;
+
 export function getStore() {
-  return load();
+  const store = load();
+  if (!productionPlatformSeeded && isProductionEnv()) {
+    productionPlatformSeeded = true;
+    const { ensurePlatformOwnerSeed } = require("./platform-store") as typeof import("./platform-store");
+    ensurePlatformOwnerSeed();
+  }
+  return store;
 }
 
 export function saveStore(next: MesaFlowStore) {
@@ -241,6 +263,7 @@ export async function hydratePersistentStore() {
   if (!process.env.VERCEL) {
     const store = getStore();
     migrateLegacyGuestParticipations(store);
+    runRetentionPurge(store);
     return;
   }
 
@@ -259,6 +282,7 @@ export async function hydratePersistentStore() {
         writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
         migrateProductImages(cache, false);
         migrateLegacyGuestParticipations(cache);
+        runRetentionPurge(cache);
         lastPersistSource = "redis";
         return;
       }
@@ -279,6 +303,7 @@ export async function hydratePersistentStore() {
         writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
         migrateProductImages(cache, false);
         migrateLegacyGuestParticipations(cache);
+        runRetentionPurge(cache);
         lastPersistSource = "blob";
         return;
       }
@@ -293,6 +318,7 @@ export async function hydratePersistentStore() {
   cache = null;
   const store = getStore();
   migrateLegacyGuestParticipations(store);
+  runRetentionPurge(store);
 }
 
 export async function flushPersistentStore(): Promise<PersistResult> {
@@ -487,8 +513,13 @@ export function validateSession(token: string | null | undefined) {
   return { session, user, establishment };
 }
 
-export function registerEstablishment(input: Omit<RegisterInput, "passwordHash"> & { password: string }) {
+export function registerEstablishment(
+  input: Omit<RegisterInput, "passwordHash"> & { password: string; privacyConsent?: unknown },
+) {
   const store = getStore();
+  const consent = validatePrivacyConsent(input.privacyConsent);
+  if (!consent) return { error: consentRequiredMessage() };
+
   const email = input.email.toLowerCase().trim();
   if (!email || !input.password || input.password.length < 6) {
     return { error: "Preencha todos os campos. Senha com no mínimo 6 caracteres." };
@@ -509,6 +540,8 @@ export function registerEstablishment(input: Omit<RegisterInput, "passwordHash">
     operationMode: input.operationMode,
     tableCount: input.tableCount,
   });
+  user.privacyConsent = consent;
+  store.users[user.id] = user;
   saveStore(store);
   const session = createSession(user);
   return { user, establishment, session };

@@ -109,6 +109,7 @@ export function createGuestParticipation(input: {
   phoneE164: string;
   displayName?: string;
   comandaNumber?: string;
+  privacyConsent?: import("./types").PrivacyConsent;
 }): GuestParticipation | MutationError {
   const comandaNumber = normalizeComandaNumber(input.comandaNumber);
   const comandaError = requireComandaIfNeeded(input.establishment, comandaNumber);
@@ -140,6 +141,7 @@ export function createGuestParticipation(input: {
     joinedAt: new Date().toISOString(),
     verifiedAt: new Date().toISOString(),
     orderCount: 0,
+    privacyConsent: input.privacyConsent,
   };
   store.guestParticipations[participation.id] = participation;
   upsertGuestPhoneSecret(participation.id, input.phoneE164);
@@ -277,6 +279,7 @@ export function joinGuestAtTable(input: {
   phoneE164: string;
   displayName?: string;
   comandaNumber?: string;
+  privacyConsent?: import("./types").PrivacyConsent;
 }) {
   const comandaNumber = normalizeComandaNumber(input.comandaNumber);
   const comandaError = requireComandaIfNeeded(input.establishment, comandaNumber);
@@ -295,6 +298,7 @@ export function joinGuestAtTable(input: {
       phoneE164: input.phoneE164,
       displayName: input.displayName,
       comandaNumber,
+      privacyConsent: input.privacyConsent,
     });
   if ("error" in created) return created;
 
@@ -374,6 +378,7 @@ export function verifyOtpChallenge(input: {
   tableToken?: string;
   phoneRaw?: string;
   comandaNumber?: string;
+  privacyConsent?: import("./types").PrivacyConsent;
 }) {
   const code = input.code.trim();
   const comandaNumber = normalizeComandaNumber(input.comandaNumber);
@@ -391,6 +396,7 @@ export function verifyOtpChallenge(input: {
       phoneE164,
       displayName: input.displayName,
       comandaNumber,
+      privacyConsent: input.privacyConsent,
     });
     if ("error" in joined) return { error: joined.error as string };
     return { token: joined.token, participation: joined.participation };
@@ -434,6 +440,7 @@ export function verifyOtpChallenge(input: {
     phoneE164,
     displayName: input.displayName,
     comandaNumber,
+    privacyConsent: input.privacyConsent,
   });
   if ("error" in participation) return { error: participation.error };
   const { token } = createClientSession(participation);

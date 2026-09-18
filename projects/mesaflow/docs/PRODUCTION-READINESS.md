@@ -21,8 +21,8 @@ O NA MESA tem **MVP operacional sólido** para piloto controlado (1–5 restaura
 | Blocker | Impacto |
 |---------|---------|
 | Persistência monolítica + LWW | Pedidos/sessões podem ser sobrescritos sob carga concorrente |
-| LGPD incompleta | Sem consentimento, política integrada, direitos do titular, retenção |
-| Rate limiting ausente | Brute-force em login/OTP, spam de registro |
+| LGPD MVP incompleta vs enterprise | Consentimento + política + DSR + retenção OK; DPA/ROPA e offboarding total tenant pendem |
+| ~~Rate limiting ausente~~ | **Mitigado** — in-memory por IP (ver `rate-limit.ts`; Redis em escala) |
 | ~~Platform admin ausente em produção~~ | ~~`/platform` UI 404 + APIs off no handler~~ — **corrigido neste PR** (rewrites Vercel + handler) |
 | Secrets/credenciais default | Platform owner e demo com senhas conhecidas se env não sobrescrever |
 | Monitoramento/DR/backups formais | Sem runbook, alertas, restore testado |
@@ -426,10 +426,12 @@ Sem pipeline de logging auditável. OTP mock/bypass são os maiores riscos de va
 
 - [ ] Configurar **todos** secrets de produção (ver §5.2); validar boot sem fallback dev
 - [ ] Configurar **Evolution API** para OTP real **ou** `MESAFLOW_OTP_BYPASS_CODE=off`
-- [ ] Rotacionar/remover credenciais demo (`demo123`, `namesa-platform-dev`, QR `mesa-*`)
-- [ ] Implementar **rate limiting** em login, register, OTP request/verify
-- [ ] Publicar **Política de Privacidade** + consentimento antes de coletar telefone
-- [ ] Definir **retenção** e job de purge (90d pós-CLOSED mínimo)
+- [x] Fail-closed demo seed em produção (`MESAFLOW_ALLOW_DEMO_SEED` + env platform owner)
+- [x] **Rate limiting** em login, register, OTP request/verify (in-memory + headers; Redis depois)
+- [x] **Política de Privacidade** (`/privacidade`) + consentimento guest/signup
+- [x] **Retenção** documentada + `purgeStaleData` no hydrate (90d CLOSED)
+- [x] **DSR** guest/admin (`/guest/dsr/*`, `/admin/dsr/*`)
+- [x] **ADR-001** plano migração DB + `MesaFlowStoreAdapter` stub
 - [ ] Validar persistência compartilhada: `curl .../health` → `shared: true`
 - [ ] **Load test** concorrente (10+ writes simultâneos) — documentar taxa de perda
 - [ ] Decisão go/no-go escala: aceitar piloto JSON **ou** iniciar migração DB antes de vender volume
@@ -437,7 +439,7 @@ Sem pipeline de logging auditável. OTP mock/bypass são os maiores riscos de va
 ### Alta prioridade (P1 — antes de escalar vendas)
 
 - [x] Rotear **platform UI** (`vercel.json` rewrites) + **platform APIs** no handler de produção
-- [ ] Endpoint/process de **exclusão LGPD** (titular + offboarding tenant)
+- [x] Endpoint/process de **exclusão LGPD** (titular guest + OWNER lojista — MVP)
 - [ ] Remover `phoneDisplay` de dados visíveis a co-participantes
 - [ ] Migrar tokens admin para HttpOnly cookie ou harden CSP
 - [ ] Fechar registro aberto (invite code / aprovação manual)
@@ -472,7 +474,13 @@ Sem pipeline de logging auditável. OTP mock/bypass são os maiores riscos de va
 | `projects/iphone-imports/api/_mesaflow/handler.ts` | table-context IDOR fix; rotas `/platform/*` |
 | `projects/iphone-imports/vercel.json` | Rewrites `/mesaflow/platform/*` (fix 404 em prod) |
 | `projects/iphone-imports/scripts/build-mesaflow.mjs` | Verificação `platform/login.html` no artefato |
+| `src/lib/rate-limit.ts` | Rate limit in-memory + headers padrão |
+| `src/lib/data-retention.ts` | Purge 90d + OTP stale |
+| `src/lib/privacy-dsr.ts` | Export/exclusão titular |
+| `docs/ADR-001-transactional-store.md` | Plano migração Postgres |
+| `src/lib/store-adapter.ts` | Interface + JsonStoreAdapter stub |
 | `src/lib/security-auth.test.ts` | Regressão IDOR + auth |
+| `src/lib/rate-limit.test.ts` | Regressão rate limit |
 
 ## Apêndice B — Comandos de verificação
 

@@ -41,6 +41,8 @@ import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ui/product-image";
 import { Logo } from "@/components/brand/logo";
 import { BRAND_NAME } from "@/lib/brand";
+import { PRIVACY_POLICY_PATH, PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
+import Link from "next/link";
 import { lineTotal } from "@/lib/order-math";
 import { SoftSuggestions } from "@/components/customer/soft-suggestions";
 import { ClosingSheet } from "@/components/customer/closing-sheet";
@@ -118,6 +120,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const [comandaNumber, setComandaNumber] = useState("");
   const [otpChallengeId, setOtpChallengeId] = useState("");
   const [otpCode, setOtpCode] = useState("");
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [joining, setJoining] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [tab, setTab] = useState<Tab>("menu");
@@ -233,7 +236,18 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
   useRealtime(data?.establishment.id, refresh);
 
+  function privacyConsentPayload() {
+    return {
+      acceptedAt: new Date().toISOString(),
+      policyVersion: PRIVACY_POLICY_VERSION,
+    };
+  }
+
   async function joinMock() {
+    if (!privacyAccepted) {
+      notify("Aceite a Política de Privacidade para continuar.", "error");
+      return;
+    }
     if (context?.operationMode === "comanda" && !comandaNumber.trim()) {
       notify("Informe o número da comanda.", "error");
       return;
@@ -248,6 +262,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           tableToken,
           displayName,
           phone,
+          privacyConsent: privacyConsentPayload(),
           ...(context?.operationMode === "comanda"
             ? { comandaNumber: comandaNumber.trim() }
             : {}),
@@ -266,6 +281,10 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   }
 
   async function requestOtp() {
+    if (!privacyAccepted) {
+      notify("Aceite a Política de Privacidade para continuar.", "error");
+      return;
+    }
     if (context?.operationMode === "comanda" && !comandaNumber.trim()) {
       notify("Informe o número da comanda.", "error");
       return;
@@ -275,7 +294,12 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       const res = await apiFetch("/guest/otp/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, tableToken, phone }),
+        body: JSON.stringify({
+          slug,
+          tableToken,
+          phone,
+          privacyConsent: privacyConsentPayload(),
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Não foi possível enviar o código");
@@ -303,6 +327,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           slug,
           tableToken,
           phone,
+          privacyConsent: privacyConsentPayload(),
           ...(context?.operationMode === "comanda"
             ? { comandaNumber: comandaNumber.trim() }
             : {}),
@@ -620,6 +645,21 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   />
                 </label>
               )}
+              <label className="flex items-start gap-2 text-xs text-muted">
+                <input
+                  type="checkbox"
+                  className="mt-0.5"
+                  checked={privacyAccepted}
+                  onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                />
+                <span>
+                  Li e aceito a{" "}
+                  <Link href={PRIVACY_POLICY_PATH} className="text-brand hover:underline" target="_blank">
+                    Política de Privacidade
+                  </Link>{" "}
+                  para uso do meu telefone e nome na mesa.
+                </span>
+              </label>
               <Button
                 className="w-full"
                 size="lg"

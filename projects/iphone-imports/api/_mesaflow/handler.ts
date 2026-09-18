@@ -81,6 +81,22 @@ import { parseBase64UploadBody, uploadProductImage } from "../../../mesaflow/src
 import { isOperationMode } from "../../../mesaflow/src/lib/operation-modes";
 import { resolveGuestTableContext } from "../../../mesaflow/src/lib/guest-table-context";
 import {
+  clientIpFromHeaders,
+  enforceRateLimit,
+  rateLimitHeaders,
+  type RateLimitResult,
+} from "../../../mesaflow/src/lib/rate-limit";
+import {
+  consentRequiredMessage,
+  validatePrivacyConsent,
+} from "../../../mesaflow/src/lib/privacy-policy";
+import {
+  deleteGuestSubjectData,
+  deleteMerchantSubjectData,
+  exportGuestSubjectData,
+  exportMerchantSubjectData,
+} from "../../../mesaflow/src/lib/privacy-dsr";
+import {
   getMerchantDetail,
   listMerchants,
   loginPlatformUser,
@@ -114,7 +130,7 @@ async function json(
   res: VercelResponse,
   status: number,
   body: unknown,
-  options?: { skipFlush?: boolean },
+  options?: { skipFlush?: boolean; extraHeaders?: Record<string, string> },
 ) {
   if (!options?.skipFlush) {
     const persist = await flushPersistentStore();
@@ -126,7 +142,34 @@ async function json(
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
+  if (options?.extraHeaders) {
+    for (const [key, value] of Object.entries(options.extraHeaders)) {
+      res.setHeader(key, value);
+    }
+  }
   res.send(JSON.stringify(body));
+}
+
+function clientIp(req: VercelRequest): string {
+  return clientIpFromHeaders(req.headers as Record<string, string | string[] | undefined>);
+}
+
+function rateLimitOrReject(
+  res: VercelResponse,
+  namespace: "authLogin" | "authRegister" | "otpRequest" | "otpVerify",
+  clientId: string,
+): RateLimitResult | null {
+  const result = enforceRateLimit(namespace, clientId);
+  if (!result.allowed) {
+    void json(
+      res,
+      429,
+      { error: "Muitas tentativas. Aguarde e tente novamente." },
+      { extraHeaders: rateLimitHeaders(result), skipFlush: true },
+    );
+    return null;
+  }
+  return result;
 }
 
 function blobSetupHint(storage: ReturnType<typeof blobDiagnostics>): string {
@@ -291,7 +334,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         phone?: string;
         displayName?: string;
         comandaNumber?: string;
+        privacyConsent?: unknown;
       };
+      const consent = validatePrivacyConsent(body.privacyConsent);
+      if (!consent) return json(res, 400, { error: consentRequiredMessage() });
       const est = findEstablishmentBySlug(String(body.slug || ""));
       if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
       if (otpRequiredForEstablishment(est)) {
@@ -307,6 +353,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         phoneE164,
         displayName: body.displayName,
         comandaNumber: body.comandaNumber,
+        privacyConsent: consent,
       });
       if ("error" in result) return json(res, result.status, { error: result.error });
       setClientCookie(res, result.token);
@@ -318,23 +365,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/guest/otp/request") {
-      const body = (req.body || {}) as { slug: string; tableToken: string; phone: string };
+      const body = (req.body || {}) as {
+        slug: string;
+        tableToken: string;
+        phone: string;
+        privacyConsent?: unknown;
+      };
+      const rl = rateLimitOrReject(
+        res,
+        "otpRequest",
+        `${clientIp(req)}:${String(body.phone || "").replace(/\D/g, "").slice(-8)}`,
+      );
+      if (!rl) return;
+      const consent = validatePrivacyConsent(body.privacyConsent);
+      if (!consent) {
+        return json(res, 400, { error: consentRequiredMessage() }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const est = findEstablishmentBySlug(String(body.slug || ""));
-      if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
+      if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." }, { extraHeaders: rateLimitHeaders(rl) });
       const tbl = findTableByQr(est.id, String(body.tableToken || ""));
-      if (!tbl) return json(res, 404, { error: "Mesa inválida." });
+      if (!tbl) return json(res, 404, { error: "Mesa inválida." }, { extraHeaders: rateLimitHeaders(rl) });
       const result = requestOtpChallenge({
         establishment: est,
         table: tbl,
         phoneRaw: String(body.phone || ""),
         purpose: "JOIN",
       });
-      if ("error" in result) return json(res, 400, { error: result.error });
-      return json(res, 200, {
-        challengeId: result.challengeId,
-        mockCode: result.mockCode,
-        message: "Código enviado (mock em desenvolvimento).",
-      });
+      if ("error" in result) return json(res, 400, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      return json(
+        res,
+        200,
+        {
+          challengeId: result.challengeId,
+          mockCode: result.mockCode,
+          message: "Código enviado.",
+        },
+        { extraHeaders: rateLimitHeaders(rl) },
+      );
     }
 
     if (req.method === "POST" && path === "/guest/otp/verify") {
@@ -346,7 +413,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         tableToken?: string;
         phone?: string;
         comandaNumber?: string;
+        privacyConsent?: unknown;
       };
+      const rl = rateLimitOrReject(res, "otpVerify", `${clientIp(req)}:${String(body.challengeId || "")}`);
+      if (!rl) return;
+      const consent = validatePrivacyConsent(body.privacyConsent);
+      if (!consent) {
+        return json(res, 400, { error: consentRequiredMessage() }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const result = verifyOtpChallenge({
         challengeId: String(body.challengeId || ""),
         code: String(body.code || ""),
@@ -355,13 +429,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         tableToken: body.tableToken,
         phoneRaw: body.phone,
         comandaNumber: body.comandaNumber,
+        privacyConsent: consent,
       });
-      if ("error" in result) return json(res, 400, { error: result.error });
+      if ("error" in result) return json(res, 400, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
       setClientCookie(res, result.token);
-      return json(res, 200, {
-        token: result.token,
-        participation: publicParticipation(result.participation),
-      });
+      return json(
+        res,
+        200,
+        {
+          token: result.token,
+          participation: publicParticipation(result.participation),
+        },
+        { extraHeaders: rateLimitHeaders(rl) },
+      );
+    }
+
+    if (req.method === "GET" && path === "/guest/dsr/export") {
+      const guestAuth = validateClientSession(readGuestToken(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente inválida." });
+      const result = exportGuestSubjectData(guestAuth.participation.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result);
+    }
+
+    if (req.method === "POST" && path === "/guest/dsr/delete") {
+      const guestAuth = validateClientSession(readGuestToken(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente inválida." });
+      const body = (req.body || {}) as { confirm?: boolean };
+      if (body.confirm !== true) return json(res, 400, { error: 'Confirme com { "confirm": true }.' });
+      const result = deleteGuestSubjectData(guestAuth.participation.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      clearClientCookie(res);
+      return json(res, 200, result);
     }
 
     if (req.method === "POST" && path === "/guest/logout") {
@@ -495,17 +594,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/auth/login") {
+      const rl = rateLimitOrReject(res, "authLogin", clientIp(req));
+      if (!rl) return;
       const body = (req.body || {}) as { email: string; password: string };
       const result = loginUser(String(body.email), String(body.password));
-      if (result.error) return json(res, 401, { error: result.error });
-      return json(res, 200, {
-        token: result.session!.token,
-        user: publicUser(result.user!),
-        establishment: result.establishment,
-      });
+      if (result.error) return json(res, 401, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      return json(
+        res,
+        200,
+        {
+          token: result.session!.token,
+          user: publicUser(result.user!),
+          establishment: result.establishment,
+        },
+        { extraHeaders: rateLimitHeaders(rl) },
+      );
     }
 
     if (req.method === "POST" && path === "/auth/register") {
+      const rl = rateLimitOrReject(res, "authRegister", clientIp(req));
+      if (!rl) return;
       const body = (req.body || {}) as {
         businessName: string;
         ownerName: string;
@@ -514,6 +622,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         businessType: string;
         operationMode?: string;
         tableCount?: number;
+        privacyConsent?: unknown;
       };
       const operationMode = isOperationMode(body.operationMode)
         ? (body.operationMode as OperationMode)
@@ -532,13 +641,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           | "rodizio",
         operationMode,
         tableCount: Number(body.tableCount) || 5,
+        privacyConsent: body.privacyConsent,
       });
-      if (result.error) return json(res, 400, { error: result.error });
-      return json(res, 201, {
-        token: result.session!.token,
-        user: publicUser(result.user!),
-        establishment: result.establishment,
-      });
+      if (result.error) return json(res, 400, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      return json(
+        res,
+        201,
+        {
+          token: result.session!.token,
+          user: publicUser(result.user!),
+          establishment: result.establishment,
+        },
+        { extraHeaders: rateLimitHeaders(rl) },
+      );
     }
 
     if (req.method === "GET" && path === "/auth/me") {
@@ -551,10 +666,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/platform/auth/login") {
+      const rl = rateLimitOrReject(res, "authLogin", `${clientIp(req)}:platform`);
+      if (!rl) return;
       const body = (req.body || {}) as { email?: string; password?: string };
       const result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
-      if ("error" in result) return json(res, 401, { error: result.error });
-      return json(res, 200, result);
+      if ("error" in result) return json(res, 401, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      return json(res, 200, result, { extraHeaders: rateLimitHeaders(rl) });
     }
 
     if (req.method === "GET" && path === "/platform/auth/me") {
@@ -662,6 +779,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const queue = getKdsQueue(auth.establishment.id, sectorId);
       if (!queue) return json(res, 404, { error: "Setor não encontrado." });
       return json(res, 200, queue);
+    }
+
+    if (req.method === "GET" && path === "/admin/dsr/export") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (auth.user.role !== "OWNER") {
+        return json(res, 403, { error: "Somente o titular OWNER pode exportar dados." });
+      }
+      const result = exportMerchantSubjectData(auth.user.id, auth.establishment.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result);
+    }
+
+    if (req.method === "POST" && path === "/admin/dsr/delete") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const body = (req.body || {}) as { confirm?: boolean };
+      if (body.confirm !== true) return json(res, 400, { error: 'Confirme com { "confirm": true }.' });
+      const result = deleteMerchantSubjectData(auth.user.id, auth.establishment.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result);
     }
 
     if (req.method === "GET" && path === "/admin/dashboard") {

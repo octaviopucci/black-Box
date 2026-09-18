@@ -98,6 +98,7 @@ const requiredStaticPages = [
   "platform.html",
   "platform/merchants.html",
   "platform/merchants/detail.html",
+  "privacidade.html",
 ];
 for (const page of requiredStaticPages) {
   const file = join(deployTarget, page);

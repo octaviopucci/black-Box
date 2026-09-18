@@ -1,6 +1,7 @@
 import { issuePlatformSessionToken, parsePlatformSessionToken } from "./platform-session-token";
 import { getMerchantDetail, listMerchants, platformDashboard } from "./platform-analytics";
 import { hashPassword, id, verifyPassword } from "./crypto-utils";
+import { isProductionEnv } from "./production-secrets";
 import { getStore, saveStore } from "./store";
 import type { PlatformStatus, PlatformUser } from "./types";
 
@@ -49,8 +50,15 @@ export function ensurePlatformOwnerSeed() {
   const store = getStore();
   store.platformUsers ||= {};
 
-  const email = (process.env.MESAFLOW_PLATFORM_OWNER_EMAIL || "octavio@namesa.io").toLowerCase();
-  const password = process.env.MESAFLOW_PLATFORM_OWNER_PASSWORD || "namesa-platform-dev";
+  const envEmail = process.env.MESAFLOW_PLATFORM_OWNER_EMAIL?.trim().toLowerCase();
+  const envPassword = process.env.MESAFLOW_PLATFORM_OWNER_PASSWORD?.trim();
+
+  if (isProductionEnv()) {
+    if (!envEmail || !envPassword) return null;
+  }
+
+  const email = envEmail || "octavio@namesa.io";
+  const password = envPassword || "namesa-platform-dev";
   const existing = findPlatformUserByEmail(email);
 
   if (existing) return existing;
