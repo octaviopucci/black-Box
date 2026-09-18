@@ -80,6 +80,7 @@ function emptyStore(): MesaFlowStore {
     establishments: {},
     users: {},
     sessions: {},
+    platformUsers: {},
     clientSessions: {},
     otpChallenges: {},
     guestPhoneSecrets: {},
@@ -162,6 +163,12 @@ function migrateOperationalCollections(store: MesaFlowStore) {
   store.clientSessions ||= {};
   store.otpChallenges ||= {};
   store.guestPhoneSecrets ||= {};
+  store.platformUsers ||= {};
+  for (const establishment of Object.values(store.establishments)) {
+    if (!establishment.plan) establishment.plan = "essencial";
+    if (!establishment.platformStatus) establishment.platformStatus = "active";
+    if (!establishment.planStartedAt) establishment.planStartedAt = establishment.createdAt;
+  }
 }
 
 function migrateLegacyGuestParticipations(store: MesaFlowStore) {
@@ -516,10 +523,21 @@ export function loginUser(email: string, password: string) {
   if (!user.passwordHash.startsWith("$2")) {
     user.passwordHash = hashPassword(password);
     store.users[user.id] = user;
-    saveStore(store);
   }
   const establishment = store.establishments[user.establishmentId];
   if (!establishment) return { error: "Estabelecimento não encontrado." };
+  const platformStatus = establishment.platformStatus ?? "active";
+  if (platformStatus !== "active") {
+    return {
+      error:
+        platformStatus === "suspended"
+          ? "Conta suspensa pela operação NA MESA. Entre em contato com o suporte."
+          : "Conta inativa. Entre em contato com o suporte NA MESA.",
+    };
+  }
+  user.lastLoginAt = new Date().toISOString();
+  store.users[user.id] = user;
+  saveStore(store);
   const session = createSession(user);
   return { user, establishment, session };
 }

@@ -91,6 +91,9 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       minIntervalRodizioSec: 120,
       otpRequired: true,
     },
+    plan: "essencial",
+    planStartedAt: now,
+    platformStatus: "active",
     createdAt: now,
   };
 

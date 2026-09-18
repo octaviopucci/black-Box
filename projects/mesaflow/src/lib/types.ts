@@ -1,5 +1,24 @@
 export type UserRole = "OWNER" | "MANAGER" | "KITCHEN" | "COUNTER" | "WAITER";
 
+/** Planos comerciais NA MESA (SaaS). */
+export type PlatformPlan = "essencial" | "premium" | "custom";
+
+/** Status operacional do lojista na plataforma. */
+export type PlatformStatus = "active" | "inactive" | "suspended";
+
+export type PlatformUserRole = "PLATFORM_OWNER";
+
+export interface PlatformUser {
+  id: string;
+  email: string;
+  passwordHash: string;
+  name: string;
+  role: PlatformUserRole;
+  active: boolean;
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
 export type BusinessType =
   | "restaurante"
   | "lanchonete"
@@ -45,6 +64,13 @@ export interface Establishment {
   rodizioEnabled: boolean;
   settings: EstablishmentSettings;
   createdAt: string;
+  /** Plano NA MESA — default essencial no cadastro. */
+  plan?: PlatformPlan;
+  planStartedAt?: string;
+  /** Controle pelo platform admin — default active. */
+  platformStatus?: PlatformStatus;
+  suspendedAt?: string;
+  suspendedReason?: string;
 }
 
 export interface Session {
@@ -127,6 +153,7 @@ export interface User {
   name: string;
   role: UserRole;
   active: boolean;
+  lastLoginAt?: string;
 }
 
 export interface Sector {
@@ -398,6 +425,7 @@ export interface MesaFlowOperationalStore {
 export interface MesaFlowIdentityStore {
   users: Record<string, User>;
   sessions: Record<string, Session>;
+  platformUsers: Record<string, PlatformUser>;
   clientSessions: Record<string, ClientSession>;
   otpChallenges: Record<string, OtpChallenge>;
   guestPhoneSecrets: Record<string, GuestPhoneSecret>;

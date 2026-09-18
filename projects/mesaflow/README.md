@@ -8,11 +8,18 @@ SaaS multi-tenant de **garçom digital + pedidos em tempo real** via QR Code na 
 |-------------|-----|
 | Landing | `/` |
 | Cliente (Mesa 08) | `/m/ponto-do-sabor/mesa-8` |
-| Admin | `/admin` |
+| Admin (lojista) | `/admin` |
+| **Platform admin (SaaS)** | `/platform` |
 | KDS Cozinha | `/kds/sec_cozinha` |
 | KDS Balcão | `/kds/sec_balcao` |
 
-**Login admin:** `owner@pontodosabor.com` / `demo123`
+**Login lojista (restaurante demo):** `owner@pontodosabor.com` / `demo123`
+
+**Login platform owner (Octavio — operação NA MESA):** `octavio@namesa.io` / `namesa-platform-dev`  
+Em produção, defina `MESAFLOW_PLATFORM_OWNER_EMAIL` e `MESAFLOW_PLATFORM_OWNER_PASSWORD`.
+
+> `/admin` = painel do **restaurante** (mesas, pedidos, cardápio).  
+> `/platform` = painel do **dono da plataforma** (lojistas clientes, métricas SaaS).
 
 ## Dev
 
