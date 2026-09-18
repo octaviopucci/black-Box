@@ -4,7 +4,7 @@ export type UserRole = "OWNER" | "MANAGER" | "KITCHEN" | "COUNTER" | "WAITER";
 export type PlatformPlan = "essencial" | "premium" | "custom";
 
 /** Status operacional do lojista na plataforma. */
-export type PlatformStatus = "active" | "inactive" | "suspended";
+export type PlatformStatus = "pending" | "active" | "inactive" | "suspended" | "rejected";
 
 export type PlatformUserRole = "PLATFORM_OWNER";
 

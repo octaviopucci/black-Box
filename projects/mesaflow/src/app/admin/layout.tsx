@@ -4,8 +4,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { useAuth } from "@/contexts/auth-context";
+import { adminHomePath, isMerchantAdminOperational, resolvePlatformStatus } from "@/lib/platform-status";
 
 const PUBLIC_PATHS = ["/admin/login", "/admin/signup"];
+const PENDING_PATH = "/admin/pending";
 
 function AdminGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,12 +15,30 @@ function AdminGate({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth();
 
   useEffect(() => {
+    if (loading) return;
     if (PUBLIC_PATHS.includes(pathname)) return;
-    if (!loading && !session) router.replace("/admin/login");
+    if (!session) {
+      router.replace("/admin/login");
+      return;
+    }
+
+    const status = resolvePlatformStatus(session.establishment);
+    if (!isMerchantAdminOperational(status) && pathname !== PENDING_PATH) {
+      router.replace(adminHomePath(session.establishment));
+      return;
+    }
+    if (status === "active" && pathname === PENDING_PATH) {
+      router.replace("/admin");
+    }
   }, [pathname, router, session, loading]);
 
   if (PUBLIC_PATHS.includes(pathname)) return children;
   if (loading || !session) return null;
+
+  const status = resolvePlatformStatus(session.establishment);
+  if (pathname === PENDING_PATH) return children;
+  if (!isMerchantAdminOperational(status)) return null;
+
   return <AdminShell>{children}</AdminShell>;
 }
 

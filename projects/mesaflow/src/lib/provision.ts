@@ -8,12 +8,14 @@ import type {
   Establishment,
   MesaFlowStore,
   OperationMode,
+  PlatformPlan,
   Product,
   Rodizio,
   Sector,
   Table,
   User,
 } from "./types";
+import { parsePlatformPlan } from "./platform-plans";
 
 export type RegisterInput = {
   businessName: string;
@@ -23,6 +25,7 @@ export type RegisterInput = {
   businessType: BusinessType;
   operationMode?: OperationMode;
   tableCount: number;
+  plan?: PlatformPlan;
 };
 
 function slugify(name: string) {
@@ -91,9 +94,9 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       minIntervalRodizioSec: 120,
       otpRequired: true,
     },
-    plan: "essencial",
+    plan: parsePlatformPlan(input.plan) ?? "essencial",
     planStartedAt: now,
-    platformStatus: "active",
+    platformStatus: "pending",
     createdAt: now,
   };
 

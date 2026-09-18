@@ -8,6 +8,7 @@ import { apiUrl, staffFetch } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { PLAN_LABELS } from "@/lib/platform-plans";
+import { PLATFORM_STATUS_LABELS } from "@/lib/platform-status";
 import type { PlatformPlan, PlatformStatus } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 
@@ -27,15 +28,13 @@ type Merchant = {
   owner: { name: string; email: string; lastLoginAt?: string } | null;
 };
 
-const STATUS_LABELS: Record<PlatformStatus, string> = {
-  active: "Ativo",
-  inactive: "Inativo",
-  suspended: "Suspenso" };
-
 const STATUS_STYLES: Record<PlatformStatus, string> = {
+  pending: "bg-warning/10 text-warning ring-warning/20",
   active: "bg-success/10 text-success ring-success/20",
   inactive: "bg-muted/10 text-muted ring-white/10",
-  suspended: "bg-danger/10 text-danger ring-danger/20" };
+  suspended: "bg-danger/10 text-danger ring-danger/20",
+  rejected: "bg-danger/10 text-danger ring-danger/20",
+};
 
 export default function PlatformMerchantsPage() {
   const { fetchApi } = usePlatformAuth();
@@ -87,9 +86,11 @@ export default function PlatformMerchantsPage() {
           className="rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-sm text-ink"
         >
           <option value="all">Todos os status</option>
+          <option value="pending">Aguardando aprovação</option>
           <option value="active">Ativos</option>
           <option value="inactive">Inativos</option>
           <option value="suspended">Suspensos</option>
+          <option value="rejected">Rejeitados</option>
         </select>
         <select
           value={plan}
@@ -141,7 +142,7 @@ export default function PlatformMerchantsPage() {
                         STATUS_STYLES[m.platformStatus],
                       )}
                     >
-                      {STATUS_LABELS[m.platformStatus]}
+                      {PLATFORM_STATUS_LABELS[m.platformStatus]}
                     </span>
                     {m.isDormant && m.platformStatus === "active" && (
                       <span className="ml-1 text-[10px] text-warning">· inativo {m.inactiveDays}d</span>

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BRAND_NAME } from "@/lib/brand";
 import { DEMO_LOGIN } from "@/lib/demo";
+import { adminHomePath } from "@/lib/platform-status";
 import { turnstileSiteKeyClient } from "@/lib/turnstile-client";
 
 export default function AdminLoginPage() {
@@ -47,7 +48,7 @@ export default function AdminLoginPage() {
       user: json.user,
       establishment: json.establishment,
     });
-    router.push("/admin");
+    router.push(adminHomePath(json.establishment));
   }
 
   return (

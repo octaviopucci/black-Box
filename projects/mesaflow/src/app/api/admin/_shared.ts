@@ -1,9 +1,9 @@
 import { readAdminSessionToken } from "@/lib/staff-auth-request";
-import { validateSession } from "@/lib/store";
+import { validateActiveSession, validateSession } from "@/lib/store";
 import type { UserRole } from "@/lib/types";
 
 function readAuth(req: Request) {
-  return validateSession(readAdminSessionToken(req));
+  return validateActiveSession(readAdminSessionToken(req));
 }
 
 export function requireAdmin(req: Request) {
@@ -34,6 +34,11 @@ export function requireDashboardForEstablishment(req: Request, establishmentId: 
   const auth = requireDashboard(req);
   if (!auth || auth.establishment.id !== establishmentId) return null;
   return auth;
+}
+
+/** Sessão staff válida sem exigir status active (auth/me, pending wall). */
+export function readStaffSession(req: Request) {
+  return validateSession(readAdminSessionToken(req));
 }
 
 export async function readJson(req: Request): Promise<unknown> {

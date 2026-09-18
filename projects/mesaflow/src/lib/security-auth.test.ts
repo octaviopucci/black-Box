@@ -16,7 +16,7 @@ async function run() {
   const { issueAdminSessionToken } = await import("./admin-session-token");
   const { resolveSecret } = await import("./production-secrets");
   const { validatePasswordStrength } = await import("./password-policy");
-  const { validateSignupInvite, signupOpenWithoutInvite } = await import("./signup-invite");
+  const { validateSignupInvite, signupOpenWithoutInvite, signupRequiresInvite } = await import("./signup-invite");
   const { rejectPredictableDemoQrInProduction } = await import("./demo-qr");
   const { buildPublicHealthResponse } = await import("./public-health");
 
@@ -79,7 +79,7 @@ async function run() {
   const vercelEnv = process.env.VERCEL_ENV;
   process.env.NODE_ENV = "production";
   process.env.VERCEL_ENV = "production";
-  delete process.env.MESAFLOW_SIGNUP_OPEN;
+  delete process.env.MESAFLOW_SIGNUP_INVITE_ONLY;
   delete process.env.MESAFLOW_SIGNUP_INVITE_CODE;
   try {
     assert.throws(
@@ -90,6 +90,10 @@ async function run() {
     const hint = publicOtpBypassHint();
     assert.equal(hint.active, false);
     assert.ok(!("code" in hint), "production must not expose bypass code in API");
+    assert.equal(signupRequiresInvite(), false, "prod signup open by default");
+    assert.equal(validateSignupInvite(undefined), true, "no invite required by default");
+    process.env.MESAFLOW_SIGNUP_INVITE_ONLY = "1";
+    assert.equal(signupRequiresInvite(), true);
     assert.equal(validateSignupInvite("wrong"), false);
     process.env.MESAFLOW_SIGNUP_INVITE_CODE = "convite-secreto";
     assert.equal(validateSignupInvite("convite-secreto"), true);
@@ -101,6 +105,7 @@ async function run() {
     if (vercelEnv === undefined) delete process.env.VERCEL_ENV;
     else process.env.VERCEL_ENV = vercelEnv;
     delete process.env.MESAFLOW_SIGNUP_INVITE_CODE;
+    delete process.env.MESAFLOW_SIGNUP_INVITE_ONLY;
   }
 
   const publicHealth = buildPublicHealthResponse({ sharedOk: true, blobOk: true, establishmentCount: 1 });

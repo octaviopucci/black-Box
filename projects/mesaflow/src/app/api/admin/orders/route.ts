@@ -1,9 +1,9 @@
-import { getStore, validateSession } from "@/lib/store";
+import { getStore, validateActiveSession } from "@/lib/store";
 import { readAdminSessionToken } from "@/lib/staff-auth-request";
 
 /** Alias de GET /orders — lista pedidos do estabelecimento autenticado. */
 export async function GET(req: Request) {
-  const auth = validateSession(readAdminSessionToken(req));
+  const auth = validateActiveSession(readAdminSessionToken(req));
   const allowed = ["OWNER", "MANAGER", "WAITER", "COUNTER"];
   if (!auth || !allowed.includes(auth.user.role)) {
     return Response.json({ error: "Não autorizado." }, { status: 401 });
