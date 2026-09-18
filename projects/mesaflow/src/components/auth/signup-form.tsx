@@ -8,6 +8,7 @@ import { apiUrl } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { OPERATION_MODES } from "@/lib/operation-modes";
+import { PRIVACY_POLICY_PATH, PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import type { BusinessType, OperationMode } from "@/lib/types";
 
 const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
@@ -31,9 +32,14 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
   const [tableCount, setTableCount] = useState(8);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!privacyAccepted) {
+      setError("Aceite a Política de Privacidade para continuar.");
+      return;
+    }
     setLoading(true);
     setError("");
     const res = await fetch(apiUrl("/auth/register"), {
@@ -47,6 +53,10 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
         businessType,
         operationMode,
         tableCount,
+        privacyConsent: {
+          acceptedAt: new Date().toISOString(),
+          policyVersion: PRIVACY_POLICY_VERSION,
+        },
       }),
     });
     const json = await res.json();
@@ -79,6 +89,22 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
       <Input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <Input type="password" placeholder="Senha (mín. 6)" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
       <Input type="number" min={3} max={20} value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} />
+      <label className="flex items-start gap-2 text-xs text-muted">
+        <input
+          type="checkbox"
+          className="mt-0.5"
+          checked={privacyAccepted}
+          onChange={(e) => setPrivacyAccepted(e.target.checked)}
+          required
+        />
+        <span>
+          Li e aceito a{" "}
+          <Link href={PRIVACY_POLICY_PATH} className="text-brand hover:underline" target="_blank">
+            Política de Privacidade
+          </Link>
+          .
+        </span>
+      </label>
       <Button type="submit" className="w-full" size={compact ? "md" : "lg"} loading={loading}>
         Criar conta grátis
       </Button>

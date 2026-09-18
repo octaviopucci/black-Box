@@ -47,6 +47,7 @@ async function run() {
   assert.ok(dashboard.totals.merchants >= 1);
   assert.ok(dashboard.totals.arrEstimate > 0);
 
+  const { PRIVACY_POLICY_VERSION } = await import("./privacy-policy");
   const signup = registerEstablishment({
     businessName: "Lanchonete Teste Platform",
     ownerName: "Maria Teste",
@@ -54,6 +55,10 @@ async function run() {
     password: "senha123",
     businessType: "lanchonete",
     tableCount: 5,
+    privacyConsent: {
+      acceptedAt: new Date().toISOString(),
+      policyVersion: PRIVACY_POLICY_VERSION,
+    },
   });
   assert.ok(signup.session, signup.error);
   const newMerchants = listMerchants({ q: "maria.platform.test" });

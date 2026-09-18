@@ -1,6 +1,7 @@
 import { findEstablishmentBySlug, findTableByQr } from "@/lib/store";
 import { joinGuestAtTable, otpRequiredForEstablishment, publicParticipation } from "@/lib/guest";
 import { normalizePhoneE164 } from "@/lib/identity-crypto";
+import { consentRequiredMessage, validatePrivacyConsent } from "@/lib/privacy-policy";
 import { jsonWithClientCookie } from "../../_shared";
 
 export async function POST(req: Request) {
@@ -10,7 +11,12 @@ export async function POST(req: Request) {
     phone?: string;
     displayName?: string;
     comandaNumber?: string;
+    privacyConsent?: unknown;
   };
+  const consent = validatePrivacyConsent(body.privacyConsent);
+  if (!consent) {
+    return Response.json({ error: consentRequiredMessage() }, { status: 400 });
+  }
   const est = findEstablishmentBySlug(String(body.slug || ""));
   if (!est) return Response.json({ error: "Estabelecimento não encontrado." }, { status: 404 });
   if (otpRequiredForEstablishment(est)) {
@@ -26,6 +32,7 @@ export async function POST(req: Request) {
     phoneE164,
     displayName: body.displayName,
     comandaNumber: body.comandaNumber,
+    privacyConsent: consent,
   });
   if ("error" in result) {
     return Response.json({ error: result.error }, { status: result.status });

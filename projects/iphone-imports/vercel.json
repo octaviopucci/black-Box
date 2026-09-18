@@ -57,6 +57,7 @@
     { "source": "/mesaflow/platform/merchants/detail", "destination": "/mesaflow/platform/merchants/detail" },
     { "source": "/mesaflow/platform/merchants", "destination": "/mesaflow/platform/merchants" },
     { "source": "/mesaflow/platform", "destination": "/mesaflow/platform" },
+    { "source": "/mesaflow/privacidade", "destination": "/mesaflow/privacidade" },
     { "source": "/mesaflow/kds/live", "destination": "/mesaflow/kds/live" },
     { "source": "/mesaflow/kds/:sector", "destination": "/mesaflow/kds/live" },
     { "source": "/mesaflow/m/live", "destination": "/mesaflow/m/live" },

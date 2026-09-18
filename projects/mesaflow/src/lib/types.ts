@@ -92,6 +92,11 @@ export interface EstablishmentSettings {
 
 export type GuestParticipationStatus = "OPEN" | "CLOSING_REQUESTED" | "CLOSED";
 
+export interface PrivacyConsent {
+  acceptedAt: string;
+  policyVersion: string;
+}
+
 export interface GuestParticipation {
   id: string;
   establishmentId: string;
@@ -113,6 +118,7 @@ export interface GuestParticipation {
   paymentConfirmedByUserId?: string;
   orderCount: number;
   lastOrderAt?: string;
+  privacyConsent?: PrivacyConsent;
 }
 
 export interface ClientSession {
@@ -154,6 +160,7 @@ export interface User {
   role: UserRole;
   active: boolean;
   lastLoginAt?: string;
+  privacyConsent?: PrivacyConsent;
 }
 
 export interface Sector {

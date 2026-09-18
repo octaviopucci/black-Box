@@ -15,8 +15,19 @@ MesaFlow é publicado no projeto Vercel **loja-iphoneimports** (mesmo host do iP
 
 **Host alternativo (bedois):** substitua o domínio por `https://bedois.vercel.app` — paths idênticos (`/mesaflow/platform/login`, etc.).
 
-**Login demo lojista:** `owner@pontodosabor.com` / `demo123`  
-**Login platform owner:** env `MESAFLOW_PLATFORM_OWNER_EMAIL` / `MESAFLOW_PLATFORM_OWNER_PASSWORD` (dev: ver `src/lib/demo.ts`)
+**Login demo lojista (somente dev / `MESAFLOW_ALLOW_DEMO_SEED=1`):** `owner@pontodosabor.com` / `demo123`  
+**Login platform owner (produção):** obrigatório `MESAFLOW_PLATFORM_OWNER_EMAIL` + `MESAFLOW_PLATFORM_OWNER_PASSWORD`
+
+### OTP em produção
+
+| Variável | Uso |
+|----------|-----|
+| `MESAFLOW_EVOLUTION_URL` + `MESAFLOW_EVOLUTION_API_KEY` + `MESAFLOW_EVOLUTION_INSTANCE` | OTP real via WhatsApp |
+| `MESAFLOW_OTP_BYPASS_CODE=off` | Desativa bypass fixo quando Evolution não está configurado |
+
+Sem Evolution **e** sem `off` explícito, produção **não** expõe código bypass na API (fail-closed).
+
+> **Custo zero:** não contrate Evolution/WhatsApp nesta rodada — use `MESAFLOW_OTP_BYPASS_CODE=off` + `MESAFLOW_DEV_SKIP_OTP` desligado em prod, ou configure Evolution só quando o lojista já tiver instância própria.
 
 ## Como o deploy funciona
 
