@@ -80,8 +80,23 @@ import { normalizePhoneE164 } from "../../../mesaflow/src/lib/identity-crypto";
 import { parseBase64UploadBody, uploadProductImage } from "../../../mesaflow/src/lib/media-upload";
 import { isOperationMode } from "../../../mesaflow/src/lib/operation-modes";
 import { resolveGuestTableContext } from "../../../mesaflow/src/lib/guest-table-context";
+import {
+  getMerchantDetail,
+  listMerchants,
+  loginPlatformUser,
+  platformDashboard,
+  publicPlatformUser,
+  updateMerchantStatus,
+  validatePlatformSession,
+} from "../../../mesaflow/src/lib/platform-store";
 import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
-import type { OperationMode, OrderLineInput, OrderStatus } from "../../../mesaflow/src/lib/types";
+import type {
+  OperationMode,
+  OrderLineInput,
+  OrderStatus,
+  PlatformPlan,
+  PlatformStatus,
+} from "../../../mesaflow/src/lib/types";
 
 function resolvePath(req: VercelRequest): string {
   const q = req.query?.path;
@@ -177,6 +192,30 @@ function kitchenAuth(req: VercelRequest) {
     return auth;
   }
   return null;
+}
+
+function platformAuth(req: VercelRequest) {
+  return validatePlatformSession(readBearer(req));
+}
+
+function parsePlatformStatus(value: unknown): PlatformStatus | null {
+  if (value === "active" || value === "inactive" || value === "suspended") return value;
+  return null;
+}
+
+function parsePlatformPlanFilter(value: string | undefined): PlatformPlan | "all" {
+  if (value === "essencial" || value === "premium" || value === "custom") return value;
+  return "all";
+}
+
+function parsePlatformStatusFilter(value: string | undefined): PlatformStatus | "all" {
+  if (value === "active" || value === "inactive" || value === "suspended") return value;
+  return "all";
+}
+
+function parseDashboardPeriod(value: string | undefined): "today" | "7d" | "30d" {
+  if (value === "today" || value === "7d" || value === "30d") return value;
+  return "30d";
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -509,6 +548,59 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         user: publicUser(auth.user),
         establishment: auth.establishment,
       });
+    }
+
+    if (req.method === "POST" && path === "/platform/auth/login") {
+      const body = (req.body || {}) as { email?: string; password?: string };
+      const result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+      if ("error" in result) return json(res, 401, { error: result.error });
+      return json(res, 200, result);
+    }
+
+    if (req.method === "GET" && path === "/platform/auth/me") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      return json(res, 200, { user: publicPlatformUser(auth.user) });
+    }
+
+    if (req.method === "GET" && path === "/platform/dashboard") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      const period = parseDashboardPeriod(String(req.query?.period || ""));
+      return json(res, 200, platformDashboard(period));
+    }
+
+    if (req.method === "GET" && path === "/platform/merchants") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      const merchants = listMerchants({
+        q: String(req.query?.q || "") || undefined,
+        status: parsePlatformStatusFilter(String(req.query?.status || "")),
+        plan: parsePlatformPlanFilter(String(req.query?.plan || "")),
+      });
+      return json(res, 200, { merchants });
+    }
+
+    const platformMerchantMatch = path.match(/^\/platform\/merchants\/([^/]+)$/);
+    if (platformMerchantMatch) {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      const merchantId = platformMerchantMatch[1];
+      if (req.method === "GET") {
+        const merchant = getMerchantDetail(merchantId);
+        if (!merchant) return json(res, 404, { error: "Lojista não encontrado." });
+        return json(res, 200, { merchant });
+      }
+      if (req.method === "PATCH") {
+        const body = (req.body || {}) as { platformStatus?: unknown; reason?: string };
+        const status = parsePlatformStatus(body.platformStatus);
+        if (!status) {
+          return json(res, 400, { error: "platformStatus inválido (active, inactive, suspended)." });
+        }
+        const result = updateMerchantStatus(merchantId, status, body.reason);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { merchant: result.value });
+      }
     }
 
     if (req.method === "POST" && path === "/bill") {

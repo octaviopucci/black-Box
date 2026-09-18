@@ -27,18 +27,18 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// ../iphone-imports/api/_mesaflow/handler.ts
+// api/_mesaflow/handler.ts
 var handler_exports = {};
 __export(handler_exports, {
   default: () => handler
 });
 module.exports = __toCommonJS(handler_exports);
 
-// src/lib/store.ts
+// ../mesaflow/src/lib/store.ts
 var import_fs = require("fs");
 var import_path = require("path");
 
-// src/lib/blob-persistence.ts
+// ../mesaflow/src/lib/blob-persistence.ts
 var import_blob = require("@vercel/blob");
 var LEGACY_BLOB_PATH = "mesaflow/store.json";
 var OPERATIONAL_BLOB_PATH = "mesaflow/operational.json";
@@ -292,7 +292,7 @@ async function probeBlobPaths(runtimeOidcToken2) {
   }
 }
 
-// src/lib/redis-persistence.ts
+// ../mesaflow/src/lib/redis-persistence.ts
 var OPERATIONAL_KEY = "mesaflow:operational";
 var IDENTITY_KEY = "mesaflow:identity";
 var ETAGS_KEY = "mesaflow:etags";
@@ -420,11 +420,34 @@ async function redisHasStoreData() {
   return Boolean(operational || identity);
 }
 
-// src/lib/admin-session-token.ts
+// ../mesaflow/src/lib/admin-session-token.ts
 var import_crypto = require("crypto");
+
+// ../mesaflow/src/lib/production-secrets.ts
+var DEV_FALLBACK_SECRET = "mesaflow-dev-only-change-in-production";
+function isProductionEnv() {
+  return process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
+}
+function resolveSecret(envNames, purpose) {
+  for (const name of envNames) {
+    const value = process.env[name]?.trim();
+    if (value) return value;
+  }
+  if (isProductionEnv()) {
+    throw new Error(
+      `[Mesaflow] Secret ausente em produ\xE7\xE3o (${purpose}). Configure: ${envNames.join(" ou ")} ou MESAFLOW_IDENTITY_SECRET.`
+    );
+  }
+  return DEV_FALLBACK_SECRET;
+}
+
+// ../mesaflow/src/lib/admin-session-token.ts
 var ADMIN_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
 function secret() {
-  return process.env.MESAFLOW_ADMIN_SESSION_SECRET || process.env.MESAFLOW_IDENTITY_SECRET || "mesaflow-dev-only-change-in-production";
+  return resolveSecret(
+    ["MESAFLOW_ADMIN_SESSION_SECRET", "MESAFLOW_IDENTITY_SECRET"],
+    "admin session signing"
+  );
 }
 function sign(payloadB64) {
   return (0, import_crypto.createHmac)("sha256", secret()).update(payloadB64).digest("base64url");
@@ -453,10 +476,10 @@ function parseAdminSessionToken(token) {
   }
 }
 
-// src/lib/crypto-utils.ts
+// ../mesaflow/src/lib/crypto-utils.ts
 var import_crypto3 = require("crypto");
 
-// node_modules/bcryptjs/index.js
+// ../mesaflow/node_modules/bcryptjs/index.js
 var import_crypto2 = __toESM(require("crypto"), 1);
 var randomFallback = null;
 function randomBytes(len) {
@@ -2035,7 +2058,7 @@ function _hash(password, salt, callback, progressCallback) {
   }
 }
 
-// src/lib/crypto-utils.ts
+// ../mesaflow/src/lib/crypto-utils.ts
 function hashPassword(password) {
   return hashSync(password, 12);
 }
@@ -2051,7 +2074,7 @@ function sessionToken() {
   return (0, import_crypto3.randomBytes)(32).toString("hex");
 }
 
-// src/lib/events.ts
+// ../mesaflow/src/lib/events.ts
 var listeners = /* @__PURE__ */ new Map();
 function emit(event) {
   const set = listeners.get(event.establishmentId);
@@ -2059,13 +2082,13 @@ function emit(event) {
   for (const fn of set) fn(event);
 }
 
-// src/lib/order-math.ts
+// ../mesaflow/src/lib/order-math.ts
 function lineTotal(item) {
   const addons = item.addons.reduce((s, a) => s + a.price * a.qty, 0);
   return item.qty * (item.unitPrice + item.variantDelta) + addons;
 }
 
-// src/lib/product-images.ts
+// ../mesaflow/src/lib/product-images.ts
 var PEXELS_Q = "auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
 function pexels(id2, slug = "pexels-photo") {
   return `https://images.pexels.com/photos/${id2}/${slug}-${id2}.jpeg?${PEXELS_Q}`;
@@ -2146,10 +2169,10 @@ function productImageByName(name, preset = "default") {
   return FOOD_PRESETS[preset] ?? FOOD_PRESETS.default;
 }
 
-// src/lib/provision.ts
+// ../mesaflow/src/lib/provision.ts
 var import_crypto4 = require("crypto");
 
-// src/lib/operation-modes.ts
+// ../mesaflow/src/lib/operation-modes.ts
 var OPERATION_MODES = [
   {
     value: "a_la_carte",
@@ -2202,7 +2225,7 @@ function resolveOperationMode(establishment) {
   return establishment?.operationMode || "a_la_carte";
 }
 
-// src/lib/provision.ts
+// ../mesaflow/src/lib/provision.ts
 function slugify(name) {
   return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
 }
@@ -2424,7 +2447,7 @@ function provisionEstablishment(store, input) {
   return { establishment, user, slug };
 }
 
-// src/lib/demo.ts
+// ../mesaflow/src/lib/demo.ts
 var DEMO_ESTABLISHMENT_SLUG = "ponto-do-sabor";
 var DEMO_ESTABLISHMENT_ID = "est_ponto_sabor";
 var PLATFORM_OWNER_LOGIN = {
@@ -2432,7 +2455,7 @@ var PLATFORM_OWNER_LOGIN = {
   password: process.env.MESAFLOW_PLATFORM_OWNER_PASSWORD || "namesa-platform-dev"
 };
 
-// src/lib/seed.ts
+// ../mesaflow/src/lib/seed.ts
 var EST_ID = DEMO_ESTABLISHMENT_ID;
 var DEMO_SLUG = DEMO_ESTABLISHMENT_SLUG;
 function buildDemoStore() {
@@ -3026,7 +3049,7 @@ function buildDemoStore() {
   };
 }
 
-// src/lib/accounting.ts
+// ../mesaflow/src/lib/accounting.ts
 function getParticipantItemTotal(orders, splits, guestParticipationId) {
   const splitMap = /* @__PURE__ */ new Map();
   for (const split of splits) {
@@ -3066,7 +3089,7 @@ function getCommandPaidTotal(payments) {
   return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
 }
 
-// src/lib/closing.ts
+// ../mesaflow/src/lib/closing.ts
 function buildClosingSummary(orders, participations, splits, payments) {
   const activeOrders = orders.filter((order) => order.status !== "CANCELADO");
   const commandTotal = getCommandTotal(activeOrders);
@@ -3096,7 +3119,7 @@ function buildClosingSummary(orders, participations, splits, payments) {
   };
 }
 
-// src/lib/payments.ts
+// ../mesaflow/src/lib/payments.ts
 function sumRegisteredPayments(payments) {
   return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
 }
@@ -3110,7 +3133,7 @@ function validatePaymentAmount(amount, maxAmount) {
   return null;
 }
 
-// src/lib/dashboard-analytics.ts
+// ../mesaflow/src/lib/dashboard-analytics.ts
 var MS_HOUR = 60 * 60 * 1e3;
 var STALE_PARTICIPATION_MS = 12 * MS_HOUR;
 function periodStart(period) {
@@ -3318,7 +3341,7 @@ function dashboardAnalytics(establishmentId, period = "today") {
   };
 }
 
-// src/lib/store.ts
+// ../mesaflow/src/lib/store.ts
 var DATA_PATH = process.env.MESAFLOW_DATA || (process.env.VERCEL ? "/tmp/mesaflow-store.json" : (0, import_path.join)(process.cwd(), "data", "store.json"));
 var cache = null;
 var operationalDirty = false;
@@ -4355,11 +4378,10 @@ function dashboardStats(establishmentId) {
   };
 }
 
-// src/lib/identity-crypto.ts
+// ../mesaflow/src/lib/identity-crypto.ts
 var import_crypto5 = require("crypto");
-var DEV_FALLBACK_SECRET = "mesaflow-dev-only-change-in-production";
 function secret2(name) {
-  return process.env[name] || process.env.MESAFLOW_IDENTITY_SECRET || DEV_FALLBACK_SECRET;
+  return resolveSecret([name, "MESAFLOW_IDENTITY_SECRET"], name);
 }
 function hashToken(token) {
   return (0, import_crypto5.createHash)("sha256").update(token).digest("hex");
@@ -4412,10 +4434,10 @@ function otpCodeHash(challengeId, code) {
   return (0, import_crypto5.createHmac)("sha256", secret2("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
 }
 function generateOtpCode() {
-  return String(Math.floor(1e5 + Math.random() * 9e5));
+  return String((0, import_crypto5.randomInt)(1e5, 1e6));
 }
 
-// src/lib/otp-bypass.ts
+// ../mesaflow/src/lib/otp-bypass.ts
 var DEFAULT_OTP_BYPASS_CODE = "010203";
 function evolutionOtpConfigured() {
   return Boolean(
@@ -4426,6 +4448,7 @@ function otpBypassCode() {
   if (evolutionOtpConfigured()) return null;
   const configured = process.env.MESAFLOW_OTP_BYPASS_CODE?.trim();
   if (configured === "0" || configured === "off") return null;
+  if (isProductionEnv()) return configured || null;
   return configured || DEFAULT_OTP_BYPASS_CODE;
 }
 function isOtpBypassCode(code) {
@@ -4436,14 +4459,18 @@ function isOtpBypassCode(code) {
 function publicOtpBypassHint() {
   const code = otpBypassCode();
   if (!code) return { active: false };
+  if (isProductionEnv()) return { active: true };
   return { active: true, code };
 }
 
-// src/lib/guest-session-token.ts
+// ../mesaflow/src/lib/guest-session-token.ts
 var import_crypto6 = require("crypto");
 var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
 function secret3() {
-  return process.env.MESAFLOW_CLIENT_SESSION_SECRET || process.env.MESAFLOW_IDENTITY_SECRET || "mesaflow-dev-only-change-in-production";
+  return resolveSecret(
+    ["MESAFLOW_CLIENT_SESSION_SECRET", "MESAFLOW_IDENTITY_SECRET"],
+    "guest session signing"
+  );
 }
 function sign2(payloadB64) {
   return (0, import_crypto6.createHmac)("sha256", secret3()).update(payloadB64).digest("base64url");
@@ -4503,7 +4530,7 @@ function parseGuestTokenClaims(token) {
   return null;
 }
 
-// src/lib/guest.ts
+// ../mesaflow/src/lib/guest.ts
 var CLIENT_SESSION_TTL_MS2 = 24 * 60 * 60 * 1e3;
 var OTP_TTL_MS = 5 * 60 * 1e3;
 var OTP_MAX_ATTEMPTS = 5;
@@ -4799,8 +4826,8 @@ function verifyOtpChallenge(input) {
   const establishment = store.establishments[challenge.establishmentId];
   const table = store.tables[challenge.tableId];
   if (!establishment || !table) return { error: "Mesa indispon\xEDvel." };
-  const secret4 = store.guestPhoneSecrets[challenge.phoneLookupHash];
-  const phoneE164 = secret4 ? decryptPhone(secret4.phoneCiphertext) : null;
+  const secret5 = store.guestPhoneSecrets[challenge.phoneLookupHash];
+  const phoneE164 = secret5 ? decryptPhone(secret5.phoneCiphertext) : null;
   if (!phoneE164) return { error: "Telefone n\xE3o encontrado para este c\xF3digo." };
   const participation = createGuestParticipation({
     establishment,
@@ -4880,7 +4907,7 @@ function kickGuestParticipation(establishmentId, participationId, actorUserId) {
   return { value: { participation } };
 }
 
-// src/lib/guest-payment.ts
+// ../mesaflow/src/lib/guest-payment.ts
 function commandOrders(store, commandId) {
   return Object.values(store.orders).filter((order) => order.commandId === commandId);
 }
@@ -4929,7 +4956,7 @@ function clearPaymentConfirmationIfUnsettled(store, participationId) {
   }
 }
 
-// src/lib/store-operations.ts
+// ../mesaflow/src/lib/store-operations.ts
 var PAYMENT_METHODS = /* @__PURE__ */ new Set(["cash", "credit", "debit", "pix", "other"]);
 function invalid3(error, status = 400) {
   return { error, status };
@@ -5595,7 +5622,7 @@ function listAdminOperations(establishmentId) {
   return { activeTables, staleParticipations };
 }
 
-// src/lib/guest-closing.ts
+// ../mesaflow/src/lib/guest-closing.ts
 function invalid4(error, status = 400) {
   return { error, status };
 }
@@ -5806,7 +5833,7 @@ function cancelGuestClosing(participationId) {
   };
 }
 
-// src/lib/kds-queue.ts
+// ../mesaflow/src/lib/kds-queue.ts
 function getKdsQueue(establishmentId, sectorId) {
   const store = getStore();
   const sectors = Object.values(store.sectors).filter(
@@ -5841,7 +5868,7 @@ function getKdsQueue(establishmentId, sectorId) {
   };
 }
 
-// src/lib/guest-cookie-web.ts
+// ../mesaflow/src/lib/guest-cookie-web.ts
 var CLIENT_COOKIE = "mf_cs";
 function parseClientCookieHeader(cookieHeader) {
   if (!cookieHeader) return void 0;
@@ -5868,7 +5895,7 @@ function clearClientCookieValue() {
   return `${CLIENT_COOKIE}=; Path=${clientCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
 }
 
-// src/lib/guest-cookie.ts
+// ../mesaflow/src/lib/guest-cookie.ts
 function parseClientCookie(req) {
   const raw = req.headers.cookie;
   if (typeof raw === "string") return parseClientCookieHeader(raw);
@@ -5882,7 +5909,7 @@ function clearClientCookie(res) {
   res.setHeader("Set-Cookie", clearClientCookieValue());
 }
 
-// src/lib/media-upload.ts
+// ../mesaflow/src/lib/media-upload.ts
 var import_blob2 = require("@vercel/blob");
 var MAX_BYTES = 4 * 1024 * 1024;
 var ALLOWED_TYPES = /* @__PURE__ */ new Set([
@@ -5951,7 +5978,343 @@ function parseBase64UploadBody(body) {
   }
 }
 
-// src/lib/order-resolve.ts
+// ../mesaflow/src/lib/guest-table-context.ts
+function resolveGuestTableContext(slug, tableToken, guestToken) {
+  const est = findEstablishmentBySlug(slug);
+  if (!est) return { ok: false, status: 404, error: "Estabelecimento n\xE3o encontrado." };
+  const tbl = findTableByQr(est.id, tableToken);
+  if (!tbl) return { ok: false, status: 404, error: "Mesa inv\xE1lida ou QR expirado." };
+  const guestAuth = validateClientSession(guestToken);
+  if (guestAuth) {
+    if (guestAuth.establishment.id !== est.id || guestAuth.participation.tableId !== tbl.id) {
+      return { ok: false, status: 403, error: "Sess\xE3o n\xE3o corresponde a esta mesa." };
+    }
+  }
+  const command = getActiveCommand(tbl);
+  const summary = guestTableSummary(est.id, command?.id);
+  return {
+    ok: true,
+    data: {
+      establishment: {
+        id: est.id,
+        slug: est.slug,
+        name: est.name,
+        open: est.open,
+        rodizioEnabled: est.rodizioEnabled,
+        operationMode: est.operationMode || "a_la_carte"
+      },
+      table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
+      command,
+      otpRequired: otpRequiredForEstablishment(est),
+      otpBypass: publicOtpBypassHint(),
+      hasSession: Boolean(guestAuth),
+      operationMode: est.operationMode || "a_la_carte",
+      ...summary
+    }
+  };
+}
+
+// ../mesaflow/src/lib/platform-session-token.ts
+var import_crypto7 = require("crypto");
+var PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
+function secret4() {
+  return resolveSecret(
+    [
+      "MESAFLOW_PLATFORM_SESSION_SECRET",
+      "MESAFLOW_ADMIN_SESSION_SECRET",
+      "MESAFLOW_IDENTITY_SECRET"
+    ],
+    "platform session signing"
+  );
+}
+function sign3(payloadB64) {
+  return (0, import_crypto7.createHmac)("sha256", secret4()).update(payloadB64).digest("base64url");
+}
+function verifySig3(payloadB64, sig) {
+  const expected = sign3(payloadB64);
+  const sigBuf = Buffer.from(sig);
+  const expectedBuf = Buffer.from(expected);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto7.timingSafeEqual)(sigBuf, expectedBuf);
+}
+function issuePlatformSessionToken(platformUserId, ttlMs = PLATFORM_SESSION_TTL_MS) {
+  const claims = {
+    scope: "platform",
+    platformUserId,
+    exp: Date.now() + ttlMs
+  };
+  const payloadB64 = Buffer.from(JSON.stringify(claims)).toString("base64url");
+  return `${payloadB64}.${sign3(payloadB64)}`;
+}
+function parsePlatformSessionToken(token) {
+  const [payloadB64, sig] = token.split(".");
+  if (!payloadB64 || !sig || !verifySig3(payloadB64, sig)) return null;
+  try {
+    const claims = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf8"));
+    if (claims.scope !== "platform" || !claims.platformUserId || !claims.exp) return null;
+    if (Date.now() > claims.exp) return null;
+    return claims;
+  } catch {
+    return null;
+  }
+}
+
+// ../mesaflow/src/lib/platform-plans.ts
+var PLAN_ANNUAL_PRICE = {
+  essencial: 997,
+  premium: 1997,
+  custom: 2997
+};
+function resolvePlan(plan) {
+  return plan ?? "essencial";
+}
+function planAnnualRevenue(plan) {
+  return PLAN_ANNUAL_PRICE[resolvePlan(plan)];
+}
+
+// ../mesaflow/src/lib/platform-analytics.ts
+var MS_DAY = 24 * 60 * 60 * 1e3;
+var INACTIVE_DAYS_THRESHOLD = 14;
+function resolvePlatformStatus(establishment) {
+  return establishment.platformStatus ?? "active";
+}
+function establishmentOwner(establishmentId) {
+  const store = getStore();
+  return Object.values(store.users).find(
+    (user) => user.establishmentId === establishmentId && user.role === "OWNER"
+  );
+}
+function lastActivityAt(establishmentId) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return null;
+  let latest = establishment.createdAt;
+  for (const order of Object.values(store.orders)) {
+    if (order.establishmentId !== establishmentId) continue;
+    if (order.updatedAt > latest) latest = order.updatedAt;
+  }
+  for (const gp of Object.values(store.guestParticipations)) {
+    if (gp.establishmentId !== establishmentId) continue;
+    const candidate = gp.lastOrderAt || gp.joinedAt;
+    if (candidate > latest) latest = candidate;
+  }
+  for (const user of Object.values(store.users)) {
+    if (user.establishmentId !== establishmentId || !user.lastLoginAt) continue;
+    if (user.lastLoginAt > latest) latest = user.lastLoginAt;
+  }
+  return latest;
+}
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / MS_DAY);
+}
+function merchantSummary(establishment) {
+  const store = getStore();
+  const owner = establishmentOwner(establishment.id);
+  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishment.id);
+  const orders = Object.values(store.orders).filter((o) => o.establishmentId === establishment.id);
+  const sessions = Object.values(store.guestParticipations).filter(
+    (gp) => gp.establishmentId === establishment.id
+  );
+  const activity = lastActivityAt(establishment.id);
+  const inactiveDays = daysSince(activity);
+  const plan = resolvePlan(establishment.plan);
+  const status = resolvePlatformStatus(establishment);
+  const analytics30d = dashboardAnalytics(establishment.id, "30d");
+  return {
+    id: establishment.id,
+    slug: establishment.slug,
+    name: establishment.name,
+    businessType: establishment.businessType,
+    operationMode: establishment.operationMode,
+    plan,
+    planStartedAt: establishment.planStartedAt ?? establishment.createdAt,
+    platformStatus: status,
+    suspendedAt: establishment.suspendedAt,
+    suspendedReason: establishment.suspendedReason,
+    createdAt: establishment.createdAt,
+    open: establishment.open,
+    owner: owner ? {
+      id: owner.id,
+      name: owner.name,
+      email: owner.email,
+      lastLoginAt: owner.lastLoginAt
+    } : null,
+    tablesCount: tables.length,
+    ordersTotal: orders.filter((o) => o.status !== "CANCELADO").length,
+    sessionsTotal: sessions.length,
+    activeSessions: sessions.filter((gp) => gp.status !== "CLOSED").length,
+    lastActivityAt: activity,
+    inactiveDays,
+    isDormant: inactiveDays !== null && inactiveDays >= INACTIVE_DAYS_THRESHOLD,
+    revenue30d: analytics30d.sales.revenue,
+    orders30d: analytics30d.sales.ordersCount,
+    paymentsCollected30d: analytics30d.sales.paymentsCollected,
+    adminUrl: `/admin`,
+    customerUrl: `/m/${establishment.slug}`
+  };
+}
+function listMerchants(filters = {}) {
+  const store = getStore();
+  const q = filters.q?.trim().toLowerCase();
+  let merchants = Object.values(store.establishments).map(merchantSummary);
+  if (q) {
+    merchants = merchants.filter(
+      (m) => m.name.toLowerCase().includes(q) || m.slug.toLowerCase().includes(q) || m.owner?.email.toLowerCase().includes(q) || m.owner?.name.toLowerCase().includes(q)
+    );
+  }
+  if (filters.status && filters.status !== "all") {
+    merchants = merchants.filter((m) => m.platformStatus === filters.status);
+  }
+  if (filters.plan && filters.plan !== "all") {
+    merchants = merchants.filter((m) => m.plan === filters.plan);
+  }
+  merchants.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return merchants;
+}
+function getMerchantDetail(establishmentId) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return null;
+  const summary = merchantSummary(establishment);
+  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishmentId).map((t) => ({
+    id: t.id,
+    number: t.number,
+    name: t.name,
+    status: t.status,
+    capacity: t.capacity
+  }));
+  const staff = Object.values(store.users).filter((u) => u.establishmentId === establishmentId).map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    active: u.active,
+    lastLoginAt: u.lastLoginAt
+  }));
+  return {
+    ...summary,
+    tables,
+    staff,
+    analyticsToday: dashboardAnalytics(establishmentId, "today"),
+    analytics7d: dashboardAnalytics(establishmentId, "7d"),
+    analytics30d: dashboardAnalytics(establishmentId, "30d"),
+    annualPlanValue: planAnnualRevenue(establishment.plan)
+  };
+}
+function periodStartIso(days) {
+  return new Date(Date.now() - days * MS_DAY).toISOString();
+}
+function platformDashboard(period = "30d") {
+  const store = getStore();
+  const merchants = listMerchants();
+  const periodDays = period === "today" ? 1 : period === "7d" ? 7 : 30;
+  const periodStart2 = periodStartIso(periodDays);
+  const active = merchants.filter((m) => m.platformStatus === "active").length;
+  const inactive = merchants.filter((m) => m.platformStatus === "inactive").length;
+  const suspended = merchants.filter((m) => m.platformStatus === "suspended").length;
+  const dormant = merchants.filter((m) => m.isDormant && m.platformStatus === "active").length;
+  const newInPeriod = merchants.filter((m) => m.createdAt >= periodStart2).length;
+  const byPlan = { essencial: 0, premium: 0, custom: 0 };
+  for (const m of merchants) byPlan[m.plan] += 1;
+  let totalOrdersPeriod = 0;
+  let totalRevenuePeriod = 0;
+  let totalSessionsPeriod = 0;
+  let totalTables = 0;
+  for (const m of merchants) {
+    totalTables += m.tablesCount;
+    const analytics = dashboardAnalytics(m.id, period);
+    totalOrdersPeriod += analytics.sales.ordersCount;
+    totalRevenuePeriod += analytics.sales.revenue;
+    totalSessionsPeriod += analytics.sessions.historical + analytics.sessions.active;
+  }
+  const arrEstimate = merchants.filter((m) => m.platformStatus === "active").reduce((sum, m) => sum + planAnnualRevenue(m.plan), 0);
+  const recentSignups = merchants.filter((m) => m.createdAt >= periodStart2).slice(0, 10).map((m) => ({
+    id: m.id,
+    name: m.name,
+    slug: m.slug,
+    plan: m.plan,
+    createdAt: m.createdAt,
+    ownerEmail: m.owner?.email
+  }));
+  const dormantMerchants = merchants.filter((m) => m.isDormant).sort((a, b) => (b.inactiveDays ?? 0) - (a.inactiveDays ?? 0)).slice(0, 10);
+  return {
+    period,
+    totals: {
+      merchants: merchants.length,
+      active,
+      inactive,
+      suspended,
+      dormant,
+      newInPeriod,
+      totalTables,
+      totalOrdersPeriod,
+      totalRevenuePeriod,
+      totalSessionsPeriod,
+      arrEstimate
+    },
+    byPlan,
+    recentSignups,
+    dormantMerchants,
+    topMerchantsByRevenue: merchants.slice().sort((a, b) => b.revenue30d - a.revenue30d).slice(0, 5).map((m) => ({
+      id: m.id,
+      name: m.name,
+      slug: m.slug,
+      revenue30d: m.revenue30d,
+      plan: m.plan
+    }))
+  };
+}
+
+// ../mesaflow/src/lib/platform-store.ts
+var PLATFORM_SESSION_TTL_MS2 = 30 * 24 * 60 * 60 * 1e3;
+function findPlatformUserByEmail(email) {
+  const normalized = email.toLowerCase().trim();
+  return Object.values(getStore().platformUsers || {}).find((u) => u.email === normalized);
+}
+function publicPlatformUser(user) {
+  return { id: user.id, name: user.name, email: user.email, role: user.role };
+}
+function loginPlatformUser(email, password) {
+  const user = findPlatformUserByEmail(email);
+  if (!user || !user.active || !verifyPassword(password, user.passwordHash)) {
+    return { error: "E-mail ou senha inv\xE1lidos." };
+  }
+  const store = getStore();
+  if (!user.passwordHash.startsWith("$2")) {
+    user.passwordHash = hashPassword(password);
+  }
+  user.lastLoginAt = (/* @__PURE__ */ new Date()).toISOString();
+  store.platformUsers[user.id] = user;
+  saveStore(store);
+  const token = issuePlatformSessionToken(user.id, PLATFORM_SESSION_TTL_MS2);
+  return { token, user: publicPlatformUser(user) };
+}
+function validatePlatformSession(token) {
+  if (!token) return null;
+  const claims = parsePlatformSessionToken(token);
+  if (!claims) return null;
+  const store = getStore();
+  const user = store.platformUsers?.[claims.platformUserId];
+  if (!user?.active) return null;
+  return { user, expiresAt: new Date(claims.exp).toISOString() };
+}
+function updateMerchantStatus(establishmentId, status, reason) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return { error: "Estabelecimento n\xE3o encontrado.", status: 404 };
+  establishment.platformStatus = status;
+  if (status === "suspended") {
+    establishment.suspendedAt = (/* @__PURE__ */ new Date()).toISOString();
+    establishment.suspendedReason = reason?.trim() || void 0;
+  } else {
+    establishment.suspendedAt = void 0;
+    establishment.suspendedReason = void 0;
+  }
+  saveStore(store);
+  return { value: getMerchantDetail(establishmentId) };
+}
+
+// ../mesaflow/src/lib/order-resolve.ts
 function hasClientPricing(item) {
   return "unitPrice" in item || "variantDelta" in item || Array.isArray(item.addons) && item.addons.some((addon) => typeof addon === "object" && addon !== null && "price" in addon);
 }
@@ -6029,7 +6392,7 @@ function resolveOrderLines(store, establishmentId, sectors, lines, options) {
   return { ok: true, items, total };
 }
 
-// ../iphone-imports/api/_mesaflow/handler.ts
+// api/_mesaflow/handler.ts
 function resolvePath(req) {
   const q = req.query?.path;
   if (Array.isArray(q) && q.length > 0) return "/" + q.map(String).join("/");
@@ -6105,6 +6468,25 @@ function kitchenAuth(req) {
   }
   return null;
 }
+function platformAuth(req) {
+  return validatePlatformSession(readBearer(req));
+}
+function parsePlatformStatus(value) {
+  if (value === "active" || value === "inactive" || value === "suspended") return value;
+  return null;
+}
+function parsePlatformPlanFilter(value) {
+  if (value === "essencial" || value === "premium" || value === "custom") return value;
+  return "all";
+}
+function parsePlatformStatusFilter(value) {
+  if (value === "active" || value === "inactive" || value === "suspended") return value;
+  return "all";
+}
+function parseDashboardPeriod(value) {
+  if (value === "today" || value === "7d" || value === "30d") return value;
+  return "30d";
+}
 async function handler(req, res) {
   setPersistentStoreOidcToken(readOidcHeader(req));
   if (req.method === "OPTIONS") return json(res, 204, {});
@@ -6139,30 +6521,9 @@ async function handler(req, res) {
     if (req.method === "GET" && path === "/guest/table-context") {
       const slug = String(req.query?.slug || "");
       const tableToken = String(req.query?.tableToken || "");
-      const est = findEstablishmentBySlug(slug);
-      if (!est) return json(res, 404, { error: "Estabelecimento n\xE3o encontrado." });
-      const tbl = findTableByQr(est.id, tableToken);
-      if (!tbl) return json(res, 404, { error: "Mesa inv\xE1lida ou QR expirado." });
-      const command = getActiveCommand(tbl);
-      const summary = guestTableSummary(est.id, command?.id);
-      const guestAuth = validateClientSession(readGuestToken(req));
-      return json(res, 200, {
-        establishment: {
-          id: est.id,
-          slug: est.slug,
-          name: est.name,
-          open: est.open,
-          rodizioEnabled: est.rodizioEnabled,
-          operationMode: est.operationMode || "a_la_carte"
-        },
-        table: { id: tbl.id, number: tbl.number, name: tbl.name, status: tbl.status },
-        command,
-        otpRequired: otpRequiredForEstablishment(est),
-        otpBypass: publicOtpBypassHint(),
-        hasSession: Boolean(guestAuth),
-        operationMode: est.operationMode || "a_la_carte",
-        ...summary
-      });
+      const result = resolveGuestTableContext(slug, tableToken, readGuestToken(req));
+      if (!result.ok) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.data);
     }
     if (req.method === "GET" && path === "/guest/me") {
       const guestAuth = validateClientSession(readGuestToken(req));
@@ -6380,6 +6741,54 @@ async function handler(req, res) {
         user: publicUser(auth.user),
         establishment: auth.establishment
       });
+    }
+    if (req.method === "POST" && path === "/platform/auth/login") {
+      const body = req.body || {};
+      const result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+      if ("error" in result) return json(res, 401, { error: result.error });
+      return json(res, 200, result);
+    }
+    if (req.method === "GET" && path === "/platform/auth/me") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      return json(res, 200, { user: publicPlatformUser(auth.user) });
+    }
+    if (req.method === "GET" && path === "/platform/dashboard") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      const period = parseDashboardPeriod(String(req.query?.period || ""));
+      return json(res, 200, platformDashboard(period));
+    }
+    if (req.method === "GET" && path === "/platform/merchants") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      const merchants = listMerchants({
+        q: String(req.query?.q || "") || void 0,
+        status: parsePlatformStatusFilter(String(req.query?.status || "")),
+        plan: parsePlatformPlanFilter(String(req.query?.plan || ""))
+      });
+      return json(res, 200, { merchants });
+    }
+    const platformMerchantMatch = path.match(/^\/platform\/merchants\/([^/]+)$/);
+    if (platformMerchantMatch) {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      const merchantId = platformMerchantMatch[1];
+      if (req.method === "GET") {
+        const merchant = getMerchantDetail(merchantId);
+        if (!merchant) return json(res, 404, { error: "Lojista n\xE3o encontrado." });
+        return json(res, 200, { merchant });
+      }
+      if (req.method === "PATCH") {
+        const body = req.body || {};
+        const status = parsePlatformStatus(body.platformStatus);
+        if (!status) {
+          return json(res, 400, { error: "platformStatus inv\xE1lido (active, inactive, suspended)." });
+        }
+        const result = updateMerchantStatus(merchantId, status, body.reason);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, { merchant: result.value });
+      }
     }
     if (req.method === "POST" && path === "/bill") {
       const guestAuth = validateClientSession(readGuestToken(req));

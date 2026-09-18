@@ -23,7 +23,7 @@ O NA MESA tem **MVP operacional sólido** para piloto controlado (1–5 restaura
 | Persistência monolítica + LWW | Pedidos/sessões podem ser sobrescritos sob carga concorrente |
 | LGPD incompleta | Sem consentimento, política integrada, direitos do titular, retenção |
 | Rate limiting ausente | Brute-force em login/OTP, spam de registro |
-| Platform admin ausente em produção | `/platform` não roteado no handler serverless de deploy |
+| ~~Platform admin ausente em produção~~ | ~~`/platform` UI 404 + APIs off no handler~~ — **corrigido neste PR** (rewrites Vercel + handler) |
 | Secrets/credenciais default | Platform owner e demo com senhas conhecidas se env não sobrescrever |
 | Monitoramento/DR/backups formais | Sem runbook, alertas, restore testado |
 
@@ -210,7 +210,7 @@ Matriz de rotas admin: **28/28 protegidas** (`admin/_shared.ts`).
 
 - Tokens admin ≠ platform (testado em `platform.test.ts`) ✅
 - Guest não acessa admin ✅
-- **Platform APIs não estão no handler serverless de produção** — `/platform` UI existe no static export mas backend `/api/platform/*` só funciona em `next dev` ou deploy Next completo
+- ~~Platform APIs/UI off em produção~~ — **corrigido:** rewrites `/mesaflow/platform/*` em `vercel.json` + rotas `/platform/*` no handler serverless
 
 ---
 
@@ -436,7 +436,7 @@ Sem pipeline de logging auditável. OTP mock/bypass são os maiores riscos de va
 
 ### Alta prioridade (P1 — antes de escalar vendas)
 
-- [ ] Rotear **platform APIs** no handler de produção
+- [x] Rotear **platform UI** (`vercel.json` rewrites) + **platform APIs** no handler de produção
 - [ ] Endpoint/process de **exclusão LGPD** (titular + offboarding tenant)
 - [ ] Remover `phoneDisplay` de dados visíveis a co-participantes
 - [ ] Migrar tokens admin para HttpOnly cookie ou harden CSP
@@ -469,7 +469,9 @@ Sem pipeline de logging auditável. OTP mock/bypass são os maiores riscos de va
 | `src/app/api/events/route.ts` | Auth staff + establishment scope |
 | `src/app/api/admin/_shared.ts` | `requireDashboardForEstablishment` |
 | `src/lib/identity-crypto.ts` | OTP CSPRNG |
-| `projects/iphone-imports/api/_mesaflow/handler.ts` | table-context IDOR fix |
+| `projects/iphone-imports/api/_mesaflow/handler.ts` | table-context IDOR fix; rotas `/platform/*` |
+| `projects/iphone-imports/vercel.json` | Rewrites `/mesaflow/platform/*` (fix 404 em prod) |
+| `projects/iphone-imports/scripts/build-mesaflow.mjs` | Verificação `platform/login.html` no artefato |
 | `src/lib/security-auth.test.ts` | Regressão IDOR + auth |
 
 ## Apêndice B — Comandos de verificação

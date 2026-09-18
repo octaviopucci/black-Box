@@ -126,7 +126,7 @@ projects/iphone-imports/    ← host de deploy unificado (Vercel)
 | Área | URL prod | Quem acessa |
 |------|----------|-------------|
 | Painel do restaurante | `/mesaflow/admin` | Lojista (OWNER/MANAGER) |
-| Operação NA MESA | `/mesaflow/platform` | Platform owner apenas |
+| Operação NA MESA | `/mesaflow/platform/login` | Platform owner apenas |
 | Detalhe lojista | `/mesaflow/platform/merchants/detail?id=...` | Query param (compatível com static export) |
 
 > ⚠️ `ponto-do-sabor.vercel.app` é projeto Vercel **separado** (landing HTML antiga). MesaFlow **não** está lá.
