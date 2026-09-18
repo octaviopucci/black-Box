@@ -81,6 +81,7 @@ function emptyIdentity(): MesaFlowIdentityStore {
   return {
     users: {},
     sessions: {},
+    platformUsers: {},
     clientSessions: {},
     otpChallenges: {},
     guestPhoneSecrets: {},
@@ -95,6 +96,7 @@ export function splitStore(store: MesaFlowStore): {
   const {
     users,
     sessions,
+    platformUsers,
     establishments,
     sectors,
     categories,
@@ -140,6 +142,7 @@ export function splitStore(store: MesaFlowStore): {
     identity: {
       users,
       sessions,
+      platformUsers: platformUsers || {},
       clientSessions,
       otpChallenges,
       guestPhoneSecrets,

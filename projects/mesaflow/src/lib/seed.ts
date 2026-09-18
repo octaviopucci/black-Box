@@ -1,5 +1,5 @@
 import { hashPassword, id } from "./crypto-utils";
-import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG } from "./demo";
+import { DEMO_ESTABLISHMENT_ID, DEMO_ESTABLISHMENT_SLUG, PLATFORM_OWNER_LOGIN } from "./demo";
 import { productImage } from "./product-images";
 import type { Command, GuestParticipation, MesaFlowStore, Order, OrderItem, OrderStatus, Product } from "./types";
 
@@ -528,6 +528,11 @@ export function buildDemoStore(): MesaFlowStore {
         logo: "🍽️",
         open: true,
         rodizioEnabled: true,
+        businessType: "rodizio",
+        operationMode: "rodizio",
+        plan: "premium",
+        planStartedAt: now,
+        platformStatus: "active",
         settings: {
           currency: "BRL",
           allowEditAfterPrep: false,
@@ -539,6 +544,17 @@ export function buildDemoStore(): MesaFlowStore {
       },
     },
     sessions: {},
+    platformUsers: {
+      plat_octavio: {
+        id: "plat_octavio",
+        email: PLATFORM_OWNER_LOGIN.email.toLowerCase(),
+        passwordHash: hashPassword(PLATFORM_OWNER_LOGIN.password),
+        name: "Octavio Pucci",
+        role: "PLATFORM_OWNER",
+        active: true,
+        createdAt: now,
+      },
+    },
     users: {
       user_owner: {
         id: "user_owner",

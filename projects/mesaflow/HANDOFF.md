@@ -34,7 +34,8 @@ Cliente → QR na mesa → Web App → Cardápio → Carrinho → Pedido
 | Experiência | Quem usa | Função |
 |-------------|----------|--------|
 | **Cliente** | Comensal (sem login) | Cardápio, pedidos, comanda, rodízio, pedir conta |
-| **Admin** | Dono/gerente | Dashboard, pedidos, mesas, produtos, QR, configurações |
+| **Admin** (`/admin`) | Dono/gerente do **restaurante** | Dashboard, pedidos, mesas, produtos, QR, configurações |
+| **Platform admin** (`/platform`) | Dono da **plataforma NA MESA** (Octavio) | Lojistas clientes, planos, métricas SaaS, ativar/suspender contas |
 | **KDS** | Cozinha/balcão | Fila de produção por setor |
 
 ---
@@ -118,8 +119,14 @@ projects/iphone-imports/    ← host de deploy unificado (Vercel)
 | KDS Cozinha | https://bedois.vercel.app/mesaflow/kds/sec_cozinha |
 | API health | https://bedois.vercel.app/api/mesaflow/health |
 
-**Login demo:** `owner@pontodosabor.com` / `demo123`  
+**Login lojista demo:** `owner@pontodosabor.com` / `demo123`  
+**Login platform owner:** `octavio@namesa.io` / `namesa-platform-dev` (ou env `MESAFLOW_PLATFORM_OWNER_*`)  
 **Tenant demo:** slug `ponto-do-sabor`
+
+| Área | URL prod | Quem acessa |
+|------|----------|-------------|
+| Painel do restaurante | `/mesaflow/admin` | Lojista (OWNER/MANAGER) |
+| Operação NA MESA | `/mesaflow/platform` | Platform owner apenas |
 
 > ⚠️ `ponto-do-sabor.vercel.app` é projeto Vercel **separado** (landing HTML antiga). MesaFlow **não** está lá.
 

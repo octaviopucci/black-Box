@@ -11,7 +11,8 @@
     "test:admin": "npx tsx src/lib/admin-crud.test.ts",
     "test:guest": "npx tsx src/lib/guest-session.test.ts",
     "test:closing": "npx tsx src/lib/closing.test.ts",
-    "test:payment": "npx tsx src/lib/guest-payment.test.ts"
+    "test:payment": "npx tsx src/lib/guest-payment.test.ts",
+    "test:platform": "npx tsx src/lib/platform.test.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",
