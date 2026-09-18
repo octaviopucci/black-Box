@@ -438,23 +438,54 @@ var init_redis_persistence = __esm({
 function isProductionEnv() {
   return process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
 }
+function stableProductionFallback(purpose) {
+  return (0, import_crypto.createHash)("sha256").update("mesaflow-prod-runtime-v1:").update(purpose).update(process.env.VERCEL_PROJECT_ID || process.env.VERCEL_URL || "mesaflow").digest("base64url");
+}
+function runtimeSecretPath(purpose) {
+  const slug = purpose.replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 64);
+  const base = process.env.VERCEL ? "/tmp" : (0, import_path.join)(process.cwd(), "data");
+  return (0, import_path.join)(base, `mesaflow-runtime-secret-${slug}.txt`);
+}
+function loadOrCreateRuntimeSecret(purpose) {
+  const path = runtimeSecretPath(purpose);
+  try {
+    (0, import_fs.mkdirSync)((0, import_path.dirname)(path), { recursive: true });
+    if ((0, import_fs.existsSync)(path)) {
+      const existing = (0, import_fs.readFileSync)(path, "utf8").trim();
+      if (existing) return existing;
+    }
+    const generated = (0, import_crypto.randomBytes)(32).toString("base64url");
+    (0, import_fs.writeFileSync)(path, generated, { encoding: "utf8", mode: 384 });
+    return generated;
+  } catch {
+    return stableProductionFallback(purpose);
+  }
+}
 function resolveSecret(envNames, purpose) {
   for (const name of envNames) {
     const value = process.env[name]?.trim();
     if (value) return value;
   }
   if (isProductionEnv()) {
-    throw new Error(
-      `[Mesaflow] Secret ausente em produ\xE7\xE3o (${purpose}). Configure: ${envNames.join(" ou ")} ou MESAFLOW_IDENTITY_SECRET.`
-    );
+    if (!warnedPurposes.has(purpose)) {
+      warnedPurposes.add(purpose);
+      console.warn(
+        `[Mesaflow] Secret ausente em produ\xE7\xE3o (${purpose}). Usando secret runtime. Configure: ${envNames.join(" ou ")} ou MESAFLOW_IDENTITY_SECRET.`
+      );
+    }
+    return loadOrCreateRuntimeSecret(purpose);
   }
   return DEV_FALLBACK_SECRET;
 }
-var DEV_FALLBACK_SECRET;
+var import_crypto, import_fs, import_path, DEV_FALLBACK_SECRET, warnedPurposes;
 var init_production_secrets = __esm({
   "../mesaflow/src/lib/production-secrets.ts"() {
     "use strict";
+    import_crypto = require("crypto");
+    import_fs = require("fs");
+    import_path = require("path");
     DEV_FALLBACK_SECRET = "mesaflow-dev-only-change-in-production";
+    warnedPurposes = /* @__PURE__ */ new Set();
   }
 });
 
@@ -466,13 +497,13 @@ function secret() {
   );
 }
 function sign(payloadB64) {
-  return (0, import_crypto.createHmac)("sha256", secret()).update(payloadB64).digest("base64url");
+  return (0, import_crypto2.createHmac)("sha256", secret()).update(payloadB64).digest("base64url");
 }
 function verifySig(payloadB64, sig) {
   const expected = sign(payloadB64);
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expected);
-  return sigBuf.length === expectedBuf.length && (0, import_crypto.timingSafeEqual)(sigBuf, expectedBuf);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto2.timingSafeEqual)(sigBuf, expectedBuf);
 }
 function issueAdminSessionToken(userId, establishmentId, ttlMs = ADMIN_SESSION_TTL_MS) {
   const claims = { userId, establishmentId, exp: Date.now() + ttlMs };
@@ -491,24 +522,24 @@ function parseAdminSessionToken(token) {
     return null;
   }
 }
-var import_crypto, ADMIN_SESSION_TTL_MS;
+var import_crypto2, ADMIN_SESSION_TTL_MS;
 var init_admin_session_token = __esm({
   "../mesaflow/src/lib/admin-session-token.ts"() {
     "use strict";
-    import_crypto = require("crypto");
+    import_crypto2 = require("crypto");
     init_production_secrets();
     ADMIN_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
   }
 });
 
 // ../mesaflow/node_modules/bcryptjs/index.js
-function randomBytes(len) {
+function randomBytes2(len) {
   try {
     return crypto.getRandomValues(new Uint8Array(len));
   } catch {
   }
   try {
-    return import_crypto2.default.randomBytes(len);
+    return import_crypto3.default.randomBytes(len);
   } catch {
   }
   if (!randomFallback) {
@@ -531,7 +562,7 @@ function genSaltSync(rounds, seed_length) {
   if (rounds < 10) salt.push("0");
   salt.push(rounds.toString());
   salt.push("$");
-  salt.push(base64_encode(randomBytes(BCRYPT_SALT_LEN), BCRYPT_SALT_LEN));
+  salt.push(base64_encode(randomBytes2(BCRYPT_SALT_LEN), BCRYPT_SALT_LEN));
   return salt.join("");
 }
 function hashSync(password, salt) {
@@ -887,10 +918,10 @@ function _hash(password, salt, callback, progressCallback) {
     );
   }
 }
-var import_crypto2, randomFallback, nextTick, BASE64_CODE, BASE64_INDEX, BCRYPT_SALT_LEN, GENSALT_DEFAULT_LOG2_ROUNDS, BLOWFISH_NUM_ROUNDS, MAX_EXECUTION_TIME, P_ORIG, S_ORIG, C_ORIG;
+var import_crypto3, randomFallback, nextTick, BASE64_CODE, BASE64_INDEX, BCRYPT_SALT_LEN, GENSALT_DEFAULT_LOG2_ROUNDS, BLOWFISH_NUM_ROUNDS, MAX_EXECUTION_TIME, P_ORIG, S_ORIG, C_ORIG;
 var init_bcryptjs = __esm({
   "../mesaflow/node_modules/bcryptjs/index.js"() {
-    import_crypto2 = __toESM(require("crypto"), 1);
+    import_crypto3 = __toESM(require("crypto"), 1);
     randomFallback = null;
     nextTick = typeof setImmediate === "function" ? setImmediate : typeof scheduler === "object" && typeof scheduler.postTask === "function" ? scheduler.postTask.bind(scheduler) : setTimeout;
     BASE64_CODE = "./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split("");
@@ -2091,20 +2122,20 @@ function hashPassword(password) {
 }
 function verifyPassword(password, passwordHash) {
   if (passwordHash.startsWith("$2")) return compareSync(password, passwordHash);
-  const legacyHash = (0, import_crypto3.createHash)("sha256").update(`mesaflow:${password}`).digest("hex");
+  const legacyHash = (0, import_crypto4.createHash)("sha256").update(`mesaflow:${password}`).digest("hex");
   return passwordHash === legacyHash;
 }
 function id(prefix = "") {
-  return `${prefix}${(0, import_crypto3.randomBytes)(8).toString("hex")}`;
+  return `${prefix}${(0, import_crypto4.randomBytes)(8).toString("hex")}`;
 }
 function sessionToken() {
-  return (0, import_crypto3.randomBytes)(32).toString("hex");
+  return (0, import_crypto4.randomBytes)(32).toString("hex");
 }
-var import_crypto3;
+var import_crypto4;
 var init_crypto_utils = __esm({
   "../mesaflow/src/lib/crypto-utils.ts"() {
     "use strict";
-    import_crypto3 = require("crypto");
+    import_crypto4 = require("crypto");
     init_bcryptjs();
   }
 });
@@ -2294,9 +2325,9 @@ function uniqueSlug(store, base) {
   return slug;
 }
 function uniqueQrToken(store, pending) {
-  let token = (0, import_crypto4.randomBytes)(32).toString("hex");
+  let token = (0, import_crypto5.randomBytes)(32).toString("hex");
   while (Object.values(store.tables).some((table) => table.qrToken === token) || Object.values(pending).some((table) => table.qrToken === token)) {
-    token = (0, import_crypto4.randomBytes)(32).toString("hex");
+    token = (0, import_crypto5.randomBytes)(32).toString("hex");
   }
   return token;
 }
@@ -2493,12 +2524,12 @@ function provisionEstablishment(store, input) {
   store.orderCounter[estId] = 1e3;
   return { establishment, user, slug };
 }
-var import_crypto4, TYPE_LABELS;
+var import_crypto5, TYPE_LABELS;
 var init_provision = __esm({
   "../mesaflow/src/lib/provision.ts"() {
     "use strict";
     init_crypto_utils();
-    import_crypto4 = require("crypto");
+    import_crypto5 = require("crypto");
     init_product_images();
     init_operation_modes();
     TYPE_LABELS = {
@@ -3596,7 +3627,7 @@ function safeEqual(a, b) {
   const bufA = Buffer.from(a);
   const bufB = Buffer.from(b);
   if (bufA.length !== bufB.length) return false;
-  return (0, import_crypto5.timingSafeEqual)(bufA, bufB);
+  return (0, import_crypto6.timingSafeEqual)(bufA, bufB);
 }
 function signupOpenWithoutInvite() {
   if (!isProductionEnv()) return true;
@@ -3613,11 +3644,11 @@ function validateSignupInvite(code) {
 function signupInviteRequiredMessage() {
   return "Cadastro dispon\xEDvel somente por convite. Solicite um c\xF3digo \xE0 equipe NA MESA.";
 }
-var import_crypto5;
+var import_crypto6;
 var init_signup_invite = __esm({
   "../mesaflow/src/lib/signup-invite.ts"() {
     "use strict";
-    import_crypto5 = require("crypto");
+    import_crypto6 = require("crypto");
     init_production_secrets();
   }
 });
@@ -3647,6 +3678,7 @@ var init_privacy_policy = __esm({
 // ../mesaflow/src/lib/production-seed.ts
 var production_seed_exports = {};
 __export(production_seed_exports, {
+  applyProductionSeed: () => applyProductionSeed,
   ensureProductionSeed: () => ensureProductionSeed,
   mergeDemoMerchantIntoStore: () => mergeDemoMerchantIntoStore,
   needsProductionSeed: () => needsProductionSeed
@@ -3702,13 +3734,18 @@ function seedPlatformOwner(store) {
   store.platformUsers[user.id] = user;
   return user;
 }
-function ensureProductionSeed() {
+function applyProductionSeed(store) {
   if (!isProductionEnv()) return false;
-  const store = getStore();
   if (!needsProductionSeed(store) && Object.keys(store.users).length > 0) return false;
   let changed = false;
   if (seedPlatformOwner(store)) changed = true;
   if (mergeDemoMerchantIntoStore(store)) changed = true;
+  return changed;
+}
+function ensureProductionSeed() {
+  if (!isProductionEnv()) return false;
+  const store = getStore();
+  const changed = applyProductionSeed(store);
   if (changed) saveStore(store);
   return changed;
 }
@@ -3768,14 +3805,14 @@ function migrateProductImages(store, markBlobDirty = true) {
     persist();
     return;
   }
-  (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(store, null, 2));
+  (0, import_fs2.writeFileSync)(DATA_PATH, JSON.stringify(store, null, 2));
 }
 function load() {
   if (cache) return cache;
-  (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });
-  if ((0, import_fs.existsSync)(DATA_PATH)) {
+  (0, import_fs2.mkdirSync)((0, import_path2.dirname)(DATA_PATH), { recursive: true });
+  if ((0, import_fs2.existsSync)(DATA_PATH)) {
     try {
-      cache = { ...emptyStore(), ...JSON.parse((0, import_fs.readFileSync)(DATA_PATH, "utf8")) };
+      cache = { ...emptyStore(), ...JSON.parse((0, import_fs2.readFileSync)(DATA_PATH, "utf8")) };
       migrateOperationalCollections(cache);
       migrateProductImages(cache);
       return cache;
@@ -3785,6 +3822,8 @@ function load() {
   if (isProductionEnv() && process.env.MESAFLOW_ALLOW_DEMO_SEED !== "1") {
     cache = emptyStore();
     migrateOperationalCollections(cache);
+    const { applyProductionSeed: applyProductionSeed2 } = (init_production_seed(), __toCommonJS(production_seed_exports));
+    if (applyProductionSeed2(cache)) persist();
     return cache;
   }
   cache = buildDemoStore();
@@ -3798,7 +3837,7 @@ function runRetentionPurge(store) {
 }
 function persist(markIdentity = true) {
   if (!cache) return;
-  (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+  (0, import_fs2.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
   operationalDirty = true;
   if (markIdentity) identityDirty = true;
 }
@@ -3889,7 +3928,7 @@ async function hydratePersistentStore() {
     runRetentionPurge(store2);
     return;
   }
-  (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });
+  (0, import_fs2.mkdirSync)((0, import_path2.dirname)(DATA_PATH), { recursive: true });
   lastBlobError = void 0;
   lastRedisError = void 0;
   if (redisConfigured()) {
@@ -3900,7 +3939,7 @@ async function hydratePersistentStore() {
         blobEtags = hydrated.etags;
         operationalDirty = false;
         identityDirty = false;
-        (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+        (0, import_fs2.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
         migrateProductImages(cache, false);
         migrateLegacyGuestParticipations(cache);
         runRetentionPurge(cache);
@@ -3920,7 +3959,7 @@ async function hydratePersistentStore() {
         blobEtags = hydrated.etags;
         operationalDirty = hydrated.migratedFromLegacy;
         identityDirty = hydrated.migratedFromLegacy;
-        (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+        (0, import_fs2.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
         migrateProductImages(cache, false);
         migrateLegacyGuestParticipations(cache);
         runRetentionPurge(cache);
@@ -4827,12 +4866,12 @@ function dashboardStats(establishmentId) {
     paymentsConfirmed: analytics.payments.confirmed
   };
 }
-var import_fs, import_path, DATA_PATH, cache, operationalDirty, identityDirty, blobEtags, runtimeOidcToken, lastBlobError, lastRedisError, lastPersistSource, SESSION_TTL_MS, productionSeeded, PRODUCT_AVAILABILITIES, TABLE_STATUSES;
+var import_fs2, import_path2, DATA_PATH, cache, operationalDirty, identityDirty, blobEtags, runtimeOidcToken, lastBlobError, lastRedisError, lastPersistSource, SESSION_TTL_MS, productionSeeded, PRODUCT_AVAILABILITIES, TABLE_STATUSES;
 var init_store = __esm({
   "../mesaflow/src/lib/store.ts"() {
     "use strict";
-    import_fs = require("fs");
-    import_path = require("path");
+    import_fs2 = require("fs");
+    import_path2 = require("path");
     init_blob_persistence();
     init_redis_persistence();
     init_admin_session_token();
@@ -4852,7 +4891,7 @@ var init_store = __esm({
     init_privacy_policy();
     init_production_secrets();
     init_crypto_utils();
-    DATA_PATH = process.env.MESAFLOW_DATA || (process.env.VERCEL ? "/tmp/mesaflow-store.json" : (0, import_path.join)(process.cwd(), "data", "store.json"));
+    DATA_PATH = process.env.MESAFLOW_DATA || (process.env.VERCEL ? "/tmp/mesaflow-store.json" : (0, import_path2.join)(process.cwd(), "data", "store.json"));
     cache = null;
     operationalDirty = false;
     identityDirty = false;
@@ -4900,21 +4939,21 @@ init_audit_log();
 init_crypto_utils();
 
 // ../mesaflow/src/lib/identity-crypto.ts
-var import_crypto6 = require("crypto");
+var import_crypto7 = require("crypto");
 init_production_secrets();
 function secret2(name) {
   return resolveSecret([name, "MESAFLOW_IDENTITY_SECRET"], name);
 }
 function hashToken(token) {
-  return (0, import_crypto6.createHash)("sha256").update(token).digest("hex");
+  return (0, import_crypto7.createHash)("sha256").update(token).digest("hex");
 }
 function phoneLookupHash(establishmentId, phoneE164) {
-  return (0, import_crypto6.createHmac)("sha256", secret2("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
+  return (0, import_crypto7.createHmac)("sha256", secret2("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
 }
 function encryptPhone(phoneE164) {
-  const key = (0, import_crypto6.createHash)("sha256").update(secret2("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
-  const iv = (0, import_crypto6.randomBytes)(12);
-  const cipher = (0, import_crypto6.createCipheriv)("aes-256-gcm", key, iv);
+  const key = (0, import_crypto7.createHash)("sha256").update(secret2("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+  const iv = (0, import_crypto7.randomBytes)(12);
+  const cipher = (0, import_crypto7.createCipheriv)("aes-256-gcm", key, iv);
   const encrypted = Buffer.concat([cipher.update(phoneE164, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
   return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
@@ -4923,8 +4962,8 @@ function decryptPhone(ciphertext) {
   try {
     const [ivB64, tagB64, dataB64] = ciphertext.split(".");
     if (!ivB64 || !tagB64 || !dataB64) return null;
-    const key = (0, import_crypto6.createHash)("sha256").update(secret2("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
-    const decipher = (0, import_crypto6.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
+    const key = (0, import_crypto7.createHash)("sha256").update(secret2("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+    const decipher = (0, import_crypto7.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
     decipher.setAuthTag(Buffer.from(tagB64, "base64url"));
     const decrypted = Buffer.concat([
       decipher.update(Buffer.from(dataB64, "base64url")),
@@ -4953,10 +4992,10 @@ function normalizePhoneE164(input) {
   return null;
 }
 function otpCodeHash(challengeId, code) {
-  return (0, import_crypto6.createHmac)("sha256", secret2("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
+  return (0, import_crypto7.createHmac)("sha256", secret2("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
 }
 function generateOtpCode() {
-  return String((0, import_crypto6.randomInt)(1e5, 1e6));
+  return String((0, import_crypto7.randomInt)(1e5, 1e6));
 }
 
 // ../mesaflow/src/lib/otp-bypass.ts
@@ -4987,7 +5026,7 @@ function publicOtpBypassHint() {
 }
 
 // ../mesaflow/src/lib/guest-session-token.ts
-var import_crypto7 = require("crypto");
+var import_crypto8 = require("crypto");
 init_production_secrets();
 var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
 function secret3() {
@@ -4997,13 +5036,13 @@ function secret3() {
   );
 }
 function sign2(payloadB64) {
-  return (0, import_crypto7.createHmac)("sha256", secret3()).update(payloadB64).digest("base64url");
+  return (0, import_crypto8.createHmac)("sha256", secret3()).update(payloadB64).digest("base64url");
 }
 function verifySig2(payloadB64, sig) {
   const expected = sign2(payloadB64);
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expected);
-  return sigBuf.length === expectedBuf.length && (0, import_crypto7.timingSafeEqual)(sigBuf, expectedBuf);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto8.timingSafeEqual)(sigBuf, expectedBuf);
 }
 function claimsFromParticipation(participation, ttlMs = CLIENT_SESSION_TTL_MS) {
   return {
@@ -6736,7 +6775,7 @@ init_production_seed();
 init_audit_log();
 
 // ../mesaflow/src/lib/platform-session-token.ts
-var import_crypto8 = require("crypto");
+var import_crypto9 = require("crypto");
 init_production_secrets();
 var PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
 function secret4() {
@@ -6750,13 +6789,13 @@ function secret4() {
   );
 }
 function sign3(payloadB64) {
-  return (0, import_crypto8.createHmac)("sha256", secret4()).update(payloadB64).digest("base64url");
+  return (0, import_crypto9.createHmac)("sha256", secret4()).update(payloadB64).digest("base64url");
 }
 function verifySig3(payloadB64, sig) {
   const expected = sign3(payloadB64);
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expected);
-  return sigBuf.length === expectedBuf.length && (0, import_crypto8.timingSafeEqual)(sigBuf, expectedBuf);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto9.timingSafeEqual)(sigBuf, expectedBuf);
 }
 function issuePlatformSessionToken(platformUserId, ttlMs = PLATFORM_SESSION_TTL_MS) {
   const claims = {

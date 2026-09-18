@@ -72,6 +72,17 @@ function seedPlatformOwner(store: MesaFlowStore): PlatformUser | null {
   return user;
 }
 
+/** Seed platform owner + demo merchant in-place (no getStore — safe from load()). */
+export function applyProductionSeed(store: MesaFlowStore): boolean {
+  if (!isProductionEnv()) return false;
+  if (!needsProductionSeed(store) && Object.keys(store.users).length > 0) return false;
+
+  let changed = false;
+  if (seedPlatformOwner(store)) changed = true;
+  if (mergeDemoMerchantIntoStore(store)) changed = true;
+  return changed;
+}
+
 /**
  * When production store is empty after hydrate (0 establishments or 0 platform users),
  * seed platform owner + demo merchant so login works without Blob recovery.
@@ -80,13 +91,7 @@ export function ensureProductionSeed(): boolean {
   if (!isProductionEnv()) return false;
 
   const store = getStore();
-  if (!needsProductionSeed(store) && Object.keys(store.users).length > 0) return false;
-
-  let changed = false;
-
-  if (seedPlatformOwner(store)) changed = true;
-  if (mergeDemoMerchantIntoStore(store)) changed = true;
-
+  const changed = applyProductionSeed(store);
   if (changed) saveStore(store);
   return changed;
 }

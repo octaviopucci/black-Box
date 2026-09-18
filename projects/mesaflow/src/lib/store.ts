@@ -154,6 +154,8 @@ function load(): MesaFlowStore {
   if (isProductionEnv() && process.env.MESAFLOW_ALLOW_DEMO_SEED !== "1") {
     cache = emptyStore();
     migrateOperationalCollections(cache);
+    const { applyProductionSeed } = require("./production-seed") as typeof import("./production-seed");
+    if (applyProductionSeed(cache)) persist();
     return cache;
   }
   cache = buildDemoStore();

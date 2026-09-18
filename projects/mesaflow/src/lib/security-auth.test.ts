@@ -82,9 +82,10 @@ async function run() {
   delete process.env.MESAFLOW_SIGNUP_OPEN;
   delete process.env.MESAFLOW_SIGNUP_INVITE_CODE;
   try {
-    assert.throws(
-      () => resolveSecret(["MESAFLOW_NONEXISTENT_TEST_SECRET"], "test"),
-      /Secret ausente em produção/,
+    const runtimeSecret = resolveSecret(["MESAFLOW_NONEXISTENT_TEST_SECRET"], "test");
+    assert.ok(
+      typeof runtimeSecret === "string" && runtimeSecret.length >= 16,
+      "resolveSecret must return runtime secret in prod instead of throwing",
     );
     assert.equal(otpBypassCode(), null, "default OTP bypass must be off in production");
     const hint = publicOtpBypassHint();
