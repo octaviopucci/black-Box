@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { usePlatformAuth } from "@/contexts/platform-auth-context";
 import { Button } from "@/components/ui/button";
@@ -43,8 +43,9 @@ type MerchantDetail = {
 
 const STATUS_OPTIONS: PlatformStatus[] = ["active", "inactive", "suspended"];
 
-export default function PlatformMerchantDetailPage() {
-  const { id } = useParams<{ id: string }>();
+function PlatformMerchantDetailContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") || "";
   const { authHeaders } = usePlatformAuth();
   const [merchant, setMerchant] = useState<MerchantDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,10 +53,16 @@ export default function PlatformMerchantDetailPage() {
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
+    if (!id) {
+      setLoading(false);
+      setMerchant(null);
+      return;
+    }
     setLoading(true);
     const res = await fetch(apiUrl(`/platform/merchants/${id}`), { headers: authHeaders() });
     const json = await res.json();
     if (res.ok) setMerchant(json.merchant);
+    else setMerchant(null);
     setLoading(false);
   }, [authHeaders, id]);
 
@@ -64,7 +71,7 @@ export default function PlatformMerchantDetailPage() {
   }, [load]);
 
   async function updateStatus(status: PlatformStatus) {
-    if (!merchant) return;
+    if (!merchant || !id) return;
     const reason =
       status === "suspended"
         ? window.prompt("Motivo da suspensão (opcional):") || undefined
@@ -84,6 +91,17 @@ export default function PlatformMerchantDetailPage() {
     }
     setMerchant(json.merchant);
     setSaving(false);
+  }
+
+  if (!id) {
+    return (
+      <p className="text-sm text-danger">
+        ID do lojista ausente.{" "}
+        <Link href="/platform/merchants" className="text-indigo-300 hover:underline">
+          Voltar à lista
+        </Link>
+      </p>
+    );
   }
 
   if (loading) return <p className="text-sm text-muted">Carregando lojista…</p>;
@@ -234,5 +252,13 @@ export default function PlatformMerchantDetailPage() {
         </p>
       </section>
     </div>
+  );
+}
+
+export default function PlatformMerchantDetailPage() {
+  return (
+    <Suspense fallback={<p className="text-sm text-muted">Carregando lojista…</p>}>
+      <PlatformMerchantDetailContent />
+    </Suspense>
   );
 }
