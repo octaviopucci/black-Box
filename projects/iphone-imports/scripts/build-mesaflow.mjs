@@ -91,6 +91,23 @@ mkdirSync(deployTarget, { recursive: true });
 cpSync(siteOut, deployTarget, { recursive: true });
 console.log("→ mesaflow: copiado para out/mesaflow/");
 
+const requiredStaticPages = [
+  "index.html",
+  "admin/login.html",
+  "platform/login.html",
+  "platform.html",
+  "platform/merchants.html",
+  "platform/merchants/detail.html",
+];
+for (const page of requiredStaticPages) {
+  const file = join(deployTarget, page);
+  if (!existsSync(file)) {
+    console.error(`✗ artefato estático ausente: out/mesaflow/${page}`);
+    process.exit(1);
+  }
+}
+console.log("→ mesaflow: rotas estáticas críticas verificadas (admin + platform)");
+
 console.log("→ mesaflow: bundle API...");
 await esbuild.build({
   entryPoints: [join(hostRoot, "api/_mesaflow/handler.ts")],

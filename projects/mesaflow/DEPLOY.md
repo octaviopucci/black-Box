@@ -8,11 +8,15 @@ MesaFlow é publicado no projeto Vercel **loja-iphoneimports** (mesmo host do iP
 |-------------|-----|
 | Landing | `https://loja-iphoneimports.vercel.app/mesaflow/` |
 | Cliente Mesa 08 | `https://loja-iphoneimports.vercel.app/mesaflow/m/ponto-do-sabor/mesa-8` |
-| Admin | `https://loja-iphoneimports.vercel.app/mesaflow/admin` |
+| Admin (lojista) | `https://loja-iphoneimports.vercel.app/mesaflow/admin/login` |
+| Platform (NA MESA ops) | `https://loja-iphoneimports.vercel.app/mesaflow/platform/login` |
 | KDS Cozinha | `https://loja-iphoneimports.vercel.app/mesaflow/kds/sec_cozinha` |
 | API | `https://loja-iphoneimports.vercel.app/api/mesaflow/health` |
 
-**Login demo:** `owner@pontodosabor.com` / `demo123`
+**Host alternativo (bedois):** substitua o domínio por `https://bedois.vercel.app` — paths idênticos (`/mesaflow/platform/login`, etc.).
+
+**Login demo lojista:** `owner@pontodosabor.com` / `demo123`  
+**Login platform owner:** env `MESAFLOW_PLATFORM_OWNER_EMAIL` / `MESAFLOW_PLATFORM_OWNER_PASSWORD` (dev: ver `src/lib/demo.ts`)
 
 ## Como o deploy funciona
 
