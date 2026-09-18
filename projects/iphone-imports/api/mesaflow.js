@@ -230,8 +230,12 @@ async function putWithRetry(pathname, body, auth, etag) {
       if (!conflict || attempt === MAX_BLOB_RETRIES - 1) {
         return { ok: false, error: message };
       }
-      const fresh = await readPrivateBlob(pathname, auth);
-      if (fresh?.etag) etag = fresh.etag;
+      try {
+        const fresh = await readPrivateBlob(pathname, auth);
+        if (fresh?.etag) etag = fresh.etag;
+      } catch {
+        return { ok: false, error: message };
+      }
     }
   }
   return { ok: false, error: "blob persist failed after retries" };
@@ -3969,13 +3973,10 @@ function validatePlatformSession(token) {
 function ensurePlatformOwnerSeed() {
   const store = getStore();
   store.platformUsers ||= {};
-  const envEmail = process.env.MESAFLOW_PLATFORM_OWNER_EMAIL?.trim().toLowerCase();
-  const envPassword = process.env.MESAFLOW_PLATFORM_OWNER_PASSWORD?.trim();
-  if (isProductionEnv()) {
-    if (!envEmail || !envPassword) return null;
-  }
-  const email = envEmail || "octavio@namesa.io";
-  const password = envPassword || "namesa-platform-dev";
+  const hasUsers = Object.keys(store.platformUsers).length > 0;
+  if (hasUsers) return null;
+  const email = (process.env.MESAFLOW_PLATFORM_OWNER_EMAIL?.trim() || PLATFORM_OWNER_LOGIN.email).toLowerCase();
+  const password = process.env.MESAFLOW_PLATFORM_OWNER_PASSWORD?.trim() || PLATFORM_OWNER_LOGIN.password;
   const existing = findPlatformUserByEmail(email);
   if (existing) return existing;
   const user = {
@@ -4022,7 +4023,7 @@ var init_platform_store = __esm({
     init_platform_session_token();
     init_platform_analytics();
     init_crypto_utils();
-    init_production_secrets();
+    init_demo();
     init_store();
     PLATFORM_SESSION_TTL_MS2 = 30 * 24 * 60 * 60 * 1e3;
   }
@@ -4244,61 +4245,79 @@ async function hydratePersistentStore() {
   migrateLegacyGuestParticipations(store);
   runRetentionPurge(store);
 }
-async function flushPersistentStore() {
-  if (!cache) return { disk: false, blob: false };
-  if (!process.env.VERCEL || !operationalDirty && !identityDirty) {
-    return { disk: true, blob: false };
-  }
-  if (redisConfigured()) {
-    const redisResult = await flushToRedis({
-      store: cache,
-      etags: blobEtags,
-      flushOperational: true,
-      flushIdentity: true
-    });
-    if (redisResult.ok) {
-      operationalDirty = false;
-      identityDirty = false;
-      lastRedisError = void 0;
-      lastPersistSource = "redis";
-      return { disk: true, blob: false, redis: true };
-    }
-    lastRedisError = redisResult.error || "redis persist failed";
-    console.warn("[mesaflow] redis persist failed", lastRedisError);
-  }
-  if (blobConfigured(runtimeOidcToken)) {
-    const flushed = await flushToBlob({
-      store: cache,
-      etags: blobEtags,
-      flushOperational: operationalDirty,
-      flushIdentity: identityDirty,
-      runtimeOidcToken
-    });
-    const operationalOk = !operationalDirty || flushed.operational?.ok === true;
-    const identityOk = !identityDirty || flushed.identity?.ok === true;
-    const blobOk = operationalOk && identityOk;
-    const blobError = flushed.operational?.error || flushed.identity?.error;
-    if (blobOk) {
-      if (flushed.operational?.etag) blobEtags.operational = flushed.operational.etag;
-      if (flushed.identity?.etag) blobEtags.identity = flushed.identity.etag;
-      operationalDirty = false;
-      identityDirty = false;
-      lastBlobError = void 0;
-      lastPersistSource = "blob";
-      return { disk: true, blob: true, redis: false, redisError: lastRedisError };
-    }
-    lastBlobError = blobError || "blob persist failed";
-    console.warn("[mesaflow] blob persist failed", lastBlobError);
-  } else {
-    lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
-  }
+function softFailPersistResult(error) {
+  lastBlobError = error instanceof Error ? error.message : "persist flush failed";
+  console.warn("[mesaflow] flushPersistentStore soft-fail", lastBlobError);
+  if (process.env.VERCEL) lastPersistSource = "disk-only";
   return {
-    disk: true,
+    disk: Boolean(cache),
     blob: false,
     blobError: lastBlobError,
     redis: false,
     redisError: lastRedisError
   };
+}
+async function flushPersistentStore() {
+  try {
+    if (!cache) return { disk: false, blob: false };
+    if (!process.env.VERCEL || !operationalDirty && !identityDirty) {
+      if (!process.env.VERCEL) lastPersistSource = "disk-only";
+      return { disk: true, blob: false };
+    }
+    if (redisConfigured()) {
+      const redisResult = await flushToRedis({
+        store: cache,
+        etags: blobEtags,
+        flushOperational: true,
+        flushIdentity: true
+      });
+      if (redisResult.ok) {
+        operationalDirty = false;
+        identityDirty = false;
+        lastRedisError = void 0;
+        lastPersistSource = "redis";
+        return { disk: true, blob: false, redis: true };
+      }
+      lastRedisError = redisResult.error || "redis persist failed";
+      console.warn("[mesaflow] redis persist failed", lastRedisError);
+    }
+    if (blobConfigured(runtimeOidcToken)) {
+      const flushed = await flushToBlob({
+        store: cache,
+        etags: blobEtags,
+        flushOperational: operationalDirty,
+        flushIdentity: identityDirty,
+        runtimeOidcToken
+      });
+      const operationalOk = !operationalDirty || flushed.operational?.ok === true;
+      const identityOk = !identityDirty || flushed.identity?.ok === true;
+      const blobOk = operationalOk && identityOk;
+      const blobError = flushed.operational?.error || flushed.identity?.error;
+      if (blobOk) {
+        if (flushed.operational?.etag) blobEtags.operational = flushed.operational.etag;
+        if (flushed.identity?.etag) blobEtags.identity = flushed.identity.etag;
+        operationalDirty = false;
+        identityDirty = false;
+        lastBlobError = void 0;
+        lastPersistSource = "blob";
+        return { disk: true, blob: true, redis: false, redisError: lastRedisError };
+      }
+      lastBlobError = blobError || "blob persist failed";
+      console.warn("[mesaflow] blob persist failed", lastBlobError);
+    } else {
+      lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
+    }
+    lastPersistSource = "disk-only";
+    return {
+      disk: true,
+      blob: false,
+      blobError: lastBlobError,
+      redis: false,
+      redisError: lastRedisError
+    };
+  } catch (error) {
+    return softFailPersistResult(error);
+  }
 }
 async function probeRedisStorage() {
   const ping = await probeRedis();
@@ -7214,9 +7233,13 @@ function resolvePath(req) {
 }
 async function json(res, status, body, options) {
   if (!options?.skipFlush) {
-    const persist2 = await flushPersistentStore();
-    if (!persist2.blob && persist2.blobError) {
-      console.warn("[mesaflow] blob persist skipped/failed", persist2.blobError);
+    try {
+      const persist2 = await flushPersistentStore();
+      if (!persist2.blob && persist2.blobError) {
+        console.warn("[mesaflow] blob persist skipped/failed", persist2.blobError);
+      }
+    } catch (error) {
+      console.warn("[mesaflow] flush failed (soft-fail, disk cache kept)", error);
     }
   }
   res.status(status).setHeader("Content-Type", "application/json");

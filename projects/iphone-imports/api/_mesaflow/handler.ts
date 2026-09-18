@@ -149,9 +149,13 @@ async function json(
   options?: { skipFlush?: boolean; extraHeaders?: Record<string, string> },
 ) {
   if (!options?.skipFlush) {
-    const persist = await flushPersistentStore();
-    if (!persist.blob && persist.blobError) {
-      console.warn("[mesaflow] blob persist skipped/failed", persist.blobError);
+    try {
+      const persist = await flushPersistentStore();
+      if (!persist.blob && persist.blobError) {
+        console.warn("[mesaflow] blob persist skipped/failed", persist.blobError);
+      }
+    } catch (error) {
+      console.warn("[mesaflow] flush failed (soft-fail, disk cache kept)", error);
     }
   }
   res.status(status).setHeader("Content-Type", "application/json");
