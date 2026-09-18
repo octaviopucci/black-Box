@@ -15,6 +15,7 @@ const requiredFiles = [
   "admin/login.html",
   "admin/signup.html",
   "admin/products.html",
+  "admin/orders.html",
   "admin/settings.html",
   "platform.html",
   "platform/login.html",
@@ -50,6 +51,8 @@ const requiredHandlerRoutes = [
   "/platform/auth/me",
   "/platform/dashboard",
   "/platform/merchants",
+  "/admin/orders",
+  "/admin/password",
 ];
 
 let failed = false;
@@ -85,6 +88,7 @@ if (badRewrites.length > 0) {
 
 for (const route of [
   "/mesaflow/admin/products",
+  "/mesaflow/admin/orders",
   "/mesaflow/admin/settings",
   ...requiredPlatformRewrites,
 ]) {

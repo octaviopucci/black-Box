@@ -73,13 +73,16 @@ function ensureCleanUrlIndexes(deployRoot, routes) {
   }
 }
 
-function assertHandlerPlatformRoutes(handlerBundlePath) {
+function assertHandlerCriticalRoutes(handlerBundlePath) {
   const bundle = readFileSync(handlerBundlePath, "utf8");
   const required = [
     "/platform/auth/login",
     "/platform/auth/me",
     "/platform/dashboard",
     "/platform/merchants",
+    "/admin/orders",
+    "/admin/password",
+    "/orders",
   ];
   for (const route of required) {
     if (!bundle.includes(route)) {
@@ -124,6 +127,7 @@ console.log("→ mesaflow: copiado para out/mesaflow/");
 const requiredStaticPages = [
   "index.html",
   "admin/login.html",
+  "admin/orders.html",
   "platform/login.html",
   "platform.html",
   "platform/merchants.html",
@@ -142,6 +146,7 @@ console.log("→ mesaflow: rotas estáticas críticas verificadas (admin + platf
 ensureCleanUrlIndexes(deployTarget, [
   "admin/login",
   "admin/signup",
+  "admin/orders",
   "platform",
   "platform/login",
   "platform/merchants",
@@ -163,6 +168,6 @@ await esbuild.build({
   external: ["@vercel/blob", "@vercel/node"],
   loader: { ".json": "json" },
 });
-assertHandlerPlatformRoutes(handlerOut);
-console.log("→ mesaflow: rotas platform verificadas no handler");
+assertHandlerCriticalRoutes(handlerOut);
+console.log("→ mesaflow: rotas críticas verificadas no handler (admin + platform)");
 console.log("✓ mesaflow pronto");

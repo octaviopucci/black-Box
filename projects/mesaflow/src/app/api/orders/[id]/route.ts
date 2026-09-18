@@ -1,17 +1,12 @@
+import { readAdminSessionToken } from "@/lib/staff-auth-request";
 import { getStore, updateOrderStatus, validateSession } from "@/lib/store";
 import type { OrderStatus } from "@/lib/types";
-
-function readBearer(req: Request) {
-  const auth = req.headers.get("authorization");
-  const match = auth?.match(/^Bearer\s+(.+)$/i);
-  return match?.[1]?.trim();
-}
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminSessionToken(req));
   if (
     !auth ||
     !["OWNER", "MANAGER", "KITCHEN", "COUNTER", "WAITER"].includes(auth.user.role)
@@ -30,7 +25,7 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminSessionToken(req));
   if (!auth || (auth.user.role !== "OWNER" && auth.user.role !== "MANAGER")) {
     return Response.json({ error: "Não autorizado." }, { status: 401 });
   }
