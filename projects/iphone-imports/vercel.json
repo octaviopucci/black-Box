@@ -24,6 +24,22 @@
       "maxDuration": 30
     }
   },
+  "redirects": [
+    { "source": "/gestor", "destination": "/iphone-imports/gestor", "permanent": true },
+    { "source": "/gestor/:path*", "destination": "/iphone-imports/gestor/:path*", "permanent": true },
+    { "source": "/produto/:slug", "destination": "/iphone-imports/produto/:slug", "permanent": true },
+    { "source": "/categoria/:slug", "destination": "/iphone-imports/categoria/:slug", "permanent": true },
+    { "source": "/ofertas", "destination": "/iphone-imports/ofertas", "permanent": true },
+    { "source": "/buscar", "destination": "/iphone-imports/buscar", "permanent": true },
+    { "source": "/carrinho", "destination": "/iphone-imports/carrinho", "permanent": true },
+    { "source": "/checkout", "destination": "/iphone-imports/checkout", "permanent": true },
+    { "source": "/favoritos", "destination": "/iphone-imports/favoritos", "permanent": true },
+    { "source": "/contato", "destination": "/iphone-imports/contato", "permanent": true },
+    { "source": "/sobre", "destination": "/iphone-imports/sobre", "permanent": true },
+    { "source": "/termos", "destination": "/iphone-imports/termos", "permanent": true },
+    { "source": "/politica-de-privacidade", "destination": "/iphone-imports/politica-de-privacidade", "permanent": true },
+    { "source": "/trocas-e-devolucoes", "destination": "/iphone-imports/trocas-e-devolucoes", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/iphone-imports", "destination": "/api/iphone-imports?path=health" },
     { "source": "/api/iphone-imports/(.*)", "destination": "/api/iphone-imports?path=$1" },
@@ -37,9 +53,9 @@
     { "source": "/pucci-motors/(.*)", "destination": "/pucci-motors/index.html" },
     { "source": "/b2-gestor", "destination": "/b2-gestor/index.html" },
     { "source": "/b2-gestor/(.*)", "destination": "/b2-gestor/index.html" },
-    { "source": "/gestor", "destination": "/gestor/index.html" },
-    { "source": "/gestor/((?!assets/).*)", "destination": "/gestor/index.html" },
-    { "source": "/produto/:slug", "destination": "/produto/__live__" },
+    { "source": "/iphone-imports/gestor", "destination": "/iphone-imports/gestor/index.html" },
+    { "source": "/iphone-imports/gestor/((?!assets/).*)", "destination": "/iphone-imports/gestor/index.html" },
+    { "source": "/iphone-imports/produto/:slug", "destination": "/iphone-imports/produto/__live__" },
     { "source": "/w-tube", "destination": "/w-tube/index.html" },
     { "source": "/w-tube/gestor", "destination": "/w-tube/gestor/index.html" },
     { "source": "/w-tube/gestor/((?!assets/).*)", "destination": "/w-tube/gestor/index.html" },
