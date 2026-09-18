@@ -27,6 +27,8 @@ MesaFlow é publicado no projeto Vercel **loja-iphoneimports** (mesmo host do iP
 
 Sem Evolution **e** sem `off` explícito, produção **não** expõe código bypass na API (fail-closed).
 
+> **Custo zero:** não contrate Evolution/WhatsApp nesta rodada — use `MESAFLOW_OTP_BYPASS_CODE=off` + `MESAFLOW_DEV_SKIP_OTP` desligado em prod, ou configure Evolution só quando o lojista já tiver instância própria.
+
 ## Como o deploy funciona
 
 1. `projects/iphone-imports/scripts/build-mesaflow.mjs` — export estático em `out/mesaflow/`

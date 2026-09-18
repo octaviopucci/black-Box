@@ -1,6 +1,7 @@
 # ADR-001 — Migrar persistência JSON para store transacional
 
-> **Status:** Proposto · **Data:** 2026-09-18
+> **Status:** Proposto (paper only) · **Data:** 2026-09-18  
+> **Custo nesta rodada:** **zero** — nenhum Postgres/Neon/Redis pago provisionado. Só plano + `JsonStoreAdapter` stub.
 
 ## Contexto
 
@@ -9,17 +10,17 @@ O NA MESA persiste estado em documentos JSON monolíticos (Vercel Blob / Upstash
 ## Decisão (faseada)
 
 1. **Agora:** manter JSON store; introduzir `MesaFlowStoreAdapter` (`src/lib/store-adapter.ts`) como seam de migração.
-2. **Fase 1:** Postgres (Neon) + Drizzle, partition lógica por `establishmentId`, escritas transacionais em comanda/pedido.
+2. **Fase 1 (futura, opt-in):** Postgres + Drizzle — candidatos incluem free-tier (ex.: Neon) **somente se o lojista/ops optar**; desligado por default; nada provisionado agora.
 3. **Fase 2:** filas webhook, analytics materializadas, read replicas.
 
-## Stack candidata
+## Stack candidata (referência — não implementada)
 
-| Camada | Escolha |
-|--------|---------|
-| DB | Postgres (Neon serverless) |
-| ORM | Drizzle |
-| Deploy API | Mesmo handler `api/mesaflow.js` |
-| Frontend | Static export inalterado |
+| Camada | Opção futura | Default hoje |
+|--------|--------------|--------------|
+| DB | Postgres (free-tier opt-in) | JSON Blob/Redis já no projeto |
+| ORM | Drizzle | — |
+| Deploy API | Mesmo handler `api/mesaflow.js` | ✅ |
+| Frontend | Static export inalterado | ✅ |
 
 ## Riscos do JSON atual
 

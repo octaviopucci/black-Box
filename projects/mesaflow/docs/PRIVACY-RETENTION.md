@@ -19,4 +19,8 @@
 
 ## Multi-instância
 
-Purge roda por instância no hydrate; em escala, migrar para job cron com lock (ver ADR-001).
+Purge roda por instância no hydrate (zero custo extra). Job cron com lock fica para fase futura (ADR-001) — sem vendor novo agora.
+
+## Custo
+
+Tudo no store JSON/Blob/Redis **já existente** no projeto bedois — nenhum serviço pago adicionado.

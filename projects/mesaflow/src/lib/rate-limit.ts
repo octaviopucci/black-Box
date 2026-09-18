@@ -1,8 +1,9 @@
 /**
  * In-memory rate limiter (fixed window per key).
  *
- * OK for dev and low-traffic pilots. Each Vercel serverless instance holds its
- * own bucket — use Redis (Upstash Ratelimit) before multi-tenant scale.
+ * Zero-cost default: in-memory only (no Redis/Upstash provisionado).
+ * Each Vercel serverless instance holds its own bucket — shared store (ex. Redis)
+ * fica para fase futura opt-in; não implementado nesta rodada.
  */
 
 export type RateLimitPolicy = {
