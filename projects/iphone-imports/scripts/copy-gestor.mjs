@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const source = join(root, 'gestor', 'dist')
-const target = join(root, 'out', 'gestor')
+const storeBase = process.env.IPHONE_IMPORTS_BASE_PATH || '/iphone-imports'
+const gestorSegment = storeBase.replace(/^\//, '') || 'iphone-imports'
+const target = join(root, 'out', gestorSegment, 'gestor')
 
 if (!existsSync(source)) {
   console.error('gestor/dist não encontrado — rode build:gestor primeiro')
@@ -14,4 +16,4 @@ if (!existsSync(source)) {
 rmSync(target, { recursive: true, force: true })
 mkdirSync(target, { recursive: true })
 cpSync(source, target, { recursive: true })
-console.log('out/gestor atualizado')
+console.log(`out/${gestorSegment}/gestor atualizado`)

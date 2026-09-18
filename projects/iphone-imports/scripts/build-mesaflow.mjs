@@ -170,4 +170,20 @@ await esbuild.build({
 });
 assertHandlerCriticalRoutes(handlerOut);
 console.log("→ mesaflow: rotas críticas verificadas no handler (admin + platform)");
+
+/** NA MESA na raiz do domínio — landing + favicons (assets _next continuam em /mesaflow/). */
+function deployRootLanding() {
+  const outRoot = join(hostRoot, "out");
+  mkdirSync(outRoot, { recursive: true });
+  cpSync(join(deployTarget, "index.html"), join(outRoot, "index.html"));
+  for (const file of ["favicon.ico", "apple-icon.png", "manifest.webmanifest"]) {
+    const src = join(deployTarget, file);
+    if (existsSync(src)) {
+      cpSync(src, join(outRoot, file));
+    }
+  }
+  console.log("→ mesaflow: landing NA MESA copiada para out/ (raiz do domínio)");
+}
+
+deployRootLanding();
 console.log("✓ mesaflow pronto");
