@@ -14,7 +14,7 @@ export async function PATCH(
   const auth = validateSession(readBearer(req));
   if (
     !auth ||
-    !["OWNER", "MANAGER", "KITCHEN", "COUNTER"].includes(auth.user.role)
+    !["OWNER", "MANAGER", "KITCHEN", "COUNTER", "WAITER"].includes(auth.user.role)
   ) {
     return Response.json({ error: "Não autorizado." }, { status: 401 });
   }

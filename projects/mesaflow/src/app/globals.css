@@ -24,6 +24,17 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea,
+  button {
+    font-size: max(16px, 1em);
+  }
 }
 
 *::-webkit-scrollbar {

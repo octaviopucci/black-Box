@@ -4,7 +4,7 @@ import { validatePaymentAmount } from "@/lib/payments";
 import { id } from "@/lib/crypto-utils";
 import { emit } from "@/lib/events";
 import { revokeSessionsForParticipation } from "@/lib/guest";
-import { getStore, saveStore } from "@/lib/store";
+import { getActiveCommand, getOrOpenCommand, getStore, saveStore } from "@/lib/store";
 import type {
   AuditEvent,
   ClosingRequest,
@@ -55,7 +55,7 @@ function recordAudit(
   store.auditEvents[event.id] = event;
 }
 
-function notifyStaff(
+export function notifyStaff(
   store: MesaFlowStore,
   establishmentId: string,
   type: string,
@@ -622,6 +622,192 @@ export function ensureIntegrationCatalog(establishmentId: string) {
     store.integrationConnections[connection.id] = connection;
   }
   saveStore(store);
+}
+
+const INTEGRATION_PROVIDERS = new Set<IntegrationProvider>(
+  INTEGRATION_CATALOG.map((item) => item.provider),
+);
+
+export function connectIntegration(
+  establishmentId: string,
+  provider: string,
+  config: Record<string, string>,
+  actorUserId: string,
+): MutationResult<{ connection: IntegrationConnection }> {
+  if (!INTEGRATION_PROVIDERS.has(provider as IntegrationProvider)) {
+    return invalid("Provedor de integração inválido.", 400);
+  }
+  const store = getStore();
+  ensureOperationalCollections(store);
+  ensureIntegrationCatalog(establishmentId);
+
+  const connection = Object.values(store.integrationConnections).find(
+    (entry) => entry.establishmentId === establishmentId && entry.provider === provider,
+  );
+  if (!connection) return invalid("Integração não encontrada.", 404);
+
+  const sanitized: Record<string, string> = {};
+  for (const [key, value] of Object.entries(config)) {
+    if (typeof value !== "string") continue;
+    const trimmed = value.trim();
+    if (trimmed) sanitized[key] = trimmed.slice(0, 500);
+  }
+
+  if (provider === "webhook" && !sanitized.url) {
+    return invalid("Informe a URL do webhook.", 400);
+  }
+
+  const now = new Date().toISOString();
+  connection.config = { ...connection.config, ...sanitized };
+  connection.status = "connected";
+  connection.connectedAt = now;
+  connection.lastError = undefined;
+  store.integrationConnections[connection.id] = connection;
+
+  recordAudit(store, {
+    establishmentId,
+    type: "integration.connected",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "integration",
+    targetId: connection.id,
+    metadata: { provider },
+  });
+  saveStore(store);
+  return { value: { connection } };
+}
+
+export function disconnectIntegration(
+  establishmentId: string,
+  provider: string,
+  actorUserId: string,
+): MutationResult<{ connection: IntegrationConnection }> {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const connection = Object.values(store.integrationConnections).find(
+    (entry) => entry.establishmentId === establishmentId && entry.provider === provider,
+  );
+  if (!connection) return invalid("Integração não encontrada.", 404);
+
+  connection.status = "disabled";
+  connection.config = {};
+  connection.connectedAt = undefined;
+  connection.lastSyncAt = undefined;
+  store.integrationConnections[connection.id] = connection;
+
+  recordAudit(store, {
+    establishmentId,
+    type: "integration.disconnected",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "integration",
+    targetId: connection.id,
+    metadata: { provider },
+  });
+  saveStore(store);
+  return { value: { connection } };
+}
+
+export async function testWebhookStub(
+  establishmentId: string,
+): Promise<MutationResult<{ delivered: boolean; status: number; preview: string }>> {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const connection = Object.values(store.integrationConnections).find(
+    (entry) =>
+      entry.establishmentId === establishmentId &&
+      entry.provider === "webhook" &&
+      entry.status === "connected",
+  );
+  if (!connection?.config.url) {
+    return invalid("Configure e conecte o webhook antes de testar.", 400);
+  }
+
+  const payload = {
+    event: "mesaflow.test",
+    establishmentId,
+    sentAt: new Date().toISOString(),
+    message: "Evento de teste MesaFlow — nenhuma ação necessária.",
+  };
+
+  try {
+    const response = await fetch(connection.config.url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-MesaFlow-Event": "test",
+        ...(connection.config.secret
+          ? { "X-MesaFlow-Signature": connection.config.secret.slice(0, 8) + "…" }
+          : {}),
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
+    });
+    const preview = (await response.text()).slice(0, 200);
+    connection.lastSyncAt = new Date().toISOString();
+    connection.lastError = response.ok ? undefined : `HTTP ${response.status}`;
+    store.integrationConnections[connection.id] = connection;
+    saveStore(store);
+    return {
+      value: {
+        delivered: response.ok,
+        status: response.status,
+        preview: preview || "(sem corpo)",
+      },
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Falha ao chamar webhook.";
+    connection.lastError = message;
+    store.integrationConnections[connection.id] = connection;
+    saveStore(store);
+    return invalid(message, 502);
+  }
+}
+
+export function activateTable(
+  establishmentId: string,
+  tableId: string,
+  actorUserId: string,
+): MutationResult<{ table: Table; command: Command }> {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa não encontrada.", 404);
+  }
+  if (table.status === "INATIVA") {
+    return invalid("Mesa inativa não pode ser ativada.", 409);
+  }
+
+  const existing = getActiveCommand(table);
+  const command = existing || getOrOpenCommand(table);
+
+  recordAudit(store, {
+    establishmentId,
+    type: "table.activated",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "table",
+    targetId: tableId,
+    metadata: { commandId: command.id, tableNumber: table.number },
+  });
+
+  notifyStaff(
+    store,
+    establishmentId,
+    "table.activated",
+    "Mesa ativada",
+    `Mesa ${table.number} pronta para receber clientes`,
+    {
+      commandId: command.id,
+      tableId: table.id,
+      actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`,
+    },
+  );
+
+  saveStore(store);
+  emit({ type: "command.updated", commandId: command.id, establishmentId });
+  return { value: { table: store.tables[tableId], command } };
 }
 
 const STALE_PARTICIPATION_MS = 12 * 60 * 60 * 1000;

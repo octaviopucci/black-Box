@@ -100,6 +100,15 @@ async function run() {
   assert.ok(!loginUser(owner.email, "demo123").error, "legacy login must remain valid");
   assert.ok(owner.passwordHash.startsWith("$2"), "legacy password must migrate to bcrypt");
 
+  const { activateTable } = await import("./store-operations");
+  const freeTable = Object.values(store.tables).find(
+    (entry) => entry.establishmentId === establishment.id && entry.status === "LIVRE",
+  );
+  assert.ok(freeTable);
+  const activated = unwrap(activateTable(establishment.id, freeTable!.id, owner.id));
+  assert.equal(activated.table.status, "OCUPADA");
+  assert.equal(activated.command.status, "ABERTA");
+
   console.log("✓ MesaFlow admin CRUD, tenant isolation and QR lifecycle passed");
 }
 

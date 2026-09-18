@@ -138,6 +138,25 @@ export default function AdminTablesPage() {
     }
   }
 
+  async function activate(table: Table) {
+    setBusyId(table.id);
+    setError("");
+    try {
+      const response = await fetch(apiUrl(`/admin/tables/${encodeURIComponent(table.id)}/activate`), {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error || "Não foi possível ativar a mesa.");
+      setFeedback(`Mesa ${table.number} ativada — comanda aberta.`);
+      await load();
+    } catch (activateError) {
+      setError(activateError instanceof Error ? activateError.message : "Falha ao ativar mesa.");
+    } finally {
+      setBusyId("");
+    }
+  }
+
   async function copyLink(table: Table) {
     try {
       await navigator.clipboard.writeText(absoluteMenuUrl(table));
@@ -190,6 +209,16 @@ export default function AdminTablesPage() {
                   <button onClick={() => copyLink(table)} className="flex items-center justify-center gap-1.5 rounded-lg bg-surface-3 px-2 py-2 text-xs text-muted hover:text-ink"><Copy className="h-3.5 w-3.5" /> Copiar link</button>
                   <Link href={menuPath(table)} target="_blank" className="flex items-center justify-center gap-1.5 rounded-lg bg-surface-3 px-2 py-2 text-xs text-muted hover:text-ink"><ExternalLink className="h-3.5 w-3.5" /> Cardápio</Link>
                 </div>
+                {table.status === "LIVRE" || table.status === "RESERVADA" ? (
+                  <button
+                    type="button"
+                    disabled={busyId === table.id}
+                    onClick={() => void activate(table)}
+                    className="mt-2 w-full rounded-lg bg-success/15 px-2 py-2 text-xs font-semibold text-success hover:bg-success/20 disabled:opacity-50"
+                  >
+                    Ativar mesa
+                  </button>
+                ) : null}
                 {(table.status === "OCUPADA" || table.status === "AGUARDANDO_PAGAMENTO") && (
                   <Link
                     href={`/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`}

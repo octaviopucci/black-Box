@@ -35,11 +35,19 @@ import {
   updateAdminSettings,
   updateAdminTable,
   validateSession,
-  requestBill,
   updateOrderStatus,
 } from "../../../mesaflow/src/lib/store";
 import {
+  cancelGuestClosing,
+  getGuestClosingStatus,
+  requestGuestClosing,
+} from "../../../mesaflow/src/lib/guest-closing";
+import { getKdsQueue } from "../../../mesaflow/src/lib/kds-queue";
+import {
+  activateTable,
   confirmClosingRequest,
+  connectIntegration,
+  disconnectIntegration,
   ensureIntegrationCatalog,
   forceClearTable,
   getTableCockpit,
@@ -49,6 +57,7 @@ import {
   registerPayment,
   replaceOrderItemSplits,
   settleCommand,
+  testWebhookStub,
   voidPayment,
 } from "../../../mesaflow/src/lib/store-operations";
 import {
@@ -142,6 +151,12 @@ function readGuestToken(req: VercelRequest) {
 function adminAuth(req: VercelRequest) {
   const auth = validateSession(readBearer(req));
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
+}
+
+function dashboardAuth(req: VercelRequest) {
+  const auth = validateSession(readBearer(req));
+  const allowed = ["OWNER", "MANAGER", "COUNTER", "WAITER", "KITCHEN"];
+  return auth && allowed.includes(auth.user.role) ? auth : null;
 }
 
 function staffAuth(req: VercelRequest, roles?: string[]) {
@@ -372,8 +387,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "GET" && path === "/orders") {
-      const auth = adminAuth(req);
-      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const auth = dashboardAuth(req);
+      if (!auth || !["OWNER", "MANAGER", "WAITER", "COUNTER"].includes(auth.user.role)) {
+        return json(res, 401, { error: "Não autorizado." });
+      }
       const commandId = String(req.query?.commandId || "");
       let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
       if (commandId) orders = orders.filter((o) => o.commandId === commandId);
@@ -445,8 +462,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return json(res, 200, { order });
       }
       if (req.method === "PATCH") {
-        const auth = kitchenAuth(req);
-        if (!auth) return json(res, 401, { error: "Não autorizado." });
+        const auth = validateSession(readBearer(req));
+        if (
+          !auth ||
+          !["OWNER", "MANAGER", "KITCHEN", "COUNTER", "WAITER"].includes(auth.user.role)
+        ) {
+          return json(res, 401, { error: "Não autorizado." });
+        }
         const body = (req.body || {}) as { status: OrderStatus };
         const order = updateOrderStatus(orderId, body.status, auth.establishment.id);
         if (!order) return json(res, 404, { error: "Pedido não encontrado." });
@@ -511,17 +533,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/bill") {
-      const body = (req.body || {}) as { slug: string; tableToken: string };
-      const est = findEstablishmentBySlug(body.slug);
-      if (!est) return json(res, 404, { error: "Estabelecimento não encontrado." });
-      const table = findTableByQr(est.id, body.tableToken);
-      if (!table) return json(res, 404, { error: "Mesa inválida." });
-      const cmd = requestBill(table.id);
-      return json(res, 200, { ok: true, command: cmd });
+      const guestAuth = validateClientSession(readGuestToken(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente obrigatória." });
+      const result = requestGuestClosing(guestAuth.participation.id, "TABLE");
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, {
+        ok: true,
+        closingRequest: result.value.closingRequest,
+        scope: "TABLE",
+      });
+    }
+
+    if (req.method === "POST" && path === "/guest/closing/request") {
+      const guestAuth = validateClientSession(readGuestToken(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente inválida." });
+      const body = (req.body || {}) as {
+        scope?: "SELF" | "SELECTED" | "TABLE";
+        targetGuestParticipationIds?: string[];
+      };
+      const scope = body.scope || "TABLE";
+      const result = requestGuestClosing(
+        guestAuth.participation.id,
+        scope,
+        body.targetGuestParticipationIds || [],
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, {
+        closingRequest: result.value.closingRequest,
+        participation: publicParticipation(result.value.participation),
+      });
+    }
+
+    if (req.method === "POST" && path === "/guest/closing/cancel") {
+      const guestAuth = validateClientSession(readGuestToken(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente inválida." });
+      const result = cancelGuestClosing(guestAuth.participation.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, {
+        cancelled: result.value.cancelled,
+        participation: publicParticipation(result.value.participation),
+      });
+    }
+
+    if (req.method === "GET" && path === "/guest/closing/status") {
+      const guestAuth = validateClientSession(readGuestToken(req));
+      if (!guestAuth) return json(res, 401, { error: "Sessão de cliente inválida." });
+      const status = getGuestClosingStatus(guestAuth.participation.id);
+      if (!status) return json(res, 404, { error: "Participação não encontrada." });
+      return json(res, 200, status);
+    }
+
+    if (req.method === "GET" && path === "/kds/queue") {
+      const auth = kitchenAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const sectorId = String(req.query?.sector || req.query?.sectorId || "");
+      if (!sectorId) return json(res, 400, { error: "Setor obrigatório." });
+      const queue = getKdsQueue(auth.establishment.id, sectorId);
+      if (!queue) return json(res, 404, { error: "Setor não encontrado." });
+      return json(res, 200, queue);
     }
 
     if (req.method === "GET" && path === "/admin/dashboard") {
-      const auth = adminAuth(req);
+      const auth = dashboardAuth(req);
       if (!auth) return json(res, 401, { error: "Não autorizado." });
       const est = auth.establishment;
       const stats = dashboardStats(est.id);
@@ -621,9 +694,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "GET" && path === "/admin/operations") {
-      const auth = adminAuth(req);
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER", "WAITER"]);
       if (!auth) return json(res, 401, { error: "Não autorizado." });
       return json(res, 200, listAdminOperations(auth.establishment.id));
+    }
+
+    const tableActivateMatch = path.match(/^\/admin\/tables\/([^/]+)\/activate$/);
+    if (tableActivateMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER", "WAITER"]);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = activateTable(auth.establishment.id, tableActivateMatch[1], auth.user.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
     }
 
     const guestKickMatch = path.match(/^\/admin\/guests\/([^/]+)\/kick$/);
@@ -753,6 +835,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!auth) return json(res, 401, { error: "Não autorizado." });
       ensureIntegrationCatalog(auth.establishment.id);
       return json(res, 200, listIntegrations(auth.establishment.id));
+    }
+
+    const integrationConnectMatch = path.match(/^\/admin\/integrations\/([^/]+)\/connect$/);
+    if (integrationConnectMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const provider = integrationConnectMatch[1];
+      if (req.method === "POST") {
+        const body = (req.body || {}) as { config?: Record<string, string> };
+        const result = connectIntegration(
+          auth.establishment.id,
+          provider,
+          body.config || {},
+          auth.user.id,
+        );
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, result.value);
+      }
+      if (req.method === "DELETE") {
+        const result = disconnectIntegration(auth.establishment.id, provider, auth.user.id);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, result.value);
+      }
+    }
+
+    if (req.method === "POST" && path === "/admin/integrations/webhook/test") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = await testWebhookStub(auth.establishment.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
     }
 
     const regenerateQrMatch = path.match(/^\/admin\/tables\/([^/]+)\/regenerate-qr$/);
