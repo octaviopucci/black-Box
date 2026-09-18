@@ -44,6 +44,7 @@ import {
 } from "../../../mesaflow/src/lib/guest-closing";
 import { getKdsQueue } from "../../../mesaflow/src/lib/kds-queue";
 import {
+  activateTable,
   confirmClosingRequest,
   connectIntegration,
   disconnectIntegration,
@@ -693,9 +694,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "GET" && path === "/admin/operations") {
-      const auth = adminAuth(req);
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER", "WAITER"]);
       if (!auth) return json(res, 401, { error: "Não autorizado." });
       return json(res, 200, listAdminOperations(auth.establishment.id));
+    }
+
+    const tableActivateMatch = path.match(/^\/admin\/tables\/([^/]+)\/activate$/);
+    if (tableActivateMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER", "WAITER"]);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = activateTable(auth.establishment.id, tableActivateMatch[1], auth.user.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
     }
 
     const guestKickMatch = path.match(/^\/admin\/guests\/([^/]+)\/kick$/);

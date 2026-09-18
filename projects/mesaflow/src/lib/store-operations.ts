@@ -4,7 +4,7 @@ import { validatePaymentAmount } from "@/lib/payments";
 import { id } from "@/lib/crypto-utils";
 import { emit } from "@/lib/events";
 import { revokeSessionsForParticipation } from "@/lib/guest";
-import { getStore, saveStore } from "@/lib/store";
+import { getActiveCommand, getOrOpenCommand, getStore, saveStore } from "@/lib/store";
 import type {
   AuditEvent,
   ClosingRequest,
@@ -762,6 +762,52 @@ export async function testWebhookStub(
     saveStore(store);
     return invalid(message, 502);
   }
+}
+
+export function activateTable(
+  establishmentId: string,
+  tableId: string,
+  actorUserId: string,
+): MutationResult<{ table: Table; command: Command }> {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid("Mesa não encontrada.", 404);
+  }
+  if (table.status === "INATIVA") {
+    return invalid("Mesa inativa não pode ser ativada.", 409);
+  }
+
+  const existing = getActiveCommand(table);
+  const command = existing || getOrOpenCommand(table);
+
+  recordAudit(store, {
+    establishmentId,
+    type: "table.activated",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "table",
+    targetId: tableId,
+    metadata: { commandId: command.id, tableNumber: table.number },
+  });
+
+  notifyStaff(
+    store,
+    establishmentId,
+    "table.activated",
+    "Mesa ativada",
+    `Mesa ${table.number} pronta para receber clientes`,
+    {
+      commandId: command.id,
+      tableId: table.id,
+      actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`,
+    },
+  );
+
+  saveStore(store);
+  emit({ type: "command.updated", commandId: command.id, establishmentId });
+  return { value: { table: store.tables[tableId], command } };
 }
 
 const STALE_PARTICIPATION_MS = 12 * 60 * 60 * 1000;

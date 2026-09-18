@@ -1,8 +1,8 @@
 import { listAdminOperations } from "@/lib/store-operations";
-import { requireAdmin } from "../_shared";
+import { requireStaff } from "../_shared";
 
 export async function GET(req: Request) {
-  const auth = requireAdmin(req);
+  const auth = requireStaff(req, ["OWNER", "MANAGER", "COUNTER", "WAITER"]);
   if (!auth) return Response.json({ error: "Não autorizado." }, { status: 401 });
   return Response.json(listAdminOperations(auth.establishment.id));
 }

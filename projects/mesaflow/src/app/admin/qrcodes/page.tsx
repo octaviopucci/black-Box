@@ -21,6 +21,7 @@ export default function QRCodesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [busyId, setBusyId] = useState("");
 
   const load = useCallback(async () => {
     setError("");
@@ -70,6 +71,25 @@ export default function QRCodesPage() {
       setFeedback(`Link da Mesa ${table.number} copiado.`);
     } catch {
       setError("O navegador não permitiu copiar o link.");
+    }
+  }
+
+  async function activate(table: Table) {
+    setBusyId(table.id);
+    setError("");
+    try {
+      const response = await fetch(apiUrl(`/admin/tables/${encodeURIComponent(table.id)}/activate`), {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error || "Não foi possível ativar a mesa.");
+      setFeedback(`Mesa ${table.number} ativada. Clientes podem escanear o QR.`);
+      await load();
+    } catch (activateError) {
+      setError(activateError instanceof Error ? activateError.message : "Falha ao ativar mesa.");
+    } finally {
+      setBusyId("");
     }
   }
 
@@ -124,9 +144,10 @@ export default function QRCodesPage() {
               )}
               <p className="mt-3 text-xs text-gray-500">Aponte a câmera para abrir o cardápio</p>
             </div>
-            <div className="print-hide grid w-full grid-cols-2 border-t border-gray-200 bg-gray-50">
-              <button onClick={() => copyLink(t)} className="flex items-center justify-center gap-2 py-3 text-xs font-semibold text-gray-600 hover:bg-gray-100"><Copy className="h-3.5 w-3.5" /> Copiar link</button>
-              <button disabled={!qrs[t.id]} onClick={() => download(t)} className="flex items-center justify-center gap-2 border-l border-gray-200 py-3 text-xs font-semibold text-gray-600 hover:bg-gray-100 disabled:opacity-40"><Download className="h-3.5 w-3.5" /> Baixar PNG</button>
+            <div className="print-hide grid w-full grid-cols-3 border-t border-gray-200 bg-gray-50">
+              <button onClick={() => copyLink(t)} className="flex items-center justify-center gap-1 py-3 text-[10px] font-semibold text-gray-600 hover:bg-gray-100 sm:text-xs"><Copy className="h-3.5 w-3.5" /> Copiar</button>
+              <button disabled={!qrs[t.id]} onClick={() => download(t)} className="flex items-center justify-center gap-1 border-x border-gray-200 py-3 text-[10px] font-semibold text-gray-600 hover:bg-gray-100 disabled:opacity-40 sm:text-xs"><Download className="h-3.5 w-3.5" /> PNG</button>
+              <button disabled={busyId === t.id || t.status === "INATIVA"} onClick={() => void activate(t)} className="flex items-center justify-center gap-1 py-3 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-40 sm:text-xs">Ativar</button>
             </div>
           </div>
         ))}

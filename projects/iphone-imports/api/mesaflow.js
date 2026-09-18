@@ -5467,6 +5467,43 @@ async function testWebhookStub(establishmentId) {
     return invalid3(message, 502);
   }
 }
+function activateTable(establishmentId, tableId, actorUserId) {
+  const store = getStore();
+  ensureOperationalCollections(store);
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid3("Mesa n\xE3o encontrada.", 404);
+  }
+  if (table.status === "INATIVA") {
+    return invalid3("Mesa inativa n\xE3o pode ser ativada.", 409);
+  }
+  const existing = getActiveCommand(table);
+  const command = existing || getOrOpenCommand(table);
+  recordAudit(store, {
+    establishmentId,
+    type: "table.activated",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "table",
+    targetId: tableId,
+    metadata: { commandId: command.id, tableNumber: table.number }
+  });
+  notifyStaff(
+    store,
+    establishmentId,
+    "table.activated",
+    "Mesa ativada",
+    `Mesa ${table.number} pronta para receber clientes`,
+    {
+      commandId: command.id,
+      tableId: table.id,
+      actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`
+    }
+  );
+  saveStore(store);
+  emit({ type: "command.updated", commandId: command.id, establishmentId });
+  return { value: { table: store.tables[tableId], command } };
+}
 var STALE_PARTICIPATION_MS2 = 12 * 60 * 60 * 1e3;
 function forceClearTable(establishmentId, tableId, actorUserId) {
   const store = getStore();
@@ -5792,11 +5829,15 @@ function getKdsQueue(establishmentId, sectorId) {
     const participantName = participations[order.guestParticipationId] || "Cliente";
     return [{ order, items, participantName }];
   });
+  const establishment = Object.values(store.establishments).find(
+    (entry) => entry.id === establishmentId
+  );
   return {
     sector,
     sectors,
     tickets,
-    orderCount: orders.length
+    orderCount: orders.length,
+    soundNotifications: establishment?.settings.soundNotifications ?? true
   };
 }
 
@@ -6483,9 +6524,17 @@ async function handler(req, res) {
       return json(res, 201, result);
     }
     if (req.method === "GET" && path === "/admin/operations") {
-      const auth = adminAuth(req);
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER", "WAITER"]);
       if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
       return json(res, 200, listAdminOperations(auth.establishment.id));
+    }
+    const tableActivateMatch = path.match(/^\/admin\/tables\/([^/]+)\/activate$/);
+    if (tableActivateMatch && req.method === "POST") {
+      const auth = staffAuth(req, ["OWNER", "MANAGER", "COUNTER", "WAITER"]);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const result = activateTable(auth.establishment.id, tableActivateMatch[1], auth.user.id);
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
     }
     const guestKickMatch = path.match(/^\/admin\/guests\/([^/]+)\/kick$/);
     if (guestKickMatch && req.method === "POST") {

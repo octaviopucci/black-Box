@@ -2,6 +2,7 @@
 
 > **Data:** 2026-09-18  
 > **Base:** `main` (inclui `/platform` com merchants/detail?id=)  
+> **Especificação:** `docs/PROMPT-MESTRE-NA-MESA.md`  
 > **Escopo:** mapa existente vs gaps + plano de entrega por fases deste PR
 
 ---
@@ -39,7 +40,8 @@ Este PR evolui incrementalmente a **operação real ponta a ponta** (QR → pedi
 | Fechamento parcial (SELF/SELECTED) só em tipos/docs | UX mesa compartilhada | P0 |
 | `CLOSING_REQUESTED` nunca setado no guest | Pedidos durante fechamento | P0 |
 | KDS via `/admin/dashboard` (OWNER/MANAGER only) | Cozinha quebrada | P0 |
-| WAITER role inutilizável | Operação de salão | P1 |
+| WAITER role inutilizável | Operação de salão | P1 → **endereçado** |
+| Ativação mesa staff (pré-QR guest) | Garçom abre comanda | P1 → **endereçado** |
 | Integrações UI-only | Sem fundação webhook | P2 |
 | Viewport/zoom mobile | Acessibilidade iOS | P1 |
 | SSE não usado (polling 4s) | Latência operacional | P2 (aceito) |
@@ -73,6 +75,9 @@ Este PR evolui incrementalmente a **operação real ponta a ponta** (QR → pedi
 | Notificações acionáveis | Já existiam no dashboard; novos eventos `closing.requested` |
 | Cadastro estabelecimento | Mantido (`provision.ts`) — sem regressão |
 | Dashboard operacional | WAITER/KITCHEN acessam dashboard resumido via API |
+| Ativação mesa (QR) | `POST /admin/tables/:id/activate` — WAITER+; UI mesas + QR |
+| Operations WAITER | `GET /admin/operations` com `requireStaff` |
+| Som KDS | `soundNotifications` do estabelecimento via `/kds/queue` |
 
 ### FASE 4 — Fundação integrações
 
@@ -98,7 +103,7 @@ Este PR evolui incrementalmente a **operação real ponta a ponta** (QR → pedi
 | SELECTED multi-mesa | Staff confirma no cockpit; guest não vota |
 | Integrações reais | iFood/Rappi/ERP permanecem stub |
 | Concorrência Blob LWW | Mitigação ETag parcial — ver `AUDIT-PRE-PHASE-0.md` |
-| Push/som configurável | KDS beep básico; `soundNotifications` setting ainda não wired |
+| Push notification | Apenas in-app; sem push nativo |
 | Audit log UI | Eventos gravados; sem tela admin |
 
 ---
@@ -140,3 +145,4 @@ Fluxo manual sugerido:
 - Produto/decisões fechadas: `docs/AUDIT-PRE-PHASE-0.md`
 - Identidade WhatsApp: `docs/AUDIT-WHATSAPP-IDENTITY.md`
 - Handoff: `HANDOFF.md`
+- Prompt mestre: `PROMPT-MESTRE-NA-MESA.md`

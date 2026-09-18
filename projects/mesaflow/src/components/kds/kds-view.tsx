@@ -75,7 +75,7 @@ export function KdsView({ sectorId }: { sectorId: string }) {
     if (firstOrder?.establishmentId) setEstablishmentId(firstOrder.establishmentId);
 
     const count = (json.tickets || []).length;
-    if (count > prevCount.current && prevCount.current > 0) {
+    if (json.soundNotifications !== false && count > prevCount.current && prevCount.current > 0) {
       try {
         const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
         void audio.play().catch(() => undefined);

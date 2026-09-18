@@ -34,11 +34,16 @@ export function getKdsQueue(establishmentId: string, sectorId: string) {
     return [{ order, items, participantName }];
   });
 
+  const establishment = Object.values(store.establishments).find(
+    (entry) => entry.id === establishmentId,
+  );
+
   return {
     sector,
     sectors,
     tickets,
     orderCount: orders.length,
+    soundNotifications: establishment?.settings.soundNotifications ?? true,
   };
 }
 
