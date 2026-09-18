@@ -254,8 +254,12 @@ async function putWithRetry(
       if (!conflict || attempt === MAX_BLOB_RETRIES - 1) {
         return { ok: false, error: message };
       }
-      const fresh = await readPrivateBlob(pathname, auth);
-      if (fresh?.etag) etag = fresh.etag;
+      try {
+        const fresh = await readPrivateBlob(pathname, auth);
+        if (fresh?.etag) etag = fresh.etag;
+      } catch {
+        return { ok: false, error: message };
+      }
     }
   }
   return { ok: false, error: "blob persist failed after retries" };
