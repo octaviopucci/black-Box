@@ -5,3 +5,8 @@ export function apiUrl(path: string) {
   const base = prefix ? `/api/${prefix}` : "/api";
   return `${base}${normalized}`;
 }
+
+/** Fetch autenticado staff (admin/platform): envia cookie HttpOnly + Bearer se houver. */
+export function staffFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  return fetch(apiUrl(path), { credentials: "include", ...init });
+}

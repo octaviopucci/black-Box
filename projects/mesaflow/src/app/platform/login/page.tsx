@@ -9,7 +9,7 @@ import { AuthLayout } from "@/components/ui/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePlatformAuth } from "@/contexts/platform-auth-context";
-import { apiUrl } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import { BRAND_NAME } from "@/lib/brand";
 import { PLATFORM_OWNER_LOGIN } from "@/lib/demo";
 import { turnstileSiteKeyClient } from "@/lib/turnstile-client";
@@ -32,9 +32,8 @@ export default function PlatformLoginPage() {
     }
     setLoading(true);
     setError("");
-    const res = await fetch(apiUrl("/platform/auth/login"), {
+    const res = await staffFetch("/platform/auth/login", {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, turnstileToken: turnstileToken || undefined }),
     });
@@ -44,7 +43,7 @@ export default function PlatformLoginPage() {
       setLoading(false);
       return;
     }
-    setSession({ user: json.user });
+    setSession({ token: json.token, user: json.user });
     router.push("/platform");
   }
 

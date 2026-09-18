@@ -3,7 +3,7 @@
  * Site estático em out/mesaflow/ + API em api/mesaflow.js
  */
 import { execSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, renameSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as esbuild from "esbuild";
@@ -59,6 +59,39 @@ function restoreApiRoutes(stashed) {
   }
 }
 
+/** Next export: `route.html` + pasta `route/` sem index — cleanUrls 404 sem rewrite. */
+function ensureCleanUrlIndexes(deployRoot, routes) {
+  for (const route of routes) {
+    const htmlPath = join(deployRoot, `${route}.html`);
+    if (!existsSync(htmlPath)) {
+      console.error(`✗ cleanUrl: out/mesaflow/${route}.html ausente`);
+      process.exit(1);
+    }
+    const indexPath = join(deployRoot, route, "index.html");
+    mkdirSync(join(deployRoot, route), { recursive: true });
+    cpSync(htmlPath, indexPath);
+  }
+}
+
+function assertHandlerCriticalRoutes(handlerBundlePath) {
+  const bundle = readFileSync(handlerBundlePath, "utf8");
+  const required = [
+    "/platform/auth/login",
+    "/platform/auth/me",
+    "/platform/dashboard",
+    "/platform/merchants",
+    "/admin/orders",
+    "/admin/password",
+    "/orders",
+  ];
+  for (const route of required) {
+    if (!bundle.includes(route)) {
+      console.error(`✗ api/mesaflow.js sem rota ${route}`);
+      process.exit(1);
+    }
+  }
+}
+
 console.log("\n→ mesaflow: install + build site...");
 run("npm ci --include=dev", { cwd: mesaflowRoot });
 
@@ -94,6 +127,7 @@ console.log("→ mesaflow: copiado para out/mesaflow/");
 const requiredStaticPages = [
   "index.html",
   "admin/login.html",
+  "admin/orders.html",
   "platform/login.html",
   "platform.html",
   "platform/merchants.html",
@@ -109,16 +143,31 @@ for (const page of requiredStaticPages) {
 }
 console.log("→ mesaflow: rotas estáticas críticas verificadas (admin + platform)");
 
+ensureCleanUrlIndexes(deployTarget, [
+  "admin/login",
+  "admin/signup",
+  "admin/orders",
+  "platform",
+  "platform/login",
+  "platform/merchants",
+  "platform/merchants/detail",
+  "privacidade",
+]);
+console.log("→ mesaflow: index.html cleanUrl gerados (admin + platform)");
+
 console.log("→ mesaflow: bundle API...");
+const handlerOut = join(hostRoot, "api/mesaflow.js");
 await esbuild.build({
   entryPoints: [join(hostRoot, "api/_mesaflow/handler.ts")],
   bundle: true,
   platform: "node",
   target: "node20",
-  outfile: join(hostRoot, "api/mesaflow.js"),
+  outfile: handlerOut,
   format: "cjs",
   sourcemap: true,
   external: ["@vercel/blob", "@vercel/node"],
   loader: { ".json": "json" },
 });
+assertHandlerCriticalRoutes(handlerOut);
+console.log("→ mesaflow: rotas críticas verificadas no handler (admin + platform)");
 console.log("✓ mesaflow pronto");

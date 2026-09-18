@@ -8,16 +8,11 @@ import {
 import { validateClientSession } from "@/lib/guest";
 import { resolveOrderLines } from "@/lib/order-resolve";
 import { readClientToken } from "@/lib/guest-request";
+import { readAdminSessionToken } from "@/lib/staff-auth-request";
 import type { OrderLineInput } from "@/lib/types";
 
-function readBearer(req: Request) {
-  const auth = req.headers.get("authorization");
-  const match = auth?.match(/^Bearer\s+(.+)$/i);
-  return match?.[1]?.trim();
-}
-
 export async function GET(req: Request) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminSessionToken(req));
   const allowed = ["OWNER", "MANAGER", "WAITER", "COUNTER"];
   if (!auth || !allowed.includes(auth.user.role)) {
     return Response.json({ error: "Não autorizado." }, { status: 401 });

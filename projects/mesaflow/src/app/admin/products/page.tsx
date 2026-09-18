@@ -9,18 +9,16 @@ import {
   Search,
   Trash2,
   Upload,
-  X,
-} from "lucide-react";
+  X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import type {
   Category,
   Product,
   ProductAvailability,
-  Sector,
-} from "@/lib/types";
+  Sector } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { ProductImage } from "@/components/ui/product-image";
@@ -61,14 +59,12 @@ const EMPTY_DRAFT: ProductDraft = {
   variants: [],
   addons: [],
   bumpProductIds: [],
-  upsellProductIds: [],
-};
+  upsellProductIds: [] };
 
 const AVAILABILITY_LABEL: Record<ProductAvailability, string> = {
   VITRINE: "Vitrine",
   SOB_DEMANDA: "Cozinha",
-  AMBOS: "Ambos",
-};
+  AMBOS: "Ambos" };
 
 function draftFromProduct(product: Product): ProductDraft {
   return {
@@ -85,17 +81,14 @@ function draftFromProduct(product: Product): ProductDraft {
     variants: (product.variants || []).map((variant) => ({
       id: variant.id,
       name: variant.name,
-      priceDelta: String(variant.priceDelta),
-    })),
+      priceDelta: String(variant.priceDelta) })),
     addons: (product.addons || []).map((addon) => ({
       id: addon.id,
       name: addon.name,
       price: String(addon.price),
-      maxQty: addon.maxQty != null ? String(addon.maxQty) : "",
-    })),
+      maxQty: addon.maxQty != null ? String(addon.maxQty) : "" })),
     bumpProductIds: [...(product.bumpProductIds || [])],
-    upsellProductIds: [...(product.upsellProductIds || [])],
-  };
+    upsellProductIds: [...(product.upsellProductIds || [])] };
 }
 
 type VariantPayload = { id?: string; name: string; priceDelta: number };
@@ -142,7 +135,7 @@ function toggleId(list: string[], id: string): string[] {
 }
 
 export default function AdminProductsPage() {
-  const { authHeaders } = useAuth();
+  const { fetchApi } = useAuth();
   const [catalog, setCatalog] = useState<CatalogResponse>({ products: [], categories: [], sectors: [] });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -169,20 +162,19 @@ export default function AdminProductsPage() {
     setLoading(true);
     setLoadError("");
     try {
-      const response = await fetch(apiUrl("/admin/products"), { headers: authHeaders() });
+      const response = await fetchApi("/admin/products", { });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar o catálogo.");
       setCatalog({
         products: json.products || [],
         categories: json.categories || [],
-        sectors: json.sectors || [],
-      });
+        sectors: json.sectors || [] });
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : "Falha ao carregar o catálogo.");
     } finally {
       setLoading(false);
     }
-  }, [authHeaders]);
+  }, [fetchApi]);
 
   useEffect(() => {
     void load();
@@ -222,8 +214,7 @@ export default function AdminProductsPage() {
       variants: [],
       addons: [],
       bumpProductIds: [],
-      upsellProductIds: [],
-    });
+      upsellProductIds: [] });
     setShowImageUrl(false);
     setFormError("");
     setModalOpen(true);
@@ -243,11 +234,9 @@ export default function AdminProductsPage() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const response = await fetch(apiUrl("/admin/media/upload"), {
+      const response = await fetchApi("/admin/media/upload", {
         method: "POST",
-        headers: authHeaders(),
-        body: form,
-      });
+        body: form });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível enviar a imagem.");
       if (typeof json.url !== "string" || !json.url) throw new Error("Upload sem URL de retorno.");
@@ -280,9 +269,9 @@ export default function AdminProductsPage() {
     setSaving(true);
     setFormError("");
     try {
-      const response = await fetch(apiUrl(editing ? `/admin/products/${encodeURIComponent(editing.id)}` : "/admin/products"), {
+      const response = await fetchApi(editing ? `/admin/products/${encodeURIComponent(editing.id)}` : "/admin/products", {
         method: editing ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: draft.name.trim(),
           description: draft.description.trim(),
@@ -298,9 +287,7 @@ export default function AdminProductsPage() {
           variants,
           addons,
           bumpProductIds: draft.bumpProductIds,
-          upsellProductIds: draft.upsellProductIds,
-        }),
-      });
+          upsellProductIds: draft.upsellProductIds }) });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível salvar o produto.");
       setModalOpen(false);
@@ -317,10 +304,7 @@ export default function AdminProductsPage() {
     if (!window.confirm(`Retirar “${product.name}” do cardápio? O produto ficará inativo e poderá ser editado depois.`)) return;
     setFeedback("");
     try {
-      const response = await fetch(apiUrl(`/admin/products/${encodeURIComponent(product.id)}`), {
-        method: "DELETE",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/products/${encodeURIComponent(product.id)}`, { method: "DELETE" });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível excluir o produto.");
       setFeedback("Produto retirado do cardápio.");
@@ -339,14 +323,12 @@ export default function AdminProductsPage() {
     setCategorySaving(true);
     setCategoryError("");
     try {
-      const response = await fetch(apiUrl("/admin/categories"), {
+      const response = await fetchApi("/admin/categories", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newCategoryName.trim(),
-          emoji: newCategoryEmoji.trim() || undefined,
-        }),
-      });
+          emoji: newCategoryEmoji.trim() || undefined }) });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível criar a categoria.");
       setNewCategoryName("");
@@ -369,9 +351,9 @@ export default function AdminProductsPage() {
     setCategorySaving(true);
     setCategoryError("");
     try {
-      const response = await fetch(apiUrl(`/admin/categories/${encodeURIComponent(category.id)}`), {
+      const response = await fetchApi(`/admin/categories/${encodeURIComponent(category.id)}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
       const json = await response.json();
@@ -392,10 +374,7 @@ export default function AdminProductsPage() {
     setCategorySaving(true);
     setCategoryError("");
     try {
-      const response = await fetch(apiUrl(`/admin/categories/${encodeURIComponent(category.id)}`), {
-        method: "DELETE",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/categories/${encodeURIComponent(category.id)}`, { method: "DELETE" });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível desativar.");
       setFeedback("Categoria desativada.");
@@ -411,9 +390,9 @@ export default function AdminProductsPage() {
     setCategorySaving(true);
     setCategoryError("");
     try {
-      const response = await fetch(apiUrl(`/admin/categories/${encodeURIComponent(category.id)}`), {
+      const response = await fetchApi(`/admin/categories/${encodeURIComponent(category.id)}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active: true }),
       });
       const json = await response.json();

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import {
+  changeUserPassword,
   createAdminCategory,
   createAdminProduct,
   createAdminTable,
@@ -559,7 +560,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    if (req.method === "GET" && path === "/orders") {
+    if (
+      req.method === "GET" &&
+      (path === "/orders" || path === "/admin/orders")
+    ) {
       const auth = dashboardAuth(req);
       if (!auth || !["OWNER", "MANAGER", "WAITER", "COUNTER"].includes(auth.user.role)) {
         return json(res, 401, { error: "Não autorizado." });
@@ -665,6 +669,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         {
           user: publicUser(result.user!),
           establishment: result.establishment,
+          token: result.session!.token,
         },
         {
           extraHeaders: {
@@ -725,6 +730,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         {
           user: publicUser(result.user!),
           establishment: result.establishment,
+          token: result.session!.token,
         },
         {
           extraHeaders: {
@@ -757,7 +763,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(
         res,
         200,
-        { user: result.user },
+        { user: result.user, token: result.token },
         {
           extraHeaders: {
             ...rateLimitHeaders(rl),
@@ -928,6 +934,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         categories,
         products,
       });
+    }
+
+    if (path === "/admin/password") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "PATCH") {
+        const body = (req.body || {}) as { currentPassword?: string; newPassword?: string };
+        const result = changeUserPassword(
+          auth.user.id,
+          auth.establishment.id,
+          String(body.currentPassword ?? ""),
+          String(body.newPassword ?? ""),
+        );
+        if ("error" in result) return json(res, result.status ?? 400, { error: result.error });
+        return json(res, 200, result.value);
+      }
     }
 
     if (path === "/admin/settings") {

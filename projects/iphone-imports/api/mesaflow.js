@@ -4434,6 +4434,31 @@ function registerEstablishment(input) {
   const session = createSession(user);
   return { user, establishment, session };
 }
+function changeUserPassword(userId, establishmentId, currentPassword, newPassword) {
+  const store = getStore();
+  const user = store.users[userId];
+  if (!user || user.establishmentId !== establishmentId || !user.active) {
+    return { error: "Usu\xE1rio n\xE3o encontrado.", status: 404 };
+  }
+  if (!verifyPassword(currentPassword, user.passwordHash)) {
+    return { error: "Senha atual incorreta.", status: 401 };
+  }
+  const passwordError = validatePasswordStrength(newPassword);
+  if (passwordError) return { error: passwordError, status: 400 };
+  user.passwordHash = hashPassword(newPassword);
+  store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "staff.password_changed",
+    actorType: "STAFF",
+    actorUserId: user.id,
+    targetType: "user",
+    targetId: user.id,
+    metadata: {}
+  });
+  saveStore(store);
+  return { value: { changedAt: (/* @__PURE__ */ new Date()).toISOString() } };
+}
 function loginUser(email, password) {
   const user = findUserByEmail(email);
   if (!user || !verifyPassword(password, user.passwordHash)) {
@@ -7520,7 +7545,7 @@ async function handler(req, res) {
         ...summary
       });
     }
-    if (req.method === "GET" && path === "/orders") {
+    if (req.method === "GET" && (path === "/orders" || path === "/admin/orders")) {
       const auth = dashboardAuth(req);
       if (!auth || !["OWNER", "MANAGER", "WAITER", "COUNTER"].includes(auth.user.role)) {
         return json(res, 401, { error: "N\xE3o autorizado." });
@@ -7609,7 +7634,8 @@ async function handler(req, res) {
         200,
         {
           user: publicUser(result.user),
-          establishment: result.establishment
+          establishment: result.establishment,
+          token: result.session.token
         },
         {
           extraHeaders: {
@@ -7648,7 +7674,8 @@ async function handler(req, res) {
         201,
         {
           user: publicUser(result.user),
-          establishment: result.establishment
+          establishment: result.establishment,
+          token: result.session.token
         },
         {
           extraHeaders: {
@@ -7679,7 +7706,7 @@ async function handler(req, res) {
       return json(
         res,
         200,
-        { user: result.user },
+        { user: result.user, token: result.token },
         {
           extraHeaders: {
             ...rateLimitHeaders(rl),
@@ -7829,6 +7856,21 @@ async function handler(req, res) {
         categories,
         products
       });
+    }
+    if (path === "/admin/password") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "PATCH") {
+        const body = req.body || {};
+        const result = changeUserPassword(
+          auth.user.id,
+          auth.establishment.id,
+          String(body.currentPassword ?? ""),
+          String(body.newPassword ?? "")
+        );
+        if ("error" in result) return json(res, result.status ?? 400, { error: result.error });
+        return json(res, 200, result.value);
+      }
     }
     if (path === "/admin/settings") {
       const auth = adminAuth(req);

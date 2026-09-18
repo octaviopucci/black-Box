@@ -15,11 +15,9 @@ import {
   ShieldAlert,
   ShoppingBag,
   Table2,
-  X,
-} from "lucide-react";
+  X } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { Sector, UserRole } from "@/lib/types";
 
@@ -39,8 +37,7 @@ const ROLE_NAV: Record<UserRole, string[] | "*"> = {
   MANAGER: "*",
   WAITER: ["/admin", "/admin/orders", "/admin/tables", "/admin/operations", "/admin/qrcodes"],
   KITCHEN: ["/admin", "/admin/orders", "/admin/operations"],
-  COUNTER: ["/admin", "/admin/orders", "/admin/tables", "/admin/operations", "/admin/qrcodes"],
-};
+  COUNTER: ["/admin", "/admin/orders", "/admin/tables", "/admin/operations", "/admin/qrcodes"] };
 
 function navForRole(role: UserRole | undefined) {
   if (!role) return NAV;
@@ -52,23 +49,20 @@ function navForRole(role: UserRole | undefined) {
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { session, logout, authHeaders, credentials } = useAuth();
+  const { session, logout, fetchApi } = useAuth();
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [persistWarning, setPersistWarning] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (!session?.establishment.slug) return;
-    fetch(apiUrl(`/admin/dashboard?slug=${encodeURIComponent(session.establishment.slug)}`), {
-      credentials,
-      headers: authHeaders(),
-    })
+    fetchApi(`/admin/dashboard?slug=${encodeURIComponent(session.establishment.slug)}`)
       .then((r) => r.json())
       .then((json) => {
         setSectors(json.sectors || []);
         setPersistWarning(json.persist?.shared ? null : json.persist?.warning || null);
       });
-  }, [session?.establishment.slug, authHeaders, credentials]);
+  }, [session?.establishment.slug, fetchApi]);
 
   async function handleLogout() {
     await logout();

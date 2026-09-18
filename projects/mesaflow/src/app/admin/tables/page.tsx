@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Copy, ExternalLink, Pencil, Plus, QrCode, RotateCw, Trash2, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, staffFetch } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { Table, TableStatus } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -15,14 +15,13 @@ const STATUS: Record<TableStatus, { label: string; color: string }> = {
   OCUPADA: { label: "Ocupada", color: "bg-brand/15 text-brand" },
   AGUARDANDO_PAGAMENTO: { label: "Aguardando pagamento", color: "bg-warning/15 text-warning" },
   RESERVADA: { label: "Reservada", color: "bg-brand-soft/15 text-brand-soft" },
-  INATIVA: { label: "Inativa", color: "bg-white/5 text-muted" },
-};
+  INATIVA: { label: "Inativa", color: "bg-white/5 text-muted" } };
 
 type Draft = { number: string; name: string; capacity: string; status: TableStatus };
 const EMPTY: Draft = { number: "", name: "", capacity: "4", status: "LIVRE" };
 
 export default function AdminTablesPage() {
-  const { session, authHeaders } = useAuth();
+  const { session, fetchApi } = useAuth();
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,7 +36,7 @@ export default function AdminTablesPage() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(apiUrl("/admin/tables"), { headers: authHeaders() });
+      const response = await fetchApi("/admin/tables", { });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar as mesas.");
       setTables(json.tables || []);
@@ -46,7 +45,7 @@ export default function AdminTablesPage() {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders]);
+  }, [fetchApi]);
 
   useEffect(() => {
     void load();
@@ -84,11 +83,10 @@ export default function AdminTablesPage() {
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(apiUrl(editing ? `/admin/tables/${encodeURIComponent(editing.id)}` : "/admin/tables"), {
+      const response = await fetchApi(editing ? `/admin/tables/${encodeURIComponent(editing.id)}` : "/admin/tables", {
         method: editing ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ ...draft, number: draft.number.trim(), name: draft.name.trim(), capacity }),
-      });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...draft, number: draft.number.trim(), name: draft.name.trim(), capacity }) });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível salvar a mesa.");
       setFormOpen(false);
@@ -106,7 +104,7 @@ export default function AdminTablesPage() {
     setBusyId(table.id);
     setError("");
     try {
-      const response = await fetch(apiUrl(`/admin/tables/${encodeURIComponent(table.id)}`), { method: "DELETE", headers: authHeaders() });
+      const response = await fetchApi(`/admin/tables/${encodeURIComponent(table.id)}`, { method: "DELETE" });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível excluir a mesa.");
       setFeedback("Mesa excluída.");
@@ -123,10 +121,7 @@ export default function AdminTablesPage() {
     setBusyId(table.id);
     setError("");
     try {
-      const response = await fetch(apiUrl(`/admin/tables/${encodeURIComponent(table.id)}/regenerate-qr`), {
-        method: "POST",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/tables/${encodeURIComponent(table.id)}/regenerate-qr`, { method: "POST" });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível gerar um novo QR Code.");
       setTables((current) => current.map((item) => item.id === table.id ? json.table : item));
@@ -142,10 +137,7 @@ export default function AdminTablesPage() {
     setBusyId(table.id);
     setError("");
     try {
-      const response = await fetch(apiUrl(`/admin/tables/${encodeURIComponent(table.id)}/activate`), {
-        method: "POST",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/tables/${encodeURIComponent(table.id)}/activate`, { method: "POST" });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível ativar a mesa.");
       setFeedback(`Mesa ${table.number} ativada — comanda aberta.`);

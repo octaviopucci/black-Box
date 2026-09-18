@@ -6,7 +6,7 @@ import { Copy, Download, Printer, QrCode as QrCodeIcon } from "lucide-react";
 import type { Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, staffFetch } from "@/lib/api";
 
 function menuUrl(slug: string, qrToken: string) {
   const base = typeof window !== "undefined" ? window.location.origin : "";
@@ -15,7 +15,7 @@ function menuUrl(slug: string, qrToken: string) {
 }
 
 export default function QRCodesPage() {
-  const { session, authHeaders } = useAuth();
+  const { session, fetchApi } = useAuth();
   const [tables, setTables] = useState<Table[]>([]);
   const [qrs, setQrs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ export default function QRCodesPage() {
   const load = useCallback(async () => {
     setError("");
     try {
-      const response = await fetch(apiUrl("/admin/tables"), { headers: authHeaders(), cache: "no-store" });
+      const response = await fetchApi("/admin/tables", { cache: "no-store" });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar os QR Codes.");
       setTables(json.tables || []);
@@ -35,7 +35,7 @@ export default function QRCodesPage() {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders]);
+  }, [fetchApi]);
 
   useEffect(() => {
     void load();
@@ -78,10 +78,7 @@ export default function QRCodesPage() {
     setBusyId(table.id);
     setError("");
     try {
-      const response = await fetch(apiUrl(`/admin/tables/${encodeURIComponent(table.id)}/activate`), {
-        method: "POST",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/tables/${encodeURIComponent(table.id)}/activate`, { method: "POST" });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível ativar a mesa.");
       setFeedback(`Mesa ${table.number} ativada. Clientes podem escanear o QR.`);

@@ -11,7 +11,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { usePlatformAuth } from "@/contexts/platform-auth-context";
-import { apiUrl } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { PLAN_LABELS } from "@/lib/platform-plans";
@@ -102,20 +101,18 @@ function StatCard({
 }
 
 export default function PlatformDashboardPage() {
-  const { authHeaders } = usePlatformAuth();
+  const { fetchApi } = usePlatformAuth();
   const [period, setPeriod] = useState<Period>("30d");
   const [data, setData] = useState<Dashboard | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(apiUrl(`/platform/dashboard?period=${period}`), {
-      headers: authHeaders(),
-    });
+    const res = await fetchApi(`/platform/dashboard?period=${period}`);
     const json = await res.json();
     if (res.ok) setData(json);
     setLoading(false);
-  }, [authHeaders, period]);
+  }, [fetchApi, period]);
 
   useEffect(() => {
     load();

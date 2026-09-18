@@ -6,7 +6,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { usePlatformAuth } from "@/contexts/platform-auth-context";
 import { Button } from "@/components/ui/button";
-import { apiUrl } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { PLAN_LABELS } from "@/lib/platform-plans";
@@ -46,7 +46,7 @@ const STATUS_OPTIONS: PlatformStatus[] = ["active", "inactive", "suspended"];
 function PlatformMerchantDetailContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id") || "";
-  const { authHeaders } = usePlatformAuth();
+  const { fetchApi } = usePlatformAuth();
   const [merchant, setMerchant] = useState<MerchantDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -59,12 +59,12 @@ function PlatformMerchantDetailContent() {
       return;
     }
     setLoading(true);
-    const res = await fetch(apiUrl(`/platform/merchants/${id}`), { headers: authHeaders() });
+    const res = await fetchApi(`/platform/merchants/${id}`);
     const json = await res.json();
     if (res.ok) setMerchant(json.merchant);
     else setMerchant(null);
     setLoading(false);
-  }, [authHeaders, id]);
+  }, [fetchApi, id]);
 
   useEffect(() => {
     load();
@@ -78,9 +78,9 @@ function PlatformMerchantDetailContent() {
         : undefined;
     setSaving(true);
     setError("");
-    const res = await fetch(apiUrl(`/platform/merchants/${id}`), {
+    const res = await fetchApi(`/platform/merchants/${id}`, {
       method: "PATCH",
-      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ platformStatus: status, reason }),
     });
     const json = await res.json();
@@ -182,8 +182,7 @@ function PlatformMerchantDetailContent() {
             label: "Última atividade",
             value: merchant.lastActivityAt
               ? new Date(merchant.lastActivityAt).toLocaleString("pt-BR")
-              : "—",
-          },
+              : "—" },
         ].map((item) => (
           <div key={item.label} className="glass-panel p-4">
             <p className="text-xs uppercase tracking-wider text-muted">{item.label}</p>

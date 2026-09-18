@@ -23,5 +23,5 @@ export async function POST(req: Request) {
     return withRateLimitHeaders(Response.json({ error: result.error }, { status: 401 }), rl);
   }
   const { token, user } = result;
-  return withRateLimitHeaders(jsonWithPlatformSession({ user }, token), rl);
+  return withRateLimitHeaders(jsonWithPlatformSession({ user, token }, token), rl);
 }

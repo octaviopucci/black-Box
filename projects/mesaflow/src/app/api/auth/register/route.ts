@@ -40,6 +40,7 @@ export async function POST(req: Request) {
   const payload = {
     user: publicUser(result.user!),
     establishment: result.establishment,
+    token: result.session!.token,
   };
   return withRateLimitHeaders(
     jsonWithAdminSession(payload, result.session!.token, 201),

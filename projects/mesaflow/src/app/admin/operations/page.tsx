@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, RefreshCw, ShieldAlert, UserX } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import { formatTime } from "@/lib/format";
 import type { Command, GuestParticipation, Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ type OperationsData = {
 };
 
 export default function AdminOperationsPage() {
-  const { authHeaders } = useAuth();
+  const { fetchApi } = useAuth();
   const [data, setData] = useState<OperationsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -32,20 +32,19 @@ export default function AdminOperationsPage() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(apiUrl("/admin/operations"), { headers: authHeaders() });
+      const response = await fetchApi("/admin/operations", { });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar o controle operacional.");
       setData({
         activeTables: json.activeTables || [],
-        staleParticipations: json.staleParticipations || [],
-      });
+        staleParticipations: json.staleParticipations || [] });
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Falha ao carregar operações.");
       setData(null);
     } finally {
       setLoading(false);
     }
-  }, [authHeaders]);
+  }, [fetchApi]);
 
   useEffect(() => {
     void load();
@@ -57,10 +56,7 @@ export default function AdminOperationsPage() {
     setError("");
     setFeedback("");
     try {
-      const response = await fetch(apiUrl(`/admin/guests/${encodeURIComponent(participationId)}/kick`), {
-        method: "POST",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/guests/${encodeURIComponent(participationId)}/kick`, { method: "POST" });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível remover o convidado.");
       setFeedback(`${label} removido(a) da mesa.`);
@@ -84,10 +80,7 @@ export default function AdminOperationsPage() {
     setError("");
     setFeedback("");
     try {
-      const response = await fetch(apiUrl(`/admin/tables/${encodeURIComponent(table.id)}/force-clear`), {
-        method: "POST",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/tables/${encodeURIComponent(table.id)}/force-clear`, { method: "POST" });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível liberar a mesa.");
       setFeedback(`Mesa ${table.number} liberada.`);
