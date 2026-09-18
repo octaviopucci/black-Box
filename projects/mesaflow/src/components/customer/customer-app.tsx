@@ -79,6 +79,12 @@ type GuestMe = {
     status: string;
     phoneDisplay: string;
     orderCount: number;
+    paymentConfirmedAt?: string;
+    canLeave?: boolean;
+    itemTotal?: number;
+    paidTotal?: number;
+    remainingTotal?: number;
+    isSettled?: boolean;
   };
   orders: Order[];
   consumptionTotal: number;
@@ -315,12 +321,18 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   }
 
   async function logoutGuest() {
+    if (!guestMe?.participation.canLeave) {
+      notify("Aguarde a confirmação do pagamento pelo restaurante.", "error");
+      setTab("comanda");
+      return;
+    }
     setLoggingOut(true);
     try {
-      await apiFetch("/guest/logout", { method: "POST" });
-    } catch {
-      // still clear local session
-    } finally {
+      const res = await apiFetch("/guest/logout", { method: "POST" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json.error || "Não foi possível sair da mesa.");
+      }
       clearGuestToken();
       cart.clear();
       setGuestMe(null);
@@ -331,9 +343,12 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       setSelected(null);
       setCartOpen(false);
       setClosingOpen(false);
-      setLoggingOut(false);
       notify("Você saiu da mesa.");
       void loadContext();
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Não foi possível sair da mesa.", "error");
+    } finally {
+      setLoggingOut(false);
     }
   }
 
@@ -663,18 +678,6 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               {guestMe ? ` · ${guestMe.participation.displayName}` : ""}
             </p>
           </div>
-          {guestMe && (
-            <button
-              type="button"
-              onClick={() => void logoutGuest()}
-              disabled={loggingOut}
-              className="flex shrink-0 items-center gap-1.5 rounded-xl bg-surface-3/80 px-3 py-2 text-xs font-semibold text-muted transition hover:text-ink disabled:opacity-50"
-              aria-label="Sair da mesa"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              {loggingOut ? "Saindo…" : "Sair"}
-            </button>
-          )}
         </div>
         <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3">
           {(
@@ -909,6 +912,38 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 {command?.status || "Sem comanda"}
               </span>
             </div>
+
+            {guestMe?.participation.paymentConfirmedAt && (
+              <div className="mb-4 flex items-start gap-3 rounded-xl border border-success/25 bg-success/10 px-4 py-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
+                <div>
+                  <p className="text-sm font-semibold text-success">Pagamento confirmado pelo restaurante</p>
+                  <p className="mt-0.5 text-xs text-muted">
+                    OK registrado às {formatTime(guestMe.participation.paymentConfirmedAt)}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {guestMe &&
+              (guestMe.participation.itemTotal ?? consumptionTotal) > 0 &&
+              !guestMe.participation.paymentConfirmedAt && (
+                <div className="mb-4 flex items-start gap-3 rounded-xl border border-warning/25 bg-warning/10 px-4 py-3">
+                  <Clock className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
+                  <div>
+                    <p className="text-sm font-semibold text-warning">Aguardando confirmação do pagamento</p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      O restaurante precisa confirmar seu pagamento antes de você sair da mesa.
+                    </p>
+                    {(guestMe.participation.remainingTotal ?? 0) > 0 && (
+                      <p className="mt-1 text-xs font-medium text-ink">
+                        Saldo pendente: {formatCurrency(guestMe.participation.remainingTotal ?? 0)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
             {orders.flatMap((o) =>
               o.items.map((item) => (
                 <div key={item.id} className="flex justify-between border-b border-white/5 py-2 text-sm">
@@ -926,10 +961,25 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 Total da mesa: {formatCurrency(data.tableTotal)}
               </p>
             )}
-            <Button className="mt-4 w-full" variant="secondary" onClick={openClosingOrBill}>
-              <ClipboardList className="mr-2 h-4 w-4" />
-              Pedir a conta
-            </Button>
+
+            {!guestMe?.participation.paymentConfirmedAt && (
+              <Button className="mt-4 w-full" variant="secondary" onClick={openClosingOrBill}>
+                <ClipboardList className="mr-2 h-4 w-4" />
+                Pedir a conta
+              </Button>
+            )}
+
+            {guestMe?.participation.canLeave && (
+              <Button
+                className="mt-4 w-full"
+                variant="secondary"
+                loading={loggingOut}
+                onClick={() => void logoutGuest()}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair da mesa
+              </Button>
+            )}
           </div>
         </div>
       )}

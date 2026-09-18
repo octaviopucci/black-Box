@@ -49,6 +49,7 @@ import type {
   ProductVariant,
   OperationMode,
 } from "./types";
+import { dashboardAnalytics } from "./dashboard-analytics";
 import { isOperationMode } from "./operation-modes";
 
 const DATA_PATH =
@@ -1353,35 +1354,19 @@ export function createRodizioRound(input: {
 }
 
 export function dashboardStats(establishmentId: string) {
-  const store = getStore();
-  const today = new Date().toISOString().slice(0, 10);
-  const orders = Object.values(store.orders).filter(
-    (o) => o.establishmentId === establishmentId && o.createdAt.startsWith(today) && o.status !== "CANCELADO",
-  );
-  const revenue = orders.filter((o) => o.status === "ENTREGUE").reduce((s, o) => s + o.total, 0);
-  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishmentId);
-  const occupied = tables.filter((t) => t.status === "OCUPADA").length;
-  const inPrep = orders.filter((o) => ["ACEITO", "EM_PREPARO"].includes(o.status)).length;
-  const pending = orders.filter((o) => o.status === "NOVO").length;
-  const ticket = orders.length ? revenue / Math.max(1, orders.filter((o) => o.status === "ENTREGUE").length) : 0;
-
-  const productSales: Record<string, { name: string; qty: number }> = {};
-  for (const o of orders) {
-    for (const item of o.items) {
-      if (!productSales[item.productId]) productSales[item.productId] = { name: item.productName, qty: 0 };
-      productSales[item.productId].qty += item.qty;
-    }
-  }
-  const topProducts = Object.values(productSales).sort((a, b) => b.qty - a.qty).slice(0, 5);
-
+  const analytics = dashboardAnalytics(establishmentId, "today");
   return {
-    revenue,
-    ordersToday: orders.length,
-    ticketAvg: ticket,
-    tablesOccupied: occupied,
-    tablesTotal: tables.length,
-    inPrep,
-    pending,
-    topProducts,
+    revenue: analytics.sales.revenue,
+    ordersToday: analytics.sales.ordersCount,
+    ticketAvg: analytics.sales.ticketAvg,
+    tablesOccupied: analytics.occupancy.occupied,
+    tablesTotal: analytics.occupancy.tablesTotal,
+    inPrep: analytics.inPrep,
+    pending: analytics.pendingOrders,
+    topProducts: analytics.topProducts,
+    paymentsCollected: analytics.sales.paymentsCollected,
+    activeSessions: analytics.sessions.active,
+    paymentsPending: analytics.payments.pending,
+    paymentsConfirmed: analytics.payments.confirmed,
   };
 }
