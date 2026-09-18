@@ -43,24 +43,11 @@ export function KdsView({ sectorId }: { sectorId: string }) {
   const [authError, setAuthError] = useState(false);
   const prevCount = useRef(0);
 
-  const authHeaders = useCallback((): Record<string, string> => {
-    const headers: Record<string, string> = {};
-    try {
-      const raw = sessionStorage.getItem("mesaflow_admin");
-      if (!raw) return headers;
-      const token = (JSON.parse(raw) as { token?: string }).token;
-      if (token) headers.Authorization = `Bearer ${token}`;
-    } catch {
-      /* ignore */
-    }
-    return headers;
-  }, []);
-
   const load = useCallback(async () => {
     if (!resolvedSector) return;
     const res = await fetch(
       apiUrl(`/kds/queue?sector=${encodeURIComponent(resolvedSector)}`),
-      { headers: authHeaders() },
+      { credentials: "include" },
     );
     if (res.status === 401) {
       setAuthError(true);
@@ -84,7 +71,7 @@ export function KdsView({ sectorId }: { sectorId: string }) {
       }
     }
     prevCount.current = count;
-  }, [resolvedSector, authHeaders]);
+  }, [resolvedSector]);
 
   useEffect(() => {
     load();
@@ -107,7 +94,8 @@ export function KdsView({ sectorId }: { sectorId: string }) {
   async function setStatus(orderId: string, status: OrderStatus) {
     await fetch(apiUrl(`/orders/${orderId}`), {
       method: "PATCH",
-      headers: { "Content-Type": "application/json", ...authHeaders() },
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
     load();

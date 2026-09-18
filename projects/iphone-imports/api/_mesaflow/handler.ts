@@ -106,6 +106,21 @@ import {
   validatePlatformSession,
 } from "../../../mesaflow/src/lib/platform-store";
 import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
+import {
+  buildDetailedHealthResponse,
+  buildPublicHealthResponse,
+  healthDiagnosticsAuthorized,
+} from "../../../mesaflow/src/lib/public-health";
+import {
+  ADMIN_SESSION_COOKIE,
+  PLATFORM_SESSION_COOKIE,
+  buildAdminSessionCookie,
+  buildPlatformSessionCookie,
+  clearAdminSessionCookieValue,
+  clearPlatformSessionCookieValue,
+  parseStaffCookieHeader,
+} from "../../../mesaflow/src/lib/staff-session-cookie-web";
+import { verifyTurnstileToken } from "../../../mesaflow/src/lib/turnstile";
 import type {
   OperationMode,
   OrderLineInput,
@@ -202,29 +217,44 @@ function readBearer(req: VercelRequest) {
   return match ? match[1].trim() : undefined;
 }
 
+function readCookieHeader(req: VercelRequest): string | undefined {
+  const raw = req.headers.cookie;
+  if (typeof raw === "string") return raw;
+  if (Array.isArray(raw)) return raw.join("; ");
+  return undefined;
+}
+
+function readAdminToken(req: VercelRequest) {
+  return readBearer(req) || parseStaffCookieHeader(readCookieHeader(req), ADMIN_SESSION_COOKIE);
+}
+
+function readPlatformToken(req: VercelRequest) {
+  return readBearer(req) || parseStaffCookieHeader(readCookieHeader(req), PLATFORM_SESSION_COOKIE);
+}
+
 function readGuestToken(req: VercelRequest) {
   return readBearer(req) || parseClientCookie(req);
 }
 
 function adminAuth(req: VercelRequest) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminToken(req));
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
 }
 
 function dashboardAuth(req: VercelRequest) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminToken(req));
   const allowed = ["OWNER", "MANAGER", "COUNTER", "WAITER", "KITCHEN"];
   return auth && allowed.includes(auth.user.role) ? auth : null;
 }
 
 function staffAuth(req: VercelRequest, roles?: string[]) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminToken(req));
   const allowed = roles ?? ["OWNER", "MANAGER", "COUNTER", "WAITER"];
   return auth && allowed.includes(auth.user.role) ? auth : null;
 }
 
 function kitchenAuth(req: VercelRequest) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminToken(req));
   if (!auth) return null;
   if (
     auth.user.role === "OWNER" ||
@@ -238,7 +268,7 @@ function kitchenAuth(req: VercelRequest) {
 }
 
 function platformAuth(req: VercelRequest) {
-  return validatePlatformSession(readBearer(req));
+  return validatePlatformSession(readPlatformToken(req));
 }
 
 function parsePlatformStatus(value: unknown): PlatformStatus | null {
@@ -281,24 +311,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         persist.blob === true ||
         persist.redis === true ||
         (redisProbe.ok === true && storage.redis?.configured === true);
-      const establishments = Object.keys(store.establishments).length;
-      return json(
-        res,
-        200,
-        {
-          ok: true,
-          service: "mesaflow",
-          blob: blobOk,
-          shared: sharedOk,
-          establishments,
-          storage: { ...storage, probe, redisProbe, persist },
-          setup:
-            sharedOk
+      const establishmentCount = Object.keys(store.establishments).length;
+      const healthReq = {
+        headers: { get: (name: string) => {
+          const key = name.toLowerCase();
+          const val = req.headers[key];
+          if (typeof val === "string") return val;
+          if (Array.isArray(val)) return val[0] ?? null;
+          return null;
+        } },
+        url: req.url,
+      };
+      if (healthDiagnosticsAuthorized(healthReq)) {
+        return json(
+          res,
+          200,
+          buildDetailedHealthResponse({
+            sharedOk,
+            blobOk,
+            establishmentCount,
+            storage: { ...storage, probe, redisProbe },
+            persist,
+            setup: sharedOk
               ? undefined
               : persist.redisError
                 ? `Redis falhou: ${persist.redisError}. Verifique UPSTASH_REDIS_REST_URL/TOKEN.`
                 : blobSetupHint({ ...storage, lastError: persist.blobError ?? storage.lastError }),
-        },
+          }),
+          { skipFlush: true },
+        );
+      }
+      return json(
+        res,
+        200,
+        buildPublicHealthResponse({ sharedOk, blobOk, establishmentCount }),
         { skipFlush: true },
       );
     }
@@ -370,6 +416,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         tableToken: string;
         phone: string;
         privacyConsent?: unknown;
+        turnstileToken?: string;
       };
       const rl = rateLimitOrReject(
         res,
@@ -377,6 +424,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         `${clientIp(req)}:${String(body.phone || "").replace(/\D/g, "").slice(-8)}`,
       );
       if (!rl) return;
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const consent = validatePrivacyConsent(body.privacyConsent);
       if (!consent) {
         return json(res, 400, { error: consentRequiredMessage() }, { extraHeaders: rateLimitHeaders(rl) });
@@ -414,9 +465,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         phone?: string;
         comandaNumber?: string;
         privacyConsent?: unknown;
+        turnstileToken?: string;
       };
       const rl = rateLimitOrReject(res, "otpVerify", `${clientIp(req)}:${String(body.challengeId || "")}`);
       if (!rl) return;
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const consent = validatePrivacyConsent(body.privacyConsent);
       if (!consent) {
         return json(res, 400, { error: consentRequiredMessage() }, { extraHeaders: rateLimitHeaders(rl) });
@@ -579,7 +635,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return json(res, 200, { order });
       }
       if (req.method === "PATCH") {
-        const auth = validateSession(readBearer(req));
+        const auth = validateSession(readAdminToken(req));
         if (
           !auth ||
           !["OWNER", "MANAGER", "KITCHEN", "COUNTER", "WAITER"].includes(auth.user.role)
@@ -596,19 +652,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "POST" && path === "/auth/login") {
       const rl = rateLimitOrReject(res, "authLogin", clientIp(req));
       if (!rl) return;
-      const body = (req.body || {}) as { email: string; password: string };
+      const body = (req.body || {}) as { email: string; password: string; turnstileToken?: string };
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const result = loginUser(String(body.email), String(body.password));
       if (result.error) return json(res, 401, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
       return json(
         res,
         200,
         {
-          token: result.session!.token,
           user: publicUser(result.user!),
           establishment: result.establishment,
         },
-        { extraHeaders: rateLimitHeaders(rl) },
+        {
+          extraHeaders: {
+            ...rateLimitHeaders(rl),
+            "Set-Cookie": buildAdminSessionCookie(result.session!.token),
+          },
+        },
       );
+    }
+
+    if (req.method === "POST" && path === "/auth/logout") {
+      return json(res, 200, { ok: true }, { extraHeaders: { "Set-Cookie": clearAdminSessionCookieValue() } });
     }
 
     if (req.method === "POST" && path === "/auth/register") {
@@ -623,7 +691,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         operationMode?: string;
         tableCount?: number;
         privacyConsent?: unknown;
+        inviteCode?: string;
+        turnstileToken?: string;
       };
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const operationMode = isOperationMode(body.operationMode)
         ? (body.operationMode as OperationMode)
         : undefined;
@@ -642,22 +716,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         operationMode,
         tableCount: Number(body.tableCount) || 5,
         privacyConsent: body.privacyConsent,
+        inviteCode: body.inviteCode,
       });
       if (result.error) return json(res, 400, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
       return json(
         res,
         201,
         {
-          token: result.session!.token,
           user: publicUser(result.user!),
           establishment: result.establishment,
         },
-        { extraHeaders: rateLimitHeaders(rl) },
+        {
+          extraHeaders: {
+            ...rateLimitHeaders(rl),
+            "Set-Cookie": buildAdminSessionCookie(result.session!.token),
+          },
+        },
       );
     }
 
     if (req.method === "GET" && path === "/auth/me") {
-      const auth = validateSession(req.headers.authorization?.replace(/^Bearer\s+/i, ""));
+      const auth = validateSession(readAdminToken(req));
       if (!auth) return json(res, 401, { error: "Sessão inválida." });
       return json(res, 200, {
         user: publicUser(auth.user),
@@ -668,10 +747,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "POST" && path === "/platform/auth/login") {
       const rl = rateLimitOrReject(res, "authLogin", `${clientIp(req)}:platform`);
       if (!rl) return;
-      const body = (req.body || {}) as { email?: string; password?: string };
+      const body = (req.body || {}) as { email?: string; password?: string; turnstileToken?: string };
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
       if ("error" in result) return json(res, 401, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
-      return json(res, 200, result, { extraHeaders: rateLimitHeaders(rl) });
+      return json(
+        res,
+        200,
+        { user: result.user },
+        {
+          extraHeaders: {
+            ...rateLimitHeaders(rl),
+            "Set-Cookie": buildPlatformSessionCookie(result.token),
+          },
+        },
+      );
+    }
+
+    if (req.method === "POST" && path === "/platform/auth/logout") {
+      return json(res, 200, { ok: true }, { extraHeaders: { "Set-Cookie": clearPlatformSessionCookieValue() } });
     }
 
     if (req.method === "GET" && path === "/platform/auth/me") {

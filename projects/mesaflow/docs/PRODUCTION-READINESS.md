@@ -403,17 +403,17 @@ Sem pipeline de logging auditável. OTP mock/bypass são os maiores riscos de va
 | R04 | Secrets default em prod | **Crítico** | Média se env ok | `platform-store.ts:52-53`, `seed.ts:558` | Env obrigatório; fail-fast (**parcial fix**) |
 | R05 | OTP bypass sem Evolution | **Crítico** | Baixa pós-fix | `otp-bypass.ts` | Evolution config ou `MESAFLOW_OTP_BYPASS_CODE=off` (**fix**) |
 | R06 | Platform admin off em prod | **Alto** | Certa | handler.ts sem `/platform/*` | Rotear platform no handler ou deploy Next API |
-| R07 | Registro aberto spam | **Alto** | Média | `auth/register/route.ts` | Invite-only ou captcha |
-| R08 | Tokens admin em sessionStorage | **Alto** | Média (XSS) | `auth-context.tsx:70` | HttpOnly cookie ou CSP estrita |
-| R09 | Guest phoneDisplay a co-mesa | **Alto** | Certa | `guest.ts:467` | Remover de `publicParticipation` |
+| R07 | Registro aberto spam | **Alto** | Baixa pós-fix | `signup-invite.ts` | Invite-only + Turnstile (**fix**) |
+| R08 | Tokens admin em sessionStorage | **Alto** | Baixa pós-fix | `staff-session-cookie-web.ts` | HttpOnly cookies (**fix**) |
+| R09 | Guest phoneDisplay a co-mesa | **Alto** | — | `guest.ts` | **Corrigido** — só `/guest/me` |
 | R10 | IDOR table-context | **Alto** | Certa | `guest-table-context.ts` | **Corrigido neste PR** |
 | R11 | SSE events sem auth | **Alto** | Baixa (dev only) | `events/route.ts` | **Corrigido neste PR** |
-| R12 | Health endpoint público | **Médio** | Média | `handler.ts` health block | Auth ou strip diagnostics |
+| R12 | Health endpoint público | **Médio** | Baixa pós-fix | `public-health.ts` | Payload mínimo + secret (**fix**) |
 | R13 | CORS `*` | **Médio** | Baixa | `handler.ts:111` | Restrict origin |
 | R14 | Retenção infinita PII | **Médio** | Certa | Sem purge jobs | Job retenção 90d |
-| R15 | Senha mín 6 chars | **Médio** | Média | `store.ts:493` | Mín 10 + complexidade |
+| R15 | Senha mín 6 chars | **Médio** | Baixa pós-fix | `password-policy.ts` | Mín 10 + complexidade (**fix**) |
 | R16 | Analytics O(N) platform | **Médio** | Alta com escala | `platform-analytics.ts:196` | Pre-aggregate |
-| R17 | Demo QR tokens previsíveis | **Médio** | Alta se seed em prod | `seed.ts:353` | Seed só dev; rotate QR |
+| R17 | Demo QR tokens previsíveis | **Médio** | Baixa pós-fix | `demo-qr.ts` | Bloqueio `mesa-N` em prod (**fix**) |
 | R18 | JWT guest resurrection | **Médio** | Baixa | `guest.ts:169-198` | Validar session store antes resurrect |
 | R19 | Webhook SSRF | **Baixo** | Baixa | `store-operations.ts:733` | URL allowlist |
 | R20 | OTP Math.random | **Baixo** | — | `identity-crypto.ts:70` | **Corrigido** (randomInt) |
@@ -440,13 +440,14 @@ Sem pipeline de logging auditável. OTP mock/bypass são os maiores riscos de va
 
 - [x] Rotear **platform UI** (`vercel.json` rewrites) + **platform APIs** no handler de produção
 - [x] Endpoint/process de **exclusão LGPD** (titular guest + OWNER lojista — MVP)
-- [ ] Remover `phoneDisplay` de dados visíveis a co-participantes
-- [ ] Migrar tokens admin para HttpOnly cookie ou harden CSP
-- [ ] Fechar registro aberto (invite code / aprovação manual)
+- [x] Remover `phoneDisplay` de dados visíveis a co-participantes
+- [x] Migrar tokens admin para HttpOnly cookie + CSP (`mf_as` / `mf_ps`)
+- [x] Fechar registro aberto (invite `MESAFLOW_SIGNUP_INVITE_CODE` / `MESAFLOW_SIGNUP_OPEN`)
 - [ ] Monitoramento: uptime, error rate, persist failures, latency p99
-- [ ] Backup restore **testado** do Blob/Redis
+- [x] Scripts backup/restore + doc trimestral (`docs/BACKUP-RESTORE.md`)
+- [ ] Backup restore **executado** em ambiente de teste (trimestral)
 - [ ] Idempotency-Key em POST /orders
-- [ ] Proteger ou restringir `/health` diagnostics
+- [x] Proteger `/health` — payload público mínimo; detalhe com `MESAFLOW_HEALTH_SECRET`
 
 ### Nice-to-have (P2)
 
@@ -455,7 +456,12 @@ Sem pipeline de logging auditável. OTP mock/bypass são os maiores riscos de va
 - [ ] Audit log completo (`phone_revealed`, admin actions)
 - [ ] Termos de uso lojista + SLA
 - [ ] Billing integrado (Stripe)
-- [ ] CSP headers, HSTS
+- [x] CSP headers, HSTS (zero custo — `security-headers.ts`)
+- [x] Cloudflare Turnstile opt-in (login/register/OTP)
+- [x] Senha mínima forte (10+ regras)
+- [x] Audit log append-only ampliado (`audit-log.ts`)
+- [x] Runbook incidentes (`docs/INCIDENT-RUNBOOK.md`)
+- [x] Demo QR previsível bloqueado em prod (`demo-qr.ts`)
 - [ ] Pen test externo
 
 ---

@@ -1,16 +1,24 @@
-import { loginUser, publicUser } from "@/lib/store";
 import {
   applyRateLimit,
   rateLimitClientId,
   rateLimitedJsonResponse,
   withRateLimitHeaders,
 } from "@/lib/rate-limit-http";
+import { jsonWithAdminSession } from "@/lib/staff-auth-request";
+import { loginUser, publicUser } from "@/lib/store";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export async function POST(req: Request) {
   const rl = applyRateLimit("authLogin", rateLimitClientId(req));
   if (!rl.allowed) return rateLimitedJsonResponse(rl);
 
-  const { email, password } = await req.json();
+  const body = await req.json();
+  const turnstile = await verifyTurnstileToken(body.turnstileToken, rateLimitClientId(req));
+  if (!turnstile.ok) {
+    return withRateLimitHeaders(Response.json({ error: turnstile.error }, { status: 400 }), rl);
+  }
+
+  const { email, password } = body;
   const result = loginUser(String(email), String(password));
   if (result.error) {
     return withRateLimitHeaders(
@@ -18,12 +26,9 @@ export async function POST(req: Request) {
       rl,
     );
   }
-  return withRateLimitHeaders(
-    Response.json({
-      token: result.session!.token,
-      user: publicUser(result.user!),
-      establishment: result.establishment,
-    }),
-    rl,
-  );
+  const payload = {
+    user: publicUser(result.user!),
+    establishment: result.establishment,
+  };
+  return withRateLimitHeaders(jsonWithAdminSession(payload, result.session!.token), rl);
 }

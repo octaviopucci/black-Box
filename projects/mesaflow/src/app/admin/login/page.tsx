@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { TurnstileWidget } from "@/components/auth/turnstile-widget";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
 import { AuthLayout } from "@/components/ui/auth-layout";
@@ -10,23 +11,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BRAND_NAME } from "@/lib/brand";
 import { DEMO_LOGIN } from "@/lib/demo";
+import { turnstileSiteKeyClient } from "@/lib/turnstile-client";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { setSession } = useAuth();
+  const turnstileSiteKey = turnstileSiteKeyClient();
   const [email, setEmail] = useState(DEMO_LOGIN.email);
   const [password, setPassword] = useState(DEMO_LOGIN.password);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (turnstileSiteKey && !turnstileToken) {
+      setError("Complete a verificação anti-bot.");
+      return;
+    }
     setLoading(true);
     setError("");
     const res = await fetch(apiUrl("/auth/login"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, turnstileToken: turnstileToken || undefined }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -35,7 +44,6 @@ export default function AdminLoginPage() {
       return;
     }
     setSession({
-      token: json.token,
       user: json.user,
       establishment: json.establishment,
     });
@@ -56,6 +64,9 @@ export default function AdminLoginPage() {
           <label className="mb-1.5 block text-xs font-medium text-muted">Senha</label>
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
+        {turnstileSiteKey ? (
+          <TurnstileWidget siteKey={turnstileSiteKey} onToken={setTurnstileToken} onExpire={() => setTurnstileToken("")} />
+        ) : null}
         <Button type="submit" className="w-full shadow-lg shadow-brand/20" size="lg" loading={loading}>
           Entrar no painel
         </Button>

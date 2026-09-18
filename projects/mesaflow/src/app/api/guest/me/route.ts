@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   const payment = getGuestPaymentStatus(participation);
   return Response.json({
     participation: {
-      ...publicParticipation(participation),
+      ...publicParticipation(participation, { includePhone: true }),
       canLeave: payment.canLeave,
       itemTotal: payment.itemTotal,
       paidTotal: payment.paidTotal,

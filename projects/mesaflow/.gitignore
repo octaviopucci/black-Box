@@ -20,6 +20,7 @@ npm-debug.log*
 
 # runtime data
 /data/
+/backups/
 
 # build-mesaflow stash (static export)
 .mesaflow-api-stash/

@@ -1,10 +1,9 @@
+import { readAdminSessionToken } from "@/lib/staff-auth-request";
 import { validateSession } from "@/lib/store";
 import type { UserRole } from "@/lib/types";
 
 function readAuth(req: Request) {
-  const authorization = req.headers.get("authorization") || "";
-  const match = authorization.match(/^Bearer\s+(.+)$/i);
-  return validateSession(match?.[1]?.trim());
+  return validateSession(readAdminSessionToken(req));
 }
 
 export function requireAdmin(req: Request) {

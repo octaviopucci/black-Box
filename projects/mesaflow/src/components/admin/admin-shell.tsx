@@ -52,7 +52,7 @@ function navForRole(role: UserRole | undefined) {
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { session, logout, authHeaders } = useAuth();
+  const { session, logout, authHeaders, credentials } = useAuth();
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [persistWarning, setPersistWarning] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -60,6 +60,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!session?.establishment.slug) return;
     fetch(apiUrl(`/admin/dashboard?slug=${encodeURIComponent(session.establishment.slug)}`), {
+      credentials,
       headers: authHeaders(),
     })
       .then((r) => r.json())
@@ -67,10 +68,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         setSectors(json.sectors || []);
         setPersistWarning(json.persist?.shared ? null : json.persist?.warning || null);
       });
-  }, [session?.establishment.slug, authHeaders]);
+  }, [session?.establishment.slug, authHeaders, credentials]);
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     router.push("/admin/login");
   }
 

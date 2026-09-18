@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { TurnstileWidget } from "@/components/auth/turnstile-widget";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
+import { PASSWORD_POLICY_HINT } from "@/lib/password-policy";
+import { PRIVACY_POLICY_PATH, PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
+import { turnstileSiteKeyClient } from "@/lib/turnstile-client";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { OPERATION_MODES } from "@/lib/operation-modes";
-import { PRIVACY_POLICY_PATH, PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import type { BusinessType, OperationMode } from "@/lib/types";
 
 const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
@@ -23,16 +26,19 @@ const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
 export function SignupForm({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const { setSession } = useAuth();
+  const turnstileSiteKey = turnstileSiteKeyClient();
   const [businessName, setBusinessName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [businessType, setBusinessType] = useState<BusinessType>("restaurante");
   const [operationMode, setOperationMode] = useState<OperationMode>("a_la_carte");
   const [tableCount, setTableCount] = useState(8);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,19 +46,26 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
       setError("Aceite a Política de Privacidade para continuar.");
       return;
     }
+    if (turnstileSiteKey && !turnstileToken) {
+      setError("Complete a verificação anti-bot.");
+      return;
+    }
     setLoading(true);
     setError("");
     const res = await fetch(apiUrl("/auth/register"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         businessName,
         ownerName,
         email,
         password,
+        inviteCode: inviteCode || undefined,
         businessType,
         operationMode,
         tableCount,
+        turnstileToken: turnstileToken || undefined,
         privacyConsent: {
           acceptedAt: new Date().toISOString(),
           policyVersion: PRIVACY_POLICY_VERSION,
@@ -65,7 +78,7 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
       setLoading(false);
       return;
     }
-    setSession({ token: json.token, user: json.user, establishment: json.establishment });
+    setSession({ user: json.user, establishment: json.establishment });
     router.push("/admin");
   }
 
@@ -87,7 +100,19 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
       </Select>
       <Input placeholder="Seu nome" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} required />
       <Input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      <Input type="password" placeholder="Senha (mín. 6)" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
+      <Input
+        type="password"
+        placeholder={PASSWORD_POLICY_HINT}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        minLength={10}
+        required
+      />
+      <Input
+        placeholder="Código de convite (obrigatório em produção)"
+        value={inviteCode}
+        onChange={(e) => setInviteCode(e.target.value)}
+      />
       <Input type="number" min={3} max={20} value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} />
       <label className="flex items-start gap-2 text-xs text-muted">
         <input
@@ -105,6 +130,9 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
           .
         </span>
       </label>
+      {turnstileSiteKey ? (
+        <TurnstileWidget siteKey={turnstileSiteKey} onToken={setTurnstileToken} onExpire={() => setTurnstileToken("")} />
+      ) : null}
       <Button type="submit" className="w-full" size={compact ? "md" : "lg"} loading={loading}>
         Criar conta grátis
       </Button>

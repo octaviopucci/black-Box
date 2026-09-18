@@ -52,7 +52,7 @@ async function run() {
     businessName: "Lanchonete Teste Platform",
     ownerName: "Maria Teste",
     email: "maria.platform.test@example.com",
-    password: "senha123",
+    password: "SenhaTeste1",
     businessType: "lanchonete",
     tableCount: 5,
     privacyConsent: {
@@ -70,12 +70,12 @@ async function run() {
   assert.ok("value" in suspended);
   assert.equal(suspended.value.platformStatus, "suspended");
 
-  const blocked = loginUser("maria.platform.test@example.com", "senha123");
+  const blocked = loginUser("maria.platform.test@example.com", "SenhaTeste1");
   assert.ok(blocked.error, "suspended merchant cannot login");
 
   const reactivated = updateMerchantStatus(newMerchants[0].id, "active");
   assert.ok("value" in reactivated);
-  const allowed = loginUser("maria.platform.test@example.com", "senha123");
+  const allowed = loginUser("maria.platform.test@example.com", "SenhaTeste1");
   assert.ok(allowed.session, allowed.error);
 
   console.log("platform.test.ts — all assertions passed");
