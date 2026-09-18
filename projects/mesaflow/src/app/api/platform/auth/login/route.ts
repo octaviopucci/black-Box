@@ -1,3 +1,4 @@
+import { ensureProductionSeed } from "@/lib/production-seed";
 import { loginPlatformUser } from "@/lib/platform-store";
 import {
   applyRateLimit,
@@ -18,9 +19,17 @@ export async function POST(req: Request) {
     return withRateLimitHeaders(Response.json({ error: turnstile.error }, { status: 400 }), rl);
   }
 
-  const result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+  ensureProductionSeed();
+  let result: ReturnType<typeof loginPlatformUser>;
+  try {
+    result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+  } catch {
+    ensureProductionSeed();
+    result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+  }
   if ("error" in result) {
-    return withRateLimitHeaders(Response.json({ error: result.error }, { status: 401 }), rl);
+    const status = result.status && result.status !== 401 ? result.status : 401;
+    return withRateLimitHeaders(Response.json({ error: result.error }, { status }), rl);
   }
   const { token, user } = result;
   return withRateLimitHeaders(jsonWithPlatformSession({ user, token }, token), rl);

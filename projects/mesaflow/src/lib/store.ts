@@ -154,6 +154,8 @@ function load(): MesaFlowStore {
   if (isProductionEnv() && process.env.MESAFLOW_ALLOW_DEMO_SEED !== "1") {
     cache = emptyStore();
     migrateOperationalCollections(cache);
+    const { applyProductionSeed } = require("./production-seed") as typeof import("./production-seed");
+    if (applyProductionSeed(cache)) persist();
     return cache;
   }
   cache = buildDemoStore();
@@ -202,14 +204,14 @@ function migrateLegacyGuestParticipations(store: MesaFlowStore) {
   if (changed) persist(false);
 }
 
-let productionPlatformSeeded = false;
+let productionSeeded = false;
 
 export function getStore() {
   const store = load();
-  if (!productionPlatformSeeded && isProductionEnv()) {
-    productionPlatformSeeded = true;
-    const { ensurePlatformOwnerSeed } = require("./platform-store") as typeof import("./platform-store");
-    ensurePlatformOwnerSeed();
+  if (!productionSeeded && isProductionEnv()) {
+    productionSeeded = true;
+    const { ensureProductionSeed } = require("./production-seed") as typeof import("./production-seed");
+    ensureProductionSeed();
   }
   return store;
 }

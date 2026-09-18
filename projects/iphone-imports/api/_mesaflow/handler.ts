@@ -97,6 +97,7 @@ import {
   exportGuestSubjectData,
   exportMerchantSubjectData,
 } from "../../../mesaflow/src/lib/privacy-dsr";
+import { ensureProductionSeed } from "../../../mesaflow/src/lib/production-seed";
 import {
   getMerchantDetail,
   listMerchants,
@@ -302,6 +303,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     await hydratePersistentStore();
+    ensureProductionSeed();
     const path = resolvePath(req);
     const store = getStore();
 
@@ -762,8 +764,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!turnstile.ok) {
         return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
       }
-      const result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
-      if ("error" in result) return json(res, 401, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      let result: ReturnType<typeof loginPlatformUser>;
+      try {
+        result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+      } catch (error) {
+        console.warn("[mesaflow] platform login handler error", error);
+        ensureProductionSeed();
+        result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+      }
+      if ("error" in result) {
+        const status = result.status && result.status !== 401 ? result.status : 401;
+        return json(res, status, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       return json(
         res,
         200,

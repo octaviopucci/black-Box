@@ -3,6 +3,7 @@ import { issuePlatformSessionToken, parsePlatformSessionToken } from "./platform
 import { getMerchantDetail, listMerchants, platformDashboard } from "./platform-analytics";
 import { hashPassword, id, verifyPassword } from "./crypto-utils";
 import { PLATFORM_OWNER_LOGIN } from "./demo";
+import { ensureProductionSeed } from "./production-seed";
 import { getStore, saveStore } from "./store";
 import type { PlatformStatus, PlatformUser } from "./types";
 
@@ -17,7 +18,11 @@ export function publicPlatformUser(user: PlatformUser) {
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
 
-export function loginPlatformUser(email: string, password: string) {
+type PlatformLoginResult =
+  | { token: string; user: ReturnType<typeof publicPlatformUser> }
+  | { error: string; status?: number };
+
+function attemptPlatformLogin(email: string, password: string): PlatformLoginResult {
   const user = findPlatformUserByEmail(email);
   if (!user || !user.active || !verifyPassword(password, user.passwordHash)) {
     return { error: "E-mail ou senha inválidos." };
@@ -44,6 +49,40 @@ export function loginPlatformUser(email: string, password: string) {
   return { token, user: publicPlatformUser(user) };
 }
 
+/** Never throws — seeds empty store then retries; 401 only for invalid credentials. */
+export function loginPlatformUser(email: string, password: string): PlatformLoginResult {
+  ensureProductionSeed();
+
+  const run = (): PlatformLoginResult => {
+    try {
+      return attemptPlatformLogin(email, password);
+    } catch (error) {
+      console.warn("[mesaflow] platform login attempt failed", error);
+      return { error: "E-mail ou senha inválidos.", status: 503 };
+    }
+  };
+
+  let result = run();
+  if ("error" in result && result.error === "E-mail ou senha inválidos." && !result.status) {
+    const store = getStore();
+    if (
+      Object.keys(store.platformUsers || {}).length === 0 ||
+      Object.keys(store.establishments).length === 0
+    ) {
+      ensureProductionSeed();
+      result = run();
+    }
+  }
+
+  if ("error" in result && result.status) {
+    ensureProductionSeed();
+    const retry = run();
+    if (!("error" in retry) || retry.error === "E-mail ou senha inválidos.") return retry;
+  }
+
+  return result;
+}
+
 export function validatePlatformSession(token: string | null | undefined) {
   if (!token) return null;
   const claims = parsePlatformSessionToken(token);
@@ -56,34 +95,15 @@ export function validatePlatformSession(token: string | null | undefined) {
   return { user, expiresAt: new Date(claims.exp).toISOString() };
 }
 
+/** @deprecated Prefer ensureProductionSeed — kept for tests and explicit platform-only seed. */
 export function ensurePlatformOwnerSeed() {
+  ensureProductionSeed();
   const store = getStore();
-  store.platformUsers ||= {};
-
-  const hasUsers = Object.keys(store.platformUsers).length > 0;
-  if (hasUsers) return null;
-
+  if (Object.keys(store.platformUsers || {}).length === 0) return null;
   const email = (
     process.env.MESAFLOW_PLATFORM_OWNER_EMAIL?.trim() || PLATFORM_OWNER_LOGIN.email
   ).toLowerCase();
-  const password =
-    process.env.MESAFLOW_PLATFORM_OWNER_PASSWORD?.trim() || PLATFORM_OWNER_LOGIN.password;
-  const existing = findPlatformUserByEmail(email);
-
-  if (existing) return existing;
-
-  const user: PlatformUser = {
-    id: id("plat_"),
-    email,
-    passwordHash: hashPassword(password),
-    name: "Octavio Pucci",
-    role: "PLATFORM_OWNER",
-    active: true,
-    createdAt: new Date().toISOString(),
-  };
-  store.platformUsers[user.id] = user;
-  saveStore(store);
-  return user;
+  return findPlatformUserByEmail(email) ?? null;
 }
 
 export function updateMerchantStatus(
