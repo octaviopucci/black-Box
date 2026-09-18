@@ -205,9 +205,9 @@ async function hydrateFromBlob(runtimeOidcToken2) {
   const legacy = await readLegacyPublicBlob(LEGACY_BLOB_PATH, auth);
   if (!legacy) return null;
   const legacyStore = legacy.data;
-  const { operational: op, identity: id2 } = splitStore(mergeStore(legacyStore, {}));
+  const { operational: op, identity: id3 } = splitStore(mergeStore(legacyStore, {}));
   return {
-    store: mergeStore(op, id2),
+    store: mergeStore(op, id3),
     etags: {},
     migratedFromLegacy: true
   };
@@ -2135,14 +2135,14 @@ var init_order_math = __esm({
 });
 
 // ../mesaflow/src/lib/product-images.ts
-function pexels(id2, slug = "pexels-photo") {
-  return `https://images.pexels.com/photos/${id2}/${slug}-${id2}.jpeg?${PEXELS_Q}`;
+function pexels(id3, slug = "pexels-photo") {
+  return `https://images.pexels.com/photos/${id3}/${slug}-${id3}.jpeg?${PEXELS_Q}`;
 }
-function unsplash(id2) {
-  return `https://images.unsplash.com/photo-${id2}?w=800&h=600&q=80&auto=format&fit=crop`;
+function unsplash(id3) {
+  return `https://images.unsplash.com/photo-${id3}?w=800&h=600&q=80&auto=format&fit=crop`;
 }
-function productImage(id2, fallback = "default") {
-  if (PRODUCT_IMAGES[id2]) return PRODUCT_IMAGES[id2];
+function productImage(id3, fallback = "default") {
+  if (PRODUCT_IMAGES[id3]) return PRODUCT_IMAGES[id3];
   if (fallback in FOOD_PRESETS) return FOOD_PRESETS[fallback];
   return FOOD_PRESETS.default;
 }
@@ -3502,19 +3502,19 @@ function purgeStaleData(store) {
   };
   const now = Date.now();
   store.otpChallenges ||= {};
-  for (const [id2, challenge] of Object.entries(store.otpChallenges)) {
+  for (const [id3, challenge] of Object.entries(store.otpChallenges)) {
     const expired = new Date(challenge.expiresAt).getTime() + RETENTION_MS.otpChallenge < now;
     if (expired || challenge.consumedAt) {
-      delete store.otpChallenges[id2];
+      delete store.otpChallenges[id3];
       stats.otpChallenges += 1;
     }
   }
   store.clientSessions ||= {};
-  for (const [id2, session] of Object.entries(store.clientSessions)) {
+  for (const [id3, session] of Object.entries(store.clientSessions)) {
     const expired = new Date(session.expiresAt).getTime() < now;
     const revokedOld = session.revokedAt && new Date(session.revokedAt).getTime() + RETENTION_MS.clientSession < now;
     if (expired || revokedOld) {
-      delete store.clientSessions[id2];
+      delete store.clientSessions[id3];
       stats.clientSessions += 1;
     }
   }
@@ -3644,340 +3644,51 @@ var init_privacy_policy = __esm({
   }
 });
 
-// ../mesaflow/src/lib/platform-session-token.ts
-function secret2() {
-  return resolveSecret(
-    [
-      "MESAFLOW_PLATFORM_SESSION_SECRET",
-      "MESAFLOW_ADMIN_SESSION_SECRET",
-      "MESAFLOW_IDENTITY_SECRET"
-    ],
-    "platform session signing"
-  );
-}
-function sign2(payloadB64) {
-  return (0, import_crypto6.createHmac)("sha256", secret2()).update(payloadB64).digest("base64url");
-}
-function verifySig2(payloadB64, sig) {
-  const expected = sign2(payloadB64);
-  const sigBuf = Buffer.from(sig);
-  const expectedBuf = Buffer.from(expected);
-  return sigBuf.length === expectedBuf.length && (0, import_crypto6.timingSafeEqual)(sigBuf, expectedBuf);
-}
-function issuePlatformSessionToken(platformUserId, ttlMs = PLATFORM_SESSION_TTL_MS) {
-  const claims = {
-    scope: "platform",
-    platformUserId,
-    exp: Date.now() + ttlMs
-  };
-  const payloadB64 = Buffer.from(JSON.stringify(claims)).toString("base64url");
-  return `${payloadB64}.${sign2(payloadB64)}`;
-}
-function parsePlatformSessionToken(token) {
-  const [payloadB64, sig] = token.split(".");
-  if (!payloadB64 || !sig || !verifySig2(payloadB64, sig)) return null;
-  try {
-    const claims = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf8"));
-    if (claims.scope !== "platform" || !claims.platformUserId || !claims.exp) return null;
-    if (Date.now() > claims.exp) return null;
-    return claims;
-  } catch {
-    return null;
-  }
-}
-var import_crypto6, PLATFORM_SESSION_TTL_MS;
-var init_platform_session_token = __esm({
-  "../mesaflow/src/lib/platform-session-token.ts"() {
-    "use strict";
-    import_crypto6 = require("crypto");
-    init_production_secrets();
-    PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
-  }
+// ../mesaflow/src/lib/production-seed.ts
+var production_seed_exports = {};
+__export(production_seed_exports, {
+  ensureProductionSeed: () => ensureProductionSeed,
+  mergeDemoMerchantIntoStore: () => mergeDemoMerchantIntoStore,
+  needsProductionSeed: () => needsProductionSeed
 });
-
-// ../mesaflow/src/lib/platform-plans.ts
-function resolvePlan(plan) {
-  return plan ?? "essencial";
+function needsProductionSeed(store) {
+  return Object.keys(store.platformUsers || {}).length === 0 || Object.keys(store.establishments).length === 0;
 }
-function planAnnualRevenue(plan) {
-  return PLAN_ANNUAL_PRICE[resolvePlan(plan)];
-}
-var PLAN_ANNUAL_PRICE;
-var init_platform_plans = __esm({
-  "../mesaflow/src/lib/platform-plans.ts"() {
-    "use strict";
-    PLAN_ANNUAL_PRICE = {
-      essencial: 997,
-      premium: 1997,
-      custom: 2997
-    };
+function mergeDemoMerchantIntoStore(store) {
+  const establishmentsEmpty = Object.keys(store.establishments).length === 0;
+  const usersEmpty = Object.keys(store.users).length === 0;
+  if (!establishmentsEmpty && !usersEmpty) return false;
+  const demo = buildDemoStore();
+  if (establishmentsEmpty) {
+    Object.assign(store.establishments, demo.establishments);
+    Object.assign(store.users, demo.users);
+    Object.assign(store.sectors, demo.sectors);
+    Object.assign(store.categories, demo.categories);
+    Object.assign(store.products, demo.products);
+    Object.assign(store.tables, demo.tables);
+    Object.assign(store.commands, demo.commands);
+    Object.assign(store.orders, demo.orders);
+    Object.assign(store.rodizios, demo.rodizios);
+    Object.assign(store.rodizioRounds, demo.rodizioRounds);
+    Object.assign(store.guestParticipations, demo.guestParticipations);
+    Object.assign(store.orderCounter, demo.orderCounter);
+    Object.assign(store.notifications, demo.notifications);
+    Object.assign(store.closingRequests, demo.closingRequests);
+    Object.assign(store.orderItemSplits, demo.orderItemSplits);
+    Object.assign(store.payments, demo.payments);
+    Object.assign(store.integrationConnections, demo.integrationConnections);
+    Object.assign(store.auditEvents, demo.auditEvents);
+    return true;
   }
-});
-
-// ../mesaflow/src/lib/platform-analytics.ts
-function resolvePlatformStatus(establishment) {
-  return establishment.platformStatus ?? "active";
+  Object.assign(store.users, demo.users);
+  return true;
 }
-function establishmentOwner(establishmentId) {
-  const store = getStore();
-  return Object.values(store.users).find(
-    (user) => user.establishmentId === establishmentId && user.role === "OWNER"
-  );
-}
-function lastActivityAt(establishmentId) {
-  const store = getStore();
-  const establishment = store.establishments[establishmentId];
-  if (!establishment) return null;
-  let latest = establishment.createdAt;
-  for (const order of Object.values(store.orders)) {
-    if (order.establishmentId !== establishmentId) continue;
-    if (order.updatedAt > latest) latest = order.updatedAt;
-  }
-  for (const gp of Object.values(store.guestParticipations)) {
-    if (gp.establishmentId !== establishmentId) continue;
-    const candidate = gp.lastOrderAt || gp.joinedAt;
-    if (candidate > latest) latest = candidate;
-  }
-  for (const user of Object.values(store.users)) {
-    if (user.establishmentId !== establishmentId || !user.lastLoginAt) continue;
-    if (user.lastLoginAt > latest) latest = user.lastLoginAt;
-  }
-  return latest;
-}
-function daysSince(iso) {
-  if (!iso) return null;
-  return Math.floor((Date.now() - new Date(iso).getTime()) / MS_DAY);
-}
-function merchantSummary(establishment) {
-  const store = getStore();
-  const owner = establishmentOwner(establishment.id);
-  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishment.id);
-  const orders = Object.values(store.orders).filter((o) => o.establishmentId === establishment.id);
-  const sessions = Object.values(store.guestParticipations).filter(
-    (gp) => gp.establishmentId === establishment.id
-  );
-  const activity = lastActivityAt(establishment.id);
-  const inactiveDays = daysSince(activity);
-  const plan = resolvePlan(establishment.plan);
-  const status = resolvePlatformStatus(establishment);
-  const analytics30d = dashboardAnalytics(establishment.id, "30d");
-  return {
-    id: establishment.id,
-    slug: establishment.slug,
-    name: establishment.name,
-    businessType: establishment.businessType,
-    operationMode: establishment.operationMode,
-    plan,
-    planStartedAt: establishment.planStartedAt ?? establishment.createdAt,
-    platformStatus: status,
-    suspendedAt: establishment.suspendedAt,
-    suspendedReason: establishment.suspendedReason,
-    createdAt: establishment.createdAt,
-    open: establishment.open,
-    owner: owner ? {
-      id: owner.id,
-      name: owner.name,
-      email: owner.email,
-      lastLoginAt: owner.lastLoginAt
-    } : null,
-    tablesCount: tables.length,
-    ordersTotal: orders.filter((o) => o.status !== "CANCELADO").length,
-    sessionsTotal: sessions.length,
-    activeSessions: sessions.filter((gp) => gp.status !== "CLOSED").length,
-    lastActivityAt: activity,
-    inactiveDays,
-    isDormant: inactiveDays !== null && inactiveDays >= INACTIVE_DAYS_THRESHOLD,
-    revenue30d: analytics30d.sales.revenue,
-    orders30d: analytics30d.sales.ordersCount,
-    paymentsCollected30d: analytics30d.sales.paymentsCollected,
-    adminUrl: `/admin`,
-    customerUrl: `/m/${establishment.slug}`
-  };
-}
-function listMerchants(filters = {}) {
-  const store = getStore();
-  const q = filters.q?.trim().toLowerCase();
-  let merchants = Object.values(store.establishments).map(merchantSummary);
-  if (q) {
-    merchants = merchants.filter(
-      (m) => m.name.toLowerCase().includes(q) || m.slug.toLowerCase().includes(q) || m.owner?.email.toLowerCase().includes(q) || m.owner?.name.toLowerCase().includes(q)
-    );
-  }
-  if (filters.status && filters.status !== "all") {
-    merchants = merchants.filter((m) => m.platformStatus === filters.status);
-  }
-  if (filters.plan && filters.plan !== "all") {
-    merchants = merchants.filter((m) => m.plan === filters.plan);
-  }
-  merchants.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  return merchants;
-}
-function getMerchantDetail(establishmentId) {
-  const store = getStore();
-  const establishment = store.establishments[establishmentId];
-  if (!establishment) return null;
-  const summary = merchantSummary(establishment);
-  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishmentId).map((t) => ({
-    id: t.id,
-    number: t.number,
-    name: t.name,
-    status: t.status,
-    capacity: t.capacity
-  }));
-  const staff = Object.values(store.users).filter((u) => u.establishmentId === establishmentId).map((u) => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.role,
-    active: u.active,
-    lastLoginAt: u.lastLoginAt
-  }));
-  return {
-    ...summary,
-    tables,
-    staff,
-    analyticsToday: dashboardAnalytics(establishmentId, "today"),
-    analytics7d: dashboardAnalytics(establishmentId, "7d"),
-    analytics30d: dashboardAnalytics(establishmentId, "30d"),
-    annualPlanValue: planAnnualRevenue(establishment.plan)
-  };
-}
-function periodStartIso(days) {
-  return new Date(Date.now() - days * MS_DAY).toISOString();
-}
-function platformDashboard(period = "30d") {
-  const store = getStore();
-  const merchants = listMerchants();
-  const periodDays = period === "today" ? 1 : period === "7d" ? 7 : 30;
-  const periodStart2 = periodStartIso(periodDays);
-  const active = merchants.filter((m) => m.platformStatus === "active").length;
-  const inactive = merchants.filter((m) => m.platformStatus === "inactive").length;
-  const suspended = merchants.filter((m) => m.platformStatus === "suspended").length;
-  const dormant = merchants.filter((m) => m.isDormant && m.platformStatus === "active").length;
-  const newInPeriod = merchants.filter((m) => m.createdAt >= periodStart2).length;
-  const byPlan = { essencial: 0, premium: 0, custom: 0 };
-  for (const m of merchants) byPlan[m.plan] += 1;
-  let totalOrdersPeriod = 0;
-  let totalRevenuePeriod = 0;
-  let totalSessionsPeriod = 0;
-  let totalTables = 0;
-  for (const m of merchants) {
-    totalTables += m.tablesCount;
-    const analytics = dashboardAnalytics(m.id, period);
-    totalOrdersPeriod += analytics.sales.ordersCount;
-    totalRevenuePeriod += analytics.sales.revenue;
-    totalSessionsPeriod += analytics.sessions.historical + analytics.sessions.active;
-  }
-  const arrEstimate = merchants.filter((m) => m.platformStatus === "active").reduce((sum, m) => sum + planAnnualRevenue(m.plan), 0);
-  const recentSignups = merchants.filter((m) => m.createdAt >= periodStart2).slice(0, 10).map((m) => ({
-    id: m.id,
-    name: m.name,
-    slug: m.slug,
-    plan: m.plan,
-    createdAt: m.createdAt,
-    ownerEmail: m.owner?.email
-  }));
-  const dormantMerchants = merchants.filter((m) => m.isDormant).sort((a, b) => (b.inactiveDays ?? 0) - (a.inactiveDays ?? 0)).slice(0, 10);
-  return {
-    period,
-    totals: {
-      merchants: merchants.length,
-      active,
-      inactive,
-      suspended,
-      dormant,
-      newInPeriod,
-      totalTables,
-      totalOrdersPeriod,
-      totalRevenuePeriod,
-      totalSessionsPeriod,
-      arrEstimate
-    },
-    byPlan,
-    recentSignups,
-    dormantMerchants,
-    topMerchantsByRevenue: merchants.slice().sort((a, b) => b.revenue30d - a.revenue30d).slice(0, 5).map((m) => ({
-      id: m.id,
-      name: m.name,
-      slug: m.slug,
-      revenue30d: m.revenue30d,
-      plan: m.plan
-    }))
-  };
-}
-var MS_DAY, INACTIVE_DAYS_THRESHOLD;
-var init_platform_analytics = __esm({
-  "../mesaflow/src/lib/platform-analytics.ts"() {
-    "use strict";
-    init_dashboard_analytics();
-    init_platform_plans();
-    init_store();
-    MS_DAY = 24 * 60 * 60 * 1e3;
-    INACTIVE_DAYS_THRESHOLD = 14;
-  }
-});
-
-// ../mesaflow/src/lib/platform-store.ts
-var platform_store_exports = {};
-__export(platform_store_exports, {
-  ensurePlatformOwnerSeed: () => ensurePlatformOwnerSeed,
-  findPlatformUserByEmail: () => findPlatformUserByEmail,
-  getMerchantDetail: () => getMerchantDetail,
-  listMerchants: () => listMerchants,
-  loginPlatformUser: () => loginPlatformUser,
-  platformDashboard: () => platformDashboard,
-  publicPlatformUser: () => publicPlatformUser,
-  updateMerchantStatus: () => updateMerchantStatus,
-  validatePlatformSession: () => validatePlatformSession
-});
-function findPlatformUserByEmail(email) {
-  const normalized = email.toLowerCase().trim();
-  return Object.values(getStore().platformUsers || {}).find((u) => u.email === normalized);
-}
-function publicPlatformUser(user) {
-  return { id: user.id, name: user.name, email: user.email, role: user.role };
-}
-function loginPlatformUser(email, password) {
-  const user = findPlatformUserByEmail(email);
-  if (!user || !user.active || !verifyPassword(password, user.passwordHash)) {
-    return { error: "E-mail ou senha inv\xE1lidos." };
-  }
-  const store = getStore();
-  if (!user.passwordHash.startsWith("$2")) {
-    user.passwordHash = hashPassword(password);
-  }
-  user.lastLoginAt = (/* @__PURE__ */ new Date()).toISOString();
-  store.platformUsers[user.id] = user;
-  appendAuditEvent(store, {
-    establishmentId: "platform",
-    type: "platform.login",
-    actorType: "PLATFORM",
-    actorUserId: user.id,
-    targetType: "platform_user",
-    targetId: user.id,
-    metadata: { role: user.role }
-  });
-  saveStore(store);
-  const token = issuePlatformSessionToken(user.id, PLATFORM_SESSION_TTL_MS2);
-  return { token, user: publicPlatformUser(user) };
-}
-function validatePlatformSession(token) {
-  if (!token) return null;
-  const claims = parsePlatformSessionToken(token);
-  if (!claims) return null;
-  const store = getStore();
-  const user = store.platformUsers?.[claims.platformUserId];
-  if (!user?.active) return null;
-  return { user, expiresAt: new Date(claims.exp).toISOString() };
-}
-function ensurePlatformOwnerSeed() {
-  const store = getStore();
+function seedPlatformOwner(store) {
   store.platformUsers ||= {};
-  const hasUsers = Object.keys(store.platformUsers).length > 0;
-  if (hasUsers) return null;
+  if (Object.keys(store.platformUsers).length > 0) return null;
   const email = (process.env.MESAFLOW_PLATFORM_OWNER_EMAIL?.trim() || PLATFORM_OWNER_LOGIN.email).toLowerCase();
   const password = process.env.MESAFLOW_PLATFORM_OWNER_PASSWORD?.trim() || PLATFORM_OWNER_LOGIN.password;
-  const existing = findPlatformUserByEmail(email);
+  const existing = Object.values(store.platformUsers).find((u) => u.email === email);
   if (existing) return existing;
   const user = {
     id: id("plat_"),
@@ -3989,43 +3700,26 @@ function ensurePlatformOwnerSeed() {
     createdAt: (/* @__PURE__ */ new Date()).toISOString()
   };
   store.platformUsers[user.id] = user;
-  saveStore(store);
   return user;
 }
-function updateMerchantStatus(establishmentId, status, reason) {
+function ensureProductionSeed() {
+  if (!isProductionEnv()) return false;
   const store = getStore();
-  const establishment = store.establishments[establishmentId];
-  if (!establishment) return { error: "Estabelecimento n\xE3o encontrado.", status: 404 };
-  establishment.platformStatus = status;
-  if (status === "suspended") {
-    establishment.suspendedAt = (/* @__PURE__ */ new Date()).toISOString();
-    establishment.suspendedReason = reason?.trim() || void 0;
-  } else {
-    establishment.suspendedAt = void 0;
-    establishment.suspendedReason = void 0;
-  }
-  appendAuditEvent(store, {
-    establishmentId,
-    type: "platform.merchant_status",
-    actorType: "PLATFORM",
-    targetType: "establishment",
-    targetId: establishmentId,
-    metadata: { status, reason: reason?.trim() || null }
-  });
-  saveStore(store);
-  return { value: getMerchantDetail(establishmentId) };
+  if (!needsProductionSeed(store) && Object.keys(store.users).length > 0) return false;
+  let changed = false;
+  if (seedPlatformOwner(store)) changed = true;
+  if (mergeDemoMerchantIntoStore(store)) changed = true;
+  if (changed) saveStore(store);
+  return changed;
 }
-var PLATFORM_SESSION_TTL_MS2;
-var init_platform_store = __esm({
-  "../mesaflow/src/lib/platform-store.ts"() {
+var init_production_seed = __esm({
+  "../mesaflow/src/lib/production-seed.ts"() {
     "use strict";
-    init_audit_log();
-    init_platform_session_token();
-    init_platform_analytics();
     init_crypto_utils();
     init_demo();
+    init_seed();
+    init_production_secrets();
     init_store();
-    PLATFORM_SESSION_TTL_MS2 = 30 * 24 * 60 * 60 * 1e3;
   }
 });
 
@@ -4136,10 +3830,10 @@ function migrateLegacyGuestParticipations(store) {
 }
 function getStore() {
   const store = load();
-  if (!productionPlatformSeeded && isProductionEnv()) {
-    productionPlatformSeeded = true;
-    const { ensurePlatformOwnerSeed: ensurePlatformOwnerSeed2 } = (init_platform_store(), __toCommonJS(platform_store_exports));
-    ensurePlatformOwnerSeed2();
+  if (!productionSeeded && isProductionEnv()) {
+    productionSeeded = true;
+    const { ensureProductionSeed: ensureProductionSeed2 } = (init_production_seed(), __toCommonJS(production_seed_exports));
+    ensureProductionSeed2();
   }
   return store;
 }
@@ -5133,7 +4827,7 @@ function dashboardStats(establishmentId) {
     paymentsConfirmed: analytics.payments.confirmed
   };
 }
-var import_fs, import_path, DATA_PATH, cache, operationalDirty, identityDirty, blobEtags, runtimeOidcToken, lastBlobError, lastRedisError, lastPersistSource, SESSION_TTL_MS, productionPlatformSeeded, PRODUCT_AVAILABILITIES, TABLE_STATUSES;
+var import_fs, import_path, DATA_PATH, cache, operationalDirty, identityDirty, blobEtags, runtimeOidcToken, lastBlobError, lastRedisError, lastPersistSource, SESSION_TTL_MS, productionSeeded, PRODUCT_AVAILABILITIES, TABLE_STATUSES;
 var init_store = __esm({
   "../mesaflow/src/lib/store.ts"() {
     "use strict";
@@ -5165,7 +4859,7 @@ var init_store = __esm({
     blobEtags = {};
     lastPersistSource = "none";
     SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
-    productionPlatformSeeded = false;
+    productionSeeded = false;
     PRODUCT_AVAILABILITIES = /* @__PURE__ */ new Set([
       "VITRINE",
       "SOB_DEMANDA",
@@ -5206,21 +4900,21 @@ init_audit_log();
 init_crypto_utils();
 
 // ../mesaflow/src/lib/identity-crypto.ts
-var import_crypto7 = require("crypto");
+var import_crypto6 = require("crypto");
 init_production_secrets();
-function secret3(name) {
+function secret2(name) {
   return resolveSecret([name, "MESAFLOW_IDENTITY_SECRET"], name);
 }
 function hashToken(token) {
-  return (0, import_crypto7.createHash)("sha256").update(token).digest("hex");
+  return (0, import_crypto6.createHash)("sha256").update(token).digest("hex");
 }
 function phoneLookupHash(establishmentId, phoneE164) {
-  return (0, import_crypto7.createHmac)("sha256", secret3("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
+  return (0, import_crypto6.createHmac)("sha256", secret2("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
 }
 function encryptPhone(phoneE164) {
-  const key = (0, import_crypto7.createHash)("sha256").update(secret3("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
-  const iv = (0, import_crypto7.randomBytes)(12);
-  const cipher = (0, import_crypto7.createCipheriv)("aes-256-gcm", key, iv);
+  const key = (0, import_crypto6.createHash)("sha256").update(secret2("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+  const iv = (0, import_crypto6.randomBytes)(12);
+  const cipher = (0, import_crypto6.createCipheriv)("aes-256-gcm", key, iv);
   const encrypted = Buffer.concat([cipher.update(phoneE164, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
   return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
@@ -5229,8 +4923,8 @@ function decryptPhone(ciphertext) {
   try {
     const [ivB64, tagB64, dataB64] = ciphertext.split(".");
     if (!ivB64 || !tagB64 || !dataB64) return null;
-    const key = (0, import_crypto7.createHash)("sha256").update(secret3("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
-    const decipher = (0, import_crypto7.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
+    const key = (0, import_crypto6.createHash)("sha256").update(secret2("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+    const decipher = (0, import_crypto6.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
     decipher.setAuthTag(Buffer.from(tagB64, "base64url"));
     const decrypted = Buffer.concat([
       decipher.update(Buffer.from(dataB64, "base64url")),
@@ -5259,10 +4953,10 @@ function normalizePhoneE164(input) {
   return null;
 }
 function otpCodeHash(challengeId, code) {
-  return (0, import_crypto7.createHmac)("sha256", secret3("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
+  return (0, import_crypto6.createHmac)("sha256", secret2("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
 }
 function generateOtpCode() {
-  return String((0, import_crypto7.randomInt)(1e5, 1e6));
+  return String((0, import_crypto6.randomInt)(1e5, 1e6));
 }
 
 // ../mesaflow/src/lib/otp-bypass.ts
@@ -5293,23 +4987,23 @@ function publicOtpBypassHint() {
 }
 
 // ../mesaflow/src/lib/guest-session-token.ts
-var import_crypto8 = require("crypto");
+var import_crypto7 = require("crypto");
 init_production_secrets();
 var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
-function secret4() {
+function secret3() {
   return resolveSecret(
     ["MESAFLOW_CLIENT_SESSION_SECRET", "MESAFLOW_IDENTITY_SECRET"],
     "guest session signing"
   );
 }
-function sign3(payloadB64) {
-  return (0, import_crypto8.createHmac)("sha256", secret4()).update(payloadB64).digest("base64url");
+function sign2(payloadB64) {
+  return (0, import_crypto7.createHmac)("sha256", secret3()).update(payloadB64).digest("base64url");
 }
-function verifySig3(payloadB64, sig) {
-  const expected = sign3(payloadB64);
+function verifySig2(payloadB64, sig) {
+  const expected = sign2(payloadB64);
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expected);
-  return sigBuf.length === expectedBuf.length && (0, import_crypto8.timingSafeEqual)(sigBuf, expectedBuf);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto7.timingSafeEqual)(sigBuf, expectedBuf);
 }
 function claimsFromParticipation(participation, ttlMs = CLIENT_SESSION_TTL_MS) {
   return {
@@ -5332,11 +5026,11 @@ function issueGuestSessionToken(participation, ttlMs = CLIENT_SESSION_TTL_MS) {
   const payloadB64 = Buffer.from(JSON.stringify(claimsFromParticipation(participation, ttlMs))).toString(
     "base64url"
   );
-  return `${payloadB64}.${sign3(payloadB64)}`;
+  return `${payloadB64}.${sign2(payloadB64)}`;
 }
 function parseGuestTokenClaims(token) {
   const [payloadB64, sig] = token.split(".");
-  if (!payloadB64 || !sig || !verifySig3(payloadB64, sig)) return null;
+  if (!payloadB64 || !sig || !verifySig2(payloadB64, sig)) return null;
   let raw;
   try {
     raw = Buffer.from(payloadB64, "base64url").toString("utf8");
@@ -6583,7 +6277,7 @@ function requestGuestClosing(participationId, scope, targetGuestParticipationIds
     return invalid4("Escopo de fechamento inv\xE1lido.", 400);
   }
   const duplicate = Object.values(store.closingRequests).find(
-    (request) => request.commandId === command.id && request.status === "PENDING" && request.scope === scope && request.requestedByGuestParticipationId === participationId && request.targetGuestParticipationIds.length === targetIds.length && request.targetGuestParticipationIds.every((id2) => targetIds.includes(id2))
+    (request) => request.commandId === command.id && request.status === "PENDING" && request.scope === scope && request.requestedByGuestParticipationId === participationId && request.targetGuestParticipationIds.length === targetIds.length && request.targetGuestParticipationIds.every((id3) => targetIds.includes(id3))
   );
   if (duplicate) {
     markParticipationsClosing(store, targetIds, true);
@@ -7036,7 +6730,361 @@ function publicMerchantUser(user) {
 }
 
 // api/_mesaflow/handler.ts
-init_platform_store();
+init_production_seed();
+
+// ../mesaflow/src/lib/platform-store.ts
+init_audit_log();
+
+// ../mesaflow/src/lib/platform-session-token.ts
+var import_crypto8 = require("crypto");
+init_production_secrets();
+var PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
+function secret4() {
+  return resolveSecret(
+    [
+      "MESAFLOW_PLATFORM_SESSION_SECRET",
+      "MESAFLOW_ADMIN_SESSION_SECRET",
+      "MESAFLOW_IDENTITY_SECRET"
+    ],
+    "platform session signing"
+  );
+}
+function sign3(payloadB64) {
+  return (0, import_crypto8.createHmac)("sha256", secret4()).update(payloadB64).digest("base64url");
+}
+function verifySig3(payloadB64, sig) {
+  const expected = sign3(payloadB64);
+  const sigBuf = Buffer.from(sig);
+  const expectedBuf = Buffer.from(expected);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto8.timingSafeEqual)(sigBuf, expectedBuf);
+}
+function issuePlatformSessionToken(platformUserId, ttlMs = PLATFORM_SESSION_TTL_MS) {
+  const claims = {
+    scope: "platform",
+    platformUserId,
+    exp: Date.now() + ttlMs
+  };
+  const payloadB64 = Buffer.from(JSON.stringify(claims)).toString("base64url");
+  return `${payloadB64}.${sign3(payloadB64)}`;
+}
+function parsePlatformSessionToken(token) {
+  const [payloadB64, sig] = token.split(".");
+  if (!payloadB64 || !sig || !verifySig3(payloadB64, sig)) return null;
+  try {
+    const claims = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf8"));
+    if (claims.scope !== "platform" || !claims.platformUserId || !claims.exp) return null;
+    if (Date.now() > claims.exp) return null;
+    return claims;
+  } catch {
+    return null;
+  }
+}
+
+// ../mesaflow/src/lib/platform-analytics.ts
+init_dashboard_analytics();
+
+// ../mesaflow/src/lib/platform-plans.ts
+var PLAN_ANNUAL_PRICE = {
+  essencial: 997,
+  premium: 1997,
+  custom: 2997
+};
+function resolvePlan(plan) {
+  return plan ?? "essencial";
+}
+function planAnnualRevenue(plan) {
+  return PLAN_ANNUAL_PRICE[resolvePlan(plan)];
+}
+
+// ../mesaflow/src/lib/platform-analytics.ts
+init_store();
+var MS_DAY = 24 * 60 * 60 * 1e3;
+var INACTIVE_DAYS_THRESHOLD = 14;
+function resolvePlatformStatus(establishment) {
+  return establishment.platformStatus ?? "active";
+}
+function establishmentOwner(establishmentId) {
+  const store = getStore();
+  return Object.values(store.users).find(
+    (user) => user.establishmentId === establishmentId && user.role === "OWNER"
+  );
+}
+function lastActivityAt(establishmentId) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return null;
+  let latest = establishment.createdAt;
+  for (const order of Object.values(store.orders)) {
+    if (order.establishmentId !== establishmentId) continue;
+    if (order.updatedAt > latest) latest = order.updatedAt;
+  }
+  for (const gp of Object.values(store.guestParticipations)) {
+    if (gp.establishmentId !== establishmentId) continue;
+    const candidate = gp.lastOrderAt || gp.joinedAt;
+    if (candidate > latest) latest = candidate;
+  }
+  for (const user of Object.values(store.users)) {
+    if (user.establishmentId !== establishmentId || !user.lastLoginAt) continue;
+    if (user.lastLoginAt > latest) latest = user.lastLoginAt;
+  }
+  return latest;
+}
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / MS_DAY);
+}
+function merchantSummary(establishment) {
+  const store = getStore();
+  const owner = establishmentOwner(establishment.id);
+  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishment.id);
+  const orders = Object.values(store.orders).filter((o) => o.establishmentId === establishment.id);
+  const sessions = Object.values(store.guestParticipations).filter(
+    (gp) => gp.establishmentId === establishment.id
+  );
+  const activity = lastActivityAt(establishment.id);
+  const inactiveDays = daysSince(activity);
+  const plan = resolvePlan(establishment.plan);
+  const status = resolvePlatformStatus(establishment);
+  const analytics30d = dashboardAnalytics(establishment.id, "30d");
+  return {
+    id: establishment.id,
+    slug: establishment.slug,
+    name: establishment.name,
+    businessType: establishment.businessType,
+    operationMode: establishment.operationMode,
+    plan,
+    planStartedAt: establishment.planStartedAt ?? establishment.createdAt,
+    platformStatus: status,
+    suspendedAt: establishment.suspendedAt,
+    suspendedReason: establishment.suspendedReason,
+    createdAt: establishment.createdAt,
+    open: establishment.open,
+    owner: owner ? {
+      id: owner.id,
+      name: owner.name,
+      email: owner.email,
+      lastLoginAt: owner.lastLoginAt
+    } : null,
+    tablesCount: tables.length,
+    ordersTotal: orders.filter((o) => o.status !== "CANCELADO").length,
+    sessionsTotal: sessions.length,
+    activeSessions: sessions.filter((gp) => gp.status !== "CLOSED").length,
+    lastActivityAt: activity,
+    inactiveDays,
+    isDormant: inactiveDays !== null && inactiveDays >= INACTIVE_DAYS_THRESHOLD,
+    revenue30d: analytics30d.sales.revenue,
+    orders30d: analytics30d.sales.ordersCount,
+    paymentsCollected30d: analytics30d.sales.paymentsCollected,
+    adminUrl: `/admin`,
+    customerUrl: `/m/${establishment.slug}`
+  };
+}
+function listMerchants(filters = {}) {
+  const store = getStore();
+  const q = filters.q?.trim().toLowerCase();
+  let merchants = Object.values(store.establishments).map(merchantSummary);
+  if (q) {
+    merchants = merchants.filter(
+      (m) => m.name.toLowerCase().includes(q) || m.slug.toLowerCase().includes(q) || m.owner?.email.toLowerCase().includes(q) || m.owner?.name.toLowerCase().includes(q)
+    );
+  }
+  if (filters.status && filters.status !== "all") {
+    merchants = merchants.filter((m) => m.platformStatus === filters.status);
+  }
+  if (filters.plan && filters.plan !== "all") {
+    merchants = merchants.filter((m) => m.plan === filters.plan);
+  }
+  merchants.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return merchants;
+}
+function getMerchantDetail(establishmentId) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return null;
+  const summary = merchantSummary(establishment);
+  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishmentId).map((t) => ({
+    id: t.id,
+    number: t.number,
+    name: t.name,
+    status: t.status,
+    capacity: t.capacity
+  }));
+  const staff = Object.values(store.users).filter((u) => u.establishmentId === establishmentId).map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    active: u.active,
+    lastLoginAt: u.lastLoginAt
+  }));
+  return {
+    ...summary,
+    tables,
+    staff,
+    analyticsToday: dashboardAnalytics(establishmentId, "today"),
+    analytics7d: dashboardAnalytics(establishmentId, "7d"),
+    analytics30d: dashboardAnalytics(establishmentId, "30d"),
+    annualPlanValue: planAnnualRevenue(establishment.plan)
+  };
+}
+function periodStartIso(days) {
+  return new Date(Date.now() - days * MS_DAY).toISOString();
+}
+function platformDashboard(period = "30d") {
+  const store = getStore();
+  const merchants = listMerchants();
+  const periodDays = period === "today" ? 1 : period === "7d" ? 7 : 30;
+  const periodStart2 = periodStartIso(periodDays);
+  const active = merchants.filter((m) => m.platformStatus === "active").length;
+  const inactive = merchants.filter((m) => m.platformStatus === "inactive").length;
+  const suspended = merchants.filter((m) => m.platformStatus === "suspended").length;
+  const dormant = merchants.filter((m) => m.isDormant && m.platformStatus === "active").length;
+  const newInPeriod = merchants.filter((m) => m.createdAt >= periodStart2).length;
+  const byPlan = { essencial: 0, premium: 0, custom: 0 };
+  for (const m of merchants) byPlan[m.plan] += 1;
+  let totalOrdersPeriod = 0;
+  let totalRevenuePeriod = 0;
+  let totalSessionsPeriod = 0;
+  let totalTables = 0;
+  for (const m of merchants) {
+    totalTables += m.tablesCount;
+    const analytics = dashboardAnalytics(m.id, period);
+    totalOrdersPeriod += analytics.sales.ordersCount;
+    totalRevenuePeriod += analytics.sales.revenue;
+    totalSessionsPeriod += analytics.sessions.historical + analytics.sessions.active;
+  }
+  const arrEstimate = merchants.filter((m) => m.platformStatus === "active").reduce((sum, m) => sum + planAnnualRevenue(m.plan), 0);
+  const recentSignups = merchants.filter((m) => m.createdAt >= periodStart2).slice(0, 10).map((m) => ({
+    id: m.id,
+    name: m.name,
+    slug: m.slug,
+    plan: m.plan,
+    createdAt: m.createdAt,
+    ownerEmail: m.owner?.email
+  }));
+  const dormantMerchants = merchants.filter((m) => m.isDormant).sort((a, b) => (b.inactiveDays ?? 0) - (a.inactiveDays ?? 0)).slice(0, 10);
+  return {
+    period,
+    totals: {
+      merchants: merchants.length,
+      active,
+      inactive,
+      suspended,
+      dormant,
+      newInPeriod,
+      totalTables,
+      totalOrdersPeriod,
+      totalRevenuePeriod,
+      totalSessionsPeriod,
+      arrEstimate
+    },
+    byPlan,
+    recentSignups,
+    dormantMerchants,
+    topMerchantsByRevenue: merchants.slice().sort((a, b) => b.revenue30d - a.revenue30d).slice(0, 5).map((m) => ({
+      id: m.id,
+      name: m.name,
+      slug: m.slug,
+      revenue30d: m.revenue30d,
+      plan: m.plan
+    }))
+  };
+}
+
+// ../mesaflow/src/lib/platform-store.ts
+init_crypto_utils();
+init_demo();
+init_production_seed();
+init_store();
+var PLATFORM_SESSION_TTL_MS2 = 30 * 24 * 60 * 60 * 1e3;
+function findPlatformUserByEmail(email) {
+  const normalized = email.toLowerCase().trim();
+  return Object.values(getStore().platformUsers || {}).find((u) => u.email === normalized);
+}
+function publicPlatformUser(user) {
+  return { id: user.id, name: user.name, email: user.email, role: user.role };
+}
+function attemptPlatformLogin(email, password) {
+  const user = findPlatformUserByEmail(email);
+  if (!user || !user.active || !verifyPassword(password, user.passwordHash)) {
+    return { error: "E-mail ou senha inv\xE1lidos." };
+  }
+  const store = getStore();
+  if (!user.passwordHash.startsWith("$2")) {
+    user.passwordHash = hashPassword(password);
+  }
+  user.lastLoginAt = (/* @__PURE__ */ new Date()).toISOString();
+  store.platformUsers[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: "platform",
+    type: "platform.login",
+    actorType: "PLATFORM",
+    actorUserId: user.id,
+    targetType: "platform_user",
+    targetId: user.id,
+    metadata: { role: user.role }
+  });
+  saveStore(store);
+  const token = issuePlatformSessionToken(user.id, PLATFORM_SESSION_TTL_MS2);
+  return { token, user: publicPlatformUser(user) };
+}
+function loginPlatformUser(email, password) {
+  ensureProductionSeed();
+  const run = () => {
+    try {
+      return attemptPlatformLogin(email, password);
+    } catch (error) {
+      console.warn("[mesaflow] platform login attempt failed", error);
+      return { error: "E-mail ou senha inv\xE1lidos.", status: 503 };
+    }
+  };
+  let result = run();
+  if ("error" in result && result.error === "E-mail ou senha inv\xE1lidos." && !result.status) {
+    const store = getStore();
+    if (Object.keys(store.platformUsers || {}).length === 0 || Object.keys(store.establishments).length === 0) {
+      ensureProductionSeed();
+      result = run();
+    }
+  }
+  if ("error" in result && result.status) {
+    ensureProductionSeed();
+    const retry = run();
+    if (!("error" in retry) || retry.error === "E-mail ou senha inv\xE1lidos.") return retry;
+  }
+  return result;
+}
+function validatePlatformSession(token) {
+  if (!token) return null;
+  const claims = parsePlatformSessionToken(token);
+  if (!claims) return null;
+  const store = getStore();
+  const user = store.platformUsers?.[claims.platformUserId];
+  if (!user?.active) return null;
+  return { user, expiresAt: new Date(claims.exp).toISOString() };
+}
+function updateMerchantStatus(establishmentId, status, reason) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return { error: "Estabelecimento n\xE3o encontrado.", status: 404 };
+  establishment.platformStatus = status;
+  if (status === "suspended") {
+    establishment.suspendedAt = (/* @__PURE__ */ new Date()).toISOString();
+    establishment.suspendedReason = reason?.trim() || void 0;
+  } else {
+    establishment.suspendedAt = void 0;
+    establishment.suspendedReason = void 0;
+  }
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "platform.merchant_status",
+    actorType: "PLATFORM",
+    targetType: "establishment",
+    targetId: establishmentId,
+    metadata: { status, reason: reason?.trim() || null }
+  });
+  saveStore(store);
+  return { value: getMerchantDetail(establishmentId) };
+}
 
 // ../mesaflow/src/lib/order-resolve.ts
 init_order_math();
@@ -7357,6 +7405,7 @@ async function handler(req, res) {
   if (req.method === "OPTIONS") return json(res, 204, {});
   try {
     await hydratePersistentStore();
+    ensureProductionSeed();
     const path = resolvePath(req);
     const store = getStore();
     if (req.method === "GET" && path === "/health") {
@@ -7724,8 +7773,18 @@ async function handler(req, res) {
       if (!turnstile.ok) {
         return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
       }
-      const result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
-      if ("error" in result) return json(res, 401, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      let result;
+      try {
+        result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+      } catch (error) {
+        console.warn("[mesaflow] platform login handler error", error);
+        ensureProductionSeed();
+        result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
+      }
+      if ("error" in result) {
+        const status = result.status && result.status !== 401 ? result.status : 401;
+        return json(res, status, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       return json(
         res,
         200,
