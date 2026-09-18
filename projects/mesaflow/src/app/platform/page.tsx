@@ -217,7 +217,7 @@ export default function PlatformDashboardPage() {
             {data.topMerchantsByRevenue.map((m) => (
               <li key={m.id}>
                 <Link
-                  href={`/platform/merchants/${m.id}`}
+                  href={`/platform/merchants/detail?id=${encodeURIComponent(m.id)}`}
                   className="flex items-center justify-between rounded-xl px-2 py-2 hover:bg-white/5"
                 >
                   <div>
@@ -243,7 +243,7 @@ export default function PlatformDashboardPage() {
             {data.recentSignups.map((s) => (
               <li key={s.id}>
                 <Link
-                  href={`/platform/merchants/${s.id}`}
+                  href={`/platform/merchants/detail?id=${encodeURIComponent(s.id)}`}
                   className="block rounded-xl px-2 py-2 hover:bg-white/5"
                 >
                   <p className="text-sm font-medium text-ink">{s.name}</p>
@@ -267,7 +267,7 @@ export default function PlatformDashboardPage() {
             {data.dormantMerchants.map((m) => (
               <li key={m.id}>
                 <Link
-                  href={`/platform/merchants/${m.id}`}
+                  href={`/platform/merchants/detail?id=${encodeURIComponent(m.id)}`}
                   className="flex items-center justify-between rounded-xl px-2 py-2 hover:bg-white/5"
                 >
                   <div>
