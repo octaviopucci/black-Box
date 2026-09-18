@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Shield } from "lucide-react";
+import { TurnstileWidget } from "@/components/auth/turnstile-widget";
 import { AuthLayout } from "@/components/ui/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,23 +12,31 @@ import { usePlatformAuth } from "@/contexts/platform-auth-context";
 import { apiUrl } from "@/lib/api";
 import { BRAND_NAME } from "@/lib/brand";
 import { PLATFORM_OWNER_LOGIN } from "@/lib/demo";
+import { turnstileSiteKeyClient } from "@/lib/turnstile-client";
 
 export default function PlatformLoginPage() {
   const router = useRouter();
   const { setSession } = usePlatformAuth();
+  const turnstileSiteKey = turnstileSiteKeyClient();
   const [email, setEmail] = useState(PLATFORM_OWNER_LOGIN.email);
   const [password, setPassword] = useState(PLATFORM_OWNER_LOGIN.password);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (turnstileSiteKey && !turnstileToken) {
+      setError("Complete a verificação anti-bot.");
+      return;
+    }
     setLoading(true);
     setError("");
     const res = await fetch(apiUrl("/platform/auth/login"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, turnstileToken: turnstileToken || undefined }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -35,7 +44,7 @@ export default function PlatformLoginPage() {
       setLoading(false);
       return;
     }
-    setSession({ token: json.token, user: json.user });
+    setSession({ user: json.user });
     router.push("/platform");
   }
 
@@ -62,6 +71,9 @@ export default function PlatformLoginPage() {
           <label className="mb-1.5 block text-xs font-medium text-muted">Senha</label>
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
+        {turnstileSiteKey ? (
+          <TurnstileWidget siteKey={turnstileSiteKey} onToken={setTurnstileToken} onExpire={() => setTurnstileToken("")} />
+        ) : null}
         <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500" size="lg" loading={loading}>
           Entrar na operação
         </Button>

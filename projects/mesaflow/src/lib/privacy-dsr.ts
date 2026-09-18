@@ -1,3 +1,4 @@
+import { appendAuditEvent } from "./audit-log";
 import { decryptPhone } from "./identity-crypto";
 import { revokeSessionsForParticipation } from "./guest";
 import { getStore, saveStore } from "./store";
@@ -38,6 +39,14 @@ export function deleteGuestSubjectData(participationId: string) {
     if (order.guestParticipationId !== participationId) continue;
     order.notes = order.notes ? "[redacted]" : undefined;
   }
+  appendAuditEvent(store, {
+    establishmentId: participation.establishmentId,
+    type: "dsr.guest_delete",
+    actorType: "GUEST",
+    targetType: "guest_participation",
+    targetId: participationId,
+    metadata: { scope: "guest" },
+  });
   saveStore(store);
   return { deletedAt: new Date().toISOString(), participationId };
 }
@@ -98,6 +107,15 @@ export function deleteMerchantSubjectData(userId: string, establishmentId: strin
   establishment.name = `${establishment.name} (conta encerrada)`;
   store.establishments[establishment.id] = establishment;
 
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "dsr.merchant_delete",
+    actorType: "STAFF",
+    actorUserId: userId,
+    targetType: "establishment",
+    targetId: establishmentId,
+    metadata: { scope: "owner" },
+  });
   saveStore(store);
   return { deletedAt: new Date().toISOString(), userId, establishmentId };
 }

@@ -3125,6 +3125,46 @@ var init_seed = __esm({
   }
 });
 
+// ../mesaflow/src/lib/audit-log.ts
+function sanitizeMetadata(metadata) {
+  if (!metadata) return {};
+  const out = {};
+  for (const [key, value] of Object.entries(metadata)) {
+    if (PII_KEYS.has(key)) continue;
+    if (typeof value === "string" && value.includes("@")) continue;
+    out[key] = value;
+  }
+  return out;
+}
+function appendAuditEvent(store, input) {
+  store.auditEvents ||= {};
+  const event = {
+    id: id("aud_"),
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    ...input,
+    metadata: sanitizeMetadata(input.metadata)
+  };
+  store.auditEvents[event.id] = event;
+  return event;
+}
+var PII_KEYS;
+var init_audit_log = __esm({
+  "../mesaflow/src/lib/audit-log.ts"() {
+    "use strict";
+    init_crypto_utils();
+    PII_KEYS = /* @__PURE__ */ new Set([
+      "phone",
+      "phoneE164",
+      "phoneDisplay",
+      "phoneCiphertext",
+      "email",
+      "password",
+      "token",
+      "name"
+    ]);
+  }
+});
+
 // ../mesaflow/src/lib/accounting.ts
 function getParticipantItemTotal(orders, splits, guestParticipationId) {
   const splitMap = /* @__PURE__ */ new Map();
@@ -3507,6 +3547,77 @@ var init_data_retention = __esm({
   }
 });
 
+// ../mesaflow/src/lib/demo-qr.ts
+function isPredictableDemoQrToken(token) {
+  return /^mesa-\d+$/i.test(token.trim());
+}
+function rejectPredictableDemoQrInProduction(token) {
+  if (!isProductionEnv()) return false;
+  if (process.env.MESAFLOW_ALLOW_DEMO_SEED === "1") return false;
+  return isPredictableDemoQrToken(token);
+}
+var init_demo_qr = __esm({
+  "../mesaflow/src/lib/demo-qr.ts"() {
+    "use strict";
+    init_production_secrets();
+  }
+});
+
+// ../mesaflow/src/lib/password-policy.ts
+function validatePasswordStrength(password) {
+  if (!password || password.length < MIN_LENGTH) {
+    return `Senha com no m\xEDnimo ${MIN_LENGTH} caracteres.`;
+  }
+  if (!/[a-z]/.test(password)) {
+    return "Senha deve incluir ao menos uma letra min\xFAscula.";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Senha deve incluir ao menos uma letra mai\xFAscula.";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Senha deve incluir ao menos um n\xFAmero.";
+  }
+  return null;
+}
+var MIN_LENGTH;
+var init_password_policy = __esm({
+  "../mesaflow/src/lib/password-policy.ts"() {
+    "use strict";
+    MIN_LENGTH = 10;
+  }
+});
+
+// ../mesaflow/src/lib/signup-invite.ts
+function safeEqual(a, b) {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return (0, import_crypto5.timingSafeEqual)(bufA, bufB);
+}
+function signupOpenWithoutInvite() {
+  if (!isProductionEnv()) return true;
+  return process.env.MESAFLOW_SIGNUP_OPEN === "1";
+}
+function validateSignupInvite(code) {
+  if (signupOpenWithoutInvite()) return true;
+  const expected = process.env.MESAFLOW_SIGNUP_INVITE_CODE?.trim();
+  if (!expected) return false;
+  const provided = String(code ?? "").trim();
+  if (!provided) return false;
+  return safeEqual(provided, expected);
+}
+function signupInviteRequiredMessage() {
+  return "Cadastro dispon\xEDvel somente por convite. Solicite um c\xF3digo \xE0 equipe NA MESA.";
+}
+var import_crypto5;
+var init_signup_invite = __esm({
+  "../mesaflow/src/lib/signup-invite.ts"() {
+    "use strict";
+    import_crypto5 = require("crypto");
+    init_production_secrets();
+  }
+});
+
 // ../mesaflow/src/lib/privacy-policy.ts
 function validatePrivacyConsent(input) {
   if (!input || typeof input !== "object") return null;
@@ -3541,13 +3652,13 @@ function secret2() {
   );
 }
 function sign2(payloadB64) {
-  return (0, import_crypto5.createHmac)("sha256", secret2()).update(payloadB64).digest("base64url");
+  return (0, import_crypto6.createHmac)("sha256", secret2()).update(payloadB64).digest("base64url");
 }
 function verifySig2(payloadB64, sig) {
   const expected = sign2(payloadB64);
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expected);
-  return sigBuf.length === expectedBuf.length && (0, import_crypto5.timingSafeEqual)(sigBuf, expectedBuf);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto6.timingSafeEqual)(sigBuf, expectedBuf);
 }
 function issuePlatformSessionToken(platformUserId, ttlMs = PLATFORM_SESSION_TTL_MS) {
   const claims = {
@@ -3570,11 +3681,11 @@ function parsePlatformSessionToken(token) {
     return null;
   }
 }
-var import_crypto5, PLATFORM_SESSION_TTL_MS;
+var import_crypto6, PLATFORM_SESSION_TTL_MS;
 var init_platform_session_token = __esm({
   "../mesaflow/src/lib/platform-session-token.ts"() {
     "use strict";
-    import_crypto5 = require("crypto");
+    import_crypto6 = require("crypto");
     init_production_secrets();
     PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
   }
@@ -3833,6 +3944,15 @@ function loginPlatformUser(email, password) {
   }
   user.lastLoginAt = (/* @__PURE__ */ new Date()).toISOString();
   store.platformUsers[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: "platform",
+    type: "platform.login",
+    actorType: "PLATFORM",
+    actorUserId: user.id,
+    targetType: "platform_user",
+    targetId: user.id,
+    metadata: { role: user.role }
+  });
   saveStore(store);
   const token = issuePlatformSessionToken(user.id, PLATFORM_SESSION_TTL_MS2);
   return { token, user: publicPlatformUser(user) };
@@ -3883,6 +4003,14 @@ function updateMerchantStatus(establishmentId, status, reason) {
     establishment.suspendedAt = void 0;
     establishment.suspendedReason = void 0;
   }
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "platform.merchant_status",
+    actorType: "PLATFORM",
+    targetType: "establishment",
+    targetId: establishmentId,
+    metadata: { status, reason: reason?.trim() || null }
+  });
   saveStore(store);
   return { value: getMerchantDetail(establishmentId) };
 }
@@ -3890,6 +4018,7 @@ var PLATFORM_SESSION_TTL_MS2;
 var init_platform_store = __esm({
   "../mesaflow/src/lib/platform-store.ts"() {
     "use strict";
+    init_audit_log();
     init_platform_session_token();
     init_platform_analytics();
     init_crypto_utils();
@@ -4267,9 +4396,13 @@ function registerEstablishment(input) {
   const store = getStore();
   const consent = validatePrivacyConsent(input.privacyConsent);
   if (!consent) return { error: consentRequiredMessage() };
+  if (!validateSignupInvite(input.inviteCode)) {
+    return { error: signupInviteRequiredMessage() };
+  }
   const email = input.email.toLowerCase().trim();
-  if (!email || !input.password || input.password.length < 6) {
-    return { error: "Preencha todos os campos. Senha com no m\xEDnimo 6 caracteres." };
+  const passwordError = validatePasswordStrength(input.password || "");
+  if (!email || passwordError) {
+    return { error: passwordError || "Preencha todos os campos." };
   }
   if (findUserByEmail(email)) {
     return { error: "Este e-mail j\xE1 est\xE1 cadastrado." };
@@ -4288,6 +4421,15 @@ function registerEstablishment(input) {
   });
   user.privacyConsent = consent;
   store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: establishment.id,
+    type: "merchant.registered",
+    actorType: "STAFF",
+    actorUserId: user.id,
+    targetType: "establishment",
+    targetId: establishment.id,
+    metadata: { source: "signup" }
+  });
   saveStore(store);
   const session = createSession(user);
   return { user, establishment, session };
@@ -4312,6 +4454,15 @@ function loginUser(email, password) {
   }
   user.lastLoginAt = (/* @__PURE__ */ new Date()).toISOString();
   store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: establishment.id,
+    type: "staff.login",
+    actorType: "STAFF",
+    actorUserId: user.id,
+    targetType: "user",
+    targetId: user.id,
+    metadata: { role: user.role }
+  });
   saveStore(store);
   const session = createSession(user);
   return { user, establishment, session };
@@ -4320,6 +4471,7 @@ function publicUser(user) {
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
 function findTableByQr(establishmentId, tableToken) {
+  if (rejectPredictableDemoQrInProduction(tableToken)) return null;
   const store = getStore();
   return Object.values(store.tables).find(
     (t) => t.establishmentId === establishmentId && t.status !== "INATIVA" && t.qrToken === tableToken
@@ -4952,9 +5104,13 @@ var init_store = __esm({
     init_product_images();
     init_provision();
     init_seed();
+    init_audit_log();
     init_dashboard_analytics();
     init_data_retention();
+    init_demo_qr();
     init_operation_modes();
+    init_password_policy();
+    init_signup_invite();
     init_privacy_policy();
     init_production_secrets();
     init_crypto_utils();
@@ -5002,24 +5158,25 @@ init_closing();
 init_crypto_utils();
 
 // ../mesaflow/src/lib/guest.ts
+init_audit_log();
 init_crypto_utils();
 
 // ../mesaflow/src/lib/identity-crypto.ts
-var import_crypto6 = require("crypto");
+var import_crypto7 = require("crypto");
 init_production_secrets();
 function secret3(name) {
   return resolveSecret([name, "MESAFLOW_IDENTITY_SECRET"], name);
 }
 function hashToken(token) {
-  return (0, import_crypto6.createHash)("sha256").update(token).digest("hex");
+  return (0, import_crypto7.createHash)("sha256").update(token).digest("hex");
 }
 function phoneLookupHash(establishmentId, phoneE164) {
-  return (0, import_crypto6.createHmac)("sha256", secret3("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
+  return (0, import_crypto7.createHmac)("sha256", secret3("MESAFLOW_PHONE_LOOKUP_SECRET")).update(`${establishmentId}:${phoneE164}`).digest("hex");
 }
 function encryptPhone(phoneE164) {
-  const key = (0, import_crypto6.createHash)("sha256").update(secret3("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
-  const iv = (0, import_crypto6.randomBytes)(12);
-  const cipher = (0, import_crypto6.createCipheriv)("aes-256-gcm", key, iv);
+  const key = (0, import_crypto7.createHash)("sha256").update(secret3("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+  const iv = (0, import_crypto7.randomBytes)(12);
+  const cipher = (0, import_crypto7.createCipheriv)("aes-256-gcm", key, iv);
   const encrypted = Buffer.concat([cipher.update(phoneE164, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
   return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
@@ -5028,8 +5185,8 @@ function decryptPhone(ciphertext) {
   try {
     const [ivB64, tagB64, dataB64] = ciphertext.split(".");
     if (!ivB64 || !tagB64 || !dataB64) return null;
-    const key = (0, import_crypto6.createHash)("sha256").update(secret3("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
-    const decipher = (0, import_crypto6.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
+    const key = (0, import_crypto7.createHash)("sha256").update(secret3("MESAFLOW_PHONE_CIPHER_SECRET")).digest();
+    const decipher = (0, import_crypto7.createDecipheriv)("aes-256-gcm", key, Buffer.from(ivB64, "base64url"));
     decipher.setAuthTag(Buffer.from(tagB64, "base64url"));
     const decrypted = Buffer.concat([
       decipher.update(Buffer.from(dataB64, "base64url")),
@@ -5058,10 +5215,10 @@ function normalizePhoneE164(input) {
   return null;
 }
 function otpCodeHash(challengeId, code) {
-  return (0, import_crypto6.createHmac)("sha256", secret3("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
+  return (0, import_crypto7.createHmac)("sha256", secret3("MESAFLOW_OTP_SECRET")).update(`${challengeId}:${code}`).digest("hex");
 }
 function generateOtpCode() {
-  return String((0, import_crypto6.randomInt)(1e5, 1e6));
+  return String((0, import_crypto7.randomInt)(1e5, 1e6));
 }
 
 // ../mesaflow/src/lib/otp-bypass.ts
@@ -5092,7 +5249,7 @@ function publicOtpBypassHint() {
 }
 
 // ../mesaflow/src/lib/guest-session-token.ts
-var import_crypto7 = require("crypto");
+var import_crypto8 = require("crypto");
 init_production_secrets();
 var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
 function secret4() {
@@ -5102,13 +5259,13 @@ function secret4() {
   );
 }
 function sign3(payloadB64) {
-  return (0, import_crypto7.createHmac)("sha256", secret4()).update(payloadB64).digest("base64url");
+  return (0, import_crypto8.createHmac)("sha256", secret4()).update(payloadB64).digest("base64url");
 }
 function verifySig3(payloadB64, sig) {
   const expected = sign3(payloadB64);
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expected);
-  return sigBuf.length === expectedBuf.length && (0, import_crypto7.timingSafeEqual)(sigBuf, expectedBuf);
+  return sigBuf.length === expectedBuf.length && (0, import_crypto8.timingSafeEqual)(sigBuf, expectedBuf);
 }
 function claimsFromParticipation(participation, ttlMs = CLIENT_SESSION_TTL_MS) {
   return {
@@ -5482,7 +5639,7 @@ function guestTableSummary(establishmentId, commandId) {
   if (!commandId) {
     return { participantCount: 0, tableTotal: 0, participants: [] };
   }
-  const participants = Object.values(store.guestParticipations).filter((gp) => gp.commandId === commandId && gp.status !== "CLOSED").sort((a, b) => a.participantIndex - b.participantIndex).map(publicParticipation);
+  const participants = Object.values(store.guestParticipations).filter((gp) => gp.commandId === commandId && gp.status !== "CLOSED").sort((a, b) => a.participantIndex - b.participantIndex).map((gp) => publicParticipation(gp));
   const command = store.commands[commandId];
   return {
     participantCount: participants.length,
@@ -5490,17 +5647,20 @@ function guestTableSummary(establishmentId, commandId) {
     participants
   };
 }
-function publicParticipation(gp) {
-  return {
+function publicParticipation(gp, options) {
+  const base = {
     id: gp.id,
     displayName: gp.displayName || `Participante ${gp.participantIndex}`,
     participantIndex: gp.participantIndex,
     status: gp.status,
-    phoneDisplay: gp.phoneDisplay,
     orderCount: gp.orderCount,
     comandaNumber: gp.comandaNumber,
     paymentConfirmedAt: gp.paymentConfirmedAt
   };
+  if (options?.includePhone) {
+    return { ...base, phoneDisplay: gp.phoneDisplay };
+  }
+  return base;
 }
 function storePhoneForOtpLookup(establishmentId, phoneE164) {
   const store = getStore();
@@ -5525,19 +5685,15 @@ function kickGuestParticipation(establishmentId, participationId, actorUserId) {
   participation.closedByUserId = actorUserId;
   store.guestParticipations[participation.id] = participation;
   revokeSessionsForParticipation(store, participation.id);
-  store.auditEvents ||= {};
-  const auditId = id("aud_");
-  store.auditEvents[auditId] = {
-    id: auditId,
+  appendAuditEvent(store, {
     establishmentId,
     type: "guest.kicked",
     actorType: "STAFF",
     actorUserId,
     targetType: "guest_participation",
     targetId: participation.id,
-    metadata: { tableId: participation.tableId, commandId: participation.commandId },
-    createdAt: now
-  };
+    metadata: { tableId: participation.tableId, commandId: participation.commandId }
+  });
   saveStore(store);
   return { value: { participation } };
 }
@@ -6724,6 +6880,7 @@ function enforceRateLimit(namespace, clientId) {
 init_privacy_policy();
 
 // ../mesaflow/src/lib/privacy-dsr.ts
+init_audit_log();
 init_store();
 function notFound(msg) {
   return { error: msg, status: 404 };
@@ -6751,6 +6908,14 @@ function deleteGuestSubjectData(participationId) {
     if (order.guestParticipationId !== participationId) continue;
     order.notes = order.notes ? "[redacted]" : void 0;
   }
+  appendAuditEvent(store, {
+    establishmentId: participation.establishmentId,
+    type: "dsr.guest_delete",
+    actorType: "GUEST",
+    targetType: "guest_participation",
+    targetId: participationId,
+    metadata: { scope: "guest" }
+  });
   saveStore(store);
   return { deletedAt: (/* @__PURE__ */ new Date()).toISOString(), participationId };
 }
@@ -6803,6 +6968,15 @@ function deleteMerchantSubjectData(userId, establishmentId) {
   establishment.platformStatus = "inactive";
   establishment.name = `${establishment.name} (conta encerrada)`;
   store.establishments[establishment.id] = establishment;
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "dsr.merchant_delete",
+    actorType: "STAFF",
+    actorUserId: userId,
+    targetType: "establishment",
+    targetId: establishmentId,
+    metadata: { scope: "owner" }
+  });
   saveStore(store);
   return { deletedAt: (/* @__PURE__ */ new Date()).toISOString(), userId, establishmentId };
 }
@@ -6899,6 +7073,109 @@ function resolveOrderLines(store, establishmentId, sectors, lines, options) {
   return { ok: true, items, total };
 }
 
+// ../mesaflow/src/lib/public-health.ts
+function buildPublicHealthResponse(input) {
+  return {
+    ok: true,
+    service: "mesaflow",
+    shared: input.sharedOk,
+    blob: input.blobOk,
+    establishments: input.establishmentCount
+  };
+}
+function healthDiagnosticsAuthorized(req) {
+  const secret5 = process.env.MESAFLOW_HEALTH_SECRET?.trim();
+  if (!secret5) return false;
+  const provided = req.headers.get("x-mesaflow-health-secret")?.trim() || (req.url ? new URL(req.url).searchParams.get("health_secret")?.trim() : void 0);
+  return Boolean(provided && provided === secret5);
+}
+function buildDetailedHealthResponse(input) {
+  return {
+    ...buildPublicHealthResponse({
+      sharedOk: input.sharedOk,
+      blobOk: input.blobOk,
+      establishmentCount: input.establishmentCount
+    }),
+    storage: { ...input.storage, persist: input.persist },
+    setup: input.setup
+  };
+}
+
+// ../mesaflow/src/lib/staff-session-cookie-web.ts
+var ADMIN_SESSION_COOKIE = "mf_as";
+var PLATFORM_SESSION_COOKIE = "mf_ps";
+var SESSION_MAX_AGE_SEC = 30 * 24 * 60 * 60;
+function staffCookiePath() {
+  const prefix = process.env.MESAFLOW_API_PREFIX || process.env.NEXT_PUBLIC_API_PREFIX;
+  if (prefix) return `/api/${prefix}`;
+  if (process.env.VERCEL) return "/api/mesaflow";
+  return "/api";
+}
+function cookieBase(name, token, maxAgeSec) {
+  const secure = process.env.VERCEL ? "; Secure" : "";
+  return `${name}=${encodeURIComponent(token)}; Path=${staffCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSec}${secure}`;
+}
+function buildAdminSessionCookie(token) {
+  return cookieBase(ADMIN_SESSION_COOKIE, token, SESSION_MAX_AGE_SEC);
+}
+function buildPlatformSessionCookie(token) {
+  return cookieBase(PLATFORM_SESSION_COOKIE, token, SESSION_MAX_AGE_SEC);
+}
+function clearAdminSessionCookieValue() {
+  const secure = process.env.VERCEL ? "; Secure" : "";
+  return `${ADMIN_SESSION_COOKIE}=; Path=${staffCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
+}
+function clearPlatformSessionCookieValue() {
+  const secure = process.env.VERCEL ? "; Secure" : "";
+  return `${PLATFORM_SESSION_COOKIE}=; Path=${staffCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
+}
+function parseStaffCookieHeader(cookieHeader, cookieName) {
+  if (!cookieHeader) return void 0;
+  for (const part of cookieHeader.split(";")) {
+    const trimmed = part.trim();
+    if (trimmed.startsWith(`${cookieName}=`)) {
+      return decodeURIComponent(trimmed.slice(cookieName.length + 1));
+    }
+  }
+  return void 0;
+}
+
+// ../mesaflow/src/lib/turnstile.ts
+function turnstileSiteKeyPublic() {
+  return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || process.env.TURNSTILE_SITE_KEY?.trim() || void 0;
+}
+function turnstileConfigured() {
+  return Boolean(turnstileSiteKeyPublic() && process.env.TURNSTILE_SECRET_KEY?.trim());
+}
+async function verifyTurnstileToken(token, remoteIp) {
+  if (!turnstileConfigured()) return { ok: true };
+  const secret5 = process.env.TURNSTILE_SECRET_KEY.trim();
+  const response = String(token ?? "").trim();
+  if (!response) {
+    return { ok: false, error: "Verifica\xE7\xE3o anti-bot obrigat\xF3ria." };
+  }
+  const body = new URLSearchParams({
+    secret: secret5,
+    response
+  });
+  if (remoteIp) body.set("remoteip", remoteIp);
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString()
+    });
+    const json2 = await res.json();
+    if (json2.success) return { ok: true };
+    return {
+      ok: false,
+      error: "Verifica\xE7\xE3o anti-bot falhou. Tente novamente."
+    };
+  } catch {
+    return { ok: false, error: "N\xE3o foi poss\xEDvel validar anti-bot." };
+  }
+}
+
 // api/_mesaflow/handler.ts
 function resolvePath(req) {
   const q = req.query?.path;
@@ -6971,25 +7248,37 @@ function readBearer(req) {
   const match = typeof authorization === "string" && authorization.match(/^Bearer\s+(.+)$/i);
   return match ? match[1].trim() : void 0;
 }
+function readCookieHeader(req) {
+  const raw = req.headers.cookie;
+  if (typeof raw === "string") return raw;
+  if (Array.isArray(raw)) return raw.join("; ");
+  return void 0;
+}
+function readAdminToken(req) {
+  return readBearer(req) || parseStaffCookieHeader(readCookieHeader(req), ADMIN_SESSION_COOKIE);
+}
+function readPlatformToken(req) {
+  return readBearer(req) || parseStaffCookieHeader(readCookieHeader(req), PLATFORM_SESSION_COOKIE);
+}
 function readGuestToken(req) {
   return readBearer(req) || parseClientCookie(req);
 }
 function adminAuth(req) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminToken(req));
   return auth && (auth.user.role === "OWNER" || auth.user.role === "MANAGER") ? auth : null;
 }
 function dashboardAuth(req) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminToken(req));
   const allowed = ["OWNER", "MANAGER", "COUNTER", "WAITER", "KITCHEN"];
   return auth && allowed.includes(auth.user.role) ? auth : null;
 }
 function staffAuth(req, roles) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminToken(req));
   const allowed = roles ?? ["OWNER", "MANAGER", "COUNTER", "WAITER"];
   return auth && allowed.includes(auth.user.role) ? auth : null;
 }
 function kitchenAuth(req) {
-  const auth = validateSession(readBearer(req));
+  const auth = validateSession(readAdminToken(req));
   if (!auth) return null;
   if (auth.user.role === "OWNER" || auth.user.role === "MANAGER" || auth.user.role === "KITCHEN" || auth.user.role === "COUNTER") {
     return auth;
@@ -6997,7 +7286,7 @@ function kitchenAuth(req) {
   return null;
 }
 function platformAuth(req) {
-  return validatePlatformSession(readBearer(req));
+  return validatePlatformSession(readPlatformToken(req));
 }
 function parsePlatformStatus(value) {
   if (value === "active" || value === "inactive" || value === "suspended") return value;
@@ -7030,19 +7319,36 @@ async function handler(req, res) {
       const persist2 = await flushPersistentStore();
       const blobOk = probe.ok || storage.hasToken && storage.configured;
       const sharedOk = persist2.blob === true || persist2.redis === true || redisProbe.ok === true && storage.redis?.configured === true;
-      const establishments = Object.keys(store.establishments).length;
+      const establishmentCount = Object.keys(store.establishments).length;
+      const healthReq = {
+        headers: { get: (name) => {
+          const key = name.toLowerCase();
+          const val = req.headers[key];
+          if (typeof val === "string") return val;
+          if (Array.isArray(val)) return val[0] ?? null;
+          return null;
+        } },
+        url: req.url
+      };
+      if (healthDiagnosticsAuthorized(healthReq)) {
+        return json(
+          res,
+          200,
+          buildDetailedHealthResponse({
+            sharedOk,
+            blobOk,
+            establishmentCount,
+            storage: { ...storage, probe, redisProbe },
+            persist: persist2,
+            setup: sharedOk ? void 0 : persist2.redisError ? `Redis falhou: ${persist2.redisError}. Verifique UPSTASH_REDIS_REST_URL/TOKEN.` : blobSetupHint({ ...storage, lastError: persist2.blobError ?? storage.lastError })
+          }),
+          { skipFlush: true }
+        );
+      }
       return json(
         res,
         200,
-        {
-          ok: true,
-          service: "mesaflow",
-          blob: blobOk,
-          shared: sharedOk,
-          establishments,
-          storage: { ...storage, probe, redisProbe, persist: persist2 },
-          setup: sharedOk ? void 0 : persist2.redisError ? `Redis falhou: ${persist2.redisError}. Verifique UPSTASH_REDIS_REST_URL/TOKEN.` : blobSetupHint({ ...storage, lastError: persist2.blobError ?? storage.lastError })
-        },
+        buildPublicHealthResponse({ sharedOk, blobOk, establishmentCount }),
         { skipFlush: true }
       );
     }
@@ -7101,6 +7407,10 @@ async function handler(req, res) {
         `${clientIp(req)}:${String(body.phone || "").replace(/\D/g, "").slice(-8)}`
       );
       if (!rl) return;
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const consent = validatePrivacyConsent(body.privacyConsent);
       if (!consent) {
         return json(res, 400, { error: consentRequiredMessage() }, { extraHeaders: rateLimitHeaders(rl) });
@@ -7131,6 +7441,10 @@ async function handler(req, res) {
       const body = req.body || {};
       const rl = rateLimitOrReject(res, "otpVerify", `${clientIp(req)}:${String(body.challengeId || "")}`);
       if (!rl) return;
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const consent = validatePrivacyConsent(body.privacyConsent);
       if (!consent) {
         return json(res, 400, { error: consentRequiredMessage() }, { extraHeaders: rateLimitHeaders(rl) });
@@ -7270,7 +7584,7 @@ async function handler(req, res) {
         return json(res, 200, { order });
       }
       if (req.method === "PATCH") {
-        const auth = validateSession(readBearer(req));
+        const auth = validateSession(readAdminToken(req));
         if (!auth || !["OWNER", "MANAGER", "KITCHEN", "COUNTER", "WAITER"].includes(auth.user.role)) {
           return json(res, 401, { error: "N\xE3o autorizado." });
         }
@@ -7284,23 +7598,38 @@ async function handler(req, res) {
       const rl = rateLimitOrReject(res, "authLogin", clientIp(req));
       if (!rl) return;
       const body = req.body || {};
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const result = loginUser(String(body.email), String(body.password));
       if (result.error) return json(res, 401, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
       return json(
         res,
         200,
         {
-          token: result.session.token,
           user: publicUser(result.user),
           establishment: result.establishment
         },
-        { extraHeaders: rateLimitHeaders(rl) }
+        {
+          extraHeaders: {
+            ...rateLimitHeaders(rl),
+            "Set-Cookie": buildAdminSessionCookie(result.session.token)
+          }
+        }
       );
+    }
+    if (req.method === "POST" && path === "/auth/logout") {
+      return json(res, 200, { ok: true }, { extraHeaders: { "Set-Cookie": clearAdminSessionCookieValue() } });
     }
     if (req.method === "POST" && path === "/auth/register") {
       const rl = rateLimitOrReject(res, "authRegister", clientIp(req));
       if (!rl) return;
       const body = req.body || {};
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const operationMode = isOperationMode(body.operationMode) ? body.operationMode : void 0;
       const result = registerEstablishment({
         businessName: String(body.businessName || ""),
@@ -7310,22 +7639,27 @@ async function handler(req, res) {
         businessType: body.businessType || "restaurante",
         operationMode,
         tableCount: Number(body.tableCount) || 5,
-        privacyConsent: body.privacyConsent
+        privacyConsent: body.privacyConsent,
+        inviteCode: body.inviteCode
       });
       if (result.error) return json(res, 400, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
       return json(
         res,
         201,
         {
-          token: result.session.token,
           user: publicUser(result.user),
           establishment: result.establishment
         },
-        { extraHeaders: rateLimitHeaders(rl) }
+        {
+          extraHeaders: {
+            ...rateLimitHeaders(rl),
+            "Set-Cookie": buildAdminSessionCookie(result.session.token)
+          }
+        }
       );
     }
     if (req.method === "GET" && path === "/auth/me") {
-      const auth = validateSession(req.headers.authorization?.replace(/^Bearer\s+/i, ""));
+      const auth = validateSession(readAdminToken(req));
       if (!auth) return json(res, 401, { error: "Sess\xE3o inv\xE1lida." });
       return json(res, 200, {
         user: publicUser(auth.user),
@@ -7336,9 +7670,26 @@ async function handler(req, res) {
       const rl = rateLimitOrReject(res, "authLogin", `${clientIp(req)}:platform`);
       if (!rl) return;
       const body = req.body || {};
+      const turnstile = await verifyTurnstileToken(body.turnstileToken, clientIp(req));
+      if (!turnstile.ok) {
+        return json(res, 400, { error: turnstile.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
       const result = loginPlatformUser(String(body.email ?? ""), String(body.password ?? ""));
       if ("error" in result) return json(res, 401, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
-      return json(res, 200, result, { extraHeaders: rateLimitHeaders(rl) });
+      return json(
+        res,
+        200,
+        { user: result.user },
+        {
+          extraHeaders: {
+            ...rateLimitHeaders(rl),
+            "Set-Cookie": buildPlatformSessionCookie(result.token)
+          }
+        }
+      );
+    }
+    if (req.method === "POST" && path === "/platform/auth/logout") {
+      return json(res, 200, { ok: true }, { extraHeaders: { "Set-Cookie": clearPlatformSessionCookieValue() } });
     }
     if (req.method === "GET" && path === "/platform/auth/me") {
       const auth = platformAuth(req);

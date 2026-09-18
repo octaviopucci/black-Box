@@ -7,6 +7,7 @@ import { Input, Select } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUrl } from "@/lib/api";
 import { OPERATION_MODES } from "@/lib/operation-modes";
+import { PASSWORD_POLICY_HINT } from "@/lib/password-policy";
 import type { Establishment, OperationMode } from "@/lib/types";
 
 type SettingsDraft = {
@@ -36,6 +37,10 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordMsg, setPasswordMsg] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -150,6 +155,42 @@ export default function AdminSettingsPage() {
                     <input type="checkbox" checked={draft.otpRequired} onChange={(event) => setDraft({ ...draft, otpRequired: event.target.checked })} className="h-5 w-5 shrink-0 accent-brand" />
                   </label>
                 </div>
+              </section>
+
+              <section className="glass-card p-5 sm:p-6">
+                <h2 className="mb-4 font-bold">Senha da conta</h2>
+                <p className="mb-4 text-xs text-muted">{PASSWORD_POLICY_HINT}</p>
+                <div className="grid gap-4">
+                  <Input type="password" placeholder="Senha atual" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+                  <Input type="password" placeholder="Nova senha" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={10} />
+                </div>
+                {passwordMsg && <p className="mt-3 text-sm text-muted">{passwordMsg}</p>}
+                <Button
+                  type="button"
+                  className="mt-4"
+                  loading={passwordSaving}
+                  onClick={async () => {
+                    setPasswordSaving(true);
+                    setPasswordMsg("");
+                    const res = await fetch(apiUrl("/admin/password"), {
+                      method: "PATCH",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json", ...authHeaders() },
+                      body: JSON.stringify({ currentPassword, newPassword }),
+                    });
+                    const json = await res.json();
+                    setPasswordSaving(false);
+                    if (!res.ok) {
+                      setPasswordMsg(json.error || "Não foi possível alterar a senha.");
+                      return;
+                    }
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setPasswordMsg("Senha alterada com sucesso.");
+                  }}
+                >
+                  Alterar senha
+                </Button>
               </section>
 
               <div className="flex justify-end">

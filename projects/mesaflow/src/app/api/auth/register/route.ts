@@ -1,4 +1,3 @@
-import { publicUser, registerEstablishment } from "@/lib/store";
 import { isOperationMode } from "@/lib/operation-modes";
 import {
   applyRateLimit,
@@ -6,6 +5,9 @@ import {
   rateLimitedJsonResponse,
   withRateLimitHeaders,
 } from "@/lib/rate-limit-http";
+import { jsonWithAdminSession } from "@/lib/staff-auth-request";
+import { publicUser, registerEstablishment } from "@/lib/store";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 import type { OperationMode } from "@/lib/types";
 
 export async function POST(req: Request) {
@@ -13,6 +15,11 @@ export async function POST(req: Request) {
   if (!rl.allowed) return rateLimitedJsonResponse(rl);
 
   const body = await req.json();
+  const turnstile = await verifyTurnstileToken(body.turnstileToken, rateLimitClientId(req));
+  if (!turnstile.ok) {
+    return withRateLimitHeaders(Response.json({ error: turnstile.error }, { status: 400 }), rl);
+  }
+
   const operationMode = isOperationMode(body.operationMode)
     ? (body.operationMode as OperationMode)
     : undefined;
@@ -25,19 +32,17 @@ export async function POST(req: Request) {
     operationMode,
     tableCount: Number(body.tableCount) || 5,
     privacyConsent: body.privacyConsent,
+    inviteCode: body.inviteCode,
   });
   if (result.error) {
     return withRateLimitHeaders(Response.json({ error: result.error }, { status: 400 }), rl);
   }
+  const payload = {
+    user: publicUser(result.user!),
+    establishment: result.establishment,
+  };
   return withRateLimitHeaders(
-    Response.json(
-      {
-        token: result.session!.token,
-        user: publicUser(result.user!),
-        establishment: result.establishment,
-      },
-      { status: 201 },
-    ),
+    jsonWithAdminSession(payload, result.session!.token, 201),
     rl,
   );
 }

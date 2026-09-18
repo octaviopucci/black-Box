@@ -1,3 +1,4 @@
+import { appendAuditEvent } from "./audit-log";
 import { issuePlatformSessionToken, parsePlatformSessionToken } from "./platform-session-token";
 import { getMerchantDetail, listMerchants, platformDashboard } from "./platform-analytics";
 import { hashPassword, id, verifyPassword } from "./crypto-utils";
@@ -28,6 +29,15 @@ export function loginPlatformUser(email: string, password: string) {
   }
   user.lastLoginAt = new Date().toISOString();
   store.platformUsers[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: "platform",
+    type: "platform.login",
+    actorType: "PLATFORM",
+    actorUserId: user.id,
+    targetType: "platform_user",
+    targetId: user.id,
+    metadata: { role: user.role },
+  });
   saveStore(store);
 
   const token = issuePlatformSessionToken(user.id, PLATFORM_SESSION_TTL_MS);
@@ -95,6 +105,14 @@ export function updateMerchantStatus(
     establishment.suspendedReason = undefined;
   }
 
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "platform.merchant_status",
+    actorType: "PLATFORM",
+    targetType: "establishment",
+    targetId: establishmentId,
+    metadata: { status, reason: reason?.trim() || null },
+  });
   saveStore(store);
   return { value: getMerchantDetail(establishmentId)! };
 }

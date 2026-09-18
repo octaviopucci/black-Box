@@ -401,7 +401,7 @@ export interface AuditEvent {
   id: string;
   establishmentId: string;
   type: string;
-  actorType: "STAFF" | "SYSTEM";
+  actorType: "STAFF" | "PLATFORM" | "GUEST" | "SYSTEM";
   actorUserId?: string;
   targetType: string;
   targetId: string;

@@ -15,7 +15,9 @@
     "test:platform": "npx tsx src/lib/platform.test.ts",
     "test:guest-closing": "npx tsx src/lib/guest-closing.test.ts",
     "test:security": "npx tsx src/lib/security-auth.test.ts",
-    "test:rate-limit": "npx tsx src/lib/rate-limit.test.ts"
+    "test:rate-limit": "npx tsx src/lib/rate-limit.test.ts",
+    "backup:store": "node scripts/backup-store.mjs",
+    "restore:store": "node scripts/restore-store.mjs"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

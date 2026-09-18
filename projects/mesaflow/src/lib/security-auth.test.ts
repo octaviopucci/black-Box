@@ -9,12 +9,16 @@ process.env.MESAFLOW_DEV_SKIP_OTP = "1";
 process.env.MESAFLOW_IDENTITY_SECRET = "test-secret-for-security-tests";
 
 async function run() {
-  const { getStore } = await import("./store");
-  const { joinGuestAtTable } = await import("./guest");
+  const { getStore, findTableByQr } = await import("./store");
+  const { joinGuestAtTable, publicParticipation } = await import("./guest");
   const { resolveGuestTableContext } = await import("./guest-table-context");
   const { publicOtpBypassHint, otpBypassCode } = await import("./otp-bypass");
   const { issueAdminSessionToken } = await import("./admin-session-token");
   const { resolveSecret } = await import("./production-secrets");
+  const { validatePasswordStrength } = await import("./password-policy");
+  const { validateSignupInvite, signupOpenWithoutInvite } = await import("./signup-invite");
+  const { rejectPredictableDemoQrInProduction } = await import("./demo-qr");
+  const { buildPublicHealthResponse } = await import("./public-health");
 
   const store = getStore();
   const establishment = Object.values(store.establishments)[0];
@@ -53,16 +57,30 @@ async function run() {
   assert.equal(ownTable.ok, true);
   if (ownTable.ok) {
     assert.equal(ownTable.data.hasSession, true);
-    assert.ok(Array.isArray(ownTable.data.participants));
+    const participants = ownTable.data.participants as Array<Record<string, unknown>>;
+    assert.ok(Array.isArray(participants));
+    for (const p of participants) {
+      assert.equal("phoneDisplay" in p, false, "co-participants must not see phoneDisplay");
+    }
   }
 
-  const noSession = resolveGuestTableContext(establishment.slug, tableB.qrToken, null);
-  assert.equal(noSession.ok, true);
+  const gp = store.guestParticipations[guestA.participation.id];
+  const pub = publicParticipation(gp);
+  assert.equal("phoneDisplay" in pub, false);
+  const self = publicParticipation(gp, { includePhone: true });
+  assert.ok(self.phoneDisplay);
+
+  assert.ok(validatePasswordStrength("SenhaFraca1") === null);
+  assert.ok(validatePasswordStrength("curta1A") !== null);
+
+  assert.equal(signupOpenWithoutInvite(), true, "dev signup open");
 
   const prodEnv = process.env.NODE_ENV;
   const vercelEnv = process.env.VERCEL_ENV;
   process.env.NODE_ENV = "production";
   process.env.VERCEL_ENV = "production";
+  delete process.env.MESAFLOW_SIGNUP_OPEN;
+  delete process.env.MESAFLOW_SIGNUP_INVITE_CODE;
   try {
     assert.throws(
       () => resolveSecret(["MESAFLOW_NONEXISTENT_TEST_SECRET"], "test"),
@@ -72,12 +90,22 @@ async function run() {
     const hint = publicOtpBypassHint();
     assert.equal(hint.active, false);
     assert.ok(!("code" in hint), "production must not expose bypass code in API");
+    assert.equal(validateSignupInvite("wrong"), false);
+    process.env.MESAFLOW_SIGNUP_INVITE_CODE = "convite-secreto";
+    assert.equal(validateSignupInvite("convite-secreto"), true);
+    assert.equal(rejectPredictableDemoQrInProduction("mesa-4"), true);
+    assert.equal(findTableByQr(establishment.id, "mesa-4"), null);
   } finally {
     if (prodEnv === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = prodEnv;
     if (vercelEnv === undefined) delete process.env.VERCEL_ENV;
     else process.env.VERCEL_ENV = vercelEnv;
+    delete process.env.MESAFLOW_SIGNUP_INVITE_CODE;
   }
+
+  const publicHealth = buildPublicHealthResponse({ sharedOk: true, blobOk: true, establishmentCount: 1 });
+  assert.equal(publicHealth.service, "mesaflow");
+  assert.equal("storage" in publicHealth, false);
 
   const owner = Object.values(store.users).find((u) => u.establishmentId === establishment.id);
   assert.ok(owner);

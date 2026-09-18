@@ -1,3 +1,4 @@
+import { appendAuditEvent } from "./audit-log";
 import { id } from "./crypto-utils";
 import {
   decryptPhone,
@@ -456,7 +457,7 @@ export function guestTableSummary(establishmentId: string, commandId: string | u
   const participants = Object.values(store.guestParticipations)
     .filter((gp) => gp.commandId === commandId && gp.status !== "CLOSED")
     .sort((a, b) => a.participantIndex - b.participantIndex)
-    .map(publicParticipation);
+    .map((gp) => publicParticipation(gp));
   const command = store.commands[commandId];
   return {
     participantCount: participants.length,
@@ -465,17 +466,20 @@ export function guestTableSummary(establishmentId: string, commandId: string | u
   };
 }
 
-export function publicParticipation(gp: GuestParticipation) {
-  return {
+export function publicParticipation(gp: GuestParticipation, options?: { includePhone?: boolean }) {
+  const base = {
     id: gp.id,
     displayName: gp.displayName || `Participante ${gp.participantIndex}`,
     participantIndex: gp.participantIndex,
     status: gp.status,
-    phoneDisplay: gp.phoneDisplay,
     orderCount: gp.orderCount,
     comandaNumber: gp.comandaNumber,
     paymentConfirmedAt: gp.paymentConfirmedAt,
   };
+  if (options?.includePhone) {
+    return { ...base, phoneDisplay: gp.phoneDisplay };
+  }
+  return base;
 }
 
 export function storePhoneForOtpLookup(establishmentId: string, phoneE164: string) {
@@ -508,10 +512,7 @@ export function kickGuestParticipation(
   store.guestParticipations[participation.id] = participation;
   revokeSessionsForParticipation(store, participation.id);
 
-  store.auditEvents ||= {};
-  const auditId = id("aud_");
-  store.auditEvents[auditId] = {
-    id: auditId,
+  appendAuditEvent(store, {
     establishmentId,
     type: "guest.kicked",
     actorType: "STAFF",
@@ -519,8 +520,7 @@ export function kickGuestParticipation(
     targetType: "guest_participation",
     targetId: participation.id,
     metadata: { tableId: participation.tableId, commandId: participation.commandId },
-    createdAt: now,
-  };
+  });
 
   saveStore(store);
   return { value: { participation } };

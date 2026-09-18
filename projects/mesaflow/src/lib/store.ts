@@ -49,9 +49,16 @@ import type {
   ProductVariant,
   OperationMode,
 } from "./types";
+import { appendAuditEvent } from "./audit-log";
 import { dashboardAnalytics } from "./dashboard-analytics";
 import { purgeStaleData } from "./data-retention";
+import { rejectPredictableDemoQrInProduction } from "./demo-qr";
 import { isOperationMode } from "./operation-modes";
+import { validatePasswordStrength } from "./password-policy";
+import {
+  signupInviteRequiredMessage,
+  validateSignupInvite,
+} from "./signup-invite";
 import { consentRequiredMessage, validatePrivacyConsent } from "./privacy-policy";
 import { isProductionEnv } from "./production-secrets";
 
@@ -514,15 +521,24 @@ export function validateSession(token: string | null | undefined) {
 }
 
 export function registerEstablishment(
-  input: Omit<RegisterInput, "passwordHash"> & { password: string; privacyConsent?: unknown },
+  input: Omit<RegisterInput, "passwordHash"> & {
+    password: string;
+    privacyConsent?: unknown;
+    inviteCode?: string;
+  },
 ) {
   const store = getStore();
   const consent = validatePrivacyConsent(input.privacyConsent);
   if (!consent) return { error: consentRequiredMessage() };
 
+  if (!validateSignupInvite(input.inviteCode)) {
+    return { error: signupInviteRequiredMessage() };
+  }
+
   const email = input.email.toLowerCase().trim();
-  if (!email || !input.password || input.password.length < 6) {
-    return { error: "Preencha todos os campos. Senha com no mínimo 6 caracteres." };
+  const passwordError = validatePasswordStrength(input.password || "");
+  if (!email || passwordError) {
+    return { error: passwordError || "Preencha todos os campos." };
   }
   if (findUserByEmail(email)) {
     return { error: "Este e-mail já está cadastrado." };
@@ -542,9 +558,50 @@ export function registerEstablishment(
   });
   user.privacyConsent = consent;
   store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: establishment.id,
+    type: "merchant.registered",
+    actorType: "STAFF",
+    actorUserId: user.id,
+    targetType: "establishment",
+    targetId: establishment.id,
+    metadata: { source: "signup" },
+  });
   saveStore(store);
   const session = createSession(user);
   return { user, establishment, session };
+}
+
+export function changeUserPassword(
+  userId: string,
+  establishmentId: string,
+  currentPassword: string,
+  newPassword: string,
+) {
+  const store = getStore();
+  const user = store.users[userId];
+  if (!user || user.establishmentId !== establishmentId || !user.active) {
+    return { error: "Usuário não encontrado.", status: 404 };
+  }
+  if (!verifyPassword(currentPassword, user.passwordHash)) {
+    return { error: "Senha atual incorreta.", status: 401 };
+  }
+  const passwordError = validatePasswordStrength(newPassword);
+  if (passwordError) return { error: passwordError, status: 400 };
+
+  user.passwordHash = hashPassword(newPassword);
+  store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "staff.password_changed",
+    actorType: "STAFF",
+    actorUserId: user.id,
+    targetType: "user",
+    targetId: user.id,
+    metadata: {},
+  });
+  saveStore(store);
+  return { value: { changedAt: new Date().toISOString() } };
 }
 
 export function loginUser(email: string, password: string) {
@@ -570,6 +627,15 @@ export function loginUser(email: string, password: string) {
   }
   user.lastLoginAt = new Date().toISOString();
   store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: establishment.id,
+    type: "staff.login",
+    actorType: "STAFF",
+    actorUserId: user.id,
+    targetType: "user",
+    targetId: user.id,
+    metadata: { role: user.role },
+  });
   saveStore(store);
   const session = createSession(user);
   return { user, establishment, session };
@@ -589,6 +655,7 @@ export function resolveAdminEstablishment(
 }
 
 export function findTableByQr(establishmentId: string, tableToken: string) {
+  if (rejectPredictableDemoQrInProduction(tableToken)) return null;
   const store = getStore();
   return (
     Object.values(store.tables).find(

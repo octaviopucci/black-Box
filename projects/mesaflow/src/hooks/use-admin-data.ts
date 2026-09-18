@@ -6,7 +6,7 @@ import { useRealtime } from "@/hooks/use-realtime";
 import { apiUrl } from "@/lib/api";
 
 export function useAdminData<T = unknown>() {
-  const { session, authHeaders, logout } = useAuth();
+  const { session, authHeaders, logout, credentials } = useAuth();
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -14,7 +14,7 @@ export function useAdminData<T = unknown>() {
     if (!session?.establishment.slug) return;
     const res = await fetch(
       apiUrl(`/admin/dashboard?slug=${encodeURIComponent(session.establishment.slug)}`),
-      { headers: authHeaders() },
+      { credentials, headers: authHeaders() },
     );
     if (res.status === 401) {
       logout();

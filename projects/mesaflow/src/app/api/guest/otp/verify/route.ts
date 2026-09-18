@@ -6,6 +6,7 @@ import {
   rateLimitedJsonResponse,
   withRateLimitHeaders,
 } from "@/lib/rate-limit-http";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => ({}))) as {
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
     phone?: string;
     comandaNumber?: string;
     privacyConsent?: unknown;
+    turnstileToken?: string;
   };
 
   const rl = applyRateLimit(
@@ -24,6 +26,11 @@ export async function POST(req: Request) {
     rateLimitClientId(req, String(body.challengeId || "")),
   );
   if (!rl.allowed) return rateLimitedJsonResponse(rl);
+
+  const turnstile = await verifyTurnstileToken(body.turnstileToken, rateLimitClientId(req));
+  if (!turnstile.ok) {
+    return withRateLimitHeaders(Response.json({ error: turnstile.error }, { status: 400 }), rl);
+  }
 
   const consent = validatePrivacyConsent(body.privacyConsent);
   if (!consent) {
