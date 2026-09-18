@@ -1,3 +1,4 @@
+import { requireDashboardForEstablishment } from "@/app/api/admin/_shared";
 import { subscribe } from "@/lib/events";
 
 export const dynamic = "force-dynamic";
@@ -7,6 +8,11 @@ export async function GET(req: Request) {
   const establishmentId = url.searchParams.get("establishmentId");
   if (!establishmentId) {
     return new Response("establishmentId required", { status: 400 });
+  }
+
+  const auth = requireDashboardForEstablishment(req, establishmentId);
+  if (!auth) {
+    return new Response("Unauthorized", { status: 401 });
   }
 
   const encoder = new TextEncoder();

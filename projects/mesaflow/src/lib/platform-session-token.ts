@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import { resolveSecret } from "./production-secrets";
 
 const PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -9,11 +10,13 @@ export type PlatformTokenClaims = {
 };
 
 function secret() {
-  return (
-    process.env.MESAFLOW_PLATFORM_SESSION_SECRET ||
-    process.env.MESAFLOW_ADMIN_SESSION_SECRET ||
-    process.env.MESAFLOW_IDENTITY_SECRET ||
-    "mesaflow-dev-only-change-in-production"
+  return resolveSecret(
+    [
+      "MESAFLOW_PLATFORM_SESSION_SECRET",
+      "MESAFLOW_ADMIN_SESSION_SECRET",
+      "MESAFLOW_IDENTITY_SECRET",
+    ],
+    "platform session signing",
   );
 }
 

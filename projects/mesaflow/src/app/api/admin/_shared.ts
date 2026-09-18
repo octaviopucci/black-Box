@@ -30,6 +30,13 @@ export function requireStaff(req: Request, roles?: UserRole[]) {
   return auth && allowed.includes(auth.user.role) ? auth : null;
 }
 
+/** Staff session scoped to a specific establishment (SSE, realtime). */
+export function requireDashboardForEstablishment(req: Request, establishmentId: string) {
+  const auth = requireDashboard(req);
+  if (!auth || auth.establishment.id !== establishmentId) return null;
+  return auth;
+}
+
 export async function readJson(req: Request): Promise<unknown> {
   try {
     return await req.json();

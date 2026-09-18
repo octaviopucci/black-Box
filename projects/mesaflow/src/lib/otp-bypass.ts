@@ -1,4 +1,6 @@
-/** Código fixo até Evolution API estar ativa. Remover quando MESAFLOW_EVOLUTION_* estiver configurado. */
+import { isProductionEnv } from "./production-secrets";
+
+/** Código fixo em dev até Evolution API estar ativa. Nunca usado em produção sem env explícito. */
 export const DEFAULT_OTP_BYPASS_CODE = "010203";
 
 export function evolutionOtpConfigured(): boolean {
@@ -13,6 +15,7 @@ export function otpBypassCode(): string | null {
   if (evolutionOtpConfigured()) return null;
   const configured = process.env.MESAFLOW_OTP_BYPASS_CODE?.trim();
   if (configured === "0" || configured === "off") return null;
+  if (isProductionEnv()) return configured || null;
   return configured || DEFAULT_OTP_BYPASS_CODE;
 }
 
@@ -22,9 +25,10 @@ export function isOtpBypassCode(code: string): boolean {
   return code.trim() === bypass;
 }
 
-/** Expõe hint para UI demo — só quando bypass está ativo. */
+/** Hint para UI demo — em produção nunca expõe o código. */
 export function publicOtpBypassHint() {
   const code = otpBypassCode();
   if (!code) return { active: false as const };
+  if (isProductionEnv()) return { active: true as const };
   return { active: true as const, code };
 }
