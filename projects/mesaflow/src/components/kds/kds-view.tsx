@@ -8,7 +8,7 @@ import { parseKdsRoute } from "@/lib/parse-route";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { useRealtime } from "@/hooks/use-realtime";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, staffFetch } from "@/lib/api";
 import { BRAND_NAME } from "@/lib/brand";
 import { DEMO_ESTABLISHMENT_SLUG } from "@/lib/demo";
 import { minutesSince } from "@/lib/format";
@@ -92,9 +92,8 @@ export function KdsView({ sectorId }: { sectorId: string }) {
   }
 
   async function setStatus(orderId: string, status: OrderStatus) {
-    await fetch(apiUrl(`/orders/${orderId}`), {
+    await staffFetch(`/orders/${orderId}`, {
       method: "PATCH",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });

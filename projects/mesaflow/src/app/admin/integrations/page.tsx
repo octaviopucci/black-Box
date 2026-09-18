@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Plug, Shield, Webhook } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -22,7 +22,7 @@ type IntegrationItem = {
 };
 
 export default function AdminIntegrationsPage() {
-  const { authHeaders } = useAuth();
+  const { fetchApi } = useAuth();
   const [items, setItems] = useState<IntegrationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -33,7 +33,7 @@ export default function AdminIntegrationsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(apiUrl("/admin/integrations"), { headers: authHeaders() });
+      const response = await fetchApi("/admin/integrations", { });
       const json = await response.json();
       setItems(json.items || []);
       const webhook = (json.items as IntegrationItem[] | undefined)?.find(
@@ -46,7 +46,7 @@ export default function AdminIntegrationsPage() {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders]);
+  }, [fetchApi]);
 
   useEffect(() => {
     void load();
@@ -55,11 +55,10 @@ export default function AdminIntegrationsPage() {
   async function connect(provider: string, config: Record<string, string>) {
     setBusy(provider);
     try {
-      const response = await fetch(apiUrl(`/admin/integrations/${provider}/connect`), {
+      const response = await fetchApi(`/admin/integrations/${provider}/connect`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ config }),
-      });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ config }) });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Falha ao conectar.");
       await load();
@@ -73,10 +72,7 @@ export default function AdminIntegrationsPage() {
   async function disconnect(provider: string) {
     setBusy(provider);
     try {
-      await fetch(apiUrl(`/admin/integrations/${provider}/connect`), {
-        method: "DELETE",
-        headers: authHeaders(),
-      });
+      await fetchApi(`/admin/integrations/${provider}/connect`, { method: "DELETE" });
       await load();
     } finally {
       setBusy(null);
@@ -87,10 +83,7 @@ export default function AdminIntegrationsPage() {
     setBusy("webhook-test");
     setTestResult(null);
     try {
-      const response = await fetch(apiUrl("/admin/integrations/webhook/test"), {
-        method: "POST",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi("/admin/integrations/webhook/test", { method: "POST" });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Teste falhou.");
       setTestResult(`HTTP ${json.status} — ${json.preview}`);
@@ -168,8 +161,7 @@ export default function AdminIntegrationsPage() {
                       onClick={() =>
                         void connect("webhook", {
                           url: webhookUrl,
-                          ...(webhookSecret ? { secret: webhookSecret } : {}),
-                        })
+                          ...(webhookSecret ? { secret: webhookSecret } : {}) })
                       }
                     >
                       Conectar webhook

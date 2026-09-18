@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { TurnstileWidget } from "@/components/auth/turnstile-widget";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import { AuthLayout } from "@/components/ui/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,9 +31,8 @@ export default function AdminLoginPage() {
     }
     setLoading(true);
     setError("");
-    const res = await fetch(apiUrl("/auth/login"), {
+    const res = await staffFetch("/auth/login", {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, turnstileToken: turnstileToken || undefined }),
     });
@@ -44,6 +43,7 @@ export default function AdminLoginPage() {
       return;
     }
     setSession({
+      token: json.token,
       user: json.user,
       establishment: json.establishment,
     });

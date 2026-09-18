@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAdminData } from "@/hooks/use-admin-data";
-import { apiUrl } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import { useAuth } from "@/contexts/auth-context";
 import { formatCurrency, formatTime, minutesSince } from "@/lib/format";
 import type { Order, OrderStatus } from "@/lib/types";
@@ -21,11 +21,10 @@ const NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
   NOVO: "ACEITO",
   ACEITO: "EM_PREPARO",
   EM_PREPARO: "PRONTO",
-  PRONTO: "ENTREGUE",
-};
+  PRONTO: "ENTREGUE" };
 
 export default function AdminOrdersPage() {
-  const { authHeaders } = useAuth();
+  const { fetchApi } = useAuth();
   const { data, load } = useAdminData<{ orders: Order[] }>();
   const [orders, setOrders] = useState<Order[]>([]);
 
@@ -45,11 +44,10 @@ export default function AdminOrdersPage() {
   async function advance(order: Order) {
     const next = NEXT[order.status];
     if (!next) return;
-    const res = await fetch(apiUrl(`/orders/${order.id}`), {
+    const res = await fetchApi(`/orders/${order.id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json", ...authHeaders() },
-      body: JSON.stringify({ status: next }),
-    });
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: next }) });
     if (!res.ok) {
       const json = await res.json().catch(() => ({}));
       alert(json.error || "Não foi possível atualizar o pedido.");

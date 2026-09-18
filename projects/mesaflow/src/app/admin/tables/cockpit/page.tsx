@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Banknote, CheckCircle2, Split, UserX } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, staffFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { describeClosingScope } from "@/lib/closing";
 import { formatPaymentMethod } from "@/lib/payments";
@@ -17,8 +17,7 @@ import type {
   OrderItemSplit,
   Payment,
   PaymentMethod,
-  Table,
-} from "@/lib/types";
+  Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 
@@ -51,7 +50,7 @@ const PAYMENT_METHODS: PaymentMethod[] = ["cash", "credit", "debit", "pix", "oth
 export default function TableCockpitPage() {
   const searchParams = useSearchParams();
   const tableId = searchParams.get("table") || "";
-  const { authHeaders } = useAuth();
+  const { fetchApi } = useAuth();
   const [data, setData] = useState<CockpitData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,8 +60,7 @@ export default function TableCockpitPage() {
     amount: "",
     method: "pix" as PaymentMethod,
     guestParticipationId: "",
-    note: "",
-  });
+    note: "" });
 
   const load = useCallback(async () => {
     if (!tableId) {
@@ -74,9 +72,7 @@ export default function TableCockpitPage() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(apiUrl(`/admin/tables/${encodeURIComponent(tableId)}/cockpit`), {
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/tables/${encodeURIComponent(tableId)}/cockpit`);
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar o cockpit.");
       setData(json);
@@ -86,7 +82,7 @@ export default function TableCockpitPage() {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders, tableId]);
+  }, [fetchApi, tableId]);
 
   useEffect(() => {
     void load();
@@ -110,8 +106,7 @@ export default function TableCockpitPage() {
           label: `${item.qty}x ${item.productName}`,
           qty: item.qty,
           guestParticipationId:
-            existing?.guestParticipationId || order.guestParticipationId || data.participations[0]?.id || "",
-        });
+            existing?.guestParticipationId || order.guestParticipationId || data.participations[0]?.id || "" });
       }
     }
     setSplitDraft(rows);
@@ -126,14 +121,12 @@ export default function TableCockpitPage() {
         apiUrl(`/admin/commands/${encodeURIComponent(data.command.id)}/payments`),
         {
           method: "POST",
-          headers: { "Content-Type": "application/json", ...authHeaders() },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             amount: Number(paymentDraft.amount),
             method: paymentDraft.method,
             guestParticipationId: paymentDraft.guestParticipationId || undefined,
-            note: paymentDraft.note || undefined,
-          }),
-        },
+            note: paymentDraft.note || undefined }) },
       );
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível registrar o pagamento.");
@@ -156,15 +149,12 @@ export default function TableCockpitPage() {
         apiUrl(`/admin/commands/${encodeURIComponent(data.command.id)}/splits`),
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json", ...authHeaders() },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             splits: splitDraft.map((row) => ({
               orderItemId: row.orderItemId,
               guestParticipationId: row.guestParticipationId,
-              quantity: row.qty,
-            })),
-          }),
-        },
+              quantity: row.qty })) }) },
       );
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível salvar as divisões.");
@@ -185,7 +175,7 @@ export default function TableCockpitPage() {
     try {
       const response = await fetch(
         apiUrl(`/admin/commands/${encodeURIComponent(data.command.id)}/settle`),
-        { method: "POST", headers: authHeaders() },
+        { method: "POST" },
       );
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível encerrar a comanda.");
@@ -202,10 +192,7 @@ export default function TableCockpitPage() {
     setBusy(closingRequestId);
     setError("");
     try {
-      const response = await fetch(apiUrl(`/admin/closing/${encodeURIComponent(closingRequestId)}/confirm`), {
-        method: "POST",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/closing/${encodeURIComponent(closingRequestId)}/confirm`, { method: "POST" });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível confirmar o fechamento.");
       setFeedback("Fechamento confirmado.");
@@ -223,7 +210,7 @@ export default function TableCockpitPage() {
     try {
       const response = await fetch(
         apiUrl(`/admin/guests/${encodeURIComponent(participationId)}/confirm-payment`),
-        { method: "POST", headers: authHeaders() },
+        { method: "POST" },
       );
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível confirmar o pagamento.");
@@ -241,10 +228,7 @@ export default function TableCockpitPage() {
     setBusy(`kick:${participationId}`);
     setError("");
     try {
-      const response = await fetch(apiUrl(`/admin/guests/${encodeURIComponent(participationId)}/kick`), {
-        method: "POST",
-        headers: authHeaders(),
-      });
+      const response = await fetchApi(`/admin/guests/${encodeURIComponent(participationId)}/kick`, { method: "POST" });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json.error || "Não foi possível remover o convidado.");
       setFeedback(`${label} removido(a) da mesa.`);

@@ -665,6 +665,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         {
           user: publicUser(result.user!),
           establishment: result.establishment,
+          token: result.session!.token,
         },
         {
           extraHeaders: {
@@ -725,6 +726,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         {
           user: publicUser(result.user!),
           establishment: result.establishment,
+          token: result.session!.token,
         },
         {
           extraHeaders: {
@@ -757,7 +759,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(
         res,
         200,
-        { user: result.user },
+        { user: result.user, token: result.token },
         {
           extraHeaders: {
             ...rateLimitHeaders(rl),

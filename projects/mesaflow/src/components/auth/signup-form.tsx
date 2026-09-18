@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { TurnstileWidget } from "@/components/auth/turnstile-widget";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import { PASSWORD_POLICY_HINT } from "@/lib/password-policy";
 import { PRIVACY_POLICY_PATH, PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import { turnstileSiteKeyClient } from "@/lib/turnstile-client";
@@ -52,9 +52,8 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
     }
     setLoading(true);
     setError("");
-    const res = await fetch(apiUrl("/auth/register"), {
+    const res = await staffFetch("/auth/register", {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         businessName,
@@ -68,17 +67,14 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
         turnstileToken: turnstileToken || undefined,
         privacyConsent: {
           acceptedAt: new Date().toISOString(),
-          policyVersion: PRIVACY_POLICY_VERSION,
-        },
-      }),
-    });
+          policyVersion: PRIVACY_POLICY_VERSION } }) });
     const json = await res.json();
     if (!res.ok) {
       setError(json.error || "Falha no cadastro");
       setLoading(false);
       return;
     }
-    setSession({ user: json.user, establishment: json.establishment });
+    setSession({ token: json.token, user: json.user, establishment: json.establishment });
     router.push("/admin");
   }
 

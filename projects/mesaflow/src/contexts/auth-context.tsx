@@ -1,10 +1,12 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, staffFetch } from "@/lib/api";
 import type { Establishment, User } from "@/lib/types";
 
 export type AuthSession = {
+  /** Memória da aba — cookie HttpOnly `mf_as` persiste entre reloads. */
+  token?: string;
   user: Pick<User, "id" | "name" | "email" | "role">;
   establishment: Establishment;
 };
@@ -14,9 +16,9 @@ type AuthContextValue = {
   loading: boolean;
   setSession: (session: AuthSession) => void;
   logout: () => Promise<void>;
-  /** Headers vazios — sessão admin via cookie HttpOnly `mf_as`. */
   authHeaders: () => Record<string, string>;
   credentials: RequestCredentials;
+  fetchApi: (path: string, init?: RequestInit) => Promise<Response>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -26,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(apiUrl("/auth/me"), { credentials: "include" })
+    staffFetch("/auth/me")
       .then(async (res) => {
         if (!res.ok) throw new Error("invalid");
         const json = await res.json();
@@ -41,11 +43,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    await fetch(apiUrl("/auth/logout"), { method: "POST", credentials: "include" });
+    await staffFetch("/auth/logout", { method: "POST" });
     setSessionState(null);
   }, []);
 
-  const authHeaders = useCallback((): Record<string, string> => ({}), []);
+  const authHeaders = useCallback((): Record<string, string> => {
+    if (!session?.token) return {};
+    return { Authorization: `Bearer ${session.token}` };
+  }, [session?.token]);
+
+  const fetchApi = useCallback(
+    (path: string, init: RequestInit = {}) =>
+      staffFetch(path, {
+        ...init,
+        headers: { ...authHeaders(), ...(init.headers as Record<string, string> | undefined) },
+      }),
+    [authHeaders],
+  );
 
   const value = useMemo(
     () => ({
@@ -55,8 +69,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       authHeaders,
       credentials: "include" as const,
+      fetchApi,
     }),
-    [session, loading, setSession, logout, authHeaders],
+    [session, loading, setSession, logout, authHeaders, fetchApi],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

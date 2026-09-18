@@ -5,7 +5,7 @@ import { CheckCircle2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, staffFetch } from "@/lib/api";
 import { OPERATION_MODES } from "@/lib/operation-modes";
 import { PASSWORD_POLICY_HINT } from "@/lib/password-policy";
 import type { Establishment, OperationMode } from "@/lib/types";
@@ -26,12 +26,11 @@ function toDraft(establishment: Establishment): SettingsDraft {
     open: establishment.open,
     operationMode: establishment.operationMode || "a_la_carte",
     rodizioEnabled: establishment.rodizioEnabled,
-    otpRequired: establishment.settings.otpRequired !== false,
-  };
+    otpRequired: establishment.settings.otpRequired !== false };
 }
 
 export default function AdminSettingsPage() {
-  const { session, authHeaders, setSession } = useAuth();
+  const { session, fetchApi, setSession } = useAuth();
   const [draft, setDraft] = useState<SettingsDraft | null>(session ? toDraft(session.establishment) : null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,7 +45,7 @@ export default function AdminSettingsPage() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(apiUrl("/admin/settings"), { headers: authHeaders() });
+      const response = await fetchApi("/admin/settings", { });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar os ajustes.");
       setDraft(toDraft(json.establishment));
@@ -55,7 +54,7 @@ export default function AdminSettingsPage() {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders]);
+  }, [fetchApi]);
 
   useEffect(() => {
     void load();
@@ -72,18 +71,16 @@ export default function AdminSettingsPage() {
     setSaved(false);
     setError("");
     try {
-      const response = await fetch(apiUrl("/admin/settings"), {
+      const response = await fetchApi("/admin/settings", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: draft.name.trim(),
           tagline: draft.tagline.trim(),
           open: draft.open,
           operationMode: draft.operationMode,
           rodizioEnabled: draft.rodizioEnabled,
-          settings: { otpRequired: draft.otpRequired },
-        }),
-      });
+          settings: { otpRequired: draft.otpRequired } }) });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível salvar os ajustes.");
       setDraft(toDraft(json.establishment));
@@ -131,8 +128,7 @@ export default function AdminSettingsPage() {
                           ...draft,
                           operationMode: event.target.value as OperationMode,
                           rodizioEnabled:
-                            event.target.value === "rodizio" ? true : draft.rodizioEnabled,
-                        })
+                            event.target.value === "rodizio" ? true : draft.rodizioEnabled })
                       }
                     >
                       {OPERATION_MODES.map((mode) => (
@@ -172,12 +168,11 @@ export default function AdminSettingsPage() {
                   onClick={async () => {
                     setPasswordSaving(true);
                     setPasswordMsg("");
-                    const res = await fetch(apiUrl("/admin/password"), {
+                    const res = await fetchApi("/admin/password", {
                       method: "PATCH",
                       credentials: "include",
-                      headers: { "Content-Type": "application/json", ...authHeaders() },
-                      body: JSON.stringify({ currentPassword, newPassword }),
-                    });
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ currentPassword, newPassword }) });
                     const json = await res.json();
                     setPasswordSaving(false);
                     if (!res.ok) {

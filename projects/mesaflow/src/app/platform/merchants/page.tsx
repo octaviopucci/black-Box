@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ExternalLink, Search } from "lucide-react";
 import { usePlatformAuth } from "@/contexts/platform-auth-context";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, staffFetch } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { PLAN_LABELS } from "@/lib/platform-plans";
@@ -30,17 +30,15 @@ type Merchant = {
 const STATUS_LABELS: Record<PlatformStatus, string> = {
   active: "Ativo",
   inactive: "Inativo",
-  suspended: "Suspenso",
-};
+  suspended: "Suspenso" };
 
 const STATUS_STYLES: Record<PlatformStatus, string> = {
   active: "bg-success/10 text-success ring-success/20",
   inactive: "bg-muted/10 text-muted ring-white/10",
-  suspended: "bg-danger/10 text-danger ring-danger/20",
-};
+  suspended: "bg-danger/10 text-danger ring-danger/20" };
 
 export default function PlatformMerchantsPage() {
-  const { authHeaders } = usePlatformAuth();
+  const { fetchApi } = usePlatformAuth();
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<PlatformStatus | "all">("all");
@@ -53,11 +51,11 @@ export default function PlatformMerchantsPage() {
     if (q.trim()) params.set("q", q.trim());
     if (status !== "all") params.set("status", status);
     if (plan !== "all") params.set("plan", plan);
-    const res = await fetch(apiUrl(`/platform/merchants?${params}`), { headers: authHeaders() });
+    const res = await fetchApi(`/platform/merchants?${params}`);
     const json = await res.json();
     if (res.ok) setMerchants(json.merchants);
     setLoading(false);
-  }, [authHeaders, q, status, plan]);
+  }, [fetchApi, q, status, plan]);
 
   useEffect(() => {
     const timer = setTimeout(load, q ? 300 : 0);

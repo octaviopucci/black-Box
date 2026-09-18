@@ -15,7 +15,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { OPERATION_MODES } from "@/lib/operation-modes";
@@ -107,7 +106,7 @@ function formatMinutes(minutes: number) {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { authHeaders } = useAuth();
+  const { fetchApi } = useAuth();
   const [period, setPeriod] = useState<Period>("today");
   const [data, setData] = useState<Dash | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,7 +115,7 @@ export default function AdminDashboardPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(apiUrl(`/admin/dashboard?period=${period}`), { headers: authHeaders() });
+      const res = await fetchApi(`/admin/dashboard?period=${period}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Falha ao carregar dashboard");
       setData(json);
@@ -126,16 +125,15 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders, period]);
+  }, [fetchApi, period]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   async function openNotification(notification: Dash["notifications"][number]) {
-    await fetch(apiUrl(`/admin/notifications/${encodeURIComponent(notification.id)}/read`), {
+    await fetchApi(`/admin/notifications/${encodeURIComponent(notification.id)}/read`, {
       method: "POST",
-      headers: authHeaders(),
     }).catch(() => undefined);
     await load();
     if (notification.actionUrl) {

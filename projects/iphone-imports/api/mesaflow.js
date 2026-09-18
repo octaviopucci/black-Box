@@ -7609,7 +7609,8 @@ async function handler(req, res) {
         200,
         {
           user: publicUser(result.user),
-          establishment: result.establishment
+          establishment: result.establishment,
+          token: result.session.token
         },
         {
           extraHeaders: {
@@ -7648,7 +7649,8 @@ async function handler(req, res) {
         201,
         {
           user: publicUser(result.user),
-          establishment: result.establishment
+          establishment: result.establishment,
+          token: result.session.token
         },
         {
           extraHeaders: {
@@ -7679,7 +7681,7 @@ async function handler(req, res) {
       return json(
         res,
         200,
-        { user: result.user },
+        { user: result.user, token: result.token },
         {
           extraHeaders: {
             ...rateLimitHeaders(rl),
