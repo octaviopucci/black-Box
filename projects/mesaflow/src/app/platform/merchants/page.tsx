@@ -126,7 +126,10 @@ export default function PlatformMerchantsPage() {
               {merchants.map((m) => (
                 <tr key={m.id} className="border-t border-white/5 hover:bg-white/[0.02]">
                   <td className="px-4 py-3">
-                    <Link href={`/platform/merchants/${m.id}`} className="font-medium text-ink hover:text-indigo-300">
+                    <Link
+                      href={`/platform/merchants/detail?id=${encodeURIComponent(m.id)}`}
+                      className="font-medium text-ink hover:text-indigo-300"
+                    >
                       {m.name}
                     </Link>
                     <p className="text-xs text-muted">{m.slug}</p>
