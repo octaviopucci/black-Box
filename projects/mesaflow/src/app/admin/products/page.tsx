@@ -11,7 +11,7 @@ import {
   Upload,
   X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { staffFetch } from "@/lib/api";
+import { readFileAsDataUrl } from "@/lib/read-file-as-data-url";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import type {
@@ -232,11 +232,16 @@ export default function AdminProductsPage() {
     setUploading(true);
     setFormError("");
     try {
-      const form = new FormData();
-      form.append("file", file);
+      const dataBase64 = await readFileAsDataUrl(file);
       const response = await fetchApi("/admin/media/upload", {
         method: "POST",
-        body: form });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name || "upload.jpg",
+          contentType: file.type || "application/octet-stream",
+          dataBase64,
+        }),
+      });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Não foi possível enviar a imagem.");
       if (typeof json.url !== "string" || !json.url) throw new Error("Upload sem URL de retorno.");
