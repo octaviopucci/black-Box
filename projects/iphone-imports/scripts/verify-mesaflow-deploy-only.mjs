@@ -1,5 +1,6 @@
 /**
- * Garante que o build MesaFlow tem assets e rotas necessários para o deploy Vercel.
+ * Verificação slim para deploy NA MESA (somente MesaFlow).
+ * Não exige artefatos de iphone-imports, w-tube, pucci-motors, etc.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -30,7 +31,6 @@ const requiredFiles = [
   "manifest.webmanifest",
 ];
 
-/** cleanUrl exige index.html quando Next exporta pasta RSC sem index. */
 const requiredCleanUrlIndexes = [
   "platform/index.html",
   "platform/login/index.html",
@@ -56,8 +56,14 @@ const requiredHandlerRoutes = [
   "/admin/password",
 ];
 
+/** Patches that must be present in bundled api/mesaflow.js after build-mesaflow.mjs */
+const requiredHandlerPatches = [
+  "allowUnconditionalOverwrite",
+  "mergeOperationalBlobOnConflict",
+  "requireOperationalPersist",
+];
+
 const requiredRootLanding = ["index.html", "favicon.ico", "apple-icon.png"];
-const requiredIphoneStore = ["iphone-imports/index.html", "iphone-imports/gestor/index.html"];
 
 let failed = false;
 
@@ -65,14 +71,6 @@ for (const rel of requiredRootLanding) {
   const path = join(outRoot, rel);
   if (!existsSync(path)) {
     console.error(`✗ ausente na raiz: out/${rel}`);
-    failed = true;
-  }
-}
-
-for (const rel of requiredIphoneStore) {
-  const path = join(outRoot, rel);
-  if (!existsSync(path)) {
-    console.error(`✗ ausente: out/${rel}`);
     failed = true;
   }
 }
@@ -119,39 +117,25 @@ for (const route of [
   }
 }
 
-const requiredHandlerPatches = [
-  "allowUnconditionalOverwrite",
-  "mergeOperationalBlobOnConflict",
-  "requireOperationalPersist",
-];
-
-const handlerBundle = readFileSync(join(hostRoot, "api/mesaflow.js"), "utf8");
-for (const route of requiredHandlerRoutes) {
-  if (!handlerBundle.includes(route)) {
-    console.error(`✗ api/mesaflow.js sem rota ${route}`);
-    failed = true;
+const handlerPath = join(hostRoot, "api/mesaflow.js");
+if (!existsSync(handlerPath)) {
+  console.error("✗ ausente: api/mesaflow.js");
+  failed = true;
+} else {
+  const handlerBundle = readFileSync(handlerPath, "utf8");
+  for (const route of requiredHandlerRoutes) {
+    if (!handlerBundle.includes(route)) {
+      console.error(`✗ api/mesaflow.js sem rota ${route}`);
+      failed = true;
+    }
   }
-}
-for (const patch of requiredHandlerPatches) {
-  if (!handlerBundle.includes(patch)) {
-    console.error(`✗ api/mesaflow.js sem patch ${patch} (rebuild necessário)`);
-    failed = true;
-  }
-}
-
-const redirects = vercelJson.redirects ?? [];
-const requiredRedirects = [
-  { source: "/produto/:slug", destination: "/iphone-imports/produto/:slug" },
-  { source: "/gestor", destination: "/iphone-imports/gestor" },
-  { source: "/ofertas", destination: "/iphone-imports/ofertas" },
-];
-for (const { source, destination } of requiredRedirects) {
-  const redirect = redirects.find((candidate) => candidate.source === source);
-  if (!redirect || redirect.destination !== destination) {
-    console.error(`✗ redirect ausente: ${source} → ${destination}`);
-    failed = true;
+  for (const patch of requiredHandlerPatches) {
+    if (!handlerBundle.includes(patch)) {
+      console.error(`✗ api/mesaflow.js sem patch ${patch} (rebuild necessário)`);
+      failed = true;
+    }
   }
 }
 
 if (failed) process.exit(1);
-console.log("✓ deploy artifacts OK (NA MESA root + mesaflow + iphone-imports + API)");
+console.log("✓ deploy artifacts OK (NA MESA light: root landing + mesaflow + API + etag overwrite patch)");

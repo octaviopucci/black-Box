@@ -231,33 +231,74 @@ function isBlobEtagConflict(error) {
   const message = error instanceof Error ? error.message : String(error);
   return /precondition|etag|412/i.test(message);
 }
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+async function mergeWithLatestRemote(pathname, auth, payload, serialize, mergeOnConflict) {
+  let merged = payload;
+  let etag;
+  try {
+    const fresh = await readPrivateBlob(pathname, auth);
+    if (fresh?.etag) etag = fresh.etag;
+    if (fresh?.data !== void 0 && fresh?.data !== null && mergeOnConflict) {
+      merged = mergeOnConflict(fresh.data, payload);
+    } else if (fresh?.data !== void 0 && fresh?.data !== null) {
+      merged = payload;
+    }
+  } catch {
+  }
+  return { etag, payload: merged, body: serialize(merged) };
+}
 async function putWithRetry(input) {
   let etag = input.etag;
   let payload = input.payload;
   let body = input.serialize(payload);
+  let lastError = "blob persist failed";
   for (let attempt = 0; attempt < MAX_BLOB_RETRIES; attempt++) {
     try {
       const result = await blobPut(input.pathname, body, input.auth, etag);
       return { ok: true, etag: result.etag };
     } catch (error) {
-      const message = error instanceof Error ? error.message : "blob persist failed";
+      lastError = error instanceof Error ? error.message : "blob persist failed";
       const conflict = isBlobEtagConflict(error);
-      if (!conflict || attempt === MAX_BLOB_RETRIES - 1) {
-        return { ok: false, error: message };
+      if (!conflict) {
+        return { ok: false, error: lastError };
       }
-      try {
-        const fresh = await readPrivateBlob(input.pathname, input.auth);
-        if (fresh?.etag) etag = fresh.etag;
-        if (fresh?.data !== void 0 && fresh?.data !== null && input.mergeOnConflict) {
-          payload = input.mergeOnConflict(fresh.data, payload);
-          body = input.serialize(payload);
-        }
-      } catch {
-        return { ok: false, error: message };
+      if (attempt < MAX_BLOB_RETRIES - 1) {
+        await sleep(RETRY_BACKOFF_MS * (attempt + 1));
       }
+      const refreshed = await mergeWithLatestRemote(
+        input.pathname,
+        input.auth,
+        payload,
+        input.serialize,
+        input.mergeOnConflict
+      );
+      etag = refreshed.etag;
+      payload = refreshed.payload;
+      body = refreshed.body;
     }
   }
-  return { ok: false, error: "blob persist failed after retries" };
+  if (input.allowUnconditionalOverwrite) {
+    try {
+      const refreshed = await mergeWithLatestRemote(
+        input.pathname,
+        input.auth,
+        payload,
+        input.serialize,
+        input.mergeOnConflict
+      );
+      console.warn(
+        "[mesaflow] blob unconditional operational overwrite after ETag conflicts",
+        { pathname: input.pathname }
+      );
+      const result = await blobPut(input.pathname, refreshed.body, input.auth, void 0);
+      return { ok: true, etag: result.etag, unconditionalOverwrite: true };
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : "blob persist failed";
+    }
+  }
+  return { ok: false, error: lastError };
 }
 async function flushToBlobImpl(input) {
   const auth = blobAuthOptions(input.runtimeOidcToken);
@@ -276,9 +317,14 @@ async function flushToBlobImpl(input) {
       etag: input.etags.operational,
       payload: operational,
       serialize: (data) => JSON.stringify(data),
-      mergeOnConflict: input.mergeOperational
+      mergeOnConflict: input.mergeOperational,
+      allowUnconditionalOverwrite: input.allowUnconditionalOverwrite
     });
-    result.operational = putResult.ok ? { ok: true, etag: putResult.etag } : { ok: false, error: putResult.error };
+    result.operational = putResult.ok ? {
+      ok: true,
+      etag: putResult.etag,
+      unconditionalOverwrite: putResult.unconditionalOverwrite
+    } : { ok: false, error: putResult.error };
   }
   if (input.flushIdentity) {
     const putResult = await putWithRetry({
@@ -316,7 +362,7 @@ async function probeBlobPaths(runtimeOidcToken2) {
     };
   }
 }
-var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, hydrateFromBlobOverride, flushToBlobOverride, blobPutOverride, blobGetOverride, MAX_BLOB_RETRIES;
+var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, hydrateFromBlobOverride, flushToBlobOverride, blobPutOverride, blobGetOverride, MAX_BLOB_RETRIES, RETRY_BACKOFF_MS;
 var init_blob_persistence = __esm({
   "../mesaflow/src/lib/blob-persistence.ts"() {
     "use strict";
@@ -326,6 +372,7 @@ var init_blob_persistence = __esm({
     IDENTITY_BLOB_PATH = "mesaflow/identity.json";
     BLOB_ACCESS = "private";
     MAX_BLOB_RETRIES = 5;
+    RETRY_BACKOFF_MS = 40;
   }
 });
 
@@ -4530,7 +4577,8 @@ async function requireOperationalPersist() {
       flushOperational: true,
       flushIdentity: false,
       runtimeOidcToken,
-      mergeOperational: mergeOperationalBlobOnConflict
+      mergeOperational: mergeOperationalBlobOnConflict,
+      allowUnconditionalOverwrite: true
     });
     if (flushed.operational?.ok) {
       if (flushed.operational.etag) blobEtags.operational = flushed.operational.etag;

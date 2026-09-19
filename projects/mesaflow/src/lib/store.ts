@@ -532,6 +532,7 @@ export async function requireOperationalPersist(): Promise<PersistResult & { ok:
       flushIdentity: false,
       runtimeOidcToken,
       mergeOperational: mergeOperationalBlobOnConflict,
+      allowUnconditionalOverwrite: true,
     });
     if (flushed.operational?.ok) {
       if (flushed.operational.etag) blobEtags.operational = flushed.operational.etag;
