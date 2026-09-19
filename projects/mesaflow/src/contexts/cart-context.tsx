@@ -16,6 +16,7 @@ export type CartLine = {
 type CartContextValue = {
   lines: CartLine[];
   add: (product: Product, opts?: Partial<Pick<CartLine, "qty" | "variant" | "addons" | "notes">>) => void;
+  addBump: (parentProductId: string, bumpProduct: Product) => void;
   remove: (key: string) => void;
   updateQty: (key: string, qty: number) => void;
   clear: () => void;
@@ -51,6 +52,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
           ...prev,
           { key, product, qty: opts?.qty || 1, variant, addons, notes },
         ];
+      });
+    },
+    addBump(parentProductId, bumpProduct) {
+      const bumpAddonId = `bump_${bumpProduct.id}`;
+      setLines((prev) => {
+        const idx = prev.findIndex((l) => l.product.id === parentProductId);
+        if (idx < 0) return prev;
+        const line = prev[idx];
+        const existing = line.addons.find((a) => a.addonId === bumpAddonId);
+        const addons = existing
+          ? line.addons.map((a) =>
+              a.addonId === bumpAddonId ? { ...a, qty: a.qty + 1 } : a,
+            )
+          : [
+              ...line.addons,
+              { addonId: bumpAddonId, name: bumpProduct.name, price: bumpProduct.price, qty: 1 },
+            ];
+        const next = [...prev];
+        next[idx] = { ...line, addons };
+        return next;
       });
     },
     remove(key) {

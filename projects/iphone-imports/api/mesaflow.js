@@ -6186,6 +6186,7 @@ function createOrder(input) {
     items: input.items.map((i) => ({ ...i, status: "NOVO" })),
     notes: input.notes,
     source: input.source || "MESA",
+    serviceType: input.serviceType || "COMER_AQUI",
     rodizioRoundId: input.rodizioRoundId,
     total,
     createdAt: (/* @__PURE__ */ new Date()).toISOString(),
@@ -6199,7 +6200,12 @@ function createOrder(input) {
   }
   saveStore(store);
   recalcCommandTotal(input.commandId);
-  notify(input.establishmentId, "order.new", "Novo pedido", `Mesa ${input.table.number} \xB7 Pedido #${order.number}`);
+  notify(input.establishmentId, "order.new", "Novo pedido", `Mesa ${input.table.number} \xB7 Pedido #${order.number}`, {
+    tableId: input.table.id,
+    commandId: input.commandId,
+    actionUrl: `/admin/orders?order=${order.id}`,
+    metadata: { orderId: order.id, orderNumber: order.number }
+  });
   emit({ type: "order.created", orderId: order.id, establishmentId: input.establishmentId });
   return order;
 }
@@ -6214,7 +6220,12 @@ function updateOrderStatus(orderId, status, establishmentId) {
   store.orders[orderId] = order;
   saveStore(store);
   if (status === "PRONTO") {
-    notify(order.establishmentId, "order.ready", "Pedido pronto", `#${order.number} \xB7 Mesa ${order.tableNumber}`);
+    notify(order.establishmentId, "order.ready", "Pedido pronto", `#${order.number} \xB7 Mesa ${order.tableNumber}`, {
+      tableId: order.tableId,
+      commandId: order.commandId,
+      actionUrl: `/admin/orders?order=${order.id}`,
+      metadata: { orderId: order.id, orderNumber: order.number }
+    });
   }
   emit({ type: "order.updated", orderId, establishmentId: order.establishmentId });
   return order;
@@ -8607,12 +8618,45 @@ init_platform_store();
 init_platform_plans();
 init_platform_status();
 
+// ../mesaflow/src/lib/order-display.ts
+init_order_math();
+function enrichOrderWithGuest(participations, order) {
+  const gp = participations[order.guestParticipationId];
+  if (!gp) return order;
+  return {
+    ...order,
+    guest: {
+      name: gp.displayName,
+      phone: gp.phoneDisplay,
+      comandaNumber: gp.comandaNumber
+    }
+  };
+}
+
 // ../mesaflow/src/lib/order-resolve.ts
 init_order_math();
 function hasClientPricing(item) {
   return "unitPrice" in item || "variantDelta" in item || Array.isArray(item.addons) && item.addons.some((addon) => typeof addon === "object" && addon !== null && "price" in addon);
 }
-function resolveAddon(product, addonId, qty) {
+var BUMP_PREFIX = "bump_";
+function resolveBumpAddon(store, product, bumpProductId, qty) {
+  if (!product.bumpProductIds?.includes(bumpProductId)) return null;
+  const bumpProduct = store.products[bumpProductId];
+  if (!bumpProduct || bumpProduct.establishmentId !== product.establishmentId || !bumpProduct.active) {
+    return null;
+  }
+  if (qty < 1 || qty > 99) return null;
+  return {
+    addonId: `${BUMP_PREFIX}${bumpProductId}`,
+    name: bumpProduct.name,
+    price: bumpProduct.price,
+    qty
+  };
+}
+function resolveAddon(store, product, addonId, qty) {
+  if (addonId.startsWith(BUMP_PREFIX)) {
+    return resolveBumpAddon(store, product, addonId.slice(BUMP_PREFIX.length), qty);
+  }
   const addon = product.addons.find((entry) => entry.id === addonId);
   if (!addon) return null;
   const maxQty = addon.maxQty ?? 99;
@@ -8658,9 +8702,13 @@ function resolveOrderLines(store, establishmentId, sectors, lines, options) {
     for (const addonId of line.addonIds || []) {
       addonCounts.set(addonId, (addonCounts.get(addonId) || 0) + 1);
     }
+    for (const bumpId of line.bumpProductIds || []) {
+      const key = `${BUMP_PREFIX}${bumpId}`;
+      addonCounts.set(key, (addonCounts.get(key) || 0) + 1);
+    }
     const addons = [];
     for (const [addonId, addonQty] of addonCounts) {
-      const resolved = resolveAddon(product, addonId, addonQty);
+      const resolved = resolveAddon(store, product, addonId, addonQty);
       if (!resolved) {
         return { ok: false, status: 400, error: `Adicional inv\xE1lido para ${product.name}.` };
       }
@@ -9147,7 +9195,8 @@ async function handler(req, res) {
       let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
       if (commandId) orders = orders.filter((o) => o.commandId === commandId);
       orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      return json(res, 200, { orders });
+      const enriched = orders.map((order) => enrichOrderWithGuest(store.guestParticipations, order));
+      return json(res, 200, { orders: enriched });
     }
     if (req.method === "POST" && path === "/orders") {
       const guestAuth = validateClientSession(readGuestToken(req));
@@ -9157,6 +9206,9 @@ async function handler(req, res) {
       }
       const body = req.body || {};
       if (!body.items?.length) return json(res, 400, { error: "Carrinho vazio." });
+      if (body.serviceType && body.serviceType !== "COMER_AQUI" && body.serviceType !== "PARA_VIAGEM") {
+        return json(res, 400, { error: "Modalidade inv\xE1lida." });
+      }
       const est = guestAuth.establishment;
       if (!est.open) return json(res, 400, { error: "Estabelecimento indispon\xEDvel." });
       const tbl = store.tables[guestAuth.participation.tableId];
@@ -9181,7 +9233,8 @@ async function handler(req, res) {
           guestParticipationId: guestAuth.participation.id,
           items: resolved.items,
           notes: body.notes,
-          source: "MESA"
+          source: "MESA",
+          serviceType: body.serviceType || "COMER_AQUI"
         });
         return json(res, 200, { order, total: order.total });
       } catch (error) {

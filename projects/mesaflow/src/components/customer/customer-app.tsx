@@ -36,7 +36,17 @@ import {
   suggestionsForProduct,
   type SoftSuggestion,
 } from "@/lib/menu-intelligence";
-import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
+import type {
+  Category,
+  Command,
+  Establishment,
+  Order,
+  OrderServiceType,
+  Product,
+  Rodizio,
+  Sector,
+  Table,
+} from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { hasProductImage, ProductVisual } from "@/components/ui/product-image";
 import { Logo } from "@/components/brand/logo";
@@ -133,6 +143,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const [submitting, setSubmitting] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [closingOpen, setClosingOpen] = useState(false);
+  const [serviceType, setServiceType] = useState<OrderServiceType | null>(null);
   const [rodizioPick, setRodizioPick] = useState<Record<string, number>>({});
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
 
@@ -428,7 +439,12 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   }, [data, guestMe]);
 
   function addSuggestion(suggestion: SoftSuggestion) {
-    const { product } = suggestion;
+    const { product, parentProductId } = suggestion;
+    if (parentProductId && cart.lines.some((line) => line.product.id === parentProductId)) {
+      cart.addBump(parentProductId, product);
+      notify(`${product.name} adicionado como acréscimo.`);
+      return;
+    }
     if (product.variants.length > 0) {
       setSelected(product);
       setCartOpen(false);
@@ -459,6 +475,10 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
   async function submitOrder() {
     if (!data || cart.lines.length === 0) return;
+    if (!serviceType) {
+      notify("Escolha se vai comer aqui ou levar para viagem.", "error");
+      return;
+    }
     for (const line of cart.lines) {
       if (line.product.variants.length > 0 && !line.variant?.id) {
         notify(`Selecione uma opção para ${line.product.name}.`, "error");
@@ -470,7 +490,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
       const res = await apiFetch("/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cart.toOrderLines() }),
+        body: JSON.stringify({ items: cart.toOrderLines(), serviceType }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Erro ao enviar pedido");
@@ -497,6 +517,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
         });
       }
       cart.clear();
+      setServiceType(null);
       setCartOpen(false);
       setTab("orders");
       notify(order ? `Pedido #${order.number} enviado com sucesso!` : "Pedido enviado!");
@@ -1286,21 +1307,27 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               <h3 className="text-lg font-bold">Seu carrinho</h3>
               <button onClick={() => setCartOpen(false)}><X /></button>
             </div>
-            {cart.lines.map((line) => (
+            {cart.lines.map((line) => {
+              const unit = lineUnitPrice(
+                line.product.price,
+                variantDeltaValue(line.variant),
+                line.addons,
+                line.qty,
+              );
+              const subtotal = lineTotal({
+                qty: line.qty,
+                unitPrice: line.product.price,
+                variantDelta: variantDeltaValue(line.variant),
+                addons: line.addons,
+              });
+              return (
               <div key={line.key} className="mb-3 flex items-center justify-between rounded-xl bg-surface-2 p-3">
                 <div>
                   <p className="font-medium">{line.product.name}</p>
                   {line.variant && <p className="text-xs text-muted">{line.variant.name}</p>}
                   {line.addons.length > 0 && <p className="text-xs text-muted">{line.addons.map((addon) => `${addon.qty}x ${addon.name}`).join(", ")}</p>}
-                  <p className="text-sm text-brand">
-                    {formatCurrency(
-                      lineTotal({
-                        qty: line.qty,
-                        unitPrice: line.product.price,
-                        variantDelta: variantDeltaValue(line.variant),
-                        addons: line.addons,
-                      }),
-                    )}
+                  <p className="text-xs text-muted">
+                    {line.qty}x {formatCurrency(unit)} · Subtotal {formatCurrency(subtotal)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1313,7 +1340,37 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   </button>
                 </div>
               </div>
-            ))}
+            );
+            })}
+            <div className="mb-4">
+              <p className="mb-2 text-sm font-semibold">Como você vai consumir?</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setServiceType("COMER_AQUI")}
+                  className={cn(
+                    "rounded-xl border px-3 py-3 text-sm font-medium transition",
+                    serviceType === "COMER_AQUI"
+                      ? "border-brand bg-brand/15 text-brand"
+                      : "border-white/10 bg-surface-2 text-muted",
+                  )}
+                >
+                  Comer aqui
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setServiceType("PARA_VIAGEM")}
+                  className={cn(
+                    "rounded-xl border px-3 py-3 text-sm font-medium transition",
+                    serviceType === "PARA_VIAGEM"
+                      ? "border-brand bg-brand/15 text-brand"
+                      : "border-white/10 bg-surface-2 text-muted",
+                  )}
+                >
+                  Levar para viagem
+                </button>
+              </div>
+            </div>
             {cartSuggestions.length > 0 && (
               <SoftSuggestions
                 className="mb-4"

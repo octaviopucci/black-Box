@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { OrderDetailPanel } from "@/components/admin/order-detail-panel";
 import { useAdminData } from "@/hooks/use-admin-data";
-import { staffFetch } from "@/lib/api";
+import { isOrderSoundMuted, playOrderBell, setOrderSoundMuted } from "@/lib/order-alert-sound";
+import { formatItemPreview, serviceTypeLabel, type EnrichedOrder } from "@/lib/order-display";
 import { useAuth } from "@/contexts/auth-context";
 import { formatCurrency, formatTime, minutesSince } from "@/lib/format";
-import type { Order, OrderStatus } from "@/lib/types";
+import type { OrderStatus } from "@/lib/types";
 import { cn } from "@/lib/cn";
 
 const COLUMNS: { status: OrderStatus; label: string }[] = [
@@ -21,19 +25,60 @@ const NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
   NOVO: "ACEITO",
   ACEITO: "EM_PREPARO",
   EM_PREPARO: "PRONTO",
-  PRONTO: "ENTREGUE" };
+  PRONTO: "ENTREGUE",
+};
 
 export default function AdminOrdersPage() {
   const { fetchApi } = useAuth();
-  const { data, load } = useAdminData<{ orders: Order[] }>();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data, load, establishment } = useAdminData<{ orders: EnrichedOrder[] }>();
+  const [orders, setOrders] = useState<EnrichedOrder[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [advancing, setAdvancing] = useState(false);
+  const [soundMuted, setSoundMuted] = useState(false);
+  const seenOrderIds = useRef<Set<string>>(new Set());
+  const soundInitialized = useRef(false);
+
+  useEffect(() => {
+    setSoundMuted(isOrderSoundMuted());
+  }, []);
 
   useEffect(() => {
     if (data?.orders) setOrders(data.orders);
   }, [data]);
 
+  useEffect(() => {
+    const orderParam = searchParams.get("order");
+    if (orderParam && orders.some((o) => o.id === orderParam)) {
+      setSelectedId(orderParam);
+    }
+  }, [searchParams, orders]);
+
+  useEffect(() => {
+    if (!orders.length) return;
+    if (!soundInitialized.current) {
+      for (const order of orders) seenOrderIds.current.add(order.id);
+      soundInitialized.current = true;
+      return;
+    }
+    const fresh = orders.filter((o) => o.status === "NOVO" && !seenOrderIds.current.has(o.id));
+    if (fresh.length > 0 && establishment?.settings.soundNotifications !== false) {
+      playOrderBell();
+    }
+    for (const order of orders) seenOrderIds.current.add(order.id);
+  }, [orders, establishment?.settings.soundNotifications]);
+
+  const flatList = useMemo(
+    () => [...orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [orders],
+  );
+
+  const selectedIndex = selectedId ? flatList.findIndex((o) => o.id === selectedId) : -1;
+  const selectedOrder = selectedIndex >= 0 ? flatList[selectedIndex] : null;
+
   const byStatus = useMemo(() => {
-    const map: Record<string, Order[]> = {};
+    const map: Record<string, EnrichedOrder[]> = {};
     for (const col of COLUMNS) map[col.status] = [];
     for (const o of orders) {
       if (map[o.status]) map[o.status].push(o);
@@ -41,54 +86,129 @@ export default function AdminOrdersPage() {
     return map;
   }, [orders]);
 
-  async function advance(order: Order) {
+  const openOrder = useCallback(
+    (orderId: string) => {
+      setSelectedId(orderId);
+      router.replace(`/admin/orders?order=${encodeURIComponent(orderId)}`, { scroll: false });
+    },
+    [router],
+  );
+
+  const closeDetail = useCallback(() => {
+    setSelectedId(null);
+    router.replace("/admin/orders", { scroll: false });
+  }, [router]);
+
+  async function advance(order: EnrichedOrder) {
     const next = NEXT[order.status];
     if (!next) return;
-    const res = await fetchApi(`/orders/${order.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next }) });
-    if (!res.ok) {
-      const json = await res.json().catch(() => ({}));
-      alert(json.error || "Não foi possível atualizar o pedido.");
-      return;
+    setAdvancing(true);
+    try {
+      const res = await fetchApi(`/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        alert(json.error || "Não foi possível atualizar o pedido.");
+        return;
+      }
+      await load();
+    } finally {
+      setAdvancing(false);
     }
-    load();
+  }
+
+  function toggleSound() {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    setOrderSoundMuted(next);
   }
 
   return (
     <div>
-      <h1 className="mb-6 font-[family-name:var(--font-display)] text-2xl font-bold">Pedidos</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold">Pedidos</h1>
+        <button
+          type="button"
+          onClick={toggleSound}
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-sm text-muted transition hover:bg-surface-3"
+          aria-pressed={soundMuted}
+        >
+          {soundMuted ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+          {soundMuted ? "Som desligado" : "Som ligado"}
+        </button>
+      </div>
+
       <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-4">
         {COLUMNS.map((col) => (
-          <div key={col.status} className="min-w-[260px] flex-1 rounded-2xl border border-white/5 bg-surface-2 p-4">
-            <h2 className="mb-3 font-semibold">{col.label} ({byStatus[col.status]?.length || 0})</h2>
+          <div key={col.status} className="min-w-[280px] flex-1 rounded-2xl border border-white/5 bg-surface-2 p-4">
+            <h2 className="mb-3 font-semibold">
+              {col.label} ({byStatus[col.status]?.length || 0})
+            </h2>
             <ul className="space-y-3">
               {(byStatus[col.status] || []).map((o) => (
-                <li key={o.id} className="rounded-xl bg-surface p-3 text-sm">
-                  <div className="flex items-baseline justify-between">
-                    <p className="font-bold">#{o.number} · Mesa {o.tableNumber}</p>
-                    <span className={cn("text-xs", minutesSince(o.createdAt) > 15 && "text-danger")}>
-                      {minutesSince(o.createdAt)} min
-                    </span>
-                  </div>
-                  <p className="text-muted">{formatTime(o.createdAt)} · {formatCurrency(o.total)}</p>
-                  <ul className="mt-2 space-y-1">
-                    {o.items.map((i) => (
-                      <li key={i.id}>{i.qty}x {i.productName}</li>
-                    ))}
-                  </ul>
-                  {NEXT[o.status] && (
-                    <Button size="sm" className="mt-2 w-full" onClick={() => advance(o)}>
-                      Avançar
-                    </Button>
-                  )}
+                <li key={o.id}>
+                  <button
+                    type="button"
+                    onClick={() => openOrder(o.id)}
+                    className={cn(
+                      "w-full rounded-xl bg-surface p-3 text-left text-sm transition hover:ring-1 hover:ring-brand/40",
+                      selectedId === o.id && "ring-2 ring-brand",
+                    )}
+                  >
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="font-bold">#{o.number} · Mesa {o.tableNumber}</p>
+                      <span className={cn("text-xs", minutesSince(o.createdAt) > 15 && "text-danger")}>
+                        {minutesSince(o.createdAt)} min
+                      </span>
+                    </div>
+                    <p className="text-muted">
+                      {formatTime(o.createdAt)} · {formatCurrency(o.total)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-brand-soft">{serviceTypeLabel(o.serviceType)}</p>
+                    {o.guest?.name ? <p className="text-xs text-muted">{o.guest.name}</p> : null}
+                    <ul className="mt-2 space-y-1 text-xs">
+                      {o.items.slice(0, 4).map((item) => (
+                        <li key={item.id} className="text-muted">{formatItemPreview(item)}</li>
+                      ))}
+                      {o.items.length > 4 ? (
+                        <li className="text-muted">+{o.items.length - 4} itens</li>
+                      ) : null}
+                    </ul>
+                    {NEXT[o.status] && (
+                      <Button
+                        size="sm"
+                        className="mt-2 w-full"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void advance(o);
+                        }}
+                      >
+                        Avançar
+                      </Button>
+                    )}
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
         ))}
       </div>
+
+      {selectedOrder && selectedIndex >= 0 ? (
+        <OrderDetailPanel
+          order={selectedOrder}
+          orders={flatList}
+          index={selectedIndex}
+          establishmentName={establishment?.name || "Estabelecimento"}
+          onClose={closeDetail}
+          onNavigate={(index) => openOrder(flatList[index].id)}
+          onAdvance={(order) => void advance(order)}
+          advancing={advancing}
+        />
+      ) : null}
     </div>
   );
 }
