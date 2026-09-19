@@ -74,7 +74,7 @@ export function useOrderAlerts() {
         });
 
         if (soundEnabled && !isOrderSoundMuted()) {
-          playOrderBell();
+          void playOrderBell();
         }
 
         for (const order of fresh) {

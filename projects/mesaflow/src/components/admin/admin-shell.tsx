@@ -25,7 +25,15 @@ import { useAuth } from "@/contexts/auth-context";
 import { useOrderAlerts } from "@/hooks/use-order-alerts";
 import { parseApiJson } from "@/lib/api";
 import { cn } from "@/lib/cn";
-import { isOrderSoundMuted, setOrderSoundMuted } from "@/lib/order-alert-sound";
+import {
+  isOrderSoundMuted,
+  isOrderSoundUnlocked,
+  playOrderBell,
+  setOrderSoundMuted,
+  setupOrderSoundAutoUnlock,
+  subscribeOrderSoundUnlock,
+  unlockOrderSound,
+} from "@/lib/order-alert-sound";
 import type { Sector, UserRole } from "@/lib/types";
 
 const NAV = [
@@ -61,6 +69,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [persistWarning, setPersistWarning] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
+  const [soundUnlocked, setSoundUnlocked] = useState(false);
   const {
     notificationPermission,
     enableNotifications,
@@ -71,7 +80,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setSoundMuted(isOrderSoundMuted());
+    setSoundUnlocked(isOrderSoundUnlocked());
+    return subscribeOrderSoundUnlock(() => setSoundUnlocked(true));
   }, []);
+
+  useEffect(() => setupOrderSoundAutoUnlock(), []);
 
   useEffect(() => {
     if (!session?.establishment.slug) return;
@@ -93,11 +106,32 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     router.push("/admin/login");
   }
 
+  async function activateSoundAlerts() {
+    const unlockedNow = await unlockOrderSound();
+    setSoundUnlocked(unlockedNow || isOrderSoundUnlocked());
+    if (notificationPermission !== "granted") {
+      await enableNotifications();
+    }
+  }
+
   async function toggleSound() {
     const next = !soundMuted;
     setSoundMuted(next);
     setOrderSoundMuted(next);
-    if (!next && notificationPermission !== "granted") {
+    if (!next) {
+      await activateSoundAlerts();
+    }
+  }
+
+  async function handleUnlockSoundPrompt() {
+    setSoundMuted(false);
+    setOrderSoundMuted(false);
+    const unlockedNow = await unlockOrderSound();
+    setSoundUnlocked(unlockedNow || isOrderSoundUnlocked());
+    if (unlockedNow) {
+      void playOrderBell();
+    }
+    if (notificationPermission !== "granted") {
       await enableNotifications();
     }
   }
@@ -235,6 +269,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         {persistWarning && (
           <div className="border-b border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning lg:px-8">
             {persistWarning}
+          </div>
+        )}
+
+        {!soundUnlocked && !soundMuted && (
+          <div className="sticky top-0 z-50 border-b border-brand/40 bg-brand/15 px-4 py-3 shadow-md backdrop-blur-sm lg:px-8">
+            <button
+              type="button"
+              onClick={() => void handleUnlockSoundPrompt()}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-sm font-bold text-white transition hover:bg-brand/90"
+            >
+              <Bell className="h-5 w-5" />
+              Toque para ativar alertas sonoros
+            </button>
+            <p className="mt-2 text-center text-xs text-muted">
+              O browser exige um toque antes de tocar o sino de novos pedidos.
+            </p>
           </div>
         )}
 
