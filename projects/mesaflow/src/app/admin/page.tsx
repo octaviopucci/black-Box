@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   Banknote,
@@ -111,15 +111,21 @@ export default function AdminDashboardPage() {
   const { fetchApi, session } = useAuth();
   const [period, setPeriod] = useState<Period>("today");
   const [data, setData] = useState<Dash | null>(null);
+  const dataRef = useRef<Dash | null>(null);
+  dataRef.current = data;
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [establishmentName, setEstablishmentName] = useState<string | null>(null);
+  const establishmentName =
+    data?.establishment?.name ?? session?.establishment.name ?? null;
 
   const load = useCallback(async () => {
-    setLoading(true);
+    const isInitial = dataRef.current === null;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
     setError("");
     try {
-      const res = await fetchApi(`/admin/dashboard?period=${period}`);
+      const res = await fetchApi(`/admin/dashboard?scope=overview&period=${period}`);
       const json = (await parseApiJson(res)) as Dash & { error?: string };
       if (!res.ok) throw new Error(json.error || "Falha ao carregar dashboard");
       if (!json.analytics) {
@@ -128,12 +134,12 @@ export default function AdminDashboardPage() {
         );
       }
       setData(json);
-      setEstablishmentName(json.establishment?.name ?? null);
     } catch (loadError) {
-      setData(null);
+      if (isInitial) setData(null);
       setError(loadError instanceof Error ? loadError.message : "Falha ao carregar dashboard");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [fetchApi, period]);
 
@@ -155,14 +161,12 @@ export default function AdminDashboardPage() {
     }
   }
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div>
         <div className="mb-8">
           <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold">Dashboard operacional</h1>
-          {session?.establishment.name ? (
-            <p className="mt-1 text-muted">{session.establishment.name}</p>
-          ) : null}
+          {establishmentName ? <p className="mt-1 text-muted">{establishmentName}</p> : null}
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -173,7 +177,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (error || !data?.analytics) {
+  if ((error && !data) || !data?.analytics) {
     return (
       <div className="rounded-2xl border border-danger/20 bg-danger/10 px-6 py-8 text-center">
         <p className="font-semibold text-danger">{error || "Não foi possível carregar o dashboard."}</p>
@@ -210,20 +214,25 @@ export default function AdminDashboardPage() {
           <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold">Dashboard operacional</h1>
           <p className="mt-1 text-muted">{establishmentName} · modo {modeLabel(a.operationMode)}</p>
         </div>
-        <div className="flex rounded-xl border border-white/10 bg-surface-2/60 p-1">
-          {(["today", "7d", "30d"] as Period[]).map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setPeriod(p)}
-              className={cn(
-                "rounded-lg px-4 py-2 text-sm font-semibold transition",
-                period === p ? "bg-brand text-white shadow-md shadow-brand/20" : "text-muted hover:text-ink",
-              )}
-            >
-              {PERIOD_LABELS[p]}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-xl border border-white/10 bg-surface-2/60 p-1">
+            {(["today", "7d", "30d"] as Period[]).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setPeriod(p)}
+                disabled={refreshing && period === p}
+                className={cn(
+                  "rounded-lg px-4 py-2 text-sm font-semibold transition",
+                  period === p ? "bg-brand text-white shadow-md shadow-brand/20" : "text-muted hover:text-ink",
+                  refreshing && period === p && "opacity-80",
+                )}
+              >
+                {PERIOD_LABELS[p]}
+              </button>
+            ))}
+          </div>
+          {refreshing ? <span className="text-xs text-muted">Atualizando…</span> : null}
         </div>
       </div>
 

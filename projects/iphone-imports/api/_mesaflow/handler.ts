@@ -954,7 +954,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 200, payload, {
         extraHeaders:
           scope === "overview"
-            ? { "Cache-Control": "private, max-age=10" }
+            ? { "Cache-Control": "private, max-age=15" }
             : { "Cache-Control": "private, no-cache" },
       });
     }

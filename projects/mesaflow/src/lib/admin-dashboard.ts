@@ -21,7 +21,7 @@ export function parseAdminDashboardScope(
   return hasPeriod ? "overview" : "full";
 }
 
-const DASHBOARD_CACHE_TTL_MS = 10_000;
+const DASHBOARD_CACHE_TTL_MS = 15_000;
 const payloadCache = new Map<string, { expires: number; payload: unknown }>();
 
 export function resetAdminDashboardCacheForTests() {

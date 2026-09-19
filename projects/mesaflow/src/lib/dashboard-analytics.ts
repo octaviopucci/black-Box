@@ -2,7 +2,16 @@ import { buildClosingSummary } from "@/lib/closing";
 import { resolveOperationMode } from "@/lib/operation-modes";
 import { sumRegisteredPayments } from "@/lib/payments";
 import { getStore } from "@/lib/store";
-import type { Establishment, GuestParticipation, OperationMode } from "@/lib/types";
+import type {
+  Command,
+  Establishment,
+  GuestParticipation,
+  OperationMode,
+  Order,
+  OrderItemSplit,
+  Payment,
+  Table,
+} from "@/lib/types";
 
 const MS_HOUR = 60 * 60 * 1000;
 const STALE_PARTICIPATION_MS = 12 * MS_HOUR;
@@ -29,21 +38,87 @@ function durationMinutes(from: string, to: string): number {
   return Math.max(0, (new Date(to).getTime() - new Date(from).getTime()) / 60000);
 }
 
-export function dashboardAnalytics(establishmentId: string, period: DashboardPeriod = "today") {
+type EstablishmentAnalyticsData = {
+  establishment: Establishment | undefined;
+  operationMode: OperationMode;
+  orders: Order[];
+  participations: GuestParticipation[];
+  tables: Table[];
+  commands: Command[];
+  registeredPayments: Payment[];
+  ordersByParticipation: Map<string, Order[]>;
+  splitsByParticipation: Map<string, OrderItemSplit[]>;
+  paymentsByParticipation: Map<string, Payment[]>;
+};
+
+function collectEstablishmentAnalyticsData(establishmentId: string): EstablishmentAnalyticsData {
   const store = getStore();
   const establishment = store.establishments[establishmentId] as Establishment | undefined;
-  const operationMode = resolveOperationMode(establishment);
+  const orders: Order[] = [];
+  const participations: GuestParticipation[] = [];
+  const ordersByParticipation = new Map<string, Order[]>();
+  const splitsByParticipation = new Map<string, OrderItemSplit[]>();
+  const paymentsByParticipation = new Map<string, Payment[]>();
 
-  const orders = Object.values(store.orders).filter(
-    (o) => o.establishmentId === establishmentId && o.status !== "CANCELADO" && inPeriod(o.createdAt, period),
+  for (const order of Object.values(store.orders)) {
+    if (order.establishmentId !== establishmentId || order.status === "CANCELADO") continue;
+    orders.push(order);
+    if (order.guestParticipationId) {
+      const bucket = ordersByParticipation.get(order.guestParticipationId) ?? [];
+      bucket.push(order);
+      ordersByParticipation.set(order.guestParticipationId, bucket);
+    }
+  }
+
+  for (const gp of Object.values(store.guestParticipations)) {
+    if (gp.establishmentId === establishmentId) participations.push(gp);
+  }
+
+  for (const split of Object.values(store.orderItemSplits || {})) {
+    const bucket = splitsByParticipation.get(split.guestParticipationId) ?? [];
+    bucket.push(split);
+    splitsByParticipation.set(split.guestParticipationId, bucket);
+  }
+
+  for (const payment of Object.values(store.payments || {})) {
+    if (payment.establishmentId !== establishmentId) continue;
+    if (payment.guestParticipationId) {
+      const bucket = paymentsByParticipation.get(payment.guestParticipationId) ?? [];
+      bucket.push(payment);
+      paymentsByParticipation.set(payment.guestParticipationId, bucket);
+    }
+  }
+
+  const registeredPayments = Object.values(store.payments || {}).filter(
+    (payment) => payment.establishmentId === establishmentId && payment.status === "registered",
   );
-  const deliveredOrders = orders.filter((o) => o.status === "ENTREGUE");
-  const salesRevenue = deliveredOrders.reduce((sum, o) => sum + o.total, 0);
+
+  return {
+    establishment,
+    operationMode: resolveOperationMode(establishment),
+    orders,
+    participations,
+    tables: Object.values(store.tables).filter((table) => table.establishmentId === establishmentId),
+    commands: Object.values(store.commands).filter((command) => command.establishmentId === establishmentId),
+    registeredPayments,
+    ordersByParticipation,
+    splitsByParticipation,
+    paymentsByParticipation,
+  };
+}
+
+function dashboardAnalyticsForPeriod(
+  data: EstablishmentAnalyticsData,
+  period: DashboardPeriod = "today",
+) {
+  const { operationMode, orders, participations, tables, commands, registeredPayments } = data;
+
+  const periodOrders = orders.filter((order) => inPeriod(order.createdAt, period));
+  const deliveredOrders = periodOrders.filter((order) => order.status === "ENTREGUE");
+  const salesRevenue = deliveredOrders.reduce((sum, order) => sum + order.total, 0);
   const ticketAvg = deliveredOrders.length ? salesRevenue / deliveredOrders.length : 0;
 
-  const payments = Object.values(store.payments || {}).filter(
-    (p) => p.establishmentId === establishmentId && p.status === "registered" && inPeriod(p.registeredAt, period),
-  );
+  const payments = registeredPayments.filter((payment) => inPeriod(payment.registeredAt, period));
   const paymentsCollected = sumRegisteredPayments(payments);
 
   const salesByTable: Record<string, { tableNumber: string; revenue: number; orders: number }> = {};
@@ -67,9 +142,6 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
   };
   salesByMode[operationMode] = salesRevenue;
 
-  const participations = Object.values(store.guestParticipations).filter(
-    (gp) => gp.establishmentId === establishmentId,
-  );
   const activeSessions = participations.filter((gp) => gp.status !== "CLOSED");
   const historicalSessions = participations.filter(
     (gp) => gp.status === "CLOSED" && gp.closedAt && inPeriod(gp.closedAt, period),
@@ -108,15 +180,13 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
     else permanenceDistribution[3].count += 1;
   }
 
-  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishmentId);
-  const tablesOccupied = tables.filter((t) => t.status === "OCUPADA").length;
-  const tablesAwaitingPayment = tables.filter((t) => t.status === "AGUARDANDO_PAGAMENTO").length;
-  const tablesFree = tables.filter((t) => t.status === "LIVRE").length;
+  const tablesOccupied = tables.filter((table) => table.status === "OCUPADA").length;
+  const tablesAwaitingPayment = tables.filter((table) => table.status === "AGUARDANDO_PAGAMENTO").length;
+  const tablesFree = tables.filter((table) => table.status === "LIVRE").length;
 
-  const commands = Object.values(store.commands).filter((c) => c.establishmentId === establishmentId);
-  const openCommands = commands.filter((c) => c.status !== "FECHADA").length;
+  const openCommands = commands.filter((command) => command.status !== "FECHADA").length;
   const closedCommandsPeriod = commands.filter(
-    (c) => c.status === "FECHADA" && c.closedAt && inPeriod(c.closedAt, period),
+    (command) => command.status === "FECHADA" && command.closedAt && inPeriod(command.closedAt, period),
   ).length;
 
   let paymentsConfirmed = 0;
@@ -126,12 +196,10 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
       paymentsConfirmed += 1;
       continue;
     }
-    const gpOrders = Object.values(store.orders).filter(
-      (o) => o.guestParticipationId === gp.id && o.status !== "CANCELADO",
-    );
-    const gpSplits = Object.values(store.orderItemSplits || {}).filter((s) => s.guestParticipationId === gp.id);
-    const gpPayments = Object.values(store.payments || {}).filter(
-      (p) => p.guestParticipationId === gp.id && p.status === "registered",
+    const gpOrders = data.ordersByParticipation.get(gp.id) ?? [];
+    const gpSplits = data.splitsByParticipation.get(gp.id) ?? [];
+    const gpPayments = (data.paymentsByParticipation.get(gp.id) ?? []).filter(
+      (payment) => payment.status === "registered",
     );
     const summary = buildClosingSummary(gpOrders, [gp], gpSplits, gpPayments);
     const participant = summary.participants[0];
@@ -142,6 +210,7 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
 
   const alerts: Array<{ level: "warning" | "danger" | "info"; title: string; body: string; href?: string }> = [];
   const now = Date.now();
+  const store = getStore();
 
   for (const table of tables) {
     if (table.status !== "AGUARDANDO_PAGAMENTO" || !table.commandId) continue;
@@ -172,7 +241,7 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
     }
   }
 
-  const pendingOrders = orders.filter((o) => o.status === "NOVO").length;
+  const pendingOrders = periodOrders.filter((order) => order.status === "NOVO").length;
   if (pendingOrders >= 5) {
     alerts.push({
       level: "info",
@@ -192,8 +261,8 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
   }
 
   const productSales: Record<string, { name: string; qty: number }> = {};
-  for (const o of orders) {
-    for (const item of o.items) {
+  for (const order of periodOrders) {
+    for (const item of order.items) {
       if (!productSales[item.productId]) productSales[item.productId] = { name: item.productName, qty: 0 };
       productSales[item.productId].qty += item.qty;
     }
@@ -205,7 +274,7 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
     operationMode,
     sales: {
       revenue: salesRevenue,
-      ordersCount: orders.length,
+      ordersCount: periodOrders.length,
       deliveredCount: deliveredOrders.length,
       ticketAvg,
       paymentsCollected,
@@ -238,9 +307,14 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
     },
     alerts,
     topProducts,
-    inPrep: orders.filter((o) => ["ACEITO", "EM_PREPARO"].includes(o.status)).length,
+    inPrep: periodOrders.filter((order) => ["ACEITO", "EM_PREPARO"].includes(order.status)).length,
     pendingOrders,
   };
+}
+
+export function dashboardAnalytics(establishmentId: string, period: DashboardPeriod = "today") {
+  const data = collectEstablishmentAnalyticsData(establishmentId);
+  return dashboardAnalyticsForPeriod(data, period);
 }
 
 export type DashboardAnalyticsSnapshot = ReturnType<typeof dashboardAnalytics>;
@@ -249,9 +323,9 @@ const analyticsBundleCache = new Map<
   string,
   { expires: number; bundle: Record<DashboardPeriod, DashboardAnalyticsSnapshot> }
 >();
-const ANALYTICS_BUNDLE_TTL_MS = 10_000;
+const ANALYTICS_BUNDLE_TTL_MS = 15_000;
 
-/** Calcula today/7d/30d com cache curto — evita recomputar 3× por request. */
+/** Uma passagem no store + 3 períodos — cache curto por lojista. */
 export function dashboardAnalyticsBundle(
   establishmentId: string,
 ): Record<DashboardPeriod, DashboardAnalyticsSnapshot> {
@@ -259,10 +333,11 @@ export function dashboardAnalyticsBundle(
   const cached = analyticsBundleCache.get(establishmentId);
   if (cached && cached.expires > now) return cached.bundle;
 
+  const data = collectEstablishmentAnalyticsData(establishmentId);
   const bundle: Record<DashboardPeriod, DashboardAnalyticsSnapshot> = {
-    today: dashboardAnalytics(establishmentId, "today"),
-    "7d": dashboardAnalytics(establishmentId, "7d"),
-    "30d": dashboardAnalytics(establishmentId, "30d"),
+    today: dashboardAnalyticsForPeriod(data, "today"),
+    "7d": dashboardAnalyticsForPeriod(data, "7d"),
+    "30d": dashboardAnalyticsForPeriod(data, "30d"),
   };
   analyticsBundleCache.set(establishmentId, { expires: now + ANALYTICS_BUNDLE_TTL_MS, bundle });
   return bundle;

@@ -19,7 +19,7 @@ export async function GET(req: Request) {
   const payload = getAdminDashboardPayload(auth.establishment, period, scope);
   return Response.json(payload, {
     headers: {
-      "Cache-Control": scope === "overview" ? "private, max-age=10" : "private, no-cache",
+      "Cache-Control": scope === "overview" ? "private, max-age=15" : "private, no-cache",
     },
   });
 }
