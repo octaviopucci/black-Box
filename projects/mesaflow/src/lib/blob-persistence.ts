@@ -196,7 +196,41 @@ export type HydrateBlobResult = {
   migratedFromLegacy: boolean;
 };
 
-export async function hydrateFromBlob(runtimeOidcToken?: string): Promise<HydrateBlobResult | null> {
+export type FlushBlobInput = {
+  store: MesaFlowStore;
+  etags: BlobEtags;
+  flushOperational: boolean;
+  flushIdentity: boolean;
+  runtimeOidcToken?: string;
+};
+
+export type FlushBlobResult = {
+  operational?: { ok: boolean; etag?: string; error?: string };
+  identity?: { ok: boolean; etag?: string; error?: string };
+};
+
+type HydrateFromBlobFn = (runtimeOidcToken?: string) => Promise<HydrateBlobResult | null>;
+type FlushToBlobFn = (input: FlushBlobInput) => Promise<FlushBlobResult>;
+
+let hydrateFromBlobOverride: HydrateFromBlobFn | undefined;
+let flushToBlobOverride: FlushToBlobFn | undefined;
+
+/** @internal Test-only hooks for simulated cross-instance blob I/O. */
+export function setBlobPersistenceTestHooks(hooks: {
+  hydrateFromBlob?: HydrateFromBlobFn;
+  flushToBlob?: FlushToBlobFn;
+}) {
+  hydrateFromBlobOverride = hooks.hydrateFromBlob;
+  flushToBlobOverride = hooks.flushToBlob;
+}
+
+/** @internal Clears test hooks between cases. */
+export function clearBlobPersistenceTestHooks() {
+  hydrateFromBlobOverride = undefined;
+  flushToBlobOverride = undefined;
+}
+
+async function hydrateFromBlobImpl(runtimeOidcToken?: string): Promise<HydrateBlobResult | null> {
   const auth = blobAuthOptions(runtimeOidcToken);
   if (!blobConfigured(runtimeOidcToken)) return null;
 
@@ -265,20 +299,7 @@ async function putWithRetry(
   return { ok: false, error: "blob persist failed after retries" };
 }
 
-export type FlushBlobInput = {
-  store: MesaFlowStore;
-  etags: BlobEtags;
-  flushOperational: boolean;
-  flushIdentity: boolean;
-  runtimeOidcToken?: string;
-};
-
-export type FlushBlobResult = {
-  operational?: { ok: boolean; etag?: string; error?: string };
-  identity?: { ok: boolean; etag?: string; error?: string };
-};
-
-export async function flushToBlob(input: FlushBlobInput): Promise<FlushBlobResult> {
+async function flushToBlobImpl(input: FlushBlobInput): Promise<FlushBlobResult> {
   const auth = blobAuthOptions(input.runtimeOidcToken);
   if (!blobConfigured(input.runtimeOidcToken)) {
     return {
@@ -315,6 +336,16 @@ export async function flushToBlob(input: FlushBlobInput): Promise<FlushBlobResul
   }
 
   return result;
+}
+
+export async function hydrateFromBlob(runtimeOidcToken?: string): Promise<HydrateBlobResult | null> {
+  if (hydrateFromBlobOverride) return hydrateFromBlobOverride(runtimeOidcToken);
+  return hydrateFromBlobImpl(runtimeOidcToken);
+}
+
+export async function flushToBlob(input: FlushBlobInput): Promise<FlushBlobResult> {
+  if (flushToBlobOverride) return flushToBlobOverride(input);
+  return flushToBlobImpl(input);
 }
 
 export async function probeBlobPaths(runtimeOidcToken?: string): Promise<{ ok: boolean; error?: string }> {

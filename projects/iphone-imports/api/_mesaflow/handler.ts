@@ -829,7 +829,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (body.plan !== undefined && !plan) {
           return json(res, 400, { error: "Plano inválido (essencial, premium, custom)." });
         }
-        const result = updateMerchant(merchantId, {
+        const result = await updateMerchant(merchantId, {
           platformStatus: platformStatus ?? undefined,
           plan: plan ?? undefined,
           reason: body.reason,

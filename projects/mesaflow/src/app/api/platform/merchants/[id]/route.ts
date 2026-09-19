@@ -39,7 +39,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     return Response.json({ error: "Plano inválido (essencial, premium, custom)." }, { status: 400 });
   }
 
-  const result = updateMerchant(id, {
+  const result = await updateMerchant(id, {
     platformStatus: platformStatus ?? undefined,
     plan: plan ?? undefined,
     reason: body?.reason,

@@ -184,7 +184,7 @@ async function readLegacyPublicBlob(pathname, auth) {
   if (!response.ok) return null;
   return { data: await response.json() };
 }
-async function hydrateFromBlob(runtimeOidcToken2) {
+async function hydrateFromBlobImpl(runtimeOidcToken2) {
   const auth = blobAuthOptions(runtimeOidcToken2);
   if (!blobConfigured(runtimeOidcToken2)) return null;
   const operational = await readPrivateBlob(OPERATIONAL_BLOB_PATH, auth);
@@ -240,7 +240,7 @@ async function putWithRetry(pathname, body, auth, etag) {
   }
   return { ok: false, error: "blob persist failed after retries" };
 }
-async function flushToBlob(input) {
+async function flushToBlobImpl(input) {
   const auth = blobAuthOptions(input.runtimeOidcToken);
   if (!blobConfigured(input.runtimeOidcToken)) {
     return {
@@ -270,6 +270,14 @@ async function flushToBlob(input) {
   }
   return result;
 }
+async function hydrateFromBlob(runtimeOidcToken2) {
+  if (hydrateFromBlobOverride) return hydrateFromBlobOverride(runtimeOidcToken2);
+  return hydrateFromBlobImpl(runtimeOidcToken2);
+}
+async function flushToBlob(input) {
+  if (flushToBlobOverride) return flushToBlobOverride(input);
+  return flushToBlobImpl(input);
+}
 async function probeBlobPaths(runtimeOidcToken2) {
   if (!process.env.VERCEL) return { ok: false, error: "local" };
   if (!blobConfigured(runtimeOidcToken2)) {
@@ -286,7 +294,7 @@ async function probeBlobPaths(runtimeOidcToken2) {
     };
   }
 }
-var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, MAX_BLOB_RETRIES;
+var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, hydrateFromBlobOverride, flushToBlobOverride, MAX_BLOB_RETRIES;
 var init_blob_persistence = __esm({
   "../mesaflow/src/lib/blob-persistence.ts"() {
     "use strict";
@@ -4056,11 +4064,17 @@ function ensurePlatformOwnerSeed() {
   saveStore(store);
   return user;
 }
-function updateMerchant(establishmentId, patch) {
+async function updateMerchant(establishmentId, patch) {
   const store = getStore();
   const establishment = store.establishments[establishmentId];
   if (!establishment) return { error: "Estabelecimento n\xE3o encontrado.", status: 404 };
   const metadata = {};
+  const statusChanging = patch.platformStatus !== void 0;
+  const previousStatus = statusChanging ? {
+    platformStatus: establishment.platformStatus,
+    suspendedAt: establishment.suspendedAt,
+    suspendedReason: establishment.suspendedReason
+  } : null;
   if (patch.platformStatus !== void 0) {
     establishment.platformStatus = patch.platformStatus;
     if (patch.platformStatus === "suspended" || patch.platformStatus === "rejected") {
@@ -4085,7 +4099,7 @@ function updateMerchant(establishmentId, patch) {
   if (Object.keys(metadata).length === 0) {
     return { error: "Nenhuma altera\xE7\xE3o informada.", status: 400 };
   }
-  appendAuditEvent(store, {
+  const auditEvent = appendAuditEvent(store, {
     establishmentId,
     type: "platform.merchant_status",
     actorType: "PLATFORM",
@@ -4094,9 +4108,25 @@ function updateMerchant(establishmentId, patch) {
     metadata
   });
   saveOperationalStore(store);
+  if (statusChanging && sharedPersistenceConfigured()) {
+    const persist2 = await requireOperationalPersist();
+    if (!persist2.ok) {
+      if (previousStatus) {
+        establishment.platformStatus = previousStatus.platformStatus;
+        establishment.suspendedAt = previousStatus.suspendedAt;
+        establishment.suspendedReason = previousStatus.suspendedReason;
+      }
+      delete store.auditEvents[auditEvent.id];
+      saveOperationalStore(store);
+      return {
+        error: persist2.blobError || persist2.redisError || "N\xE3o foi poss\xEDvel persistir a altera\xE7\xE3o de status. Tente novamente.",
+        status: 503
+      };
+    }
+  }
   return { value: getMerchantDetail(establishmentId) };
 }
-function updateMerchantStatus(establishmentId, status, reason) {
+async function updateMerchantStatus(establishmentId, status, reason) {
   return updateMerchant(establishmentId, { platformStatus: status, reason });
 }
 var PLATFORM_SESSION_TTL_MS2;
@@ -4418,6 +4448,80 @@ function softFailPersistResult(error) {
     disk: Boolean(cache),
     blob: false,
     blobError: lastBlobError,
+    redis: false,
+    redisError: lastRedisError
+  };
+}
+function sharedPersistenceConfigured() {
+  return Boolean(
+    process.env.VERCEL && (blobConfigured(runtimeOidcToken) || redisConfigured())
+  );
+}
+async function requireOperationalPersist() {
+  if (!cache) {
+    return { ok: false, disk: false, blob: false, blobError: "Store n\xE3o inicializado." };
+  }
+  if (!process.env.VERCEL) {
+    return { ok: true, disk: true, blob: false };
+  }
+  if (!operationalDirty) {
+    return { ok: true, disk: true, blob: false, redis: lastPersistSource === "redis" };
+  }
+  if (!sharedPersistenceConfigured()) {
+    return {
+      ok: false,
+      disk: true,
+      blob: false,
+      blobError: "Armazenamento compartilhado n\xE3o configurado (Blob ou Redis). Aprova\xE7\xE3o n\xE3o pode ser compartilhada entre inst\xE2ncias."
+    };
+  }
+  if (redisConfigured()) {
+    const redisResult = await flushToRedis({
+      store: cache,
+      etags: blobEtags,
+      flushOperational: true,
+      flushIdentity: false
+    });
+    if (redisResult.ok) {
+      operationalDirty = false;
+      lastRedisError = void 0;
+      lastPersistSource = "redis";
+      return { ok: true, disk: true, blob: false, redis: true };
+    }
+    lastRedisError = redisResult.error || "redis persist failed";
+    console.warn("[mesaflow] requireOperationalPersist redis failed", lastRedisError);
+  }
+  if (blobConfigured(runtimeOidcToken)) {
+    const flushed = await flushToBlob({
+      store: cache,
+      etags: blobEtags,
+      flushOperational: true,
+      flushIdentity: false,
+      runtimeOidcToken
+    });
+    if (flushed.operational?.ok) {
+      if (flushed.operational.etag) blobEtags.operational = flushed.operational.etag;
+      operationalDirty = false;
+      lastBlobError = void 0;
+      lastPersistSource = "blob";
+      return { ok: true, disk: true, blob: true, redis: false, redisError: lastRedisError };
+    }
+    lastBlobError = flushed.operational?.error || "blob persist failed";
+    console.warn("[mesaflow] requireOperationalPersist blob failed", lastBlobError);
+    return {
+      ok: false,
+      disk: true,
+      blob: false,
+      blobError: lastBlobError,
+      redis: false,
+      redisError: lastRedisError
+    };
+  }
+  return {
+    ok: false,
+    disk: true,
+    blob: false,
+    blobError: lastBlobError || "Blob not configured",
     redis: false,
     redisError: lastRedisError
   };
@@ -7954,7 +8058,7 @@ async function handler(req, res) {
         if (body.plan !== void 0 && !plan) {
           return json(res, 400, { error: "Plano inv\xE1lido (essencial, premium, custom)." });
         }
-        const result = updateMerchant(merchantId, {
+        const result = await updateMerchant(merchantId, {
           platformStatus: platformStatus ?? void 0,
           plan: plan ?? void 0,
           reason: body.reason
