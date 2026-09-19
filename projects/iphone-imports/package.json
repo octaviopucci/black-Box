@@ -10,6 +10,7 @@
     "build:gestor": "IPHONE_IMPORTS_BASE_PATH=/iphone-imports VITE_BASE=/iphone-imports/gestor/ npm --prefix gestor run build && node scripts/copy-gestor.mjs",
     "build:deploy": "NEXT_BASE_PATH=/iphone-imports NEXT_PUBLIC_BASE_PATH=/iphone-imports npm run build && npm run build:gestor && node scripts/finalize-iphone-store-path.mjs",
     "vercel-build": "npm --prefix gestor ci --include=dev && npm --prefix ../w-tube ci --include=dev && npm --prefix ../w-tube/gestor ci --include=dev && npx tsx scripts/generate-seed-data.mjs && npm run build:deploy && node scripts/bundle-api.mjs && node scripts/build-sibling-stores.mjs && node scripts/build-pucci-motors.mjs && node scripts/build-mesaflow.mjs && node scripts/verify-mesaflow-deploy.mjs",
+    "vercel-build:mesaflow": "node scripts/vercel-build-mesaflow-only.mjs",
     "test:api": "npx tsx api/_iphone-imports/catalog.test.ts && npx tsx api/_iphone-imports/integration.test.ts && npx tsx api/_iphone-imports/seed.test.ts",
     "seed:production": "node scripts/seed-production.mjs",
     "start": "next start",

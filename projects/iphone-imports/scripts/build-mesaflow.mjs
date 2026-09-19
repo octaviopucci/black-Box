@@ -90,6 +90,17 @@ function assertHandlerCriticalRoutes(handlerBundlePath) {
       process.exit(1);
     }
   }
+  const requiredPatches = [
+    "allowUnconditionalOverwrite",
+    "mergeOperationalBlobOnConflict",
+    "requireOperationalPersist",
+  ];
+  for (const patch of requiredPatches) {
+    if (!bundle.includes(patch)) {
+      console.error(`✗ api/mesaflow.js sem patch ${patch}`);
+      process.exit(1);
+    }
+  }
 }
 
 console.log("\n→ mesaflow: install + build site...");
