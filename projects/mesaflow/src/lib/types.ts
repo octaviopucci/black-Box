@@ -47,6 +47,9 @@ export type OrderStatus =
   | "ENTREGUE"
   | "CANCELADO";
 
+/** Modalidade do pedido no checkout do cliente. */
+export type OrderServiceType = "COMER_AQUI" | "PARA_VIAGEM";
+
 export type SectorKind = "COZINHA" | "BALCAO" | "BAR" | "CAFETERIA" | "PIZZARIA" | "CONFEITARIA";
 
 export type ProductAvailability = "VITRINE" | "SOB_DEMANDA" | "AMBOS";
@@ -279,6 +282,8 @@ export interface Order {
   items: OrderItem[];
   notes?: string;
   source: "MESA" | "RODIZIO" | "BALCAO";
+  /** Comer aqui ou levar — default COMER_AQUI para pedidos legados. */
+  serviceType?: OrderServiceType;
   rodizioRoundId?: string;
   total: number;
   createdAt: string;
@@ -291,6 +296,8 @@ export interface OrderLineInput {
   qty: number;
   variantId?: string;
   addonIds?: string[];
+  /** IDs de produtos bump anexados como acréscimos na linha. */
+  bumpProductIds?: string[];
   notes?: string;
 }
 

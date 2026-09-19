@@ -6,6 +6,8 @@ export type SoftSuggestion = {
   product: Product;
   reason: string;
   tone: SuggestionTone;
+  /** Quando definido, o bump deve ser anexado como acréscimo nesta linha do carrinho. */
+  parentProductId?: string;
 };
 
 const DRINK_HINTS = /bebida|drink|suco|refrigerante|cerveja|vinho|drink|água|cafe|café|chá|drink|drink|smoothie|milkshake|coquetel|drinks/i;
@@ -32,6 +34,7 @@ function resolveConfigured(
   exclude: Set<string>,
   reason: string,
   tone: SuggestionTone,
+  parentProductId?: string,
 ): SoftSuggestion[] {
   if (!ids?.length) return [];
   const byId = new Map(catalog.map((p) => [p.id, p]));
@@ -41,7 +44,7 @@ function resolveConfigured(
     const product = byId.get(id);
     if (!product?.active) continue;
     exclude.add(id);
-    out.push({ product, reason, tone });
+    out.push({ product, reason, tone, parentProductId });
   }
   return out;
 }
@@ -55,7 +58,7 @@ export function suggestionsForProduct(
 ): SoftSuggestion[] {
   const exclude = new Set<string>([product.id]);
   const configured = [
-    ...resolveConfigured(product.bumpProductIds, catalog, exclude, "Combina bem", "pairing"),
+    ...resolveConfigured(product.bumpProductIds, catalog, exclude, "Combina bem", "pairing", product.id),
     ...resolveConfigured(product.upsellProductIds, catalog, exclude, "Vale conhecer", "pairing"),
   ];
   if (configured.length >= limit) return configured.slice(0, limit);
@@ -101,7 +104,14 @@ export function suggestionsForCart(
   const configured: SoftSuggestion[] = [];
   for (const line of lines) {
     configured.push(
-      ...resolveConfigured(line.product.bumpProductIds, catalog, inCart, "Combina com seu pedido", "pairing"),
+      ...resolveConfigured(
+        line.product.bumpProductIds,
+        catalog,
+        inCart,
+        "Combina com seu pedido",
+        "pairing",
+        line.product.id,
+      ),
       ...resolveConfigured(line.product.upsellProductIds, catalog, inCart, "Quem pediu isso também gostou", "pairing"),
     );
   }

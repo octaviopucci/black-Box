@@ -119,6 +119,7 @@ import {
   parsePlatformStatusFilterInput,
   parsePlatformStatusInput,
 } from "../../../mesaflow/src/lib/platform-status";
+import { enrichOrderWithGuest } from "../../../mesaflow/src/lib/order-display";
 import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
 import {
   buildDetailedHealthResponse,
@@ -138,6 +139,7 @@ import { verifyTurnstileToken } from "../../../mesaflow/src/lib/turnstile";
 import type {
   OperationMode,
   OrderLineInput,
+  OrderServiceType,
   OrderStatus,
   PlatformPlan,
 } from "../../../mesaflow/src/lib/types";
@@ -590,7 +592,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
       if (commandId) orders = orders.filter((o) => o.commandId === commandId);
       orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      return json(res, 200, { orders });
+      const enriched = orders.map((order) => enrichOrderWithGuest(store.guestParticipations, order));
+      return json(res, 200, { orders: enriched });
     }
 
     if (req.method === "POST" && path === "/orders") {
@@ -603,8 +606,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const body = (req.body || {}) as {
         items: OrderLineInput[];
         notes?: string;
+        serviceType?: OrderServiceType;
       };
       if (!body.items?.length) return json(res, 400, { error: "Carrinho vazio." });
+      if (body.serviceType && body.serviceType !== "COMER_AQUI" && body.serviceType !== "PARA_VIAGEM") {
+        return json(res, 400, { error: "Modalidade inválida." });
+      }
 
       const est = guestAuth.establishment;
       if (!est.open) return json(res, 400, { error: "Estabelecimento indisponível." });
@@ -636,6 +643,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           items: resolved.items,
           notes: body.notes,
           source: "MESA",
+          serviceType: body.serviceType || "COMER_AQUI",
         });
         return json(res, 200, { order, total: order.total });
       } catch (error) {

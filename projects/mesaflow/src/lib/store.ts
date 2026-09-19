@@ -1689,6 +1689,7 @@ export function createOrder(input: {
   items: OrderItem[];
   notes?: string;
   source?: Order["source"];
+  serviceType?: Order["serviceType"];
   rodizioRoundId?: string;
   guestParticipationId: string;
 }): Order {
@@ -1710,6 +1711,7 @@ export function createOrder(input: {
     items: input.items.map((i) => ({ ...i, status: "NOVO" as OrderStatus })),
     notes: input.notes,
     source: input.source || "MESA",
+    serviceType: input.serviceType || "COMER_AQUI",
     rodizioRoundId: input.rodizioRoundId,
     total,
     createdAt: new Date().toISOString(),
@@ -1723,7 +1725,12 @@ export function createOrder(input: {
   }
   saveStore(store);
   recalcCommandTotal(input.commandId);
-  notify(input.establishmentId, "order.new", "Novo pedido", `Mesa ${input.table.number} · Pedido #${order.number}`);
+  notify(input.establishmentId, "order.new", "Novo pedido", `Mesa ${input.table.number} · Pedido #${order.number}`, {
+    tableId: input.table.id,
+    commandId: input.commandId,
+    actionUrl: `/admin/orders?order=${order.id}`,
+    metadata: { orderId: order.id, orderNumber: order.number },
+  });
   emit({ type: "order.created", orderId: order.id, establishmentId: input.establishmentId });
   return order;
 }
@@ -1743,7 +1750,12 @@ export function updateOrderStatus(
   store.orders[orderId] = order;
   saveStore(store);
   if (status === "PRONTO") {
-    notify(order.establishmentId, "order.ready", "Pedido pronto", `#${order.number} · Mesa ${order.tableNumber}`);
+    notify(order.establishmentId, "order.ready", "Pedido pronto", `#${order.number} · Mesa ${order.tableNumber}`, {
+      tableId: order.tableId,
+      commandId: order.commandId,
+      actionUrl: `/admin/orders?order=${order.id}`,
+      metadata: { orderId: order.id, orderNumber: order.number },
+    });
   }
   emit({ type: "order.updated", orderId, establishmentId: order.establishmentId });
   return order;

@@ -14,11 +14,37 @@ function hasClientPricing(item: Record<string, unknown>) {
   );
 }
 
+const BUMP_PREFIX = "bump_";
+
+function resolveBumpAddon(
+  store: MesaFlowStore,
+  product: Product,
+  bumpProductId: string,
+  qty: number,
+): OrderItem["addons"][number] | null {
+  if (!product.bumpProductIds?.includes(bumpProductId)) return null;
+  const bumpProduct = store.products[bumpProductId];
+  if (!bumpProduct || bumpProduct.establishmentId !== product.establishmentId || !bumpProduct.active) {
+    return null;
+  }
+  if (qty < 1 || qty > 99) return null;
+  return {
+    addonId: `${BUMP_PREFIX}${bumpProductId}`,
+    name: bumpProduct.name,
+    price: bumpProduct.price,
+    qty,
+  };
+}
+
 function resolveAddon(
+  store: MesaFlowStore,
   product: Product,
   addonId: string,
   qty: number,
-): { addonId: string; name: string; price: number; qty: number } | null {
+): OrderItem["addons"][number] | null {
+  if (addonId.startsWith(BUMP_PREFIX)) {
+    return resolveBumpAddon(store, product, addonId.slice(BUMP_PREFIX.length), qty);
+  }
   const addon = product.addons.find((entry) => entry.id === addonId);
   if (!addon) return null;
   const maxQty = addon.maxQty ?? 99;
@@ -77,10 +103,14 @@ export function resolveOrderLines(
     for (const addonId of line.addonIds || []) {
       addonCounts.set(addonId, (addonCounts.get(addonId) || 0) + 1);
     }
+    for (const bumpId of line.bumpProductIds || []) {
+      const key = `${BUMP_PREFIX}${bumpId}`;
+      addonCounts.set(key, (addonCounts.get(key) || 0) + 1);
+    }
 
     const addons: OrderItem["addons"] = [];
     for (const [addonId, addonQty] of addonCounts) {
-      const resolved = resolveAddon(product, addonId, addonQty);
+      const resolved = resolveAddon(store, product, addonId, addonQty);
       if (!resolved) {
         return { ok: false, status: 400, error: `Adicional inválido para ${product.name}.` };
       }

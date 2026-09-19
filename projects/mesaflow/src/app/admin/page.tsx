@@ -86,6 +86,7 @@ type Dash = {
     read: boolean;
     actionUrl?: string;
     tableId?: string;
+    metadata?: Record<string, unknown>;
   }[];
 };
 
@@ -154,6 +155,11 @@ export default function AdminDashboardPage() {
     await load();
     if (notification.actionUrl) {
       router.push(notification.actionUrl);
+      return;
+    }
+    const orderId = notification.metadata?.orderId;
+    if (typeof orderId === "string" && orderId) {
+      router.push(`/admin/orders?order=${encodeURIComponent(orderId)}`);
       return;
     }
     if (notification.tableId) {

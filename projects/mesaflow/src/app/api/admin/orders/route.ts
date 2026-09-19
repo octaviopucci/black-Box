@@ -1,3 +1,4 @@
+import { enrichOrderWithGuest } from "@/lib/order-display";
 import { getStore, validateActiveSession } from "@/lib/store";
 import { readAdminSessionToken } from "@/lib/staff-auth-request";
 
@@ -14,5 +15,6 @@ export async function GET(req: Request) {
   let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
   if (commandId) orders = orders.filter((o) => o.commandId === commandId);
   orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  return Response.json({ orders });
+  const enriched = orders.map((order) => enrichOrderWithGuest(store.guestParticipations, order));
+  return Response.json({ orders: enriched });
 }

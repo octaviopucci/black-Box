@@ -9,7 +9,7 @@ import { validateClientSession } from "@/lib/guest";
 import { resolveOrderLines } from "@/lib/order-resolve";
 import { readClientToken } from "@/lib/guest-request";
 import { readAdminSessionToken } from "@/lib/staff-auth-request";
-import type { OrderLineInput } from "@/lib/types";
+import type { OrderLineInput, OrderServiceType } from "@/lib/types";
 
 export async function GET(req: Request) {
   const auth = validateActiveSession(readAdminSessionToken(req));
@@ -36,8 +36,12 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({})) as {
     items?: OrderLineInput[];
     notes?: string;
+    serviceType?: OrderServiceType;
   };
   if (!body.items?.length) return Response.json({ error: "Carrinho vazio." }, { status: 400 });
+  if (body.serviceType && body.serviceType !== "COMER_AQUI" && body.serviceType !== "PARA_VIAGEM") {
+    return Response.json({ error: "Modalidade inválida." }, { status: 400 });
+  }
 
   const est = guestAuth.establishment;
   if (!est.open) return Response.json({ error: "Estabelecimento indisponível." }, { status: 400 });
@@ -70,6 +74,7 @@ export async function POST(req: Request) {
       items: resolved.items,
       notes: body.notes,
       source: "MESA",
+      serviceType: body.serviceType || "COMER_AQUI",
     });
     return Response.json({ order, total: order.total });
   } catch (error) {
