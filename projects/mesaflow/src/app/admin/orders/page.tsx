@@ -1,12 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OrderDetailPanel } from "@/components/admin/order-detail-panel";
 import { useAdminData } from "@/hooks/use-admin-data";
-import { isOrderSoundMuted, playOrderBell, setOrderSoundMuted } from "@/lib/order-alert-sound";
 import { formatItemPreview, serviceTypeLabel, type EnrichedOrder } from "@/lib/order-display";
 import { useAuth } from "@/contexts/auth-context";
 import { formatCurrency, formatTime, minutesSince } from "@/lib/format";
@@ -36,13 +34,6 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<EnrichedOrder[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [advancing, setAdvancing] = useState(false);
-  const [soundMuted, setSoundMuted] = useState(false);
-  const seenOrderIds = useRef<Set<string>>(new Set());
-  const soundInitialized = useRef(false);
-
-  useEffect(() => {
-    setSoundMuted(isOrderSoundMuted());
-  }, []);
 
   useEffect(() => {
     if (data?.orders) setOrders(data.orders);
@@ -54,20 +45,6 @@ export default function AdminOrdersPage() {
       setSelectedId(orderParam);
     }
   }, [searchParams, orders]);
-
-  useEffect(() => {
-    if (!orders.length) return;
-    if (!soundInitialized.current) {
-      for (const order of orders) seenOrderIds.current.add(order.id);
-      soundInitialized.current = true;
-      return;
-    }
-    const fresh = orders.filter((o) => o.status === "NOVO" && !seenOrderIds.current.has(o.id));
-    if (fresh.length > 0 && establishment?.settings.soundNotifications !== false) {
-      playOrderBell();
-    }
-    for (const order of orders) seenOrderIds.current.add(order.id);
-  }, [orders, establishment?.settings.soundNotifications]);
 
   const flatList = useMemo(
     () => [...orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
@@ -120,25 +97,10 @@ export default function AdminOrdersPage() {
     }
   }
 
-  function toggleSound() {
-    const next = !soundMuted;
-    setSoundMuted(next);
-    setOrderSoundMuted(next);
-  }
-
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-6">
         <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold">Pedidos</h1>
-        <button
-          type="button"
-          onClick={toggleSound}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-sm text-muted transition hover:bg-surface-3"
-          aria-pressed={soundMuted}
-        >
-          {soundMuted ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
-          {soundMuted ? "Som desligado" : "Som ligado"}
-        </button>
       </div>
 
       <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-4">
