@@ -805,6 +805,14 @@ export function publicUser(user: User) {
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
 
+/** Establishment for auth responses — always includes resolved platformStatus from live store. */
+export function publicEstablishment(establishment: Establishment): Establishment {
+  return {
+    ...establishment,
+    platformStatus: resolvePlatformStatus(establishment),
+  };
+}
+
 export function resolveAdminEstablishment(
   _slug: string | undefined,
   authHeader: string | undefined,

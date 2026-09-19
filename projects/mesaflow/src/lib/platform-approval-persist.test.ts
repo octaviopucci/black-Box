@@ -13,7 +13,9 @@ async function run() {
     hydratePersistentStore,
     getStore,
     validateActiveSession,
+    validateSession,
     loginUser,
+    publicEstablishment,
     mergeOperationalFromDiskForTests,
   } = await import("./store");
   const { updateMerchantStatus } = await import("./platform-store");
@@ -37,9 +39,16 @@ async function run() {
   assert.equal(signup.establishment!.platformStatus, "pending");
 
   const establishmentId = signup.establishment!.id;
+  const pendingToken = signup.session!.token;
+  assert.equal(validateSession(pendingToken)?.establishment.platformStatus, "pending");
+
   const approved = updateMerchantStatus(establishmentId, "active");
   assert.ok("value" in approved);
   assert.equal(approved.value.platformStatus, "active");
+
+  const sameSession = validateSession(pendingToken);
+  assert.ok(sameSession, "session token stays valid after approval");
+  assert.equal(publicEstablishment(sameSession!.establishment).platformStatus, "active");
 
   const approvedOnDisk = readFileSync(process.env.MESAFLOW_DATA!, "utf8");
   assert.ok(approvedOnDisk.includes('"platformStatus": "active"'));

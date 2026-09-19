@@ -4682,6 +4682,12 @@ function loginUser(email, password) {
 function publicUser(user) {
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
+function publicEstablishment(establishment) {
+  return {
+    ...establishment,
+    platformStatus: resolvePlatformStatus(establishment)
+  };
+}
 function findTableByQr(establishmentId, tableToken) {
   if (rejectPredictableDemoQrInProduction(tableToken)) return null;
   const store = getStore();
@@ -7821,7 +7827,7 @@ async function handler(req, res) {
         200,
         {
           user: publicUser(result.user),
-          establishment: result.establishment,
+          establishment: publicEstablishment(result.establishment),
           token: result.session.token
         },
         {
@@ -7861,7 +7867,7 @@ async function handler(req, res) {
         201,
         {
           user: publicUser(result.user),
-          establishment: result.establishment,
+          establishment: publicEstablishment(result.establishment),
           token: result.session.token
         },
         {
@@ -7877,7 +7883,7 @@ async function handler(req, res) {
       if (!auth) return json(res, 401, { error: "Sess\xE3o inv\xE1lida." });
       return json(res, 200, {
         user: publicUser(auth.user),
-        establishment: auth.establishment
+        establishment: publicEstablishment(auth.establishment)
       });
     }
     if (req.method === "POST" && path === "/platform/auth/login") {

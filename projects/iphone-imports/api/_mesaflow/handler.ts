@@ -27,6 +27,7 @@ import {
   listAdminProducts,
   listAdminTables,
   loginUser,
+  publicEstablishment,
   publicUser,
   regenerateAdminTableQr,
   registerEstablishment,
@@ -666,7 +667,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         200,
         {
           user: publicUser(result.user!),
-          establishment: result.establishment,
+          establishment: publicEstablishment(result.establishment!),
           token: result.session!.token,
         },
         {
@@ -727,7 +728,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         201,
         {
           user: publicUser(result.user!),
-          establishment: result.establishment,
+          establishment: publicEstablishment(result.establishment!),
           token: result.session!.token,
         },
         {
@@ -744,7 +745,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!auth) return json(res, 401, { error: "Sessão inválida." });
       return json(res, 200, {
         user: publicUser(auth.user),
-        establishment: auth.establishment,
+        establishment: publicEstablishment(auth.establishment),
       });
     }
 
