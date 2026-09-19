@@ -15,18 +15,32 @@ import {
 
 type OrdersPayload = { orders: EnrichedOrder[] };
 
+export type OrderAlert = {
+  order: EnrichedOrder;
+  receivedAt: number;
+};
+
 /**
- * Listener global de novos pedidos no admin — som + Web Notification em qualquer rota.
+ * Listener global de novos pedidos no admin — som + banner in-app + Web Notification em qualquer rota.
  */
 export function useOrderAlerts() {
   const { session, fetchApi } = useAuth();
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermissionState>("default");
+  const [pendingAlerts, setPendingAlerts] = useState<OrderAlert[]>([]);
   const seenOrderIds = useRef<Set<string>>(new Set());
   const initialized = useRef(false);
 
   useEffect(() => {
     setNotificationPermission(getNotificationPermission());
+  }, []);
+
+  const dismissAlert = useCallback((orderId: string) => {
+    setPendingAlerts((current) => current.filter((entry) => entry.order.id !== orderId));
+  }, []);
+
+  const dismissAllAlerts = useCallback(() => {
+    setPendingAlerts([]);
   }, []);
 
   const pollOrders = useCallback(async () => {
@@ -36,22 +50,33 @@ export function useOrderAlerts() {
       if (!res.ok) return;
       const json = (await parseApiJson(res)) as OrdersPayload;
       const orders = json.orders || [];
-      if (!orders.length) {
-        if (!initialized.current) initialized.current = true;
-        return;
-      }
 
       if (!initialized.current) {
         for (const order of orders) seenOrderIds.current.add(order.id);
         initialized.current = true;
+        if (!orders.length) return;
         return;
       }
 
       const soundEnabled = session.establishment.settings.soundNotifications !== false;
       const fresh = orders.filter((o) => o.status === "NOVO" && !seenOrderIds.current.has(o.id));
 
-      if (fresh.length > 0 && soundEnabled && !isOrderSoundMuted()) {
-        playOrderBell();
+      if (fresh.length > 0) {
+        const now = Date.now();
+        setPendingAlerts((current) => {
+          const existing = new Set(current.map((entry) => entry.order.id));
+          const next = [...current];
+          for (const order of fresh) {
+            if (existing.has(order.id)) continue;
+            next.push({ order, receivedAt: now });
+          }
+          return next;
+        });
+
+        if (soundEnabled && !isOrderSoundMuted()) {
+          playOrderBell();
+        }
+
         for (const order of fresh) {
           showNewOrderNotification(order, session.establishment.name);
         }
@@ -75,5 +100,11 @@ export function useOrderAlerts() {
     return result;
   }, []);
 
-  return { notificationPermission, enableNotifications };
+  return {
+    notificationPermission,
+    enableNotifications,
+    pendingAlerts,
+    dismissAlert,
+    dismissAllAlerts,
+  };
 }
