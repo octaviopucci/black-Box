@@ -2287,6 +2287,16 @@ function merchantLoginBlockedMessage(status) {
       return "Acesso indispon\xEDvel. Entre em contato com o suporte NA MESA.";
   }
 }
+function parsePlatformStatusInput(value) {
+  if (value === "pending" || value === "active" || value === "inactive" || value === "suspended" || value === "rejected") {
+    return value;
+  }
+  return null;
+}
+function parsePlatformStatusFilterInput(value) {
+  const parsed = parsePlatformStatusInput(value ?? void 0);
+  return parsed ?? "all";
+}
 var init_platform_status = __esm({
   "../mesaflow/src/lib/platform-status.ts"() {
     "use strict";
@@ -4083,7 +4093,7 @@ function updateMerchant(establishmentId, patch) {
     targetId: establishmentId,
     metadata
   });
-  saveStore(store);
+  saveOperationalStore(store);
   return { value: getMerchantDetail(establishmentId) };
 }
 function updateMerchantStatus(establishmentId, status, reason) {
@@ -4183,6 +4193,79 @@ function persist(markIdentity = true) {
   operationalDirty = true;
   if (markIdentity) identityDirty = true;
 }
+function persistOperational() {
+  if (!cache) return;
+  (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+  operationalDirty = true;
+}
+function readDiskStoreSnapshot() {
+  if (!(0, import_fs.existsSync)(DATA_PATH)) return null;
+  try {
+    return { ...emptyStore(), ...JSON.parse((0, import_fs.readFileSync)(DATA_PATH, "utf8")) };
+  } catch {
+    return null;
+  }
+}
+function latestMerchantStatusChangeAt(store, establishmentId) {
+  let latest = null;
+  for (const event of Object.values(store.auditEvents ?? {})) {
+    if (event.type !== "platform.merchant_status") continue;
+    if (event.targetId !== establishmentId) continue;
+    if (!latest || event.createdAt > latest) latest = event.createdAt;
+  }
+  return latest;
+}
+function mergeOperationalFromDisk(remote, disk) {
+  let mergedAhead = false;
+  const establishments = { ...remote.establishments };
+  for (const [id2, diskEst] of Object.entries(disk.establishments)) {
+    const remoteEst = remote.establishments[id2];
+    if (!remoteEst) {
+      establishments[id2] = diskEst;
+      mergedAhead = true;
+      continue;
+    }
+    if (diskEst.platformStatus === remoteEst.platformStatus) continue;
+    const diskAt = latestMerchantStatusChangeAt(disk, id2);
+    const remoteAt = latestMerchantStatusChangeAt(remote, id2);
+    if (diskAt && (!remoteAt || diskAt > remoteAt)) {
+      establishments[id2] = {
+        ...remoteEst,
+        platformStatus: diskEst.platformStatus,
+        suspendedAt: diskEst.suspendedAt,
+        suspendedReason: diskEst.suspendedReason
+      };
+      mergedAhead = true;
+    }
+  }
+  return {
+    store: {
+      ...remote,
+      establishments,
+      auditEvents: mergedAhead ? { ...remote.auditEvents ?? {}, ...disk.auditEvents ?? {} } : remote.auditEvents
+    },
+    mergedAhead
+  };
+}
+function finishRemoteHydrate(remoteStore, etags, migratedFromLegacy, source) {
+  const disk = readDiskStoreSnapshot();
+  let store = remoteStore;
+  let needsOperationalFlush = migratedFromLegacy;
+  if (disk) {
+    const merged = mergeOperationalFromDisk(remoteStore, disk);
+    store = merged.store;
+    needsOperationalFlush = needsOperationalFlush || merged.mergedAhead;
+  }
+  cache = store;
+  blobEtags = etags;
+  operationalDirty = needsOperationalFlush;
+  identityDirty = migratedFromLegacy;
+  (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
+  migrateProductImages(cache, false);
+  migrateLegacyGuestParticipations(cache);
+  runRetentionPurge(cache);
+  lastPersistSource = source;
+}
 function migrateOperationalCollections(store) {
   store.closingRequests ||= {};
   store.orderItemSplits ||= {};
@@ -4221,6 +4304,10 @@ function getStore() {
 function saveStore(next) {
   cache = next;
   persist();
+}
+function saveOperationalStore(next) {
+  cache = next;
+  persistOperational();
 }
 function blobReadWriteToken2() {
   return process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
@@ -4270,6 +4357,9 @@ async function hydratePersistentStore() {
     runRetentionPurge(store2);
     return;
   }
+  if (cache && (operationalDirty || identityDirty)) {
+    return;
+  }
   (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });
   lastBlobError = void 0;
   lastRedisError = void 0;
@@ -4277,15 +4367,7 @@ async function hydratePersistentStore() {
     try {
       const hydrated = await hydrateFromRedis();
       if (hydrated) {
-        cache = hydrated.store;
-        blobEtags = hydrated.etags;
-        operationalDirty = false;
-        identityDirty = false;
-        (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
-        migrateProductImages(cache, false);
-        migrateLegacyGuestParticipations(cache);
-        runRetentionPurge(cache);
-        lastPersistSource = "redis";
+        finishRemoteHydrate(hydrated.store, hydrated.etags, false, "redis");
         return;
       }
     } catch (error) {
@@ -4297,15 +4379,12 @@ async function hydratePersistentStore() {
     try {
       const hydrated = await hydrateFromBlob(runtimeOidcToken);
       if (hydrated) {
-        cache = hydrated.store;
-        blobEtags = hydrated.etags;
-        operationalDirty = hydrated.migratedFromLegacy;
-        identityDirty = hydrated.migratedFromLegacy;
-        (0, import_fs.writeFileSync)(DATA_PATH, JSON.stringify(cache, null, 2));
-        migrateProductImages(cache, false);
-        migrateLegacyGuestParticipations(cache);
-        runRetentionPurge(cache);
-        lastPersistSource = "blob";
+        finishRemoteHydrate(
+          hydrated.store,
+          hydrated.etags,
+          hydrated.migratedFromLegacy,
+          "blob"
+        );
         return;
       }
     } catch (error) {
@@ -4314,6 +4393,17 @@ async function hydratePersistentStore() {
     }
   } else {
     lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
+  }
+  const diskStore = readDiskStoreSnapshot();
+  if (diskStore) {
+    cache = diskStore;
+    migrateOperationalCollections(cache);
+    migrateProductImages(cache, false);
+    migrateLegacyGuestParticipations(cache);
+    runRetentionPurge(cache);
+    operationalDirty = true;
+    lastPersistSource = "disk-only";
+    return;
   }
   cache = null;
   const store = getStore();
@@ -7117,6 +7207,8 @@ function publicMerchantUser(user) {
 
 // api/_mesaflow/handler.ts
 init_platform_store();
+init_platform_plans();
+init_platform_status();
 
 // ../mesaflow/src/lib/order-resolve.ts
 init_order_math();
@@ -7416,16 +7508,8 @@ function kitchenAuth(req) {
 function platformAuth(req) {
   return validatePlatformSession(readPlatformToken(req));
 }
-function parsePlatformStatus(value) {
-  if (value === "active" || value === "inactive" || value === "suspended") return value;
-  return null;
-}
 function parsePlatformPlanFilter(value) {
   if (value === "essencial" || value === "premium" || value === "custom") return value;
-  return "all";
-}
-function parsePlatformStatusFilter(value) {
-  if (value === "active" || value === "inactive" || value === "suspended") return value;
   return "all";
 }
 function parseDashboardPeriod(value) {
@@ -7837,7 +7921,7 @@ async function handler(req, res) {
       if (!auth) return json(res, 401, { error: "Acesso negado." });
       const merchants = listMerchants({
         q: String(req.query?.q || "") || void 0,
-        status: parsePlatformStatusFilter(String(req.query?.status || "")),
+        status: parsePlatformStatusFilterInput(String(req.query?.status || "")),
         plan: parsePlatformPlanFilter(String(req.query?.plan || ""))
       });
       return json(res, 200, { merchants });
@@ -7854,11 +7938,21 @@ async function handler(req, res) {
       }
       if (req.method === "PATCH") {
         const body = req.body || {};
-        const status = parsePlatformStatus(body.platformStatus);
-        if (!status) {
-          return json(res, 400, { error: "platformStatus inv\xE1lido (active, inactive, suspended)." });
+        const platformStatus = body.platformStatus !== void 0 ? parsePlatformStatusInput(body.platformStatus) : void 0;
+        if (body.platformStatus !== void 0 && !platformStatus) {
+          return json(res, 400, {
+            error: "platformStatus inv\xE1lido (pending, active, inactive, suspended, rejected)."
+          });
         }
-        const result = updateMerchantStatus(merchantId, status, body.reason);
+        const plan = body.plan !== void 0 ? parsePlatformPlan(body.plan) : void 0;
+        if (body.plan !== void 0 && !plan) {
+          return json(res, 400, { error: "Plano inv\xE1lido (essencial, premium, custom)." });
+        }
+        const result = updateMerchant(merchantId, {
+          platformStatus: platformStatus ?? void 0,
+          plan: plan ?? void 0,
+          reason: body.reason
+        });
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 200, { merchant: result.value });
       }

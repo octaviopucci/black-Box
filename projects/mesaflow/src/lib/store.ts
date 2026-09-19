@@ -181,6 +181,107 @@ function persist(markIdentity = true) {
   if (markIdentity) identityDirty = true;
 }
 
+function persistOperational() {
+  if (!cache) return;
+  writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
+  operationalDirty = true;
+}
+
+function readDiskStoreSnapshot(): MesaFlowStore | null {
+  if (!existsSync(DATA_PATH)) return null;
+  try {
+    return { ...emptyStore(), ...JSON.parse(readFileSync(DATA_PATH, "utf8")) };
+  } catch {
+    return null;
+  }
+}
+
+function latestMerchantStatusChangeAt(store: MesaFlowStore, establishmentId: string): string | null {
+  let latest: string | null = null;
+  for (const event of Object.values(store.auditEvents ?? {})) {
+    if (event.type !== "platform.merchant_status") continue;
+    if (event.targetId !== establishmentId) continue;
+    if (!latest || event.createdAt > latest) latest = event.createdAt;
+  }
+  return latest;
+}
+
+/** @internal Used by platform-approval-persist.test.ts */
+export function mergeOperationalFromDiskForTests(
+  remote: MesaFlowStore,
+  disk: MesaFlowStore,
+): { store: MesaFlowStore; mergedAhead: boolean } {
+  return mergeOperationalFromDisk(remote, disk);
+}
+
+function mergeOperationalFromDisk(
+  remote: MesaFlowStore,
+  disk: MesaFlowStore,
+): { store: MesaFlowStore; mergedAhead: boolean } {
+  let mergedAhead = false;
+  const establishments = { ...remote.establishments };
+
+  for (const [id, diskEst] of Object.entries(disk.establishments)) {
+    const remoteEst = remote.establishments[id];
+    if (!remoteEst) {
+      establishments[id] = diskEst;
+      mergedAhead = true;
+      continue;
+    }
+    if (diskEst.platformStatus === remoteEst.platformStatus) continue;
+
+    const diskAt = latestMerchantStatusChangeAt(disk, id);
+    const remoteAt = latestMerchantStatusChangeAt(remote, id);
+    if (diskAt && (!remoteAt || diskAt > remoteAt)) {
+      establishments[id] = {
+        ...remoteEst,
+        platformStatus: diskEst.platformStatus,
+        suspendedAt: diskEst.suspendedAt,
+        suspendedReason: diskEst.suspendedReason,
+      };
+      mergedAhead = true;
+    }
+  }
+
+  return {
+    store: {
+      ...remote,
+      establishments,
+      auditEvents: mergedAhead
+        ? { ...(remote.auditEvents ?? {}), ...(disk.auditEvents ?? {}) }
+        : remote.auditEvents,
+    },
+    mergedAhead,
+  };
+}
+
+function finishRemoteHydrate(
+  remoteStore: MesaFlowStore,
+  etags: BlobEtags,
+  migratedFromLegacy: boolean,
+  source: "blob" | "redis",
+) {
+  const disk = readDiskStoreSnapshot();
+  let store = remoteStore;
+  let needsOperationalFlush = migratedFromLegacy;
+
+  if (disk) {
+    const merged = mergeOperationalFromDisk(remoteStore, disk);
+    store = merged.store;
+    needsOperationalFlush = needsOperationalFlush || merged.mergedAhead;
+  }
+
+  cache = store;
+  blobEtags = etags;
+  operationalDirty = needsOperationalFlush;
+  identityDirty = migratedFromLegacy;
+  writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
+  migrateProductImages(cache, false);
+  migrateLegacyGuestParticipations(cache);
+  runRetentionPurge(cache);
+  lastPersistSource = source;
+}
+
 function migrateOperationalCollections(store: MesaFlowStore) {
   store.closingRequests ||= {};
   store.orderItemSplits ||= {};
@@ -224,6 +325,24 @@ export function getStore() {
 export function saveStore(next: MesaFlowStore) {
   cache = next;
   persist();
+}
+
+/** Persist operational data only (e.g. platformStatus) without forcing identity blob flush. */
+export function saveOperationalStore(next: MesaFlowStore) {
+  cache = next;
+  persistOperational();
+}
+
+/** @internal Resets module cache between isolated test cases. */
+export function resetPersistedStoreCacheForTests() {
+  cache = null;
+  operationalDirty = false;
+  identityDirty = false;
+  blobEtags = {};
+  lastBlobError = undefined;
+  lastRedisError = undefined;
+  lastPersistSource = "none";
+  productionPlatformSeeded = false;
 }
 
 function blobReadWriteToken() {
@@ -281,6 +400,10 @@ export async function hydratePersistentStore() {
     return;
   }
 
+  if (cache && (operationalDirty || identityDirty)) {
+    return;
+  }
+
   mkdirSync(dirname(DATA_PATH), { recursive: true });
   lastBlobError = undefined;
   lastRedisError = undefined;
@@ -289,15 +412,7 @@ export async function hydratePersistentStore() {
     try {
       const hydrated = await hydrateFromRedis();
       if (hydrated) {
-        cache = hydrated.store;
-        blobEtags = hydrated.etags;
-        operationalDirty = false;
-        identityDirty = false;
-        writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
-        migrateProductImages(cache, false);
-        migrateLegacyGuestParticipations(cache);
-        runRetentionPurge(cache);
-        lastPersistSource = "redis";
+        finishRemoteHydrate(hydrated.store, hydrated.etags, false, "redis");
         return;
       }
     } catch (error) {
@@ -310,15 +425,12 @@ export async function hydratePersistentStore() {
     try {
       const hydrated = await hydrateFromBlob(runtimeOidcToken);
       if (hydrated) {
-        cache = hydrated.store;
-        blobEtags = hydrated.etags;
-        operationalDirty = hydrated.migratedFromLegacy;
-        identityDirty = hydrated.migratedFromLegacy;
-        writeFileSync(DATA_PATH, JSON.stringify(cache, null, 2));
-        migrateProductImages(cache, false);
-        migrateLegacyGuestParticipations(cache);
-        runRetentionPurge(cache);
-        lastPersistSource = "blob";
+        finishRemoteHydrate(
+          hydrated.store,
+          hydrated.etags,
+          hydrated.migratedFromLegacy,
+          "blob",
+        );
         return;
       }
     } catch (error) {
@@ -327,6 +439,18 @@ export async function hydratePersistentStore() {
     }
   } else {
     lastBlobError = "Blob not configured (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN)";
+  }
+
+  const diskStore = readDiskStoreSnapshot();
+  if (diskStore) {
+    cache = diskStore;
+    migrateOperationalCollections(cache);
+    migrateProductImages(cache, false);
+    migrateLegacyGuestParticipations(cache);
+    runRetentionPurge(cache);
+    operationalDirty = true;
+    lastPersistSource = "disk-only";
+    return;
   }
 
   cache = null;

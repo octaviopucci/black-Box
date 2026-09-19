@@ -1,11 +1,7 @@
 import { listMerchants } from "@/lib/platform-store";
-import type { PlatformPlan, PlatformStatus } from "@/lib/types";
+import { parsePlatformStatusFilterInput } from "@/lib/platform-status";
+import type { PlatformPlan } from "@/lib/types";
 import { requirePlatformOwner } from "../_shared";
-
-function parseStatus(value: string | null): PlatformStatus | "all" {
-  if (value === "active" || value === "inactive" || value === "suspended") return value;
-  return "all";
-}
 
 function parsePlan(value: string | null): PlatformPlan | "all" {
   if (value === "essencial" || value === "premium" || value === "custom") return value;
@@ -19,7 +15,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const merchants = listMerchants({
     q: searchParams.get("q") || undefined,
-    status: parseStatus(searchParams.get("status")),
+    status: parsePlatformStatusFilterInput(searchParams.get("status")),
     plan: parsePlan(searchParams.get("plan")),
   });
   return Response.json({ merchants });
