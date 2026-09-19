@@ -168,11 +168,33 @@ async function readJsonFromStream(stream: ReadableStream<Uint8Array>): Promise<u
   return JSON.parse(text);
 }
 
+async function blobGet(pathname: string, auth: BlobAuthOptions) {
+  const getFn = blobGetOverride ?? get;
+  return getFn(pathname, { access: BLOB_ACCESS, ...auth, useCache: false });
+}
+
+async function blobPut(
+  pathname: string,
+  body: string,
+  auth: BlobAuthOptions,
+  etag?: string,
+) {
+  const putFn = blobPutOverride ?? put;
+  return putFn(pathname, body, {
+    access: BLOB_ACCESS,
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: "application/json",
+    ifMatch: etag,
+    ...auth,
+  });
+}
+
 async function readPrivateBlob(
   pathname: string,
   auth: BlobAuthOptions,
 ): Promise<{ data: unknown; etag?: string } | null> {
-  const result = await get(pathname, { access: BLOB_ACCESS, ...auth, useCache: false });
+  const result = await blobGet(pathname, auth);
   if (!result?.stream) return null;
   const data = await readJsonFromStream(result.stream);
   return { data, etag: result.blob.etag };
@@ -196,12 +218,19 @@ export type HydrateBlobResult = {
   migratedFromLegacy: boolean;
 };
 
+export type OperationalMergeFn = (
+  remote: MesaFlowOperationalStore,
+  local: MesaFlowOperationalStore,
+) => MesaFlowOperationalStore;
+
 export type FlushBlobInput = {
   store: MesaFlowStore;
   etags: BlobEtags;
   flushOperational: boolean;
   flushIdentity: boolean;
   runtimeOidcToken?: string;
+  /** Re-applies local operational changes onto fresh remote blob after ETag conflict. */
+  mergeOperational?: OperationalMergeFn;
 };
 
 export type FlushBlobResult = {
@@ -215,6 +244,12 @@ type FlushToBlobFn = (input: FlushBlobInput) => Promise<FlushBlobResult>;
 let hydrateFromBlobOverride: HydrateFromBlobFn | undefined;
 let flushToBlobOverride: FlushToBlobFn | undefined;
 
+type BlobPutFn = typeof put;
+type BlobGetFn = typeof get;
+
+let blobPutOverride: BlobPutFn | undefined;
+let blobGetOverride: BlobGetFn | undefined;
+
 /** @internal Test-only hooks for simulated cross-instance blob I/O. */
 export function setBlobPersistenceTestHooks(hooks: {
   hydrateFromBlob?: HydrateFromBlobFn;
@@ -224,10 +259,18 @@ export function setBlobPersistenceTestHooks(hooks: {
   flushToBlobOverride = hooks.flushToBlob;
 }
 
+/** @internal Low-level Blob I/O hooks for ETag retry tests. */
+export function setBlobIoTestHooks(hooks: { put?: BlobPutFn; get?: BlobGetFn }) {
+  blobPutOverride = hooks.put;
+  blobGetOverride = hooks.get;
+}
+
 /** @internal Clears test hooks between cases. */
 export function clearBlobPersistenceTestHooks() {
   hydrateFromBlobOverride = undefined;
   flushToBlobOverride = undefined;
+  blobPutOverride = undefined;
+  blobGetOverride = undefined;
 }
 
 async function hydrateFromBlobImpl(runtimeOidcToken?: string): Promise<HydrateBlobResult | null> {
@@ -263,34 +306,46 @@ async function hydrateFromBlobImpl(runtimeOidcToken?: string): Promise<HydrateBl
   };
 }
 
-const MAX_BLOB_RETRIES = 3;
+const MAX_BLOB_RETRIES = 5;
 
-async function putWithRetry(
-  pathname: string,
-  body: string,
-  auth: BlobAuthOptions,
-  etag?: string,
+function isBlobEtagConflict(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /precondition|etag|412/i.test(message);
+}
+
+type PutWithRetryInput<T> = {
+  pathname: string;
+  auth: BlobAuthOptions;
+  etag?: string;
+  payload: T;
+  serialize: (payload: T) => string;
+  mergeOnConflict?: (remote: T, local: T) => T;
+};
+
+async function putWithRetry<T>(
+  input: PutWithRetryInput<T>,
 ): Promise<{ ok: true; etag: string } | { ok: false; error: string }> {
+  let etag = input.etag;
+  let payload = input.payload;
+  let body = input.serialize(payload);
+
   for (let attempt = 0; attempt < MAX_BLOB_RETRIES; attempt++) {
     try {
-      const result = await put(pathname, body, {
-        access: BLOB_ACCESS,
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: "application/json",
-        ifMatch: etag,
-        ...auth,
-      });
+      const result = await blobPut(input.pathname, body, input.auth, etag);
       return { ok: true, etag: result.etag };
     } catch (error) {
       const message = error instanceof Error ? error.message : "blob persist failed";
-      const conflict = /precondition|etag|412/i.test(message);
+      const conflict = isBlobEtagConflict(error);
       if (!conflict || attempt === MAX_BLOB_RETRIES - 1) {
         return { ok: false, error: message };
       }
       try {
-        const fresh = await readPrivateBlob(pathname, auth);
+        const fresh = await readPrivateBlob(input.pathname, input.auth);
         if (fresh?.etag) etag = fresh.etag;
+        if (fresh?.data !== undefined && fresh?.data !== null && input.mergeOnConflict) {
+          payload = input.mergeOnConflict(fresh.data as T, payload);
+          body = input.serialize(payload);
+        }
       } catch {
         return { ok: false, error: message };
       }
@@ -312,24 +367,27 @@ async function flushToBlobImpl(input: FlushBlobInput): Promise<FlushBlobResult> 
   const result: FlushBlobResult = {};
 
   if (input.flushOperational) {
-    const putResult = await putWithRetry(
-      OPERATIONAL_BLOB_PATH,
-      JSON.stringify(operational),
+    const putResult = await putWithRetry({
+      pathname: OPERATIONAL_BLOB_PATH,
       auth,
-      input.etags.operational,
-    );
+      etag: input.etags.operational,
+      payload: operational,
+      serialize: (data) => JSON.stringify(data),
+      mergeOnConflict: input.mergeOperational,
+    });
     result.operational = putResult.ok
       ? { ok: true, etag: putResult.etag }
       : { ok: false, error: putResult.error };
   }
 
   if (input.flushIdentity) {
-    const putResult = await putWithRetry(
-      IDENTITY_BLOB_PATH,
-      JSON.stringify(identity),
+    const putResult = await putWithRetry({
+      pathname: IDENTITY_BLOB_PATH,
       auth,
-      input.etags.identity,
-    );
+      etag: input.etags.identity,
+      payload: identity,
+      serialize: (data) => JSON.stringify(data),
+    });
     result.identity = putResult.ok
       ? { ok: true, etag: putResult.etag }
       : { ok: false, error: putResult.error };

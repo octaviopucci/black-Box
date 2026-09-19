@@ -29,6 +29,7 @@ import type {
   Command,
   Category,
   Establishment,
+  MesaFlowOperationalStore,
   MesaFlowStore,
   Notification,
   Order,
@@ -202,6 +203,21 @@ export function mergeOperationalFromDiskForTests(
   disk: MesaFlowStore,
 ): { store: MesaFlowStore; mergedAhead: boolean } {
   return mergeOperationalFromDisk(remote, disk);
+}
+
+function operationalSnapshotToStore(operational: MesaFlowOperationalStore): MesaFlowStore {
+  return { ...emptyStore(), ...operational };
+}
+
+function mergeOperationalBlobOnConflict(
+  remote: MesaFlowOperationalStore,
+  local: MesaFlowOperationalStore,
+): MesaFlowOperationalStore {
+  const merged = mergeOperationalFromDisk(
+    operationalSnapshotToStore(remote),
+    operationalSnapshotToStore(local),
+  );
+  return blobPersistence.splitStore(merged.store).operational;
 }
 
 function mergeOperationalFromDisk(
@@ -515,6 +531,7 @@ export async function requireOperationalPersist(): Promise<PersistResult & { ok:
       flushOperational: true,
       flushIdentity: false,
       runtimeOidcToken,
+      mergeOperational: mergeOperationalBlobOnConflict,
     });
     if (flushed.operational?.ok) {
       if (flushed.operational.etag) blobEtags.operational = flushed.operational.etag;
@@ -578,6 +595,7 @@ export async function flushPersistentStore(): Promise<PersistResult> {
         flushOperational: operationalDirty,
         flushIdentity: identityDirty,
         runtimeOidcToken,
+        mergeOperational: operationalDirty ? mergeOperationalBlobOnConflict : undefined,
       });
 
       const operationalOk = !operationalDirty || flushed.operational?.ok === true;
