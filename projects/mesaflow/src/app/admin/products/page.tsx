@@ -21,7 +21,7 @@ import type {
   Sector } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
-import { ProductImage } from "@/components/ui/product-image";
+import { hasProductImage, ProductImage, ProductVisual } from "@/components/ui/product-image";
 
 type CatalogResponse = { products: Product[]; categories: Category[]; sectors: Sector[] };
 
@@ -411,6 +411,7 @@ export default function AdminProductsPage() {
   }
 
   const categoryNames = Object.fromEntries(catalog.categories.map((category) => [category.id, category.name]));
+  const categoryEmojis = Object.fromEntries(catalog.categories.map((category) => [category.id, category.emoji]));
   const sectorNames = Object.fromEntries(catalog.sectors.map((sector) => [sector.id, sector.name]));
 
   return (
@@ -562,7 +563,15 @@ export default function AdminProductsPage() {
           {filtered.map((product) => (
             <article key={product.id} className={cn("glass-card overflow-hidden", !product.active && "opacity-65")}>
               <div className="flex gap-4 p-4">
-                <ProductImage src={product.image} alt={product.name} seed={product.id} width={112} height={112} className="h-28 w-28 shrink-0 rounded-xl object-cover" />
+                <ProductVisual
+                  src={product.image}
+                  alt={product.name}
+                  categoryEmoji={categoryEmojis[product.categoryId]}
+                  width={112}
+                  height={112}
+                  className="h-28 w-28 shrink-0 rounded-xl object-cover"
+                  emojiClassName="h-28 w-28 shrink-0 text-4xl"
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="line-clamp-2 font-bold">{product.name}</h2>
@@ -677,7 +686,7 @@ export default function AdminProductsPage() {
                     aria-label="URL da imagem"
                   />
                 )}
-                {draft.image ? (
+                {hasProductImage(draft.image) ? (
                   <div className="overflow-hidden rounded-xl border border-white/5 bg-surface">
                     <ProductImage src={draft.image} alt={draft.name || "Prévia do produto"} width={640} height={240} className="h-36 w-full object-cover" />
                   </div>

@@ -35,7 +35,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// projects/mesaflow/src/lib/blob-persistence.ts
+// src/lib/blob-persistence.ts
 function blobReadWriteToken() {
   const direct = [
     process.env.MESAFLOW_BLOB_READ_WRITE_TOKEN,
@@ -364,7 +364,7 @@ async function probeBlobPaths(runtimeOidcToken2) {
 }
 var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, hydrateFromBlobOverride, flushToBlobOverride, blobPutOverride, blobGetOverride, MAX_BLOB_RETRIES, RETRY_BACKOFF_MS;
 var init_blob_persistence = __esm({
-  "projects/mesaflow/src/lib/blob-persistence.ts"() {
+  "src/lib/blob-persistence.ts"() {
     "use strict";
     import_blob = require("@vercel/blob");
     LEGACY_BLOB_PATH = "mesaflow/store.json";
@@ -376,7 +376,7 @@ var init_blob_persistence = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/redis-persistence.ts
+// src/lib/redis-persistence.ts
 function redisEnvKeys() {
   return Object.keys(process.env).filter(
     (key) => key.includes("REDIS") || key.includes("KV_REST") || key === "KV_URL"
@@ -502,7 +502,7 @@ async function redisHasStoreData() {
 }
 var OPERATIONAL_KEY, IDENTITY_KEY, ETAGS_KEY;
 var init_redis_persistence = __esm({
-  "projects/mesaflow/src/lib/redis-persistence.ts"() {
+  "src/lib/redis-persistence.ts"() {
     "use strict";
     init_blob_persistence();
     OPERATIONAL_KEY = "mesaflow:operational";
@@ -511,7 +511,7 @@ var init_redis_persistence = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/production-secrets.ts
+// src/lib/production-secrets.ts
 function isProductionEnv() {
   return process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
 }
@@ -529,13 +529,13 @@ function resolveSecret(envNames, purpose) {
 }
 var DEV_FALLBACK_SECRET;
 var init_production_secrets = __esm({
-  "projects/mesaflow/src/lib/production-secrets.ts"() {
+  "src/lib/production-secrets.ts"() {
     "use strict";
     DEV_FALLBACK_SECRET = "mesaflow-dev-only-change-in-production";
   }
 });
 
-// projects/mesaflow/src/lib/admin-session-token.ts
+// src/lib/admin-session-token.ts
 function secret() {
   return resolveSecret(
     ["MESAFLOW_ADMIN_SESSION_SECRET", "MESAFLOW_IDENTITY_SECRET"],
@@ -570,7 +570,7 @@ function parseAdminSessionToken(token) {
 }
 var import_crypto, ADMIN_SESSION_TTL_MS;
 var init_admin_session_token = __esm({
-  "projects/mesaflow/src/lib/admin-session-token.ts"() {
+  "src/lib/admin-session-token.ts"() {
     "use strict";
     import_crypto = require("crypto");
     init_production_secrets();
@@ -578,7 +578,7 @@ var init_admin_session_token = __esm({
   }
 });
 
-// projects/mesaflow/node_modules/bcryptjs/index.js
+// node_modules/bcryptjs/index.js
 function randomBytes(len) {
   try {
     return crypto.getRandomValues(new Uint8Array(len));
@@ -966,7 +966,7 @@ function _hash(password, salt, callback, progressCallback) {
 }
 var import_crypto2, randomFallback, nextTick, BASE64_CODE, BASE64_INDEX, BCRYPT_SALT_LEN, GENSALT_DEFAULT_LOG2_ROUNDS, BLOWFISH_NUM_ROUNDS, MAX_EXECUTION_TIME, P_ORIG, S_ORIG, C_ORIG;
 var init_bcryptjs = __esm({
-  "projects/mesaflow/node_modules/bcryptjs/index.js"() {
+  "node_modules/bcryptjs/index.js"() {
     import_crypto2 = __toESM(require("crypto"), 1);
     randomFallback = null;
     nextTick = typeof setImmediate === "function" ? setImmediate : typeof scheduler === "object" && typeof scheduler.postTask === "function" ? scheduler.postTask.bind(scheduler) : setTimeout;
@@ -2162,7 +2162,7 @@ var init_bcryptjs = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/crypto-utils.ts
+// src/lib/crypto-utils.ts
 function hashPassword(password) {
   return hashSync(password, 12);
 }
@@ -2179,14 +2179,14 @@ function sessionToken() {
 }
 var import_crypto3;
 var init_crypto_utils = __esm({
-  "projects/mesaflow/src/lib/crypto-utils.ts"() {
+  "src/lib/crypto-utils.ts"() {
     "use strict";
     import_crypto3 = require("crypto");
     init_bcryptjs();
   }
 });
 
-// projects/mesaflow/src/lib/events.ts
+// src/lib/events.ts
 function emit(event) {
   const set = listeners.get(event.establishmentId);
   if (!set) return;
@@ -2194,13 +2194,13 @@ function emit(event) {
 }
 var listeners;
 var init_events = __esm({
-  "projects/mesaflow/src/lib/events.ts"() {
+  "src/lib/events.ts"() {
     "use strict";
     listeners = /* @__PURE__ */ new Map();
   }
 });
 
-// projects/mesaflow/src/lib/order-math.ts
+// src/lib/order-math.ts
 function variantDeltaValue(variant) {
   return variant?.priceDelta ?? 0;
 }
@@ -2211,12 +2211,12 @@ function lineTotal(item) {
   return item.qty * (item.unitPrice + item.variantDelta) + addonsTotal(item.addons);
 }
 var init_order_math = __esm({
-  "projects/mesaflow/src/lib/order-math.ts"() {
+  "src/lib/order-math.ts"() {
     "use strict";
   }
 });
 
-// projects/mesaflow/src/lib/product-images.ts
+// src/lib/product-images.ts
 function pexels(id2, slug = "pexels-photo") {
   return `https://images.pexels.com/photos/${id2}/${slug}-${id2}.jpeg?${PEXELS_Q}`;
 }
@@ -2254,7 +2254,7 @@ function productImageByName(name, preset = "default") {
 }
 var PEXELS_Q, PRODUCT_IMAGES, FOOD_PRESETS;
 var init_product_images = __esm({
-  "projects/mesaflow/src/lib/product-images.ts"() {
+  "src/lib/product-images.ts"() {
     "use strict";
     PEXELS_Q = "auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
     PRODUCT_IMAGES = {
@@ -2303,7 +2303,7 @@ var init_product_images = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/platform-plans.ts
+// src/lib/platform-plans.ts
 function resolvePlan(plan) {
   return plan ?? "essencial";
 }
@@ -2316,7 +2316,7 @@ function parsePlatformPlan(value) {
 }
 var PLAN_ANNUAL_PRICE, PLAN_LABELS, PLAN_OPTIONS;
 var init_platform_plans = __esm({
-  "projects/mesaflow/src/lib/platform-plans.ts"() {
+  "src/lib/platform-plans.ts"() {
     "use strict";
     PLAN_ANNUAL_PRICE = {
       essencial: 997,
@@ -2348,7 +2348,7 @@ var init_platform_plans = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/platform-status.ts
+// src/lib/platform-status.ts
 function resolvePlatformStatus(establishment) {
   return establishment.platformStatus ?? "active";
 }
@@ -2380,12 +2380,12 @@ function parsePlatformStatusFilterInput(value) {
   return parsed ?? "all";
 }
 var init_platform_status = __esm({
-  "projects/mesaflow/src/lib/platform-status.ts"() {
+  "src/lib/platform-status.ts"() {
     "use strict";
   }
 });
 
-// projects/mesaflow/src/lib/operation-modes.ts
+// src/lib/operation-modes.ts
 function isOperationMode(value) {
   return typeof value === "string" && OPERATION_MODE_VALUES.has(value);
 }
@@ -2394,7 +2394,7 @@ function resolveOperationMode(establishment) {
 }
 var OPERATION_MODES, OPERATION_MODE_VALUES;
 var init_operation_modes = __esm({
-  "projects/mesaflow/src/lib/operation-modes.ts"() {
+  "src/lib/operation-modes.ts"() {
     "use strict";
     OPERATION_MODES = [
       {
@@ -2444,7 +2444,7 @@ var init_operation_modes = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/provision.ts
+// src/lib/provision.ts
 function slugify(name) {
   return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
 }
@@ -2659,7 +2659,7 @@ function provisionEstablishment(store, input) {
 }
 var import_crypto4, TYPE_LABELS;
 var init_provision = __esm({
-  "projects/mesaflow/src/lib/provision.ts"() {
+  "src/lib/provision.ts"() {
     "use strict";
     init_crypto_utils();
     import_crypto4 = require("crypto");
@@ -2677,7 +2677,7 @@ var init_provision = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/seed-marcelo-lanches.ts
+// src/lib/seed-marcelo-lanches.ts
 function fritasVariants(base, withFritas) {
   return [
     { id: "ml_v_sem_fritas", name: "Sem fritas", priceDelta: 0 },
@@ -3556,7 +3556,7 @@ function applyMarceloLanchesCatalog(store, options) {
 }
 var MARCELO_ESTABLISHMENT_ID, MARCELO_ESTABLISHMENT_SLUG, SANDWICH_ADDONS;
 var init_seed_marcelo_lanches = __esm({
-  "projects/mesaflow/src/lib/seed-marcelo-lanches.ts"() {
+  "src/lib/seed-marcelo-lanches.ts"() {
     "use strict";
     init_crypto_utils();
     MARCELO_ESTABLISHMENT_ID = "est_marcelo_lanches";
@@ -3578,10 +3578,10 @@ var init_seed_marcelo_lanches = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/demo.ts
+// src/lib/demo.ts
 var DEMO_ESTABLISHMENT_SLUG, DEMO_ESTABLISHMENT_ID, PLATFORM_OWNER_LOGIN;
 var init_demo = __esm({
-  "projects/mesaflow/src/lib/demo.ts"() {
+  "src/lib/demo.ts"() {
     "use strict";
     DEMO_ESTABLISHMENT_SLUG = "ponto-do-sabor";
     DEMO_ESTABLISHMENT_ID = "est_ponto_sabor";
@@ -3592,7 +3592,7 @@ var init_demo = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/seed.ts
+// src/lib/seed.ts
 function buildDemoStore() {
   const now = (/* @__PURE__ */ new Date()).toISOString();
   const sectors = {
@@ -4185,7 +4185,7 @@ function buildDemoStore() {
 }
 var EST_ID, DEMO_SLUG;
 var init_seed = __esm({
-  "projects/mesaflow/src/lib/seed.ts"() {
+  "src/lib/seed.ts"() {
     "use strict";
     init_crypto_utils();
     init_demo();
@@ -4195,7 +4195,7 @@ var init_seed = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/audit-log.ts
+// src/lib/audit-log.ts
 function sanitizeMetadata(metadata) {
   if (!metadata) return {};
   const out = {};
@@ -4219,7 +4219,7 @@ function appendAuditEvent(store, input) {
 }
 var PII_KEYS;
 var init_audit_log = __esm({
-  "projects/mesaflow/src/lib/audit-log.ts"() {
+  "src/lib/audit-log.ts"() {
     "use strict";
     init_crypto_utils();
     PII_KEYS = /* @__PURE__ */ new Set([
@@ -4235,7 +4235,7 @@ var init_audit_log = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/accounting.ts
+// src/lib/accounting.ts
 function getParticipantItemTotal(orders, splits, guestParticipationId) {
   const splitMap = /* @__PURE__ */ new Map();
   for (const split of splits) {
@@ -4275,13 +4275,13 @@ function getCommandPaidTotal(payments) {
   return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
 }
 var init_accounting = __esm({
-  "projects/mesaflow/src/lib/accounting.ts"() {
+  "src/lib/accounting.ts"() {
     "use strict";
     init_order_math();
   }
 });
 
-// projects/mesaflow/src/lib/closing.ts
+// src/lib/closing.ts
 function buildClosingSummary(orders, participations, splits, payments) {
   const activeOrders = orders.filter((order) => order.status !== "CANCELADO");
   const commandTotal = getCommandTotal(activeOrders);
@@ -4311,13 +4311,13 @@ function buildClosingSummary(orders, participations, splits, payments) {
   };
 }
 var init_closing = __esm({
-  "projects/mesaflow/src/lib/closing.ts"() {
+  "src/lib/closing.ts"() {
     "use strict";
     init_accounting();
   }
 });
 
-// projects/mesaflow/src/lib/payments.ts
+// src/lib/payments.ts
 function sumRegisteredPayments(payments) {
   return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
 }
@@ -4331,12 +4331,12 @@ function validatePaymentAmount(amount, maxAmount) {
   return null;
 }
 var init_payments = __esm({
-  "projects/mesaflow/src/lib/payments.ts"() {
+  "src/lib/payments.ts"() {
     "use strict";
   }
 });
 
-// projects/mesaflow/src/lib/dashboard-analytics.ts
+// src/lib/dashboard-analytics.ts
 function periodStart(period) {
   const now = /* @__PURE__ */ new Date();
   if (period === "today") {
@@ -4543,7 +4543,7 @@ function dashboardAnalytics(establishmentId, period = "today") {
 }
 var MS_HOUR, STALE_PARTICIPATION_MS;
 var init_dashboard_analytics = __esm({
-  "projects/mesaflow/src/lib/dashboard-analytics.ts"() {
+  "src/lib/dashboard-analytics.ts"() {
     "use strict";
     init_closing();
     init_operation_modes();
@@ -4554,7 +4554,7 @@ var init_dashboard_analytics = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/data-retention.ts
+// src/lib/data-retention.ts
 function anonymizeParticipationId(participationId) {
   return participationId.replace(/^gp_/, "gp_anon_");
 }
@@ -4606,7 +4606,7 @@ function purgeStaleData(store) {
 }
 var RETENTION_MS;
 var init_data_retention = __esm({
-  "projects/mesaflow/src/lib/data-retention.ts"() {
+  "src/lib/data-retention.ts"() {
     "use strict";
     RETENTION_MS = {
       otpChallenge: 24 * 60 * 60 * 1e3,
@@ -4617,7 +4617,7 @@ var init_data_retention = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/demo-qr.ts
+// src/lib/demo-qr.ts
 function isPredictableDemoQrToken(token) {
   return /^mesa-\d+$/i.test(token.trim());
 }
@@ -4627,13 +4627,13 @@ function rejectPredictableDemoQrInProduction(token) {
   return isPredictableDemoQrToken(token);
 }
 var init_demo_qr = __esm({
-  "projects/mesaflow/src/lib/demo-qr.ts"() {
+  "src/lib/demo-qr.ts"() {
     "use strict";
     init_production_secrets();
   }
 });
 
-// projects/mesaflow/src/lib/password-policy.ts
+// src/lib/password-policy.ts
 function validatePasswordStrength(password) {
   if (!password || password.length < MIN_LENGTH) {
     return `Senha com no m\xEDnimo ${MIN_LENGTH} caracteres.`;
@@ -4651,13 +4651,13 @@ function validatePasswordStrength(password) {
 }
 var MIN_LENGTH;
 var init_password_policy = __esm({
-  "projects/mesaflow/src/lib/password-policy.ts"() {
+  "src/lib/password-policy.ts"() {
     "use strict";
     MIN_LENGTH = 10;
   }
 });
 
-// projects/mesaflow/src/lib/signup-invite.ts
+// src/lib/signup-invite.ts
 function safeEqual(a, b) {
   const bufA = Buffer.from(a);
   const bufB = Buffer.from(b);
@@ -4683,13 +4683,13 @@ function signupInviteRequiredMessage() {
 }
 var import_crypto5;
 var init_signup_invite = __esm({
-  "projects/mesaflow/src/lib/signup-invite.ts"() {
+  "src/lib/signup-invite.ts"() {
     "use strict";
     import_crypto5 = require("crypto");
   }
 });
 
-// projects/mesaflow/src/lib/privacy-policy.ts
+// src/lib/privacy-policy.ts
 function validatePrivacyConsent(input) {
   if (!input || typeof input !== "object") return null;
   const body = input;
@@ -4705,13 +4705,13 @@ function consentRequiredMessage() {
 }
 var PRIVACY_POLICY_VERSION;
 var init_privacy_policy = __esm({
-  "projects/mesaflow/src/lib/privacy-policy.ts"() {
+  "src/lib/privacy-policy.ts"() {
     "use strict";
     PRIVACY_POLICY_VERSION = "2026-09-18";
   }
 });
 
-// projects/mesaflow/src/lib/platform-session-token.ts
+// src/lib/platform-session-token.ts
 function secret2() {
   return resolveSecret(
     [
@@ -4754,7 +4754,7 @@ function parsePlatformSessionToken(token) {
 }
 var import_crypto6, PLATFORM_SESSION_TTL_MS;
 var init_platform_session_token = __esm({
-  "projects/mesaflow/src/lib/platform-session-token.ts"() {
+  "src/lib/platform-session-token.ts"() {
     "use strict";
     import_crypto6 = require("crypto");
     init_production_secrets();
@@ -4762,7 +4762,7 @@ var init_platform_session_token = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/platform-analytics.ts
+// src/lib/platform-analytics.ts
 function establishmentOwner(establishmentId) {
   const store = getStore();
   return Object.values(store.users).find(
@@ -4952,7 +4952,7 @@ function platformDashboard(period = "30d") {
 }
 var MS_DAY, INACTIVE_DAYS_THRESHOLD;
 var init_platform_analytics = __esm({
-  "projects/mesaflow/src/lib/platform-analytics.ts"() {
+  "src/lib/platform-analytics.ts"() {
     "use strict";
     init_dashboard_analytics();
     init_platform_plans();
@@ -4963,7 +4963,7 @@ var init_platform_analytics = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/platform-store.ts
+// src/lib/platform-store.ts
 var platform_store_exports = {};
 __export(platform_store_exports, {
   ensurePlatformOwnerSeed: () => ensurePlatformOwnerSeed,
@@ -5106,7 +5106,7 @@ async function updateMerchantStatus(establishmentId, status, reason) {
 }
 var PLATFORM_SESSION_TTL_MS2;
 var init_platform_store = __esm({
-  "projects/mesaflow/src/lib/platform-store.ts"() {
+  "src/lib/platform-store.ts"() {
     "use strict";
     init_audit_log();
     init_platform_session_token();
@@ -5119,7 +5119,7 @@ var init_platform_store = __esm({
   }
 });
 
-// projects/mesaflow/src/lib/store.ts
+// src/lib/store.ts
 function emptyStore() {
   return {
     establishments: {},
@@ -5152,9 +5152,16 @@ function migrateProductImages(store, markBlobDirty = true) {
   let changed = false;
   for (const product of Object.values(store.products)) {
     const canonical = PRODUCT_IMAGES[product.id];
-    const next = canonical ?? productImageByName(product.name);
-    const stale = !product.image || product.image.includes("picsum.photos") || product.id === "p_cappuccino" && product.image.includes("1593508512255");
-    if (stale && next && product.image !== next) {
+    if (canonical && product.image !== canonical) {
+      product.image = canonical;
+      changed = true;
+      continue;
+    }
+    if (!product.image) continue;
+    const stale = product.image.includes("picsum.photos") || product.id === "p_cappuccino" && product.image.includes("1593508512255");
+    if (!stale) continue;
+    const next = productImageByName(product.name);
+    if (product.image !== next) {
       product.image = next;
       changed = true;
     }
@@ -6509,7 +6516,7 @@ async function importMarceloLanchesCatalog(options) {
 }
 var import_fs, import_path, DATA_PATH, cache, operationalDirty, identityDirty, blobEtags, runtimeOidcToken, lastBlobError, lastRedisError, lastPersistSource, SESSION_TTL_MS, CATALOG_COLLECTION_KEYS, productionPlatformSeeded, PRODUCT_AVAILABILITIES, TABLE_STATUSES, SHARED_CATALOG_PERSIST_ERROR;
 var init_store = __esm({
-  "projects/mesaflow/src/lib/store.ts"() {
+  "src/lib/store.ts"() {
     "use strict";
     import_fs = require("fs");
     import_path = require("path");
@@ -6561,7 +6568,7 @@ var init_store = __esm({
   }
 });
 
-// projects/iphone-imports/api/_mesaflow/handler.ts
+// ../iphone-imports/api/_mesaflow/handler.ts
 var handler_exports = {};
 __export(handler_exports, {
   default: () => handler
@@ -6569,7 +6576,7 @@ __export(handler_exports, {
 module.exports = __toCommonJS(handler_exports);
 init_store();
 
-// projects/mesaflow/src/lib/catalog-seed-registry.ts
+// src/lib/catalog-seed-registry.ts
 init_seed_marcelo_lanches();
 var CATALOG_SEED_REGISTRY = [
   {
@@ -6583,7 +6590,7 @@ function catalogSeedMetaForEstablishment(establishment) {
   return CATALOG_SEED_REGISTRY.find((seed) => seed.matches(establishment)) ?? null;
 }
 
-// projects/mesaflow/src/lib/catalog-seeds.ts
+// src/lib/catalog-seeds.ts
 init_store();
 var IMPORT_BY_SEED_ID = {
   "marcelo-lanches": importMarceloLanchesCatalog
@@ -6596,23 +6603,23 @@ function catalogSeedForEstablishment(establishment) {
   return { ...meta, importCatalog };
 }
 
-// projects/mesaflow/src/lib/guest-closing.ts
+// src/lib/guest-closing.ts
 init_crypto_utils();
 init_events();
 init_store();
 
-// projects/mesaflow/src/lib/store-operations.ts
+// src/lib/store-operations.ts
 init_closing();
 
-// projects/mesaflow/src/lib/guest-payment.ts
+// src/lib/guest-payment.ts
 init_closing();
 init_crypto_utils();
 
-// projects/mesaflow/src/lib/guest.ts
+// src/lib/guest.ts
 init_audit_log();
 init_crypto_utils();
 
-// projects/mesaflow/src/lib/identity-crypto.ts
+// src/lib/identity-crypto.ts
 var import_crypto7 = require("crypto");
 init_production_secrets();
 function secret3(name) {
@@ -6672,7 +6679,7 @@ function generateOtpCode() {
   return String((0, import_crypto7.randomInt)(1e5, 1e6));
 }
 
-// projects/mesaflow/src/lib/otp-bypass.ts
+// src/lib/otp-bypass.ts
 init_production_secrets();
 var DEFAULT_OTP_BYPASS_CODE = "010203";
 function evolutionOtpConfigured() {
@@ -6699,7 +6706,7 @@ function publicOtpBypassHint() {
   return { active: true, code };
 }
 
-// projects/mesaflow/src/lib/guest-session-token.ts
+// src/lib/guest-session-token.ts
 var import_crypto8 = require("crypto");
 init_production_secrets();
 var CLIENT_SESSION_TTL_MS = 24 * 60 * 60 * 1e3;
@@ -6767,7 +6774,7 @@ function parseGuestTokenClaims(token) {
   return null;
 }
 
-// projects/mesaflow/src/lib/guest.ts
+// src/lib/guest.ts
 init_operation_modes();
 init_store();
 var CLIENT_SESSION_TTL_MS2 = 24 * 60 * 60 * 1e3;
@@ -7149,7 +7156,7 @@ function kickGuestParticipation(establishmentId, participationId, actorUserId) {
   return { value: { participation } };
 }
 
-// projects/mesaflow/src/lib/guest-payment.ts
+// src/lib/guest-payment.ts
 init_store();
 function commandOrders(store, commandId) {
   return Object.values(store.orders).filter((order) => order.commandId === commandId);
@@ -7199,7 +7206,7 @@ function clearPaymentConfirmationIfUnsettled(store, participationId) {
   }
 }
 
-// projects/mesaflow/src/lib/store-operations.ts
+// src/lib/store-operations.ts
 init_payments();
 init_crypto_utils();
 init_events();
@@ -7869,7 +7876,7 @@ function listAdminOperations(establishmentId) {
   return { activeTables, staleParticipations };
 }
 
-// projects/mesaflow/src/lib/guest-closing.ts
+// src/lib/guest-closing.ts
 function invalid4(error, status = 400) {
   return { error, status };
 }
@@ -8080,7 +8087,7 @@ function cancelGuestClosing(participationId) {
   };
 }
 
-// projects/mesaflow/src/lib/kds-queue.ts
+// src/lib/kds-queue.ts
 init_store();
 function getKdsQueue(establishmentId, sectorId) {
   const store = getStore();
@@ -8116,7 +8123,7 @@ function getKdsQueue(establishmentId, sectorId) {
   };
 }
 
-// projects/mesaflow/src/lib/guest-cookie-web.ts
+// src/lib/guest-cookie-web.ts
 var CLIENT_COOKIE = "mf_cs";
 function parseClientCookieHeader(cookieHeader) {
   if (!cookieHeader) return void 0;
@@ -8143,7 +8150,7 @@ function clearClientCookieValue() {
   return `${CLIENT_COOKIE}=; Path=${clientCookiePath()}; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
 }
 
-// projects/mesaflow/src/lib/guest-cookie.ts
+// src/lib/guest-cookie.ts
 function parseClientCookie(req) {
   const raw = req.headers.cookie;
   if (typeof raw === "string") return parseClientCookieHeader(raw);
@@ -8157,7 +8164,7 @@ function clearClientCookie(res) {
   res.setHeader("Set-Cookie", clearClientCookieValue());
 }
 
-// projects/mesaflow/src/lib/media-upload.ts
+// src/lib/media-upload.ts
 var import_blob2 = require("@vercel/blob");
 init_blob_persistence();
 var MAX_BYTES = 4 * 1024 * 1024;
@@ -8227,10 +8234,10 @@ function parseBase64UploadBody(body) {
   }
 }
 
-// projects/iphone-imports/api/_mesaflow/handler.ts
+// ../iphone-imports/api/_mesaflow/handler.ts
 init_operation_modes();
 
-// projects/mesaflow/src/lib/guest-table-context.ts
+// src/lib/guest-table-context.ts
 init_store();
 function resolveGuestTableContext(slug, tableToken, guestToken) {
   const est = findEstablishmentBySlug(slug);
@@ -8267,7 +8274,7 @@ function resolveGuestTableContext(slug, tableToken, guestToken) {
   };
 }
 
-// projects/mesaflow/src/lib/rate-limit.ts
+// src/lib/rate-limit.ts
 var RATE_LIMIT_POLICIES = {
   authLogin: { limit: 10, windowMs: 15 * 60 * 1e3 },
   authRegister: { limit: 5, windowMs: 60 * 60 * 1e3 },
@@ -8327,10 +8334,10 @@ function enforceRateLimit(namespace, clientId) {
   return checkRateLimit(rateLimitKey(namespace, clientId), RATE_LIMIT_POLICIES[namespace]);
 }
 
-// projects/iphone-imports/api/_mesaflow/handler.ts
+// ../iphone-imports/api/_mesaflow/handler.ts
 init_privacy_policy();
 
-// projects/mesaflow/src/lib/privacy-dsr.ts
+// src/lib/privacy-dsr.ts
 init_audit_log();
 init_store();
 function notFound(msg) {
@@ -8442,12 +8449,12 @@ function publicMerchantUser(user) {
   };
 }
 
-// projects/iphone-imports/api/_mesaflow/handler.ts
+// ../iphone-imports/api/_mesaflow/handler.ts
 init_platform_store();
 init_platform_plans();
 init_platform_status();
 
-// projects/mesaflow/src/lib/order-resolve.ts
+// src/lib/order-resolve.ts
 init_order_math();
 function hasClientPricing(item) {
   return "unitPrice" in item || "variantDelta" in item || Array.isArray(item.addons) && item.addons.some((addon) => typeof addon === "object" && addon !== null && "price" in addon);
@@ -8526,7 +8533,7 @@ function resolveOrderLines(store, establishmentId, sectors, lines, options) {
   return { ok: true, items, total };
 }
 
-// projects/mesaflow/src/lib/public-health.ts
+// src/lib/public-health.ts
 function buildPublicHealthResponse(input) {
   return {
     ok: true,
@@ -8554,7 +8561,7 @@ function buildDetailedHealthResponse(input) {
   };
 }
 
-// projects/mesaflow/src/lib/staff-session-cookie-web.ts
+// src/lib/staff-session-cookie-web.ts
 var ADMIN_SESSION_COOKIE = "mf_as";
 var PLATFORM_SESSION_COOKIE = "mf_ps";
 var SESSION_MAX_AGE_SEC = 30 * 24 * 60 * 60;
@@ -8593,7 +8600,7 @@ function parseStaffCookieHeader(cookieHeader, cookieName) {
   return void 0;
 }
 
-// projects/mesaflow/src/lib/turnstile.ts
+// src/lib/turnstile.ts
 function turnstileSiteKeyPublic() {
   return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || process.env.TURNSTILE_SITE_KEY?.trim() || void 0;
 }
@@ -8629,7 +8636,7 @@ async function verifyTurnstileToken(token, remoteIp) {
   }
 }
 
-// projects/iphone-imports/api/_mesaflow/handler.ts
+// ../iphone-imports/api/_mesaflow/handler.ts
 function resolvePath(req) {
   const q = req.query?.path;
   if (Array.isArray(q) && q.length > 0) return "/" + q.map(String).join("/");

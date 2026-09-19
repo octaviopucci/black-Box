@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { PRODUCT_IMAGES, productImage, productImageByName } from "@/lib/product-images";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -11,10 +10,11 @@ type Props = {
   width: number;
   height: number;
   className?: string;
+  /** @deprecated Ignorado — sem imagem não exibimos placeholder. */
   seed?: string;
 };
 
-function isUsableImageSource(src: string | undefined): src is string {
+export function hasProductImage(src?: string | null): boolean {
   if (!src) return false;
   if (src.startsWith("/")) return true;
   try {
@@ -25,25 +25,55 @@ function isUsableImageSource(src: string | undefined): src is string {
   }
 }
 
-export function ProductImage({ src, alt, width, height, className, seed = "mesaflow-food" }: Props) {
-  const [failedSrc, setFailedSrc] = useState<string | undefined>();
-  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const failed = Boolean(src && failedSrc === src);
-  const resolved =
-    failed || !isUsableImageSource(src)
-      ? PRODUCT_IMAGES[seed] ?? productImageByName(alt) ?? productImage(seed, "default")
-      : src;
+export function ProductImage({ src, alt, width, height, className }: Props) {
+  const [failed, setFailed] = useState(false);
+
+  if (!hasProductImage(src) || failed) return null;
 
   return (
     <Image
-      src={resolved}
+      src={src!}
       alt={alt}
       width={width}
       height={height}
-      className={cn("bg-surface-3 transition-opacity duration-300", loadedSrc === resolved ? "opacity-100" : "opacity-60", className)}
-      aria-busy={loadedSrc !== resolved}
-      onLoad={() => setLoadedSrc(resolved)}
-      onError={() => setFailedSrc(src)}
+      className={cn("transition-opacity duration-300", className)}
+      onError={() => setFailed(true)}
     />
   );
+}
+
+type ProductVisualProps = {
+  src?: string;
+  alt: string;
+  categoryEmoji?: string;
+  width: number;
+  height: number;
+  className?: string;
+  emojiClassName?: string;
+};
+
+/** Foto real quando existir; senão emoji da categoria; senão nada (só texto nos pais). */
+export function ProductVisual({
+  src,
+  alt,
+  categoryEmoji,
+  width,
+  height,
+  className,
+  emojiClassName,
+}: ProductVisualProps) {
+  if (hasProductImage(src)) {
+    return <ProductImage src={src} alt={alt} width={width} height={height} className={className} />;
+  }
+  if (categoryEmoji) {
+    return (
+      <span
+        className={cn("inline-flex shrink-0 items-center justify-center leading-none", emojiClassName)}
+        aria-hidden
+      >
+        {categoryEmoji}
+      </span>
+    );
+  }
+  return null;
 }
