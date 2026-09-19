@@ -425,6 +425,19 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     return suggestionsForProduct(selected, data.products, data.categories);
   }, [selected, data]);
 
+  const configuredBumpProducts = useMemo(() => {
+    if (!selected || !data) return [] as Product[];
+    return (selected.bumpProductIds || [])
+      .map((id) => data.products.find((entry) => entry.id === id))
+      .filter((product): product is Product => Boolean(product?.active));
+  }, [selected, data]);
+
+  const modalSuggestions = useMemo(() => {
+    if (!selected) return selectedSuggestions;
+    const bumpIds = new Set(selected.bumpProductIds || []);
+    return selectedSuggestions.filter((suggestion) => !bumpIds.has(suggestion.product.id));
+  }, [selectedSuggestions, selected]);
+
   const pendingBumpAddons = useMemo(() => {
     if (!data) return [] as Array<{ addonId: string; name: string; price: number; qty: number }>;
     return Object.entries(pendingBumps)
@@ -458,6 +471,15 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     }));
   }
 
+  function setPendingBumpQty(productId: string, qty: number) {
+    setPendingBumps((current) => {
+      const next = { ...current };
+      if (qty <= 0) delete next[productId];
+      else next[productId] = Math.min(9, qty);
+      return next;
+    });
+  }
+
   function addSuggestion(suggestion: SoftSuggestion) {
     const { product, parentProductId } = suggestion;
     if (parentProductId) {
@@ -471,6 +493,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
         notify(`${product.name} adicionado como acréscimo.`);
         return;
       }
+      return;
     }
     if (product.variants.length > 0) {
       setSelected(product);
@@ -1276,50 +1299,54 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 </div>
               </fieldset>
             )}
+            {configuredBumpProducts.length > 0 && (
+              <fieldset className="mb-4">
+                <legend className="mb-2 text-sm font-semibold">Combina bem com</legend>
+                <div className="space-y-2">
+                  {configuredBumpProducts.map((product) => {
+                    const quantity = pendingBumps[product.id] || 0;
+                    return (
+                      <div key={product.id} className="flex items-center justify-between rounded-xl bg-surface p-3">
+                        <div>
+                          <p className="text-sm font-medium">{product.name}</p>
+                          <p className="text-xs text-brand">+{formatCurrency(product.price)}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            aria-label={`Remover ${product.name}`}
+                            onClick={() => setPendingBumpQty(product.id, quantity - 1)}
+                            className="rounded-lg bg-surface-3 p-2"
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <span className="w-5 text-center text-sm font-bold">{quantity}</span>
+                          <button
+                            type="button"
+                            aria-label={`Adicionar ${product.name}`}
+                            onClick={() => setPendingBumpQty(product.id, quantity + 1)}
+                            className="rounded-lg bg-brand p-2 text-white"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            )}
             <label className="mb-4 block">
               <span className="mb-1.5 block text-xs font-medium text-muted">Observação (opcional)</span>
               <input value={itemNotes} onChange={(event) => setItemNotes(event.target.value)} maxLength={160} placeholder="Ex.: sem cebola" className="w-full rounded-xl border border-white/10 bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand/50" />
             </label>
             <SoftSuggestions
               className="mb-4"
-              title={
-                selectedSuggestions.some((s) => s.tone === "pairing")
-                  ? "Combina bem com"
-                  : "Para acompanhar"
-              }
-              suggestions={selectedSuggestions}
+              title="Para acompanhar"
+              suggestions={modalSuggestions}
               categoryEmoji={categoryEmojiFor}
               onAdd={addSuggestion}
             />
-            {pendingBumpAddons.length > 0 && (
-              <div className="mb-4 rounded-xl border border-brand/20 bg-brand/5 p-3">
-                <p className="mb-2 text-xs font-semibold text-brand">Acréscimos selecionados</p>
-                <ul className="space-y-1 text-sm">
-                  {pendingBumpAddons.map((addon) => (
-                    <li key={addon.addonId} className="flex items-center justify-between gap-2">
-                      <span>{addon.qty}x {addon.name}</span>
-                      <button
-                        type="button"
-                        aria-label={`Remover ${addon.name}`}
-                        onClick={() =>
-                          setPendingBumps((current) => {
-                            const next = { ...current };
-                            const productId = addon.addonId.replace(/^bump_/, "");
-                            const qty = (next[productId] || 0) - 1;
-                            if (qty <= 0) delete next[productId];
-                            else next[productId] = qty;
-                            return next;
-                          })
-                        }
-                        className="rounded-lg p-1 text-muted hover:text-ink"
-                      >
-                        <Minus className="h-3.5 w-3.5" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
             </div>
             <div className="shrink-0 border-t border-white/10 bg-surface-2 p-4 safe-bottom">
               <p className="mb-3 text-xl font-bold text-brand">

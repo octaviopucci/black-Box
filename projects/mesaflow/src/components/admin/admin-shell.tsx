@@ -17,7 +17,9 @@ import {
   ShieldAlert,
   ShoppingBag,
   Table2,
-  X } from "lucide-react";
+  X,
+} from "lucide-react";
+import { formatCurrency } from "@/lib/format";
 import { Logo } from "@/components/brand/logo";
 import { useAuth } from "@/contexts/auth-context";
 import { useOrderAlerts } from "@/hooks/use-order-alerts";
@@ -59,7 +61,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [persistWarning, setPersistWarning] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
-  const { notificationPermission, enableNotifications } = useOrderAlerts();
+  const {
+    notificationPermission,
+    enableNotifications,
+    pendingAlerts,
+    dismissAlert,
+    dismissAllAlerts,
+  } = useOrderAlerts();
 
   useEffect(() => {
     setSoundMuted(isOrderSoundMuted());
@@ -120,6 +128,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  function openOrderAlert(orderId: string) {
+    dismissAlert(orderId);
+    router.push(`/admin/orders?order=${encodeURIComponent(orderId)}`);
+  }
 
   const roleNav = navForRole(session?.user.role);
   const mobileNav = roleNav.slice(0, 5);
@@ -222,6 +235,41 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         {persistWarning && (
           <div className="border-b border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning lg:px-8">
             {persistWarning}
+          </div>
+        )}
+
+        {pendingAlerts.length > 0 && (
+          <div className="sticky top-0 z-40 border-b border-yellow-500/40 bg-yellow-400/95 px-4 py-3 text-yellow-950 shadow-md lg:px-8">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1 space-y-2">
+                {pendingAlerts.map(({ order }) => (
+                  <button
+                    key={order.id}
+                    type="button"
+                    onClick={() => openOrderAlert(order.id)}
+                    className="flex w-full items-center justify-between gap-3 rounded-xl bg-yellow-300/80 px-4 py-3 text-left font-semibold transition hover:bg-yellow-200/90"
+                  >
+                    <span className="min-w-0 truncate">
+                      Novo pedido #{order.number} · Mesa {order.tableNumber}
+                    </span>
+                    <span className="shrink-0 text-sm font-bold">{formatCurrency(order.total)}</span>
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={dismissAllAlerts}
+                aria-label="Fechar alertas de pedido"
+                className="shrink-0 rounded-lg p-1.5 text-yellow-950/70 transition hover:bg-yellow-300/60 hover:text-yellow-950"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {pathname !== "/admin/orders" && pendingAlerts.length === 1 && (
+              <p className="mt-2 text-xs font-medium text-yellow-950/80">
+                Toque no alerta para abrir o pedido em Pedidos.
+              </p>
+            )}
           </div>
         )}
         <main className="min-w-0 p-4 pb-24 lg:p-8">{children}</main>
