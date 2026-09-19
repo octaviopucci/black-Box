@@ -25,6 +25,7 @@ export default function AdminIntegrationsPage() {
   const { fetchApi } = useAuth();
   const [items, setItems] = useState<IntegrationItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [webhookUrl, setWebhookUrl] = useState("");
   const [webhookSecret, setWebhookSecret] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -32,17 +33,20 @@ export default function AdminIntegrationsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const response = await fetchApi("/admin/integrations", { });
-      const json = await response.json();
+      const json = (await response.json()) as { items?: IntegrationItem[]; error?: string };
+      if (!response.ok) throw new Error(json.error || "Não foi possível carregar integrações.");
       setItems(json.items || []);
-      const webhook = (json.items as IntegrationItem[] | undefined)?.find(
-        (item) => item.provider === "webhook",
-      );
+      const webhook = json.items?.find((item) => item.provider === "webhook");
       if (webhook?.connection?.config?.url) {
         setWebhookUrl(webhook.connection.config.url);
         setWebhookSecret(webhook.connection.config.secret || "");
       }
+    } catch (loadError) {
+      setItems([]);
+      setError(loadError instanceof Error ? loadError.message : "Falha ao carregar integrações.");
     } finally {
       setLoading(false);
     }
@@ -111,6 +115,15 @@ export default function AdminIntegrationsPage() {
           para a URL informada — use um endpoint seu ou webhook.site para validar.
         </p>
       </div>
+
+      {error && (
+        <div className="mb-4 rounded-xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
+          {error}
+          <Button type="button" size="sm" variant="ghost" className="ml-3" onClick={() => void load()}>
+            Tentar novamente
+          </Button>
+        </div>
+      )}
 
       {loading ? (
         <div className="grid gap-4 md:grid-cols-2">

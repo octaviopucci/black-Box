@@ -11,6 +11,7 @@ import {
   Upload,
   X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { parseApiJson } from "@/lib/api";
 import { readFileAsDataUrl } from "@/lib/read-file-as-data-url";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
@@ -163,7 +164,7 @@ export default function AdminProductsPage() {
     setLoadError("");
     try {
       const response = await fetchApi("/admin/products", { });
-      const json = await response.json();
+      const json = (await parseApiJson(response)) as CatalogResponse & { error?: string };
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar o catálogo.");
       setCatalog({
         products: json.products || [],

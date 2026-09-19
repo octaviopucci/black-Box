@@ -6,7 +6,7 @@ import { Copy, Download, Printer, QrCode as QrCodeIcon } from "lucide-react";
 import type { Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl, staffFetch } from "@/lib/api";
+import { apiUrl, parseApiJson, staffFetch } from "@/lib/api";
 
 function menuUrl(slug: string, qrToken: string) {
   const base = typeof window !== "undefined" ? window.location.origin : "";
@@ -27,7 +27,7 @@ export default function QRCodesPage() {
     setError("");
     try {
       const response = await fetchApi("/admin/tables", { cache: "no-store" });
-      const json = await response.json();
+      const json = (await parseApiJson(response)) as { tables?: Table[]; error?: string };
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar os QR Codes.");
       setTables(json.tables || []);
     } catch (loadError) {

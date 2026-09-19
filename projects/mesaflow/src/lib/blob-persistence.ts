@@ -170,7 +170,10 @@ async function readJsonFromStream(stream: ReadableStream<Uint8Array>): Promise<u
 
 async function blobGet(pathname: string, auth: BlobAuthOptions) {
   const getFn = blobGetOverride ?? get;
-  return getFn(pathname, { access: BLOB_ACCESS, ...auth, useCache: false });
+  return withBlobTimeout(
+    getFn(pathname, { access: BLOB_ACCESS, ...auth, useCache: false }),
+    `blob get ${pathname}`,
+  );
 }
 
 async function blobPut(
@@ -307,6 +310,24 @@ async function hydrateFromBlobImpl(runtimeOidcToken?: string): Promise<HydrateBl
 }
 
 const MAX_BLOB_RETRIES = 5;
+const BLOB_IO_TIMEOUT_MS = 12_000;
+
+async function withBlobTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`${label} timeout after ${BLOB_IO_TIMEOUT_MS}ms`)),
+          BLOB_IO_TIMEOUT_MS,
+        );
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 function isBlobEtagConflict(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);

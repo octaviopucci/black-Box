@@ -25,7 +25,7 @@ const NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
 
 export default function AdminOrdersPage() {
   const { fetchApi } = useAuth();
-  const { data, load } = useAdminData<{ orders: Order[] }>();
+  const { data, loading, error, load } = useAdminData<{ orders: Order[] }>();
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
@@ -59,6 +59,21 @@ export default function AdminOrdersPage() {
   return (
     <div>
       <h1 className="mb-6 font-[family-name:var(--font-display)] text-2xl font-bold">Pedidos</h1>
+      {error && (
+        <div className="mb-4 rounded-xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
+          {error}
+          <Button type="button" size="sm" variant="ghost" className="ml-3" onClick={() => void load()}>
+            Tentar novamente
+          </Button>
+        </div>
+      )}
+      {loading && orders.length === 0 ? (
+        <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="skeleton min-w-[260px] flex-1 h-64 rounded-2xl" />
+          ))}
+        </div>
+      ) : (
       <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-4">
         {COLUMNS.map((col) => (
           <div key={col.status} className="min-w-[260px] flex-1 rounded-2xl border border-white/5 bg-surface-2 p-4">
@@ -89,6 +104,7 @@ export default function AdminOrdersPage() {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Copy, ExternalLink, Pencil, Plus, QrCode, RotateCw, Trash2, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { apiUrl, staffFetch } from "@/lib/api";
+import { apiUrl, parseApiJson, staffFetch } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { Table, TableStatus } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export default function AdminTablesPage() {
     setError("");
     try {
       const response = await fetchApi("/admin/tables", { });
-      const json = await response.json();
+      const json = (await parseApiJson(response)) as { tables?: Table[]; error?: string };
       if (!response.ok) throw new Error(json.error || "Não foi possível carregar as mesas.");
       setTables(json.tables || []);
     } catch (loadError) {

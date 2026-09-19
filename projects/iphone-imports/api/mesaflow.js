@@ -343,7 +343,10 @@ async function readJsonFromStream(stream) {
 }
 async function blobGet(pathname, auth) {
   const getFn = blobGetOverride ?? import_blob.get;
-  return getFn(pathname, { access: BLOB_ACCESS, ...auth, useCache: false });
+  return withBlobTimeout(
+    getFn(pathname, { access: BLOB_ACCESS, ...auth, useCache: false }),
+    `blob get ${pathname}`
+  );
 }
 async function blobPut(pathname, body, auth, etag) {
   const putFn = blobPutOverride ?? import_blob.put;
@@ -397,6 +400,22 @@ async function hydrateFromBlobImpl(runtimeOidcToken2) {
     etags: {},
     migratedFromLegacy: true
   };
+}
+async function withBlobTimeout(promise, label) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`${label} timeout after ${BLOB_IO_TIMEOUT_MS}ms`)),
+          BLOB_IO_TIMEOUT_MS
+        );
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 function isBlobEtagConflict(error) {
   const message = error instanceof Error ? error.message : String(error);
@@ -487,7 +506,7 @@ async function probeBlobPaths(runtimeOidcToken2) {
     };
   }
 }
-var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, hydrateFromBlobOverride, flushToBlobOverride, blobPutOverride, blobGetOverride, MAX_BLOB_RETRIES;
+var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, hydrateFromBlobOverride, flushToBlobOverride, blobPutOverride, blobGetOverride, MAX_BLOB_RETRIES, BLOB_IO_TIMEOUT_MS;
 var init_blob_persistence = __esm({
   "../mesaflow/src/lib/blob-persistence.ts"() {
     "use strict";
@@ -497,6 +516,7 @@ var init_blob_persistence = __esm({
     IDENTITY_BLOB_PATH = "mesaflow/identity.json";
     BLOB_ACCESS = "private";
     MAX_BLOB_RETRIES = 5;
+    BLOB_IO_TIMEOUT_MS = 12e3;
   }
 });
 
@@ -4201,7 +4221,9 @@ async function hydratePersistentStore() {
     runRetentionPurge(store2);
     return;
   }
-  if (cache && (operationalDirty || identityDirty)) {
+  if (cache) {
+    migrateLegacyGuestParticipations(cache);
+    runRetentionPurge(cache);
     return;
   }
   (0, import_fs.mkdirSync)((0, import_path.dirname)(DATA_PATH), { recursive: true });

@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { parseApiJson } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { OPERATION_MODES } from "@/lib/operation-modes";
@@ -59,6 +60,7 @@ type Analytics = {
 };
 
 type Dash = {
+  establishment?: { name?: string };
   stats: {
     revenue: number;
     ordersToday: number;
@@ -118,7 +120,7 @@ export default function AdminDashboardPage() {
     setError("");
     try {
       const res = await fetchApi(`/admin/dashboard?period=${period}`);
-      const json = await res.json();
+      const json = (await parseApiJson(res)) as Dash & { error?: string };
       if (!res.ok) throw new Error(json.error || "Falha ao carregar dashboard");
       if (!json.analytics) {
         throw new Error("Resposta incompleta da API (analytics ausente). Redeploy ou contate o suporte.");
