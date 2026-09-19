@@ -4317,6 +4317,24 @@ function latestMerchantStatusChangeAt(store, establishmentId) {
 function operationalSnapshotToStore(operational) {
   return { ...emptyStore(), ...operational };
 }
+function catalogCollectionsChanged(remote, local) {
+  for (const key of CATALOG_COLLECTION_KEYS) {
+    for (const [id2, item] of Object.entries(local[key] ?? {})) {
+      const remoteItem = remote[key]?.[id2];
+      if (!remoteItem || JSON.stringify(remoteItem) !== JSON.stringify(item)) return true;
+    }
+  }
+  return false;
+}
+function overlayCatalogCollections(remote, local) {
+  return {
+    sectors: { ...remote.sectors, ...local.sectors },
+    categories: { ...remote.categories, ...local.categories },
+    products: { ...remote.products, ...local.products },
+    tables: { ...remote.tables, ...local.tables },
+    changed: catalogCollectionsChanged(remote, local)
+  };
+}
 function mergeOperationalBlobOnConflict(remote, local) {
   const merged = mergeOperationalFromDisk(
     operationalSnapshotToStore(remote),
@@ -4347,13 +4365,18 @@ function mergeOperationalFromDisk(remote, disk) {
       mergedAhead = true;
     }
   }
+  const catalogOverlay = overlayCatalogCollections(remote, disk);
   return {
     store: {
       ...remote,
+      sectors: catalogOverlay.sectors,
+      categories: catalogOverlay.categories,
+      products: catalogOverlay.products,
+      tables: catalogOverlay.tables,
       establishments,
       auditEvents: mergedAhead ? { ...remote.auditEvents ?? {}, ...disk.auditEvents ?? {} } : remote.auditEvents
     },
-    mergedAhead
+    mergedAhead: mergedAhead || catalogOverlay.changed
   };
 }
 function finishRemoteHydrate(remoteStore, etags, migratedFromLegacy, source) {
@@ -5166,6 +5189,52 @@ function deleteAdminCategory(establishmentId, categoryId) {
   saveStore(store);
   return { value: category };
 }
+async function finalizeCatalogMutation(result, rollback) {
+  if ("error" in result) return result;
+  if (!process.env.VERCEL) return result;
+  const persist2 = await requireOperationalPersist();
+  if (persist2.ok) return result;
+  rollback();
+  return {
+    error: persist2.blobError || persist2.redisError || SHARED_CATALOG_PERSIST_ERROR,
+    status: 503
+  };
+}
+async function createAdminCategoryPersisted(establishmentId, body) {
+  const result = createAdminCategory(establishmentId, body);
+  if ("error" in result) return result;
+  const categoryId = result.value.id;
+  return finalizeCatalogMutation(result, () => {
+    const store = getStore();
+    delete store.categories[categoryId];
+    saveStore(store);
+  });
+}
+async function updateAdminCategoryPersisted(establishmentId, categoryId, body) {
+  const store = getStore();
+  const before = store.categories[categoryId] ? { ...store.categories[categoryId] } : null;
+  const result = updateAdminCategory(establishmentId, categoryId, body);
+  return finalizeCatalogMutation(result, () => {
+    if (!before) return;
+    const rollbackStore = getStore();
+    rollbackStore.categories[categoryId] = before;
+    saveStore(rollbackStore);
+  });
+}
+async function deleteAdminCategoryPersisted(establishmentId, categoryId) {
+  const store = getStore();
+  const category = store.categories[categoryId];
+  const wasActive = category?.active;
+  const result = deleteAdminCategory(establishmentId, categoryId);
+  return finalizeCatalogMutation(result, () => {
+    const rollbackStore = getStore();
+    const rollbackCategory = rollbackStore.categories[categoryId];
+    if (rollbackCategory && wasActive !== void 0) {
+      rollbackCategory.active = wasActive;
+      saveStore(rollbackStore);
+    }
+  });
+}
 function uniqueQrToken2(store) {
   let token = sessionToken();
   while (Object.values(store.tables).some((table) => table.qrToken === token)) {
@@ -5493,7 +5562,7 @@ function dashboardStats(establishmentId) {
     paymentsConfirmed: analytics.payments.confirmed
   };
 }
-var import_fs, import_path, DATA_PATH, cache, operationalDirty, identityDirty, blobEtags, runtimeOidcToken, lastBlobError, lastRedisError, lastPersistSource, SESSION_TTL_MS, productionPlatformSeeded, PRODUCT_AVAILABILITIES, TABLE_STATUSES;
+var import_fs, import_path, DATA_PATH, cache, operationalDirty, identityDirty, blobEtags, runtimeOidcToken, lastBlobError, lastRedisError, lastPersistSource, SESSION_TTL_MS, CATALOG_COLLECTION_KEYS, productionPlatformSeeded, PRODUCT_AVAILABILITIES, TABLE_STATUSES, SHARED_CATALOG_PERSIST_ERROR;
 var init_store = __esm({
   "../mesaflow/src/lib/store.ts"() {
     "use strict";
@@ -5527,6 +5596,7 @@ var init_store = __esm({
     blobEtags = {};
     lastPersistSource = "none";
     SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
+    CATALOG_COLLECTION_KEYS = ["sectors", "categories", "products", "tables"];
     productionPlatformSeeded = false;
     PRODUCT_AVAILABILITIES = /* @__PURE__ */ new Set([
       "VITRINE",
@@ -5540,6 +5610,7 @@ var init_store = __esm({
       "RESERVADA",
       "INATIVA"
     ]);
+    SHARED_CATALOG_PERSIST_ERROR = "N\xE3o foi poss\xEDvel salvar no armazenamento compartilhado. Verifique Blob (BLOB_READ_WRITE_TOKEN) e tente novamente.";
   }
 });
 
@@ -8296,7 +8367,7 @@ async function handler(req, res) {
         return json(res, 200, { categories: listAdminCategories(auth.establishment.id) });
       }
       if (req.method === "POST") {
-        const result = createAdminCategory(auth.establishment.id, req.body);
+        const result = await createAdminCategoryPersisted(auth.establishment.id, req.body);
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, { category: result.value });
       }
@@ -8306,12 +8377,16 @@ async function handler(req, res) {
       const auth = adminAuth(req);
       if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
       if (req.method === "PATCH") {
-        const result = updateAdminCategory(auth.establishment.id, adminCategoryMatch[1], req.body);
+        const result = await updateAdminCategoryPersisted(
+          auth.establishment.id,
+          adminCategoryMatch[1],
+          req.body
+        );
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 200, { category: result.value });
       }
       if (req.method === "DELETE") {
-        const result = deleteAdminCategory(auth.establishment.id, adminCategoryMatch[1]);
+        const result = await deleteAdminCategoryPersisted(auth.establishment.id, adminCategoryMatch[1]);
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 200, { category: result.value });
       }

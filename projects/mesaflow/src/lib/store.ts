@@ -209,6 +209,28 @@ function operationalSnapshotToStore(operational: MesaFlowOperationalStore): Mesa
   return { ...emptyStore(), ...operational };
 }
 
+const CATALOG_COLLECTION_KEYS = ["sectors", "categories", "products", "tables"] as const;
+
+function catalogCollectionsChanged(remote: MesaFlowStore, local: MesaFlowStore): boolean {
+  for (const key of CATALOG_COLLECTION_KEYS) {
+    for (const [id, item] of Object.entries(local[key] ?? {})) {
+      const remoteItem = remote[key]?.[id];
+      if (!remoteItem || JSON.stringify(remoteItem) !== JSON.stringify(item)) return true;
+    }
+  }
+  return false;
+}
+
+function overlayCatalogCollections(remote: MesaFlowStore, local: MesaFlowStore) {
+  return {
+    sectors: { ...remote.sectors, ...local.sectors },
+    categories: { ...remote.categories, ...local.categories },
+    products: { ...remote.products, ...local.products },
+    tables: { ...remote.tables, ...local.tables },
+    changed: catalogCollectionsChanged(remote, local),
+  };
+}
+
 function mergeOperationalBlobOnConflict(
   remote: MesaFlowOperationalStore,
   local: MesaFlowOperationalStore,
@@ -249,15 +271,21 @@ function mergeOperationalFromDisk(
     }
   }
 
+  const catalogOverlay = overlayCatalogCollections(remote, disk);
+
   return {
     store: {
       ...remote,
+      sectors: catalogOverlay.sectors,
+      categories: catalogOverlay.categories,
+      products: catalogOverlay.products,
+      tables: catalogOverlay.tables,
       establishments,
       auditEvents: mergedAhead
         ? { ...(remote.auditEvents ?? {}), ...(disk.auditEvents ?? {}) }
         : remote.auditEvents,
     },
-    mergedAhead,
+    mergedAhead: mergedAhead || catalogOverlay.changed,
   };
 }
 
@@ -1297,6 +1325,72 @@ export function deleteAdminCategory(
   category.active = false;
   saveStore(store);
   return { value: category };
+}
+
+const SHARED_CATALOG_PERSIST_ERROR =
+  "Não foi possível salvar no armazenamento compartilhado. Verifique Blob (BLOB_READ_WRITE_TOKEN) e tente novamente.";
+
+async function finalizeCatalogMutation<T>(
+  result: MutationResult<T>,
+  rollback: () => void,
+): Promise<MutationResult<T>> {
+  if ("error" in result) return result;
+  if (!process.env.VERCEL) return result;
+  const persist = await requireOperationalPersist();
+  if (persist.ok) return result;
+  rollback();
+  return {
+    error: persist.blobError || persist.redisError || SHARED_CATALOG_PERSIST_ERROR,
+    status: 503,
+  };
+}
+
+export async function createAdminCategoryPersisted(
+  establishmentId: string,
+  body: unknown,
+): Promise<MutationResult<Category>> {
+  const result = createAdminCategory(establishmentId, body);
+  if ("error" in result) return result;
+  const categoryId = result.value.id;
+  return finalizeCatalogMutation(result, () => {
+    const store = getStore();
+    delete store.categories[categoryId];
+    saveStore(store);
+  });
+}
+
+export async function updateAdminCategoryPersisted(
+  establishmentId: string,
+  categoryId: string,
+  body: unknown,
+): Promise<MutationResult<Category>> {
+  const store = getStore();
+  const before = store.categories[categoryId] ? { ...store.categories[categoryId] } : null;
+  const result = updateAdminCategory(establishmentId, categoryId, body);
+  return finalizeCatalogMutation(result, () => {
+    if (!before) return;
+    const rollbackStore = getStore();
+    rollbackStore.categories[categoryId] = before;
+    saveStore(rollbackStore);
+  });
+}
+
+export async function deleteAdminCategoryPersisted(
+  establishmentId: string,
+  categoryId: string,
+): Promise<MutationResult<Category>> {
+  const store = getStore();
+  const category = store.categories[categoryId];
+  const wasActive = category?.active;
+  const result = deleteAdminCategory(establishmentId, categoryId);
+  return finalizeCatalogMutation(result, () => {
+    const rollbackStore = getStore();
+    const rollbackCategory = rollbackStore.categories[categoryId];
+    if (rollbackCategory && wasActive !== undefined) {
+      rollbackCategory.active = wasActive;
+      saveStore(rollbackStore);
+    }
+  });
 }
 
 function uniqueQrToken(store: MesaFlowStore) {
