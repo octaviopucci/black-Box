@@ -58,12 +58,20 @@ Sem Blob configurado, a API falha fechada e não grava dados em `/tmp`.
 
 ### Import cardápio Marcelo Lanches
 
+O seed **não roda no deploy**. Após publicar, importe uma vez:
+
+1. **Painel lojista** — login OWNER/MANAGER em Marcelo Lanches → **Produtos** → *Importar cardápio Marcelo Lanches*
+2. **Painel plataforma** — login platform owner → detalhe do lojista → *Importar cardápio Marcelo Lanches*
+3. **Script local** (Blob):
+
 ```bash
 cd projects/mesaflow
 export BLOB_READ_WRITE_TOKEN="…"
 npm run seed:marcelo          # lojista já cadastrado
 npm run seed:marcelo -- --create   # cria estabelecimento se faltar
 ```
+
+4. **API autenticada** (sem secret): `POST /api/mesaflow/admin/catalog/import-marcelo` com sessão admin, ou `POST /api/mesaflow/platform/merchants/:id/import-marcelo-catalog` com sessão platform owner. Opcional: header `x-mesaflow-import-secret` quando `MESAFLOW_CATALOG_IMPORT_SECRET` estiver definido.
 
 Detalhes de deploy NA MESA: `projects/iphone-imports/DEPLOY-NA-MESA.md`.
 

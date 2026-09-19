@@ -105,15 +105,19 @@ function drinkProduct(
   };
 }
 
-export function findMarceloEstablishment(store: MesaFlowStore): Establishment | null {
+export function isMarceloLikeEstablishment(establishment: Pick<Establishment, "slug" | "name">): boolean {
+  const slug = establishment.slug.toLowerCase();
+  const name = establishment.name.toLowerCase();
   return (
-    Object.values(store.establishments).find(
-      (e) =>
-        e.slug === MARCELO_ESTABLISHMENT_SLUG ||
-        e.slug.includes("marcelo") ||
-        e.name.toLowerCase().includes("marcelo"),
-    ) ?? null
+    establishment.slug === MARCELO_ESTABLISHMENT_SLUG ||
+    establishment.name === "Marcelo Lanches" ||
+    slug.includes("marcelo") ||
+    name.includes("marcelo")
   );
+}
+
+export function findMarceloEstablishment(store: MesaFlowStore): Establishment | null {
+  return Object.values(store.establishments).find(isMarceloLikeEstablishment) ?? null;
 }
 
 export function buildMarceloLanchesCatalog(establishmentId: string, secCozinha: string, secBalcao: string): CatalogSlice {
@@ -879,10 +883,22 @@ export type ApplyMarceloCatalogResult =
 
 export function applyMarceloLanchesCatalog(
   store: MesaFlowStore,
-  options?: { createIfMissing?: boolean },
+  options?: { createIfMissing?: boolean; establishmentId?: string },
 ): ApplyMarceloCatalogResult {
-  let establishment = findMarceloEstablishment(store);
+  let establishment: Establishment | null = null;
   let created = false;
+
+  if (options?.establishmentId) {
+    establishment = store.establishments[options.establishmentId] ?? null;
+    if (!establishment) {
+      return {
+        ok: false,
+        error: `Estabelecimento ${options.establishmentId} não encontrado.`,
+      };
+    }
+  } else {
+    establishment = findMarceloEstablishment(store);
+  }
 
   if (!establishment && options?.createIfMissing) {
     const now = new Date().toISOString();

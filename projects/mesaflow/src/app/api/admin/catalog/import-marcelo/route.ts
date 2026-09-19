@@ -1,24 +1,30 @@
+import { readJson } from "@/app/api/admin/_shared";
+import {
+  resolveCatalogImportAuth,
+  resolveCatalogImportEstablishmentId,
+} from "@/lib/catalog-import-marcelo";
 import { importMarceloLanchesCatalog } from "@/lib/store";
 
-function catalogImportAuthorized(req: Request) {
-  const secret = process.env.MESAFLOW_CATALOG_IMPORT_SECRET?.trim();
-  if (!secret) return false;
-  const header = req.headers.get("x-mesaflow-import-secret");
-  return header === secret;
-}
-
 export async function POST(req: Request) {
-  if (!catalogImportAuthorized(req)) {
+  const auth = resolveCatalogImportAuth(req);
+  if (!auth) {
     return Response.json({ error: "Não autorizado." }, { status: 401 });
   }
 
-  const body = (await req.json().catch(() => ({}))) as { createIfMissing?: boolean };
+  const body = (await readJson(req)) as { createIfMissing?: boolean; establishmentId?: string };
+  const establishmentId = resolveCatalogImportEstablishmentId(auth, body);
+  if (auth.kind === "admin" && body.establishmentId && !establishmentId) {
+    return Response.json({ error: "Não autorizado." }, { status: 403 });
+  }
+
   const result = await importMarceloLanchesCatalog({
     createIfMissing: body.createIfMissing === true,
+    establishmentId,
   });
 
   if (!result.ok) {
-    return Response.json({ error: result.error }, { status: 404 });
+    const status = result.error.includes("armazenamento compartilhado") ? 503 : 404;
+    return Response.json({ error: result.error }, { status });
   }
 
   return Response.json(result);

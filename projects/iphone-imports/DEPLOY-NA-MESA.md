@@ -107,12 +107,37 @@ npm run seed:marcelo -- --dry-run
 
 O script localiza o lojista cujo slug/nome contém **marcelo** (ex.: `marcelo-lanches`), substitui **somente** categorias/produtos desse estabelecimento e persiste em `mesaflow/operational.json` + `mesaflow/identity.json` no Blob.
 
-### Opção B — API após redeploy
+### Opção B — UI após redeploy (recomendado)
+
+1. **Lojista:** login OWNER/MANAGER → `/mesaflow/admin/products` → botão **Importar cardápio Marcelo Lanches**
+2. **Plataforma:** login platform owner → `/mesaflow/platform/merchants/detail?id=<establishmentId>` → **Importar cardápio Marcelo Lanches**
+
+### Opção C — API autenticada
+
+Com cookie/sessão admin (OWNER/MANAGER do Marcelo) ou platform owner:
+
+```bash
+# Lojista autenticado (cookie mf_as ou Bearer)
+curl -X POST "https://<dominio>/api/mesaflow/admin/catalog/import-marcelo" \
+  -H "Content-Type: application/json" \
+  -b "mf_as=<token>" \
+  -d '{}'
+
+# Platform owner
+curl -X POST "https://<dominio>/api/mesaflow/platform/merchants/<establishmentId>/import-marcelo-catalog" \
+  -H "Content-Type: application/json" \
+  -b "mf_ps=<token>" \
+  -d '{}'
+```
+
+Body opcional: `{"establishmentId":"est_…","createIfMissing":true}` no endpoint admin (secret ou platform).
+
+### Opção D — secret para scripts
 
 Defina `MESAFLOW_CATALOG_IMPORT_SECRET` no projeto Vercel e chame:
 
 ```bash
-curl -X POST "https://<seu-dominio-na-mesa>/api/mesaflow/admin/catalog/import-marcelo" \
+curl -X POST "https://<dominio>/api/mesaflow/admin/catalog/import-marcelo" \
   -H "Content-Type: application/json" \
   -H "x-mesaflow-import-secret: $MESAFLOW_CATALOG_IMPORT_SECRET" \
   -d '{"createIfMissing":true}'

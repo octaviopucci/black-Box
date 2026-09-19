@@ -1855,13 +1855,37 @@ export function dashboardStats(establishmentId: string) {
   };
 }
 
-export { applyMarceloLanchesCatalog } from "./seed-marcelo-lanches";
+export { applyMarceloLanchesCatalog, isMarceloLikeEstablishment } from "./seed-marcelo-lanches";
 
-export async function importMarceloLanchesCatalog(options?: { createIfMissing?: boolean }) {
+export async function importMarceloLanchesCatalog(options?: {
+  createIfMissing?: boolean;
+  establishmentId?: string;
+}) {
   const store = getStore();
+  const snapshot = {
+    categories: { ...store.categories },
+    products: { ...store.products },
+    establishments: { ...store.establishments },
+    sectors: { ...store.sectors },
+  };
   const result = applyMarceloLanchesCatalog(store, options);
   if (!result.ok) return result;
   saveStore(store);
-  const persist = await flushPersistentStore();
-  return { ...result, persist };
+  if (!process.env.VERCEL) {
+    return { ...result, persist: { ok: true, disk: true, blob: false } };
+  }
+  const persist = await requireOperationalPersist();
+  if (persist.ok) return { ...result, persist };
+  store.categories = snapshot.categories;
+  store.products = snapshot.products;
+  store.establishments = snapshot.establishments;
+  store.sectors = snapshot.sectors;
+  saveStore(store);
+  return {
+    ok: false as const,
+    error:
+      persist.blobError ||
+      persist.redisError ||
+      "Não foi possível salvar no armazenamento compartilhado. Verifique Blob (BLOB_READ_WRITE_TOKEN) e tente novamente.",
+  };
 }

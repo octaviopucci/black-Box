@@ -41,6 +41,17 @@ type MerchantDetail = {
   analytics30d: { sales: { revenue: number; ordersCount: number; paymentsCollected: number } };
 };
 
+function isMarceloMerchant(merchant: Pick<MerchantDetail, "name" | "slug">) {
+  const name = merchant.name.toLowerCase();
+  const slug = merchant.slug.toLowerCase();
+  return (
+    merchant.name === "Marcelo Lanches" ||
+    slug === "marcelo-lanches" ||
+    name.includes("marcelo") ||
+    slug.includes("marcelo")
+  );
+}
+
 const STATUS_ACTIONS: { status: PlatformStatus; label: string; variant?: "primary" | "secondary" }[] = [
   { status: "active", label: "Aprovar / Ativar", variant: "primary" },
   { status: "pending", label: "Marcar pendente" },
@@ -58,6 +69,8 @@ function PlatformMerchantDetailContent() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<PlatformPlan>("essencial");
+  const [importingCatalog, setImportingCatalog] = useState(false);
+  const [importMessage, setImportMessage] = useState("");
 
   const load = useCallback(async () => {
     if (!id) {
@@ -116,6 +129,33 @@ function PlatformMerchantDetailContent() {
     await patchMerchant({ plan: selectedPlan });
   }
 
+  async function importMarceloCatalog() {
+    if (!merchant || !id) return;
+    if (
+      !window.confirm(
+        "Importar cardápio Marcelo Lanches neste lojista? Categorias e produtos atuais serão substituídos.",
+      )
+    ) {
+      return;
+    }
+    setImportingCatalog(true);
+    setImportMessage("");
+    setError("");
+    const res = await fetchApi(`/platform/merchants/${id}/import-marcelo-catalog`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      setError(json.error || "Falha ao importar cardápio.");
+      setImportingCatalog(false);
+      return;
+    }
+    setImportMessage(`Cardápio importado: ${json.categories} categorias, ${json.products} produtos.`);
+    setImportingCatalog(false);
+  }
+
   if (!id) {
     return (
       <p className="text-sm text-danger">
@@ -172,6 +212,30 @@ function PlatformMerchantDetailContent() {
         <p className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
           {error}
         </p>
+      )}
+
+      {importMessage && (
+        <p className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
+          {importMessage}
+        </p>
+      )}
+
+      {isMarceloMerchant(merchant) && (
+        <div className="glass-panel p-5">
+          <h3 className="font-semibold text-ink">Cardápio Marcelo Lanches</h3>
+          <p className="mt-1 text-xs text-muted">
+            Após deploy, importe o cardápio seed aqui. O seed não roda automaticamente.
+          </p>
+          <Button
+            className="mt-4"
+            size="sm"
+            variant="secondary"
+            disabled={importingCatalog}
+            onClick={importMarceloCatalog}
+          >
+            {importingCatalog ? "Importando…" : "Importar cardápio Marcelo Lanches"}
+          </Button>
+        </div>
       )}
 
       <div className="glass-panel p-5">

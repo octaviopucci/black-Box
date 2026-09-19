@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
-import { applyMarceloLanchesCatalog, MARCELO_ESTABLISHMENT_SLUG } from "./seed-marcelo-lanches";
+import {
+  applyMarceloLanchesCatalog,
+  findMarceloEstablishment,
+  isMarceloLikeEstablishment,
+  MARCELO_ESTABLISHMENT_SLUG,
+} from "./seed-marcelo-lanches";
 import { emptyStore } from "./store";
 import type { MesaFlowStore } from "./types";
 
@@ -37,6 +42,10 @@ function run() {
     rodizioIncluded: false,
   };
 
+  assert.equal(isMarceloLikeEstablishment({ slug: "marcelo-lanches", name: "Marcelo Lanches" }), true);
+  assert.equal(isMarceloLikeEstablishment({ slug: "lanches-do-marcelo", name: "Lanches" }), true);
+  assert.equal(isMarceloLikeEstablishment({ slug: "outro", name: "Marcelo Lanches" }), true);
+
   const missing = applyMarceloLanchesCatalog(store);
   assert.equal(missing.ok, false);
 
@@ -62,6 +71,28 @@ function run() {
   assert.equal(reimport.ok, true);
   if (!reimport.ok) throw new Error("expected ok");
   assert.equal(reimport.products, 50);
+
+  store.establishments.est_ml = {
+    id: "est_ml",
+    slug: "lanches-marcelo-sp",
+    name: "Marcelo Lanches",
+    open: true,
+    rodizioEnabled: false,
+    settings: {
+      currency: "BRL",
+      allowEditAfterPrep: false,
+      soundNotifications: true,
+      minIntervalRodizioSec: 120,
+    },
+    createdAt: new Date().toISOString(),
+  };
+  assert.equal(findMarceloEstablishment(store)?.id, created.establishmentId);
+
+  const targeted = applyMarceloLanchesCatalog(store, { establishmentId: "est_ml" });
+  assert.equal(targeted.ok, true);
+  if (!targeted.ok) throw new Error("expected ok");
+  assert.equal(targeted.establishmentId, "est_ml");
+  assert.equal(targeted.products, 50);
 
   console.log("✓ seed-marcelo-lanches: catalog import idempotent, extras as addons");
 }
