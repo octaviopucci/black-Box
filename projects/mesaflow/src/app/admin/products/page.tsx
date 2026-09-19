@@ -281,7 +281,7 @@ export default function AdminProductsPage() {
           description: draft.description.trim(),
           categoryId: draft.categoryId,
           sectorId: draft.sectorId,
-          image: draft.image.trim() || undefined,
+          image: draft.image.trim() ? draft.image.trim() : editing ? null : undefined,
           price,
           prepMinutes,
           availability: draft.availability,
@@ -566,7 +566,9 @@ export default function AdminProductsPage() {
                 <ProductVisual
                   src={product.image}
                   alt={product.name}
+                  productName={product.name}
                   categoryEmoji={categoryEmojis[product.categoryId]}
+                  categoryName={categoryNames[product.categoryId]}
                   width={112}
                   height={112}
                   className="h-28 w-28 shrink-0 rounded-xl object-cover"
@@ -691,10 +693,23 @@ export default function AdminProductsPage() {
                     <ProductImage src={draft.image} alt={draft.name || "Prévia do produto"} width={640} height={240} className="h-36 w-full object-cover" />
                   </div>
                 ) : (
-                  <div className="flex h-28 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-muted">
-                    Sem imagem
+                  <div className="flex h-28 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-white/10 text-sm text-muted">
+                    <ProductVisual
+                      src=""
+                      alt={draft.name || "Produto"}
+                      productName={draft.name}
+                      categoryEmoji={categoryEmojis[draft.categoryId]}
+                      categoryName={categoryNames[draft.categoryId]}
+                      width={48}
+                      height={48}
+                      emojiClassName="text-3xl"
+                    />
+                    <span>Sem imagem — emoji no cardápio</span>
                   </div>
                 )}
+                <p className="text-[11px] text-muted">
+                  Upload opcional (Vercel Blob). Sem foto, o cardápio usa emoji da categoria ou do nome do produto.
+                </p>
               </div>
 
               <label>

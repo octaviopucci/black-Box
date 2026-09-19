@@ -29,6 +29,10 @@ function safeFilename(filename: string) {
     .slice(0, 80) || "image";
 }
 
+export function isMediaUploadConfigured(runtimeOidcToken?: string) {
+  return blobConfigured(runtimeOidcToken);
+}
+
 export async function uploadProductImage(
   establishmentId: string,
   file: UploadProductImageInput,

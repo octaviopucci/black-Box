@@ -23,6 +23,8 @@
     "test:admin-dashboard": "npx tsx src/lib/admin-dashboard.test.ts",
     "seed:marcelo": "npx tsx scripts/seed-marcelo-lanches.mts",
     "test:category-persist": "npx tsx src/lib/category-persist.test.ts",
+    "test:product-images": "npx tsx src/lib/product-images.test.ts",
+    "test:product-emoji": "npx tsx src/lib/product-emoji.test.ts",
     "test:platform-seed": "npx tsx src/lib/platform-seed-production.test.ts",
     "test:guest-closing": "npx tsx src/lib/guest-closing.test.ts",
     "test:security": "npx tsx src/lib/security-auth.test.ts",

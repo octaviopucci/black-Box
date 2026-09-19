@@ -1,6 +1,6 @@
 /**
- * Fotos reais de comida — URLs verificadas (Pexels / Unsplash).
- * Parâmetros fixos para cache estável no CDN.
+ * Utilitários de imagem de produto — sem injetar fotos stock em runtime.
+ * PRODUCT_IMAGES permanece só para referência histórica / testes de detecção stock.
  */
 
 const PEXELS_Q = "auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
@@ -13,26 +13,26 @@ function unsplash(id: string) {
   return `https://images.unsplash.com/photo-${id}?w=800&h=600&q=80&auto=format&fit=crop`;
 }
 
-/** Imagens do cardápio demo (Ponto do Sabor). */
+/** Imagens stock do cardápio demo legado (Ponto do Sabor) — usadas só para detecção/strip. */
 export const PRODUCT_IMAGES: Record<string, string> = {
-  p_xburger: pexels(1639562), // hambúrguer artesanal
-  p_xsalada: pexels(1279330), // burger com salada
-  p_pizza_calabresa: unsplash("1513104890138-7c749659a591"), // pizza calabresa
-  p_pizza_frango: pexels(2983101), // pizza de frango
-  p_pizza_marg: unsplash("1565299624946-b28f40a0ae38"), // pizza margherita
-  p_pizza_pepper: unsplash("1604382354936-07c5d9983bd3"), // pizza pepperoni
-  p_batata: pexels(1581384), // batata frita
-  p_coxinha: pexels(4518843), // salgado / coxinha
-  p_coca: pexels(50593, "coca-cola-cold-drink-soft-drink-coke"), // coca-cola lata
-  p_cappuccino: unsplash("1572442388796-11668a67e53d"), // cappuccino com latte art
-  p_chopp: pexels(15515325), // chopp / cerveja na torneira
-  p_caipirinha: pexels(2097090), // caipirinha / coquetel
-  p_pudim: unsplash("1551024506-0bccd828d307"), // pudim de leite
-  p_brownie: pexels(1624487), // brownie com sorvete
-  p_salada: unsplash("1512621776951-a57141f2eefd"), // salada fresca
+  p_xburger: pexels(1639562),
+  p_xsalada: pexels(1279330),
+  p_pizza_calabresa: unsplash("1513104890138-7c749659a591"),
+  p_pizza_frango: pexels(2983101),
+  p_pizza_marg: unsplash("1565299624946-b28f40a0ae38"),
+  p_pizza_pepper: unsplash("1604382354936-07c5d9983bd3"),
+  p_batata: pexels(1581384),
+  p_coxinha: pexels(4518843),
+  p_coca: pexels(50593, "coca-cola-cold-drink-soft-drink-coke"),
+  p_cappuccino: unsplash("1572442388796-11668a67e53d"),
+  p_chopp: pexels(15515325),
+  p_caipirinha: pexels(2097090),
+  p_pudim: unsplash("1551024506-0bccd828d307"),
+  p_brownie: pexels(1624487),
+  p_salada: unsplash("1512621776951-a57141f2eefd"),
 };
 
-/** Presets para novos estabelecimentos (provision). */
+/** Presets stock legados — usados só para detecção/strip. */
 export const FOOD_PRESETS = {
   burger: pexels(1639562),
   xsalada: pexels(1279330),
@@ -47,34 +47,45 @@ export const FOOD_PRESETS = {
 
 export type FoodPreset = keyof typeof FOOD_PRESETS;
 
-export function productImage(id: string, fallback: FoodPreset | string = "default") {
-  if (PRODUCT_IMAGES[id]) return PRODUCT_IMAGES[id];
-  if (fallback in FOOD_PRESETS) return FOOD_PRESETS[fallback as FoodPreset];
-  return FOOD_PRESETS.default;
+const STOCK_URL_MARKERS = [
+  "picsum.photos",
+  "images.pexels.com",
+  "images.unsplash.com",
+  "source.unsplash.com",
+  "placehold.co",
+  "placeholder.com",
+  "via.placeholder.com",
+  "loremflickr.com",
+] as const;
+
+const KNOWN_STOCK_URLS = new Set<string>([
+  ...Object.values(PRODUCT_IMAGES),
+  ...Object.values(FOOD_PRESETS),
+]);
+
+/** URL stock conhecida ou de banco genérico — nunca exibir como foto real. */
+export function isStockProductImageUrl(src?: string | null): boolean {
+  if (!src?.trim()) return false;
+  const normalized = src.trim();
+  if (KNOWN_STOCK_URLS.has(normalized)) return true;
+  const lower = normalized.toLowerCase();
+  return STOCK_URL_MARKERS.some((marker) => lower.includes(marker));
 }
 
-/** Escolhe imagem pelo nome do produto (novos tenants). */
-export function productImageByName(name: string, preset: FoodPreset = "default") {
-  const n = name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  if (n.includes("x-salada") || n.includes("x salada")) return FOOD_PRESETS.xsalada;
-  if (n.includes("burger") || n.includes("x-burger") || n.includes("hamburguer")) return FOOD_PRESETS.burger;
-  if (n.includes("pizza") || n.includes("calabresa") || n.includes("pepperoni") || n.includes("marguerita") || n.includes("margherita")) {
-    if (n.includes("pepperoni")) return PRODUCT_IMAGES.p_pizza_pepper;
-    if (n.includes("marguerita") || n.includes("margherita")) return PRODUCT_IMAGES.p_pizza_marg;
-    if (n.includes("frango")) return PRODUCT_IMAGES.p_pizza_frango;
-    return PRODUCT_IMAGES.p_pizza_calabresa;
-  }
-  if (n.includes("coxinha") || n.includes("salgado")) return PRODUCT_IMAGES.p_coxinha;
-  if (n.includes("pao") || n.includes("padaria") || n.includes("croissant")) return FOOD_PRESETS.padaria;
-  if (n.includes("batata") || n.includes("porcao")) return FOOD_PRESETS.porcao;
-  if (n.includes("refrigerante") || n.includes("coca") || n.includes("suco")) return FOOD_PRESETS.bebida;
-  if (n.includes("cappuccino") || n.includes("capuccino")) return PRODUCT_IMAGES.p_cappuccino;
-  if (n.includes("cafe") || n.includes("espresso") || n.includes("expresso") || n.includes("latte")) return FOOD_PRESETS.cafe;
-  if (n.includes("chopp") || n.includes("cerveja")) return pexels(15515325);
-  if (n.includes("caipirinha") || n.includes("drink")) return pexels(2097090);
-  if (n.includes("pudim") || n.includes("flan")) return PRODUCT_IMAGES.p_pudim;
-  if (n.includes("brownie") || n.includes("bolo") || n.includes("sobremesa") || n.includes("doce")) return PRODUCT_IMAGES.p_brownie;
-  if (n.includes("salada")) return unsplash("1512621776951-a57141f2eefd");
-  if (n.includes("prato")) return FOOD_PRESETS.prato;
-  return FOOD_PRESETS[preset] ?? FOOD_PRESETS.default;
+/** Remove URL stock; retorna undefined para persistir sem foto. */
+export function sanitizeProductImageUrl(src?: string | null): string | undefined {
+  if (!src?.trim()) return undefined;
+  const normalized = src.trim();
+  if (isStockProductImageUrl(normalized)) return undefined;
+  return normalized;
+}
+
+/** @deprecated Não injeta mais imagens — retorna undefined. Mantido para compat de imports. */
+export function productImage(_id: string, _fallback: FoodPreset | string = "default"): undefined {
+  return undefined;
+}
+
+/** @deprecated Não injeta mais imagens — retorna undefined. Mantido para compat de imports. */
+export function productImageByName(_name: string, _preset: FoodPreset = "default"): undefined {
+  return undefined;
 }

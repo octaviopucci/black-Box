@@ -96,6 +96,7 @@ export function ClosingSheet({
                   <ProductVisual
                     src={suggestion.product.image}
                     alt={suggestion.product.name}
+                    productName={suggestion.product.name}
                     categoryEmoji={categoryEmoji?.(suggestion.product)}
                     width={64}
                     height={64}
