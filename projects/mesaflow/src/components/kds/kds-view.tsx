@@ -65,7 +65,7 @@ export function KdsView({ sectorId }: { sectorId: string }) {
     if (json.soundNotifications !== false && count > prevCount.current && prevCount.current > 0) {
       try {
         const { playOrderBell } = await import("@/lib/order-alert-sound");
-        playOrderBell();
+        void playOrderBell();
       } catch {
         /* optional sound */
       }
