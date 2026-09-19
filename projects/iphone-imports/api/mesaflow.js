@@ -170,8 +170,23 @@ async function readJsonFromStream(stream) {
   const text = await new Response(stream).text();
   return JSON.parse(text);
 }
+async function blobGet(pathname, auth) {
+  const getFn = blobGetOverride ?? import_blob.get;
+  return getFn(pathname, { access: BLOB_ACCESS, ...auth, useCache: false });
+}
+async function blobPut(pathname, body, auth, etag) {
+  const putFn = blobPutOverride ?? import_blob.put;
+  return putFn(pathname, body, {
+    access: BLOB_ACCESS,
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: "application/json",
+    ifMatch: etag,
+    ...auth
+  });
+}
 async function readPrivateBlob(pathname, auth) {
-  const result = await (0, import_blob.get)(pathname, { access: BLOB_ACCESS, ...auth, useCache: false });
+  const result = await blobGet(pathname, auth);
   if (!result?.stream) return null;
   const data = await readJsonFromStream(result.stream);
   return { data, etag: result.blob.etag };
@@ -212,27 +227,31 @@ async function hydrateFromBlobImpl(runtimeOidcToken2) {
     migratedFromLegacy: true
   };
 }
-async function putWithRetry(pathname, body, auth, etag) {
+function isBlobEtagConflict(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  return /precondition|etag|412/i.test(message);
+}
+async function putWithRetry(input) {
+  let etag = input.etag;
+  let payload = input.payload;
+  let body = input.serialize(payload);
   for (let attempt = 0; attempt < MAX_BLOB_RETRIES; attempt++) {
     try {
-      const result = await (0, import_blob.put)(pathname, body, {
-        access: BLOB_ACCESS,
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: "application/json",
-        ifMatch: etag,
-        ...auth
-      });
+      const result = await blobPut(input.pathname, body, input.auth, etag);
       return { ok: true, etag: result.etag };
     } catch (error) {
       const message = error instanceof Error ? error.message : "blob persist failed";
-      const conflict = /precondition|etag|412/i.test(message);
+      const conflict = isBlobEtagConflict(error);
       if (!conflict || attempt === MAX_BLOB_RETRIES - 1) {
         return { ok: false, error: message };
       }
       try {
-        const fresh = await readPrivateBlob(pathname, auth);
+        const fresh = await readPrivateBlob(input.pathname, input.auth);
         if (fresh?.etag) etag = fresh.etag;
+        if (fresh?.data !== void 0 && fresh?.data !== null && input.mergeOnConflict) {
+          payload = input.mergeOnConflict(fresh.data, payload);
+          body = input.serialize(payload);
+        }
       } catch {
         return { ok: false, error: message };
       }
@@ -251,21 +270,24 @@ async function flushToBlobImpl(input) {
   const { operational, identity } = splitStore(input.store);
   const result = {};
   if (input.flushOperational) {
-    const putResult = await putWithRetry(
-      OPERATIONAL_BLOB_PATH,
-      JSON.stringify(operational),
+    const putResult = await putWithRetry({
+      pathname: OPERATIONAL_BLOB_PATH,
       auth,
-      input.etags.operational
-    );
+      etag: input.etags.operational,
+      payload: operational,
+      serialize: (data) => JSON.stringify(data),
+      mergeOnConflict: input.mergeOperational
+    });
     result.operational = putResult.ok ? { ok: true, etag: putResult.etag } : { ok: false, error: putResult.error };
   }
   if (input.flushIdentity) {
-    const putResult = await putWithRetry(
-      IDENTITY_BLOB_PATH,
-      JSON.stringify(identity),
+    const putResult = await putWithRetry({
+      pathname: IDENTITY_BLOB_PATH,
       auth,
-      input.etags.identity
-    );
+      etag: input.etags.identity,
+      payload: identity,
+      serialize: (data) => JSON.stringify(data)
+    });
     result.identity = putResult.ok ? { ok: true, etag: putResult.etag } : { ok: false, error: putResult.error };
   }
   return result;
@@ -294,7 +316,7 @@ async function probeBlobPaths(runtimeOidcToken2) {
     };
   }
 }
-var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, hydrateFromBlobOverride, flushToBlobOverride, MAX_BLOB_RETRIES;
+var import_blob, LEGACY_BLOB_PATH, OPERATIONAL_BLOB_PATH, IDENTITY_BLOB_PATH, BLOB_ACCESS, hydrateFromBlobOverride, flushToBlobOverride, blobPutOverride, blobGetOverride, MAX_BLOB_RETRIES;
 var init_blob_persistence = __esm({
   "../mesaflow/src/lib/blob-persistence.ts"() {
     "use strict";
@@ -303,7 +325,7 @@ var init_blob_persistence = __esm({
     OPERATIONAL_BLOB_PATH = "mesaflow/operational.json";
     IDENTITY_BLOB_PATH = "mesaflow/identity.json";
     BLOB_ACCESS = "private";
-    MAX_BLOB_RETRIES = 3;
+    MAX_BLOB_RETRIES = 5;
   }
 });
 
@@ -4245,6 +4267,16 @@ function latestMerchantStatusChangeAt(store, establishmentId) {
   }
   return latest;
 }
+function operationalSnapshotToStore(operational) {
+  return { ...emptyStore(), ...operational };
+}
+function mergeOperationalBlobOnConflict(remote, local) {
+  const merged = mergeOperationalFromDisk(
+    operationalSnapshotToStore(remote),
+    operationalSnapshotToStore(local)
+  );
+  return splitStore(merged.store).operational;
+}
 function mergeOperationalFromDisk(remote, disk) {
   let mergedAhead = false;
   const establishments = { ...remote.establishments };
@@ -4497,7 +4529,8 @@ async function requireOperationalPersist() {
       etags: blobEtags,
       flushOperational: true,
       flushIdentity: false,
-      runtimeOidcToken
+      runtimeOidcToken,
+      mergeOperational: mergeOperationalBlobOnConflict
     });
     if (flushed.operational?.ok) {
       if (flushed.operational.etag) blobEtags.operational = flushed.operational.etag;
@@ -4556,7 +4589,8 @@ async function flushPersistentStore() {
         etags: blobEtags,
         flushOperational: operationalDirty,
         flushIdentity: identityDirty,
-        runtimeOidcToken
+        runtimeOidcToken,
+        mergeOperational: operationalDirty ? mergeOperationalBlobOnConflict : void 0
       });
       const operationalOk = !operationalDirty || flushed.operational?.ok === true;
       const identityOk = !identityDirty || flushed.identity?.ok === true;
