@@ -5523,7 +5523,51 @@ __export(handler_exports, {
   default: () => handler
 });
 module.exports = __toCommonJS(handler_exports);
+
+// ../mesaflow/src/lib/admin-dashboard.ts
 init_dashboard_analytics();
+init_store();
+function parseAdminDashboardPeriod(value) {
+  if (value === "7d" || value === "30d") return value;
+  return "today";
+}
+function buildAdminDashboardPayload(establishment, period = "today") {
+  const store = getStore();
+  const stats = dashboardStats(establishment.id);
+  const analytics = dashboardAnalytics(establishment.id, period);
+  const analyticsWeek = period === "7d" ? analytics : dashboardAnalytics(establishment.id, "7d");
+  const analyticsMonth = period === "30d" ? analytics : dashboardAnalytics(establishment.id, "30d");
+  const orders = Object.values(store.orders).filter((o) => o.establishmentId === establishment.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishment.id);
+  const sectors = Object.values(store.sectors).filter(
+    (s) => s.establishmentId === establishment.id && s.active
+  );
+  const notifications = Object.values(store.notifications).filter((n) => n.establishmentId === establishment.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20);
+  const commands = Object.values(store.commands).filter((c) => c.establishmentId === establishment.id);
+  const categories = Object.values(store.categories).filter((c) => c.establishmentId === establishment.id);
+  const products = Object.values(store.products).filter((p) => p.establishmentId === establishment.id);
+  const activeParticipations2 = Object.values(store.guestParticipations).filter((gp) => gp.establishmentId === establishment.id && gp.status !== "CLOSED").sort((a, b) => b.joinedAt.localeCompare(a.joinedAt));
+  const recentParticipations = Object.values(store.guestParticipations).filter((gp) => gp.establishmentId === establishment.id && gp.status === "CLOSED").sort((a, b) => (b.closedAt || "").localeCompare(a.closedAt || "")).slice(0, 20);
+  return {
+    establishment,
+    persist: persistStatus(),
+    stats,
+    analytics,
+    analyticsWeek,
+    analyticsMonth,
+    activeParticipations: activeParticipations2,
+    recentParticipations,
+    orders,
+    tables,
+    sectors,
+    commands,
+    notifications,
+    categories,
+    products
+  };
+}
+
+// api/_mesaflow/handler.ts
 init_store();
 
 // ../mesaflow/src/lib/guest-closing.ts
@@ -7681,8 +7725,7 @@ function parsePlatformPlanFilter(value) {
   return "all";
 }
 function parseDashboardPeriod(value) {
-  if (value === "7d" || value === "30d") return value;
-  return "today";
+  return parseAdminDashboardPeriod(value);
 }
 var activeRequestMethod;
 async function handler(req, res) {
@@ -8202,38 +8245,8 @@ async function handler(req, res) {
     if (req.method === "GET" && path === "/admin/dashboard") {
       const auth = dashboardAuth(req);
       if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
-      const est = auth.establishment;
       const period = parseDashboardPeriod(String(req.query?.period || ""));
-      const stats = dashboardStats(est.id);
-      const analytics = dashboardAnalytics(est.id, period);
-      const analyticsWeek = period === "7d" ? analytics : dashboardAnalytics(est.id, "7d");
-      const analyticsMonth = period === "30d" ? analytics : dashboardAnalytics(est.id, "30d");
-      const orders = Object.values(store.orders).filter((o) => o.establishmentId === est.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      const tables = Object.values(store.tables).filter((t) => t.establishmentId === est.id);
-      const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id && s.active);
-      const notifications = Object.values(store.notifications).filter((n) => n.establishmentId === est.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20);
-      const commands = Object.values(store.commands).filter((c) => c.establishmentId === est.id);
-      const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id);
-      const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
-      const activeParticipations2 = Object.values(store.guestParticipations).filter((gp) => gp.establishmentId === est.id && gp.status !== "CLOSED").sort((a, b) => b.joinedAt.localeCompare(a.joinedAt));
-      const recentParticipations = Object.values(store.guestParticipations).filter((gp) => gp.establishmentId === est.id && gp.status === "CLOSED").sort((a, b) => (b.closedAt || "").localeCompare(a.closedAt || "")).slice(0, 20);
-      return json(res, 200, {
-        establishment: est,
-        persist: persistStatus(),
-        stats,
-        analytics,
-        analyticsWeek,
-        analyticsMonth,
-        activeParticipations: activeParticipations2,
-        recentParticipations,
-        orders,
-        tables,
-        sectors,
-        commands,
-        notifications,
-        categories,
-        products
-      });
+      return json(res, 200, buildAdminDashboardPayload(auth.establishment, period));
     }
     if (path === "/admin/password") {
       const auth = adminAuth(req);

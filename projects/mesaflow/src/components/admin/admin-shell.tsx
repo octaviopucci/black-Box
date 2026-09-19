@@ -18,6 +18,7 @@ import {
   X } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { useAuth } from "@/contexts/auth-context";
+import { parseApiJson } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { Sector, UserRole } from "@/lib/types";
 
@@ -57,11 +58,16 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!session?.establishment.slug) return;
     fetchApi(`/admin/dashboard?slug=${encodeURIComponent(session.establishment.slug)}`)
-      .then((r) => r.json())
-      .then((json) => {
+      .then(async (r) => {
+        const json = (await parseApiJson(r)) as {
+          sectors?: Sector[];
+          persist?: { shared?: boolean; warning?: string };
+        };
+        if (!r.ok) return;
         setSectors(json.sectors || []);
         setPersistWarning(json.persist?.shared ? null : json.persist?.warning || null);
-      });
+      })
+      .catch(() => undefined);
   }, [session?.establishment.slug, fetchApi]);
 
   async function handleLogout() {
