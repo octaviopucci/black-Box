@@ -1,13 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import {
   changeUserPassword,
-  createAdminCategory,
+  createAdminCategoryPersisted,
   createAdminProduct,
   createAdminTable,
   createOrder,
   createRodizioRound,
   dashboardStats,
-  deleteAdminCategory,
+  deleteAdminCategoryPersisted,
   deleteAdminProduct,
   deleteAdminTable,
   findEstablishmentBySlug,
@@ -32,7 +32,7 @@ import {
   regenerateAdminTableQr,
   registerEstablishment,
   setPersistentStoreOidcToken,
-  updateAdminCategory,
+  updateAdminCategoryPersisted,
   updateAdminProduct,
   updateAdminSettings,
   updateAdminTable,
@@ -1005,7 +1005,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return json(res, 200, { categories: listAdminCategories(auth.establishment.id) });
       }
       if (req.method === "POST") {
-        const result = createAdminCategory(auth.establishment.id, req.body);
+        const result = await createAdminCategoryPersisted(auth.establishment.id, req.body);
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, { category: result.value });
       }
@@ -1016,12 +1016,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const auth = adminAuth(req);
       if (!auth) return json(res, 401, { error: "Não autorizado." });
       if (req.method === "PATCH") {
-        const result = updateAdminCategory(auth.establishment.id, adminCategoryMatch[1], req.body);
+        const result = await updateAdminCategoryPersisted(
+          auth.establishment.id,
+          adminCategoryMatch[1],
+          req.body,
+        );
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 200, { category: result.value });
       }
       if (req.method === "DELETE") {
-        const result = deleteAdminCategory(auth.establishment.id, adminCategoryMatch[1]);
+        const result = await deleteAdminCategoryPersisted(auth.establishment.id, adminCategoryMatch[1]);
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 200, { category: result.value });
       }
