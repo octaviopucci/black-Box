@@ -3,7 +3,7 @@
  * Site estático em out/mesaflow/ + API em api/mesaflow.js
  */
 import { execSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as esbuild from "esbuild";
@@ -80,8 +80,11 @@ function assertHandlerCriticalRoutes(handlerBundlePath) {
     "/platform/auth/me",
     "/platform/dashboard",
     "/platform/merchants",
+    "/admin/dashboard",
     "/admin/orders",
     "/admin/password",
+    "/admin/products",
+    "/admin/settings",
     "/orders",
   ];
   for (const route of required) {
@@ -89,6 +92,10 @@ function assertHandlerCriticalRoutes(handlerBundlePath) {
       console.error(`✗ api/mesaflow.js sem rota ${route}`);
       process.exit(1);
     }
+  }
+  if (!bundle.includes("analyticsWeek") && !bundle.includes("dashboardAnalytics")) {
+    console.error("✗ api/mesaflow.js sem analytics no GET /admin/dashboard");
+    process.exit(1);
   }
 }
 
@@ -169,6 +176,38 @@ await esbuild.build({
   loader: { ".json": "json" },
 });
 assertHandlerCriticalRoutes(handlerOut);
+
+function assertClientApiPrefix(deployRoot) {
+  const nextDir = join(deployRoot, "_next");
+  if (!existsSync(nextDir)) {
+    console.error("✗ out/mesaflow/_next ausente — prefixo de API não verificável");
+    process.exit(1);
+  }
+  const chunks = [];
+  const stack = [nextDir];
+  while (stack.length > 0) {
+    const dir = stack.pop();
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) stack.push(full);
+      else if (entry.name.endsWith(".js")) chunks.push(full);
+    }
+  }
+  const hasMesaflowApi = chunks.some((file) => readFileSync(file, "utf8").includes("/api/mesaflow"));
+  const hasBareAdminApi = chunks.some((file) => /\/api\/admin\//.test(readFileSync(file, "utf8")));
+  if (!hasMesaflowApi) {
+    console.error("✗ bundle cliente sem /api/mesaflow — NEXT_PUBLIC_API_PREFIX não foi embutido no export");
+    process.exit(1);
+  }
+  if (hasBareAdminApi) {
+    console.error("✗ bundle cliente referencia /api/admin/ — light deploy deve usar /api/mesaflow/");
+    process.exit(1);
+  }
+}
+
+assertClientApiPrefix(deployTarget);
+console.log("→ mesaflow: prefixo /api/mesaflow verificado no bundle cliente");
+
 console.log("→ mesaflow: rotas críticas verificadas no handler (admin + platform)");
 
 /** NA MESA na raiz do domínio — landing + favicons (assets _next continuam em /mesaflow/). */

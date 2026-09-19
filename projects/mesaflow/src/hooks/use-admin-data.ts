@@ -10,7 +10,11 @@ export function useAdminData<T = unknown>() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    if (!session?.establishment.slug) return;
+    if (!session?.establishment.slug) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     const res = await fetchApi(
       `/admin/dashboard?slug=${encodeURIComponent(session.establishment.slug)}`,
     );

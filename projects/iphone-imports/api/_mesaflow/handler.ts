@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { dashboardAnalytics } from "../../../mesaflow/src/lib/dashboard-analytics";
 import {
   changeUserPassword,
   createAdminCategory,
@@ -153,7 +154,8 @@ async function json(
   body: unknown,
   options?: { skipFlush?: boolean; extraHeaders?: Record<string, string> },
 ) {
-  if (!options?.skipFlush) {
+  const skipFlush = options?.skipFlush ?? activeRequestMethod === "GET";
+  if (!skipFlush) {
     try {
       const persist = await flushPersistentStore();
       if (!persist.blob && persist.blobError) {
@@ -287,11 +289,15 @@ function parsePlatformPlanFilter(value: string | undefined): PlatformPlan | "all
 }
 
 function parseDashboardPeriod(value: string | undefined): "today" | "7d" | "30d" {
-  if (value === "today" || value === "7d" || value === "30d") return value;
-  return "30d";
+  if (value === "7d" || value === "30d") return value;
+  return "today";
 }
 
+/** GET handlers must not block on blob flush — reads stay fast on light deploy. */
+let activeRequestMethod: string | undefined;
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  activeRequestMethod = req.method;
   setPersistentStoreOidcToken(readOidcHeader(req));
   if (req.method === "OPTIONS") return json(res, 204, {});
 
@@ -925,7 +931,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const auth = dashboardAuth(req);
       if (!auth) return json(res, 401, { error: "Não autorizado." });
       const est = auth.establishment;
+      const period = parseDashboardPeriod(String(req.query?.period || ""));
       const stats = dashboardStats(est.id);
+      const analytics = dashboardAnalytics(est.id, period);
+      const analyticsWeek = period === "7d" ? analytics : dashboardAnalytics(est.id, "7d");
+      const analyticsMonth = period === "30d" ? analytics : dashboardAnalytics(est.id, "30d");
       const orders = Object.values(store.orders)
         .filter((o) => o.establishmentId === est.id)
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -938,10 +948,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const commands = Object.values(store.commands).filter((c) => c.establishmentId === est.id);
       const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id);
       const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
+      const activeParticipations = Object.values(store.guestParticipations)
+        .filter((gp) => gp.establishmentId === est.id && gp.status !== "CLOSED")
+        .sort((a, b) => b.joinedAt.localeCompare(a.joinedAt));
+      const recentParticipations = Object.values(store.guestParticipations)
+        .filter((gp) => gp.establishmentId === est.id && gp.status === "CLOSED")
+        .sort((a, b) => (b.closedAt || "").localeCompare(a.closedAt || ""))
+        .slice(0, 20);
       return json(res, 200, {
         establishment: est,
         persist: persistStatus(),
         stats,
+        analytics,
+        analyticsWeek,
+        analyticsMonth,
+        activeParticipations,
+        recentParticipations,
         orders,
         tables,
         sectors,

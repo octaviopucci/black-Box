@@ -1,7 +1,7 @@
 /**
  * Garante que o build MesaFlow tem assets e rotas necessários para o deploy Vercel.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -52,6 +52,9 @@ const requiredHandlerRoutes = [
   "/platform/auth/me",
   "/platform/dashboard",
   "/platform/merchants",
+  "/admin/dashboard",
+  "/admin/products",
+  "/admin/settings",
   "/admin/orders",
   "/admin/password",
 ];
@@ -125,6 +128,38 @@ for (const route of requiredHandlerRoutes) {
     console.error(`✗ api/mesaflow.js sem rota ${route}`);
     failed = true;
   }
+}
+
+if (!handlerBundle.includes("analyticsWeek") && !handlerBundle.includes("dashboardAnalytics")) {
+  console.error("✗ api/mesaflow.js sem analytics no GET /admin/dashboard");
+  failed = true;
+}
+
+const mesaflowNext = join(mesaflowOut, "_next");
+if (existsSync(mesaflowNext)) {
+  const stack = [mesaflowNext];
+  const chunks = [];
+  while (stack.length > 0) {
+    const dir = stack.pop();
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) stack.push(full);
+      else if (entry.name.endsWith(".js")) chunks.push(full);
+    }
+  }
+  const hasMesaflowApi = chunks.some((file) => readFileSync(file, "utf8").includes("/api/mesaflow"));
+  const hasBareAdminApi = chunks.some((file) => /\/api\/admin\//.test(readFileSync(file, "utf8")));
+  if (!hasMesaflowApi) {
+    console.error("✗ bundle cliente sem /api/mesaflow — NEXT_PUBLIC_API_PREFIX ausente no export");
+    failed = true;
+  }
+  if (hasBareAdminApi) {
+    console.error("✗ bundle cliente referencia /api/admin/ — light deploy deve usar /api/mesaflow/");
+    failed = true;
+  }
+} else {
+  console.error("✗ out/mesaflow/_next ausente — prefixo de API não verificável");
+  failed = true;
 }
 
 const redirects = vercelJson.redirects ?? [];

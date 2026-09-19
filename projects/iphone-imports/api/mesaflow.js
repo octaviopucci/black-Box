@@ -35,6 +35,177 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
+// ../mesaflow/src/lib/order-math.ts
+function lineTotal(item) {
+  const addons = item.addons.reduce((s, a) => s + a.price * a.qty, 0);
+  return item.qty * (item.unitPrice + item.variantDelta) + addons;
+}
+var init_order_math = __esm({
+  "../mesaflow/src/lib/order-math.ts"() {
+    "use strict";
+  }
+});
+
+// ../mesaflow/src/lib/accounting.ts
+function getParticipantItemTotal(orders, splits, guestParticipationId) {
+  const splitMap = /* @__PURE__ */ new Map();
+  for (const split of splits) {
+    const list2 = splitMap.get(split.orderItemId) ?? [];
+    list2.push(split);
+    splitMap.set(split.orderItemId, list2);
+  }
+  let total = 0;
+  for (const order of orders) {
+    for (const item of order.items) {
+      const itemSplits = splitMap.get(item.id) ?? [];
+      const participantSplit = itemSplits.find(
+        (split) => split.guestParticipationId === guestParticipationId
+      );
+      if (participantSplit) {
+        const lineTotalValue = lineTotal(item);
+        const unitShare = item.qty > 0 ? lineTotalValue / item.qty : 0;
+        total += unitShare * participantSplit.quantity;
+        continue;
+      }
+      if (itemSplits.length === 0 && order.guestParticipationId === guestParticipationId) {
+        total += lineTotal(item);
+      }
+    }
+  }
+  return total;
+}
+function getCommandTotal(orders) {
+  return orders.filter((order) => order.status !== "CANCELADO").reduce((sum, order) => sum + order.total, 0);
+}
+function getParticipantPaidTotal(payments, guestParticipationId) {
+  return payments.filter(
+    (payment) => payment.status === "registered" && payment.guestParticipationId === guestParticipationId
+  ).reduce((sum, payment) => sum + payment.amount, 0);
+}
+function getCommandPaidTotal(payments) {
+  return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
+}
+var init_accounting = __esm({
+  "../mesaflow/src/lib/accounting.ts"() {
+    "use strict";
+    init_order_math();
+  }
+});
+
+// ../mesaflow/src/lib/closing.ts
+function buildClosingSummary(orders, participations, splits, payments) {
+  const activeOrders = orders.filter((order) => order.status !== "CANCELADO");
+  const commandTotal = getCommandTotal(activeOrders);
+  const paidTotal = getCommandPaidTotal(payments);
+  const remainingTotal = Math.max(0, commandTotal - paidTotal);
+  const participants = participations.map((participation) => {
+    const itemTotal = getParticipantItemTotal(activeOrders, splits, participation.id);
+    const participantPaid = getParticipantPaidTotal(payments, participation.id);
+    const participantRemaining = Math.max(0, itemTotal - participantPaid);
+    const displayName = participation.displayName?.trim() || `Participante ${participation.participantIndex}`;
+    return {
+      guestParticipationId: participation.id,
+      displayName,
+      itemTotal,
+      paidTotal: participantPaid,
+      remainingTotal: participantRemaining,
+      isSettled: participantRemaining <= 9e-3
+    };
+  });
+  const canSettle = remainingTotal <= 9e-3 && participants.every((participant) => participant.isSettled || participant.itemTotal <= 9e-3);
+  return {
+    commandTotal,
+    paidTotal,
+    remainingTotal,
+    canSettle,
+    participants
+  };
+}
+var init_closing = __esm({
+  "../mesaflow/src/lib/closing.ts"() {
+    "use strict";
+    init_accounting();
+  }
+});
+
+// ../mesaflow/src/lib/operation-modes.ts
+function isOperationMode(value) {
+  return typeof value === "string" && OPERATION_MODE_VALUES.has(value);
+}
+function resolveOperationMode(establishment) {
+  return establishment?.operationMode || "a_la_carte";
+}
+var OPERATION_MODES, OPERATION_MODE_VALUES;
+var init_operation_modes = __esm({
+  "../mesaflow/src/lib/operation-modes.ts"() {
+    "use strict";
+    OPERATION_MODES = [
+      {
+        value: "a_la_carte",
+        label: "\xC0 la carte",
+        description: "Pedidos por item no card\xE1pio, cobrados na conta da mesa."
+      },
+      {
+        value: "rodizio",
+        label: "Rod\xEDzio",
+        description: "Rodadas de itens com pre\xE7o por pessoa."
+      },
+      {
+        value: "buffet",
+        label: "Buffet",
+        description: "Buffet livre ou por valor fixo."
+      },
+      {
+        value: "self_service",
+        label: "Self-service",
+        description: "Cliente se serve e paga na sa\xEDda."
+      },
+      {
+        value: "peso_kg",
+        label: "Por quilo",
+        description: "Cobran\xE7a por peso (kg)."
+      },
+      {
+        value: "comanda",
+        label: "Comanda",
+        description: "Cada cliente identifica-se com n\xFAmero de comanda."
+      },
+      {
+        value: "personalizado",
+        label: "Personalizado",
+        description: "Fluxo sob medida do estabelecimento."
+      },
+      {
+        value: "outros",
+        label: "Outros",
+        description: "Outro modelo operacional."
+      }
+    ];
+    OPERATION_MODE_VALUES = new Set(
+      OPERATION_MODES.map((mode) => mode.value)
+    );
+  }
+});
+
+// ../mesaflow/src/lib/payments.ts
+function sumRegisteredPayments(payments) {
+  return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
+}
+function validatePaymentAmount(amount, maxAmount) {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return "Informe um valor maior que zero.";
+  }
+  if (maxAmount !== void 0 && amount > maxAmount + 9e-3) {
+    return "Valor acima do saldo pendente.";
+  }
+  return null;
+}
+var init_payments = __esm({
+  "../mesaflow/src/lib/payments.ts"() {
+    "use strict";
+  }
+});
+
 // ../mesaflow/src/lib/blob-persistence.ts
 function blobReadWriteToken() {
   const direct = [
@@ -2153,17 +2324,6 @@ var init_events = __esm({
   }
 });
 
-// ../mesaflow/src/lib/order-math.ts
-function lineTotal(item) {
-  const addons = item.addons.reduce((s, a) => s + a.price * a.qty, 0);
-  return item.qty * (item.unitPrice + item.variantDelta) + addons;
-}
-var init_order_math = __esm({
-  "../mesaflow/src/lib/order-math.ts"() {
-    "use strict";
-  }
-});
-
 // ../mesaflow/src/lib/product-images.ts
 function pexels(id2, slug = "pexels-photo") {
   return `https://images.pexels.com/photos/${id2}/${slug}-${id2}.jpeg?${PEXELS_Q}`;
@@ -2330,65 +2490,6 @@ function parsePlatformStatusFilterInput(value) {
 var init_platform_status = __esm({
   "../mesaflow/src/lib/platform-status.ts"() {
     "use strict";
-  }
-});
-
-// ../mesaflow/src/lib/operation-modes.ts
-function isOperationMode(value) {
-  return typeof value === "string" && OPERATION_MODE_VALUES.has(value);
-}
-function resolveOperationMode(establishment) {
-  return establishment?.operationMode || "a_la_carte";
-}
-var OPERATION_MODES, OPERATION_MODE_VALUES;
-var init_operation_modes = __esm({
-  "../mesaflow/src/lib/operation-modes.ts"() {
-    "use strict";
-    OPERATION_MODES = [
-      {
-        value: "a_la_carte",
-        label: "\xC0 la carte",
-        description: "Pedidos por item no card\xE1pio, cobrados na conta da mesa."
-      },
-      {
-        value: "rodizio",
-        label: "Rod\xEDzio",
-        description: "Rodadas de itens com pre\xE7o por pessoa."
-      },
-      {
-        value: "buffet",
-        label: "Buffet",
-        description: "Buffet livre ou por valor fixo."
-      },
-      {
-        value: "self_service",
-        label: "Self-service",
-        description: "Cliente se serve e paga na sa\xEDda."
-      },
-      {
-        value: "peso_kg",
-        label: "Por quilo",
-        description: "Cobran\xE7a por peso (kg)."
-      },
-      {
-        value: "comanda",
-        label: "Comanda",
-        description: "Cada cliente identifica-se com n\xFAmero de comanda."
-      },
-      {
-        value: "personalizado",
-        label: "Personalizado",
-        description: "Fluxo sob medida do estabelecimento."
-      },
-      {
-        value: "outros",
-        label: "Outros",
-        description: "Outro modelo operacional."
-      }
-    ];
-    OPERATION_MODE_VALUES = new Set(
-      OPERATION_MODES.map((mode) => mode.value)
-    );
   }
 });
 
@@ -3279,325 +3380,6 @@ var init_audit_log = __esm({
       "token",
       "name"
     ]);
-  }
-});
-
-// ../mesaflow/src/lib/accounting.ts
-function getParticipantItemTotal(orders, splits, guestParticipationId) {
-  const splitMap = /* @__PURE__ */ new Map();
-  for (const split of splits) {
-    const list2 = splitMap.get(split.orderItemId) ?? [];
-    list2.push(split);
-    splitMap.set(split.orderItemId, list2);
-  }
-  let total = 0;
-  for (const order of orders) {
-    for (const item of order.items) {
-      const itemSplits = splitMap.get(item.id) ?? [];
-      const participantSplit = itemSplits.find(
-        (split) => split.guestParticipationId === guestParticipationId
-      );
-      if (participantSplit) {
-        const lineTotalValue = lineTotal(item);
-        const unitShare = item.qty > 0 ? lineTotalValue / item.qty : 0;
-        total += unitShare * participantSplit.quantity;
-        continue;
-      }
-      if (itemSplits.length === 0 && order.guestParticipationId === guestParticipationId) {
-        total += lineTotal(item);
-      }
-    }
-  }
-  return total;
-}
-function getCommandTotal(orders) {
-  return orders.filter((order) => order.status !== "CANCELADO").reduce((sum, order) => sum + order.total, 0);
-}
-function getParticipantPaidTotal(payments, guestParticipationId) {
-  return payments.filter(
-    (payment) => payment.status === "registered" && payment.guestParticipationId === guestParticipationId
-  ).reduce((sum, payment) => sum + payment.amount, 0);
-}
-function getCommandPaidTotal(payments) {
-  return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
-}
-var init_accounting = __esm({
-  "../mesaflow/src/lib/accounting.ts"() {
-    "use strict";
-    init_order_math();
-  }
-});
-
-// ../mesaflow/src/lib/closing.ts
-function buildClosingSummary(orders, participations, splits, payments) {
-  const activeOrders = orders.filter((order) => order.status !== "CANCELADO");
-  const commandTotal = getCommandTotal(activeOrders);
-  const paidTotal = getCommandPaidTotal(payments);
-  const remainingTotal = Math.max(0, commandTotal - paidTotal);
-  const participants = participations.map((participation) => {
-    const itemTotal = getParticipantItemTotal(activeOrders, splits, participation.id);
-    const participantPaid = getParticipantPaidTotal(payments, participation.id);
-    const participantRemaining = Math.max(0, itemTotal - participantPaid);
-    const displayName = participation.displayName?.trim() || `Participante ${participation.participantIndex}`;
-    return {
-      guestParticipationId: participation.id,
-      displayName,
-      itemTotal,
-      paidTotal: participantPaid,
-      remainingTotal: participantRemaining,
-      isSettled: participantRemaining <= 9e-3
-    };
-  });
-  const canSettle = remainingTotal <= 9e-3 && participants.every((participant) => participant.isSettled || participant.itemTotal <= 9e-3);
-  return {
-    commandTotal,
-    paidTotal,
-    remainingTotal,
-    canSettle,
-    participants
-  };
-}
-var init_closing = __esm({
-  "../mesaflow/src/lib/closing.ts"() {
-    "use strict";
-    init_accounting();
-  }
-});
-
-// ../mesaflow/src/lib/payments.ts
-function sumRegisteredPayments(payments) {
-  return payments.filter((payment) => payment.status === "registered").reduce((sum, payment) => sum + payment.amount, 0);
-}
-function validatePaymentAmount(amount, maxAmount) {
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return "Informe um valor maior que zero.";
-  }
-  if (maxAmount !== void 0 && amount > maxAmount + 9e-3) {
-    return "Valor acima do saldo pendente.";
-  }
-  return null;
-}
-var init_payments = __esm({
-  "../mesaflow/src/lib/payments.ts"() {
-    "use strict";
-  }
-});
-
-// ../mesaflow/src/lib/dashboard-analytics.ts
-function periodStart(period) {
-  const now = /* @__PURE__ */ new Date();
-  if (period === "today") {
-    return now.toISOString().slice(0, 10);
-  }
-  const days = period === "7d" ? 7 : 30;
-  const start = new Date(now.getTime() - days * 24 * MS_HOUR);
-  return start.toISOString();
-}
-function inPeriod(iso, period) {
-  const start = periodStart(period);
-  if (period === "today") return iso.startsWith(start);
-  return iso >= start;
-}
-function durationMinutes(from, to) {
-  return Math.max(0, (new Date(to).getTime() - new Date(from).getTime()) / 6e4);
-}
-function dashboardAnalytics(establishmentId, period = "today") {
-  const store = getStore();
-  const establishment = store.establishments[establishmentId];
-  const operationMode = resolveOperationMode(establishment);
-  const orders = Object.values(store.orders).filter(
-    (o) => o.establishmentId === establishmentId && o.status !== "CANCELADO" && inPeriod(o.createdAt, period)
-  );
-  const deliveredOrders = orders.filter((o) => o.status === "ENTREGUE");
-  const salesRevenue = deliveredOrders.reduce((sum, o) => sum + o.total, 0);
-  const ticketAvg = deliveredOrders.length ? salesRevenue / deliveredOrders.length : 0;
-  const payments = Object.values(store.payments || {}).filter(
-    (p) => p.establishmentId === establishmentId && p.status === "registered" && inPeriod(p.registeredAt, period)
-  );
-  const paymentsCollected = sumRegisteredPayments(payments);
-  const salesByTable = {};
-  for (const order of deliveredOrders) {
-    if (!salesByTable[order.tableId]) {
-      salesByTable[order.tableId] = { tableNumber: order.tableNumber, revenue: 0, orders: 0 };
-    }
-    salesByTable[order.tableId].revenue += order.total;
-    salesByTable[order.tableId].orders += 1;
-  }
-  const salesByMode = {
-    a_la_carte: 0,
-    rodizio: 0,
-    buffet: 0,
-    self_service: 0,
-    peso_kg: 0,
-    comanda: 0,
-    personalizado: 0,
-    outros: 0
-  };
-  salesByMode[operationMode] = salesRevenue;
-  const participations = Object.values(store.guestParticipations).filter(
-    (gp) => gp.establishmentId === establishmentId
-  );
-  const activeSessions = participations.filter((gp) => gp.status !== "CLOSED");
-  const historicalSessions = participations.filter(
-    (gp) => gp.status === "CLOSED" && gp.closedAt && inPeriod(gp.closedAt, period)
-  );
-  const abandonedSessions = historicalSessions.filter(
-    (gp) => !gp.paymentConfirmedAt && gp.orderCount > 0 && gp.closedByUserId
-  );
-  const abandonmentTimes = abandonedSessions.map(
-    (gp) => durationMinutes(gp.joinedAt, gp.closedAt || gp.joinedAt)
-  );
-  const avgAbandonmentMinutes = abandonmentTimes.length > 0 ? abandonmentTimes.reduce((a, b) => a + b, 0) / abandonmentTimes.length : 0;
-  const closedWithDuration = historicalSessions.filter((gp) => gp.closedAt);
-  const permanenceMinutes = closedWithDuration.map(
-    (gp) => durationMinutes(gp.joinedAt, gp.closedAt)
-  );
-  const avgPermanenceMinutes = permanenceMinutes.length > 0 ? permanenceMinutes.reduce((a, b) => a + b, 0) / permanenceMinutes.length : 0;
-  const permanenceDistribution = [
-    { label: "< 30 min", max: 30, count: 0 },
-    { label: "30\u201360 min", max: 60, count: 0 },
-    { label: "1\u20132 h", max: 120, count: 0 },
-    { label: "> 2 h", max: Infinity, count: 0 }
-  ];
-  for (const minutes of permanenceMinutes) {
-    if (minutes < 30) permanenceDistribution[0].count += 1;
-    else if (minutes < 60) permanenceDistribution[1].count += 1;
-    else if (minutes < 120) permanenceDistribution[2].count += 1;
-    else permanenceDistribution[3].count += 1;
-  }
-  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishmentId);
-  const tablesOccupied = tables.filter((t) => t.status === "OCUPADA").length;
-  const tablesAwaitingPayment = tables.filter((t) => t.status === "AGUARDANDO_PAGAMENTO").length;
-  const tablesFree = tables.filter((t) => t.status === "LIVRE").length;
-  const commands = Object.values(store.commands).filter((c) => c.establishmentId === establishmentId);
-  const openCommands = commands.filter((c) => c.status !== "FECHADA").length;
-  const closedCommandsPeriod = commands.filter(
-    (c) => c.status === "FECHADA" && c.closedAt && inPeriod(c.closedAt, period)
-  ).length;
-  let paymentsConfirmed = 0;
-  let paymentsPending = 0;
-  for (const gp of activeSessions) {
-    if (gp.paymentConfirmedAt) {
-      paymentsConfirmed += 1;
-      continue;
-    }
-    const gpOrders = Object.values(store.orders).filter(
-      (o) => o.guestParticipationId === gp.id && o.status !== "CANCELADO"
-    );
-    const gpSplits = Object.values(store.orderItemSplits || {}).filter((s) => s.guestParticipationId === gp.id);
-    const gpPayments = Object.values(store.payments || {}).filter(
-      (p) => p.guestParticipationId === gp.id && p.status === "registered"
-    );
-    const summary = buildClosingSummary(gpOrders, [gp], gpSplits, gpPayments);
-    const participant = summary.participants[0];
-    if ((participant?.itemTotal ?? 0) > 9e-3) {
-      paymentsPending += 1;
-    }
-  }
-  const alerts = [];
-  const now = Date.now();
-  for (const table of tables) {
-    if (table.status !== "AGUARDANDO_PAGAMENTO" || !table.commandId) continue;
-    const command = store.commands[table.commandId];
-    if (!command?.closingRequestedAt) continue;
-    const waitMin = durationMinutes(command.closingRequestedAt, (/* @__PURE__ */ new Date()).toISOString());
-    if (waitMin >= 15) {
-      alerts.push({
-        level: "warning",
-        title: `Mesa ${table.number} aguardando pagamento`,
-        body: `Conta solicitada h\xE1 ${Math.round(waitMin)} min`,
-        href: `/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`
-      });
-    }
-  }
-  for (const gp of activeSessions) {
-    if (gp.orderCount === 0) continue;
-    if (gp.paymentConfirmedAt) continue;
-    const age = now - new Date(gp.joinedAt).getTime();
-    if (age > STALE_PARTICIPATION_MS) {
-      alerts.push({
-        level: "danger",
-        title: "Sess\xE3o longa sem confirma\xE7\xE3o",
-        body: `${gp.displayName || "Cliente"} \xB7 mesa aberta h\xE1 ${Math.round(age / MS_HOUR)} h`,
-        href: `/admin/tables/cockpit?table=${encodeURIComponent(gp.tableId)}`
-      });
-    }
-  }
-  const pendingOrders = orders.filter((o) => o.status === "NOVO").length;
-  if (pendingOrders >= 5) {
-    alerts.push({
-      level: "info",
-      title: "Fila de pedidos",
-      body: `${pendingOrders} pedidos aguardando aceite`,
-      href: "/admin/orders"
-    });
-  }
-  if (paymentsPending > 0) {
-    alerts.push({
-      level: "warning",
-      title: "Pagamentos pendentes de confirma\xE7\xE3o",
-      body: `${paymentsPending} cliente(s) com consumo aguardando OK do restaurante`,
-      href: "/admin/operations"
-    });
-  }
-  const productSales = {};
-  for (const o of orders) {
-    for (const item of o.items) {
-      if (!productSales[item.productId]) productSales[item.productId] = { name: item.productName, qty: 0 };
-      productSales[item.productId].qty += item.qty;
-    }
-  }
-  const topProducts = Object.values(productSales).sort((a, b) => b.qty - a.qty).slice(0, 5);
-  return {
-    period,
-    operationMode,
-    sales: {
-      revenue: salesRevenue,
-      ordersCount: orders.length,
-      deliveredCount: deliveredOrders.length,
-      ticketAvg,
-      paymentsCollected,
-      byTable: Object.values(salesByTable).sort((a, b) => b.revenue - a.revenue).slice(0, 10),
-      byOperationMode: Object.entries(salesByMode).filter(([, revenue]) => revenue > 0).map(([mode, revenue]) => ({ mode, revenue }))
-    },
-    sessions: {
-      active: activeSessions.length,
-      historical: historicalSessions.length,
-      abandoned: abandonedSessions.length,
-      avgAbandonmentMinutes
-    },
-    permanence: {
-      avgMinutes: avgPermanenceMinutes,
-      distribution: permanenceDistribution
-    },
-    occupancy: {
-      tablesTotal: tables.length,
-      occupied: tablesOccupied,
-      awaitingPayment: tablesAwaitingPayment,
-      free: tablesFree,
-      openCommands,
-      closedCommandsPeriod
-    },
-    payments: {
-      confirmed: paymentsConfirmed,
-      pending: paymentsPending
-    },
-    alerts,
-    topProducts,
-    inPrep: orders.filter((o) => ["ACEITO", "EM_PREPARO"].includes(o.status)).length,
-    pendingOrders
-  };
-}
-var MS_HOUR, STALE_PARTICIPATION_MS;
-var init_dashboard_analytics = __esm({
-  "../mesaflow/src/lib/dashboard-analytics.ts"() {
-    "use strict";
-    init_closing();
-    init_operation_modes();
-    init_payments();
-    init_store();
-    MS_HOUR = 60 * 60 * 1e3;
-    STALE_PARTICIPATION_MS = 12 * MS_HOUR;
   }
 });
 
@@ -5495,12 +5277,231 @@ var init_store = __esm({
   }
 });
 
+// ../mesaflow/src/lib/dashboard-analytics.ts
+function periodStart(period) {
+  const now = /* @__PURE__ */ new Date();
+  if (period === "today") {
+    return now.toISOString().slice(0, 10);
+  }
+  const days = period === "7d" ? 7 : 30;
+  const start = new Date(now.getTime() - days * 24 * MS_HOUR);
+  return start.toISOString();
+}
+function inPeriod(iso, period) {
+  const start = periodStart(period);
+  if (period === "today") return iso.startsWith(start);
+  return iso >= start;
+}
+function durationMinutes(from, to) {
+  return Math.max(0, (new Date(to).getTime() - new Date(from).getTime()) / 6e4);
+}
+function dashboardAnalytics(establishmentId, period = "today") {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  const operationMode = resolveOperationMode(establishment);
+  const orders = Object.values(store.orders).filter(
+    (o) => o.establishmentId === establishmentId && o.status !== "CANCELADO" && inPeriod(o.createdAt, period)
+  );
+  const deliveredOrders = orders.filter((o) => o.status === "ENTREGUE");
+  const salesRevenue = deliveredOrders.reduce((sum, o) => sum + o.total, 0);
+  const ticketAvg = deliveredOrders.length ? salesRevenue / deliveredOrders.length : 0;
+  const payments = Object.values(store.payments || {}).filter(
+    (p) => p.establishmentId === establishmentId && p.status === "registered" && inPeriod(p.registeredAt, period)
+  );
+  const paymentsCollected = sumRegisteredPayments(payments);
+  const salesByTable = {};
+  for (const order of deliveredOrders) {
+    if (!salesByTable[order.tableId]) {
+      salesByTable[order.tableId] = { tableNumber: order.tableNumber, revenue: 0, orders: 0 };
+    }
+    salesByTable[order.tableId].revenue += order.total;
+    salesByTable[order.tableId].orders += 1;
+  }
+  const salesByMode = {
+    a_la_carte: 0,
+    rodizio: 0,
+    buffet: 0,
+    self_service: 0,
+    peso_kg: 0,
+    comanda: 0,
+    personalizado: 0,
+    outros: 0
+  };
+  salesByMode[operationMode] = salesRevenue;
+  const participations = Object.values(store.guestParticipations).filter(
+    (gp) => gp.establishmentId === establishmentId
+  );
+  const activeSessions = participations.filter((gp) => gp.status !== "CLOSED");
+  const historicalSessions = participations.filter(
+    (gp) => gp.status === "CLOSED" && gp.closedAt && inPeriod(gp.closedAt, period)
+  );
+  const abandonedSessions = historicalSessions.filter(
+    (gp) => !gp.paymentConfirmedAt && gp.orderCount > 0 && gp.closedByUserId
+  );
+  const abandonmentTimes = abandonedSessions.map(
+    (gp) => durationMinutes(gp.joinedAt, gp.closedAt || gp.joinedAt)
+  );
+  const avgAbandonmentMinutes = abandonmentTimes.length > 0 ? abandonmentTimes.reduce((a, b) => a + b, 0) / abandonmentTimes.length : 0;
+  const closedWithDuration = historicalSessions.filter((gp) => gp.closedAt);
+  const permanenceMinutes = closedWithDuration.map(
+    (gp) => durationMinutes(gp.joinedAt, gp.closedAt)
+  );
+  const avgPermanenceMinutes = permanenceMinutes.length > 0 ? permanenceMinutes.reduce((a, b) => a + b, 0) / permanenceMinutes.length : 0;
+  const permanenceDistribution = [
+    { label: "< 30 min", max: 30, count: 0 },
+    { label: "30\u201360 min", max: 60, count: 0 },
+    { label: "1\u20132 h", max: 120, count: 0 },
+    { label: "> 2 h", max: Infinity, count: 0 }
+  ];
+  for (const minutes of permanenceMinutes) {
+    if (minutes < 30) permanenceDistribution[0].count += 1;
+    else if (minutes < 60) permanenceDistribution[1].count += 1;
+    else if (minutes < 120) permanenceDistribution[2].count += 1;
+    else permanenceDistribution[3].count += 1;
+  }
+  const tables = Object.values(store.tables).filter((t) => t.establishmentId === establishmentId);
+  const tablesOccupied = tables.filter((t) => t.status === "OCUPADA").length;
+  const tablesAwaitingPayment = tables.filter((t) => t.status === "AGUARDANDO_PAGAMENTO").length;
+  const tablesFree = tables.filter((t) => t.status === "LIVRE").length;
+  const commands = Object.values(store.commands).filter((c) => c.establishmentId === establishmentId);
+  const openCommands = commands.filter((c) => c.status !== "FECHADA").length;
+  const closedCommandsPeriod = commands.filter(
+    (c) => c.status === "FECHADA" && c.closedAt && inPeriod(c.closedAt, period)
+  ).length;
+  let paymentsConfirmed = 0;
+  let paymentsPending = 0;
+  for (const gp of activeSessions) {
+    if (gp.paymentConfirmedAt) {
+      paymentsConfirmed += 1;
+      continue;
+    }
+    const gpOrders = Object.values(store.orders).filter(
+      (o) => o.guestParticipationId === gp.id && o.status !== "CANCELADO"
+    );
+    const gpSplits = Object.values(store.orderItemSplits || {}).filter((s) => s.guestParticipationId === gp.id);
+    const gpPayments = Object.values(store.payments || {}).filter(
+      (p) => p.guestParticipationId === gp.id && p.status === "registered"
+    );
+    const summary = buildClosingSummary(gpOrders, [gp], gpSplits, gpPayments);
+    const participant = summary.participants[0];
+    if ((participant?.itemTotal ?? 0) > 9e-3) {
+      paymentsPending += 1;
+    }
+  }
+  const alerts = [];
+  const now = Date.now();
+  for (const table of tables) {
+    if (table.status !== "AGUARDANDO_PAGAMENTO" || !table.commandId) continue;
+    const command = store.commands[table.commandId];
+    if (!command?.closingRequestedAt) continue;
+    const waitMin = durationMinutes(command.closingRequestedAt, (/* @__PURE__ */ new Date()).toISOString());
+    if (waitMin >= 15) {
+      alerts.push({
+        level: "warning",
+        title: `Mesa ${table.number} aguardando pagamento`,
+        body: `Conta solicitada h\xE1 ${Math.round(waitMin)} min`,
+        href: `/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`
+      });
+    }
+  }
+  for (const gp of activeSessions) {
+    if (gp.orderCount === 0) continue;
+    if (gp.paymentConfirmedAt) continue;
+    const age = now - new Date(gp.joinedAt).getTime();
+    if (age > STALE_PARTICIPATION_MS) {
+      alerts.push({
+        level: "danger",
+        title: "Sess\xE3o longa sem confirma\xE7\xE3o",
+        body: `${gp.displayName || "Cliente"} \xB7 mesa aberta h\xE1 ${Math.round(age / MS_HOUR)} h`,
+        href: `/admin/tables/cockpit?table=${encodeURIComponent(gp.tableId)}`
+      });
+    }
+  }
+  const pendingOrders = orders.filter((o) => o.status === "NOVO").length;
+  if (pendingOrders >= 5) {
+    alerts.push({
+      level: "info",
+      title: "Fila de pedidos",
+      body: `${pendingOrders} pedidos aguardando aceite`,
+      href: "/admin/orders"
+    });
+  }
+  if (paymentsPending > 0) {
+    alerts.push({
+      level: "warning",
+      title: "Pagamentos pendentes de confirma\xE7\xE3o",
+      body: `${paymentsPending} cliente(s) com consumo aguardando OK do restaurante`,
+      href: "/admin/operations"
+    });
+  }
+  const productSales = {};
+  for (const o of orders) {
+    for (const item of o.items) {
+      if (!productSales[item.productId]) productSales[item.productId] = { name: item.productName, qty: 0 };
+      productSales[item.productId].qty += item.qty;
+    }
+  }
+  const topProducts = Object.values(productSales).sort((a, b) => b.qty - a.qty).slice(0, 5);
+  return {
+    period,
+    operationMode,
+    sales: {
+      revenue: salesRevenue,
+      ordersCount: orders.length,
+      deliveredCount: deliveredOrders.length,
+      ticketAvg,
+      paymentsCollected,
+      byTable: Object.values(salesByTable).sort((a, b) => b.revenue - a.revenue).slice(0, 10),
+      byOperationMode: Object.entries(salesByMode).filter(([, revenue]) => revenue > 0).map(([mode, revenue]) => ({ mode, revenue }))
+    },
+    sessions: {
+      active: activeSessions.length,
+      historical: historicalSessions.length,
+      abandoned: abandonedSessions.length,
+      avgAbandonmentMinutes
+    },
+    permanence: {
+      avgMinutes: avgPermanenceMinutes,
+      distribution: permanenceDistribution
+    },
+    occupancy: {
+      tablesTotal: tables.length,
+      occupied: tablesOccupied,
+      awaitingPayment: tablesAwaitingPayment,
+      free: tablesFree,
+      openCommands,
+      closedCommandsPeriod
+    },
+    payments: {
+      confirmed: paymentsConfirmed,
+      pending: paymentsPending
+    },
+    alerts,
+    topProducts,
+    inPrep: orders.filter((o) => ["ACEITO", "EM_PREPARO"].includes(o.status)).length,
+    pendingOrders
+  };
+}
+var MS_HOUR, STALE_PARTICIPATION_MS;
+var init_dashboard_analytics = __esm({
+  "../mesaflow/src/lib/dashboard-analytics.ts"() {
+    "use strict";
+    init_closing();
+    init_operation_modes();
+    init_payments();
+    init_store();
+    MS_HOUR = 60 * 60 * 1e3;
+    STALE_PARTICIPATION_MS = 12 * MS_HOUR;
+  }
+});
+
 // api/_mesaflow/handler.ts
 var handler_exports = {};
 __export(handler_exports, {
   default: () => handler
 });
 module.exports = __toCommonJS(handler_exports);
+init_dashboard_analytics();
 init_store();
 
 // ../mesaflow/src/lib/guest-closing.ts
@@ -7548,7 +7549,8 @@ function resolvePath(req) {
   return stripped.startsWith("/") ? stripped : `/${stripped}`;
 }
 async function json(res, status, body, options) {
-  if (!options?.skipFlush) {
+  const skipFlush = options?.skipFlush ?? activeRequestMethod === "GET";
+  if (!skipFlush) {
     try {
       const persist2 = await flushPersistentStore();
       if (!persist2.blob && persist2.blobError) {
@@ -7657,10 +7659,12 @@ function parsePlatformPlanFilter(value) {
   return "all";
 }
 function parseDashboardPeriod(value) {
-  if (value === "today" || value === "7d" || value === "30d") return value;
-  return "30d";
+  if (value === "7d" || value === "30d") return value;
+  return "today";
 }
+var activeRequestMethod;
 async function handler(req, res) {
+  activeRequestMethod = req.method;
   setPersistentStoreOidcToken(readOidcHeader(req));
   if (req.method === "OPTIONS") return json(res, 204, {});
   try {
@@ -8177,7 +8181,11 @@ async function handler(req, res) {
       const auth = dashboardAuth(req);
       if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
       const est = auth.establishment;
+      const period = parseDashboardPeriod(String(req.query?.period || ""));
       const stats = dashboardStats(est.id);
+      const analytics = dashboardAnalytics(est.id, period);
+      const analyticsWeek = period === "7d" ? analytics : dashboardAnalytics(est.id, "7d");
+      const analyticsMonth = period === "30d" ? analytics : dashboardAnalytics(est.id, "30d");
       const orders = Object.values(store.orders).filter((o) => o.establishmentId === est.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       const tables = Object.values(store.tables).filter((t) => t.establishmentId === est.id);
       const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id && s.active);
@@ -8185,10 +8193,17 @@ async function handler(req, res) {
       const commands = Object.values(store.commands).filter((c) => c.establishmentId === est.id);
       const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id);
       const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
+      const activeParticipations2 = Object.values(store.guestParticipations).filter((gp) => gp.establishmentId === est.id && gp.status !== "CLOSED").sort((a, b) => b.joinedAt.localeCompare(a.joinedAt));
+      const recentParticipations = Object.values(store.guestParticipations).filter((gp) => gp.establishmentId === est.id && gp.status === "CLOSED").sort((a, b) => (b.closedAt || "").localeCompare(a.closedAt || "")).slice(0, 20);
       return json(res, 200, {
         establishment: est,
         persist: persistStatus(),
         stats,
+        analytics,
+        analyticsWeek,
+        analyticsMonth,
+        activeParticipations: activeParticipations2,
+        recentParticipations,
         orders,
         tables,
         sectors,
