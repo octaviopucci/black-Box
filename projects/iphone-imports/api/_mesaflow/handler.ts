@@ -27,6 +27,7 @@ import {
   listAdminProducts,
   listAdminTables,
   loginUser,
+  publicEstablishment,
   publicUser,
   regenerateAdminTableQr,
   registerEstablishment,
@@ -103,9 +104,14 @@ import {
   loginPlatformUser,
   platformDashboard,
   publicPlatformUser,
-  updateMerchantStatus,
+  updateMerchant,
   validatePlatformSession,
 } from "../../../mesaflow/src/lib/platform-store";
+import { parsePlatformPlan } from "../../../mesaflow/src/lib/platform-plans";
+import {
+  parsePlatformStatusFilterInput,
+  parsePlatformStatusInput,
+} from "../../../mesaflow/src/lib/platform-status";
 import { resolveOrderLines } from "../../../mesaflow/src/lib/order-resolve";
 import {
   buildDetailedHealthResponse,
@@ -127,7 +133,6 @@ import type {
   OrderLineInput,
   OrderStatus,
   PlatformPlan,
-  PlatformStatus,
 } from "../../../mesaflow/src/lib/types";
 
 function resolvePath(req: VercelRequest): string {
@@ -276,18 +281,8 @@ function platformAuth(req: VercelRequest) {
   return validatePlatformSession(readPlatformToken(req));
 }
 
-function parsePlatformStatus(value: unknown): PlatformStatus | null {
-  if (value === "active" || value === "inactive" || value === "suspended") return value;
-  return null;
-}
-
 function parsePlatformPlanFilter(value: string | undefined): PlatformPlan | "all" {
   if (value === "essencial" || value === "premium" || value === "custom") return value;
-  return "all";
-}
-
-function parsePlatformStatusFilter(value: string | undefined): PlatformStatus | "all" {
-  if (value === "active" || value === "inactive" || value === "suspended") return value;
   return "all";
 }
 
@@ -672,7 +667,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         200,
         {
           user: publicUser(result.user!),
-          establishment: result.establishment,
+          establishment: publicEstablishment(result.establishment!),
           token: result.session!.token,
         },
         {
@@ -733,7 +728,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         201,
         {
           user: publicUser(result.user!),
-          establishment: result.establishment,
+          establishment: publicEstablishment(result.establishment!),
           token: result.session!.token,
         },
         {
@@ -750,7 +745,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!auth) return json(res, 401, { error: "Sessão inválida." });
       return json(res, 200, {
         user: publicUser(auth.user),
-        establishment: auth.establishment,
+        establishment: publicEstablishment(auth.establishment),
       });
     }
 
@@ -799,7 +794,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!auth) return json(res, 401, { error: "Acesso negado." });
       const merchants = listMerchants({
         q: String(req.query?.q || "") || undefined,
-        status: parsePlatformStatusFilter(String(req.query?.status || "")),
+        status: parsePlatformStatusFilterInput(String(req.query?.status || "")),
         plan: parsePlatformPlanFilter(String(req.query?.plan || "")),
       });
       return json(res, 200, { merchants });
@@ -816,12 +811,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return json(res, 200, { merchant });
       }
       if (req.method === "PATCH") {
-        const body = (req.body || {}) as { platformStatus?: unknown; reason?: string };
-        const status = parsePlatformStatus(body.platformStatus);
-        if (!status) {
-          return json(res, 400, { error: "platformStatus inválido (active, inactive, suspended)." });
+        const body = (req.body || {}) as {
+          platformStatus?: unknown;
+          plan?: unknown;
+          reason?: string;
+        };
+        const platformStatus =
+          body.platformStatus !== undefined
+            ? parsePlatformStatusInput(body.platformStatus)
+            : undefined;
+        if (body.platformStatus !== undefined && !platformStatus) {
+          return json(res, 400, {
+            error: "platformStatus inválido (pending, active, inactive, suspended, rejected).",
+          });
         }
-        const result = updateMerchantStatus(merchantId, status, body.reason);
+        const plan = body.plan !== undefined ? parsePlatformPlan(body.plan) : undefined;
+        if (body.plan !== undefined && !plan) {
+          return json(res, 400, { error: "Plano inválido (essencial, premium, custom)." });
+        }
+        const result = updateMerchant(merchantId, {
+          platformStatus: platformStatus ?? undefined,
+          plan: plan ?? undefined,
+          reason: body.reason,
+        });
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 200, { merchant: result.value });
       }

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { apiUrl, staffFetch } from "@/lib/api";
+import { staffFetch } from "@/lib/api";
 import type { Establishment, User } from "@/lib/types";
 
 export type AuthSession = {
@@ -15,6 +15,7 @@ type AuthContextValue = {
   session: AuthSession | null;
   loading: boolean;
   setSession: (session: AuthSession) => void;
+  refreshSession: () => Promise<AuthSession | null>;
   logout: () => Promise<void>;
   authHeaders: () => Record<string, string>;
   credentials: RequestCredentials;
@@ -23,20 +24,40 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function sessionFromAuthMe(
+  json: { user: AuthSession["user"]; establishment: Establishment },
+  token?: string,
+): AuthSession {
+  return { token, user: json.user, establishment: json.establishment };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSessionState] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    staffFetch("/auth/me")
-      .then(async (res) => {
-        if (!res.ok) throw new Error("invalid");
-        const json = await res.json();
-        setSessionState({ user: json.user, establishment: json.establishment });
-      })
-      .catch(() => setSessionState(null))
-      .finally(() => setLoading(false));
+  const refreshSession = useCallback(async (): Promise<AuthSession | null> => {
+    try {
+      const res = await staffFetch("/auth/me");
+      if (!res.ok) {
+        setSessionState(null);
+        return null;
+      }
+      const json = await res.json();
+      let resolved: AuthSession | null = null;
+      setSessionState((prev) => {
+        resolved = sessionFromAuthMe(json, prev?.token);
+        return resolved;
+      });
+      return resolved;
+    } catch {
+      setSessionState(null);
+      return null;
+    }
   }, []);
+
+  useEffect(() => {
+    refreshSession().finally(() => setLoading(false));
+  }, [refreshSession]);
 
   const setSession = useCallback((next: AuthSession) => {
     setSessionState(next);
@@ -66,12 +87,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       loading,
       setSession,
+      refreshSession,
       logout,
       authHeaders,
       credentials: "include" as const,
       fetchApi,
     }),
-    [session, loading, setSession, logout, authHeaders, fetchApi],
+    [session, loading, setSession, refreshSession, logout, authHeaders, fetchApi],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,20 +1,7 @@
 import { updateMerchant } from "@/lib/platform-store";
 import { parsePlatformPlan } from "@/lib/platform-plans";
-import type { PlatformStatus } from "@/lib/types";
+import { parsePlatformStatusInput } from "@/lib/platform-status";
 import { readJson, requirePlatformOwner } from "../../_shared";
-
-function parseStatus(value: unknown): PlatformStatus | null {
-  if (
-    value === "pending" ||
-    value === "active" ||
-    value === "inactive" ||
-    value === "suspended" ||
-    value === "rejected"
-  ) {
-    return value;
-  }
-  return null;
-}
 
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   if (!requirePlatformOwner(req)) {
@@ -38,7 +25,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     reason?: string;
   } | null;
 
-  const platformStatus = body?.platformStatus !== undefined ? parseStatus(body.platformStatus) : undefined;
+  const platformStatus =
+    body?.platformStatus !== undefined ? parsePlatformStatusInput(body.platformStatus) : undefined;
   if (body?.platformStatus !== undefined && !platformStatus) {
     return Response.json(
       { error: "platformStatus inválido (pending, active, inactive, suspended, rejected)." },

@@ -2,29 +2,71 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Clock } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { AuthLayout } from "@/components/ui/auth-layout";
 import { Button } from "@/components/ui/button";
 import { PLAN_LABELS } from "@/lib/platform-plans";
-import { adminHomePath, resolvePlatformStatus } from "@/lib/platform-status";
+import { adminHomePath, isMerchantAdminOperational, resolvePlatformStatus } from "@/lib/platform-status";
+
+const STATUS_POLL_MS = 15_000;
 
 export default function AdminPendingPage() {
   const router = useRouter();
-  const { session, loading, logout } = useAuth();
+  const { session, loading, logout, refreshSession } = useAuth();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const redirectIfApproved = useCallback(
+    (establishment: NonNullable<typeof session>["establishment"]) => {
+      const status = resolvePlatformStatus(establishment);
+      if (isMerchantAdminOperational(status)) {
+        router.replace("/admin");
+        return true;
+      }
+      return false;
+    },
+    [router],
+  );
 
   useEffect(() => {
-    if (loading) return;
-    if (!session) {
-      router.replace("/admin/login");
-      return;
+    if (loading || !session) return;
+    redirectIfApproved(session.establishment);
+  }, [loading, redirectIfApproved, session]);
+
+  useEffect(() => {
+    if (loading || !session) return;
+
+    const poll = async () => {
+      const fresh = await refreshSession();
+      if (fresh?.establishment) redirectIfApproved(fresh.establishment);
+    };
+
+    const id = window.setInterval(poll, STATUS_POLL_MS);
+    const onFocus = () => {
+      void poll();
+    };
+    window.addEventListener("focus", onFocus);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") void poll();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [loading, redirectIfApproved, refreshSession, session]);
+
+  async function handleRefreshStatus() {
+    setRefreshing(true);
+    const fresh = await refreshSession();
+    setRefreshing(false);
+    if (fresh?.establishment) {
+      router.replace(adminHomePath(fresh.establishment));
     }
-    const status = resolvePlatformStatus(session.establishment);
-    if (status === "active") {
-      router.replace("/admin");
-    }
-  }, [loading, router, session]);
+  }
 
   if (loading || !session) return null;
 
@@ -50,7 +92,7 @@ export default function AdminPendingPage() {
               Assim que a plataforma aprovar sua conta, você poderá acessar o painel completo —
               cardápio, mesas, pedidos e cozinha.
             </p>
-            <p className="text-xs">Enquanto isso, nenhuma operação ficará disponível no admin.</p>
+            <p className="text-xs">Esta página atualiza automaticamente quando a aprovação for concluída.</p>
           </div>
         </div>
 
@@ -69,10 +111,11 @@ export default function AdminPendingPage() {
           Já foi aprovado?{" "}
           <button
             type="button"
-            className="text-brand hover:underline"
-            onClick={() => router.replace(adminHomePath(session.establishment))}
+            className="text-brand hover:underline disabled:opacity-50"
+            disabled={refreshing}
+            onClick={() => void handleRefreshStatus()}
           >
-            Atualizar status
+            {refreshing ? "Verificando…" : "Verificar status agora"}
           </button>
         </p>
       </div>

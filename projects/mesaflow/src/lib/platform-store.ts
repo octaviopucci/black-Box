@@ -4,7 +4,7 @@ import { getMerchantDetail, listMerchants, platformDashboard } from "./platform-
 import { parsePlatformPlan } from "./platform-plans";
 import { hashPassword, id, verifyPassword } from "./crypto-utils";
 import { PLATFORM_OWNER_LOGIN } from "./demo";
-import { getStore, saveStore } from "./store";
+import { getStore, saveOperationalStore, saveStore } from "./store";
 import type { PlatformPlan, PlatformStatus, PlatformUser } from "./types";
 
 const PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -135,7 +135,7 @@ export function updateMerchant(establishmentId: string, patch: MerchantPatch) {
     targetId: establishmentId,
     metadata,
   });
-  saveStore(store);
+  saveOperationalStore(store);
   return { value: getMerchantDetail(establishmentId)! };
 }
 

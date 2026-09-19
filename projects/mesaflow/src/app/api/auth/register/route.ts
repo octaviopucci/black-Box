@@ -6,7 +6,7 @@ import {
   withRateLimitHeaders,
 } from "@/lib/rate-limit-http";
 import { jsonWithAdminSession } from "@/lib/staff-auth-request";
-import { publicUser, registerEstablishment } from "@/lib/store";
+import { publicEstablishment, publicUser, registerEstablishment } from "@/lib/store";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import type { OperationMode } from "@/lib/types";
 
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
   }
   const payload = {
     user: publicUser(result.user!),
-    establishment: result.establishment,
+    establishment: publicEstablishment(result.establishment!),
     token: result.session!.token,
   };
   return withRateLimitHeaders(

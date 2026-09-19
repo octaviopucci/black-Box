@@ -12,7 +12,7 @@ const PENDING_PATH = "/admin/pending";
 function AdminGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { session, loading } = useAuth();
+  const { session, loading, refreshSession } = useAuth();
 
   useEffect(() => {
     if (loading) return;
@@ -24,13 +24,22 @@ function AdminGate({ children }: { children: React.ReactNode }) {
 
     const status = resolvePlatformStatus(session.establishment);
     if (!isMerchantAdminOperational(status) && pathname !== PENDING_PATH) {
-      router.replace(adminHomePath(session.establishment));
+      void refreshSession().then((fresh) => {
+        const liveStatus = resolvePlatformStatus(
+          fresh?.establishment ?? session.establishment,
+        );
+        if (isMerchantAdminOperational(liveStatus)) {
+          router.replace("/admin");
+          return;
+        }
+        router.replace(adminHomePath(fresh?.establishment ?? session.establishment));
+      });
       return;
     }
     if (status === "active" && pathname === PENDING_PATH) {
       router.replace("/admin");
     }
-  }, [pathname, router, session, loading]);
+  }, [pathname, router, session, loading, refreshSession]);
 
   if (PUBLIC_PATHS.includes(pathname)) return children;
   if (loading || !session) return null;

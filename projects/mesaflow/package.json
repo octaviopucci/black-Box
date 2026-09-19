@@ -13,6 +13,7 @@
     "test:closing": "npx tsx src/lib/closing.test.ts",
     "test:payment": "npx tsx src/lib/guest-payment.test.ts",
     "test:platform": "npx tsx src/lib/platform.test.ts",
+    "test:platform-approval": "npx tsx src/lib/platform-approval-persist.test.ts",
     "test:persist": "npx tsx src/lib/persist-soft-fail.test.ts",
     "test:platform-seed": "npx tsx src/lib/platform-seed-production.test.ts",
     "test:guest-closing": "npx tsx src/lib/guest-closing.test.ts",

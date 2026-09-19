@@ -42,3 +42,21 @@ export const PLATFORM_STATUS_LABELS: Record<PlatformStatus, string> = {
   suspended: "Suspenso",
   rejected: "Rejeitado",
 };
+
+export function parsePlatformStatusInput(value: unknown): PlatformStatus | null {
+  if (
+    value === "pending" ||
+    value === "active" ||
+    value === "inactive" ||
+    value === "suspended" ||
+    value === "rejected"
+  ) {
+    return value;
+  }
+  return null;
+}
+
+export function parsePlatformStatusFilterInput(value: string | undefined | null): PlatformStatus | "all" {
+  const parsed = parsePlatformStatusInput(value ?? undefined);
+  return parsed ?? "all";
+}
