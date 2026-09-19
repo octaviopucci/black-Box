@@ -441,7 +441,10 @@ export async function hydratePersistentStore() {
     return;
   }
 
-  if (cache && (operationalDirty || identityDirty)) {
+  /** Instância quente: reutiliza memória — evita round-trip Blob em cada GET admin. */
+  if (cache) {
+    migrateLegacyGuestParticipations(cache);
+    runRetentionPurge(cache);
     return;
   }
 

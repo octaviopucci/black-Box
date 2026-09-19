@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { parseApiJson } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { OPERATION_MODES } from "@/lib/operation-modes";
@@ -59,6 +60,7 @@ type Analytics = {
 };
 
 type Dash = {
+  establishment?: { name?: string };
   stats: {
     revenue: number;
     ordersToday: number;
@@ -106,22 +108,30 @@ function formatMinutes(minutes: number) {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { fetchApi } = useAuth();
+  const { fetchApi, session } = useAuth();
   const [period, setPeriod] = useState<Period>("today");
   const [data, setData] = useState<Dash | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [establishmentName, setEstablishmentName] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const res = await fetchApi(`/admin/dashboard?period=${period}`);
-      const json = await res.json();
+      const json = (await parseApiJson(res)) as Dash & { error?: string };
       if (!res.ok) throw new Error(json.error || "Falha ao carregar dashboard");
+      if (!json.analytics) {
+        throw new Error(
+          "Resposta incompleta da API (analytics ausente). Redeploy ou contate o suporte.",
+        );
+      }
       setData(json);
       setEstablishmentName(json.establishment?.name ?? null);
-    } catch {
+    } catch (loadError) {
       setData(null);
+      setError(loadError instanceof Error ? loadError.message : "Falha ao carregar dashboard");
     } finally {
       setLoading(false);
     }
@@ -145,12 +155,35 @@ export default function AdminDashboardPage() {
     }
   }
 
-  if (loading || !data?.analytics) {
+  if (loading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="skeleton h-28 rounded-2xl" />
-        ))}
+      <div>
+        <div className="mb-8">
+          <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold">Dashboard operacional</h1>
+          {session?.establishment.name ? (
+            <p className="mt-1 text-muted">{session.establishment.name}</p>
+          ) : null}
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="skeleton h-28 rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data?.analytics) {
+    return (
+      <div className="rounded-2xl border border-danger/20 bg-danger/10 px-6 py-8 text-center">
+        <p className="font-semibold text-danger">{error || "Não foi possível carregar o dashboard."}</p>
+        <button
+          type="button"
+          onClick={() => void load()}
+          className="mt-4 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white"
+        >
+          Tentar novamente
+        </button>
       </div>
     );
   }

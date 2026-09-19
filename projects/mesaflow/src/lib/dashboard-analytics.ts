@@ -243,6 +243,35 @@ export function dashboardAnalytics(establishmentId: string, period: DashboardPer
   };
 }
 
+export type DashboardAnalyticsSnapshot = ReturnType<typeof dashboardAnalytics>;
+
+const analyticsBundleCache = new Map<
+  string,
+  { expires: number; bundle: Record<DashboardPeriod, DashboardAnalyticsSnapshot> }
+>();
+const ANALYTICS_BUNDLE_TTL_MS = 10_000;
+
+/** Calcula today/7d/30d com cache curto — evita recomputar 3× por request. */
+export function dashboardAnalyticsBundle(
+  establishmentId: string,
+): Record<DashboardPeriod, DashboardAnalyticsSnapshot> {
+  const now = Date.now();
+  const cached = analyticsBundleCache.get(establishmentId);
+  if (cached && cached.expires > now) return cached.bundle;
+
+  const bundle: Record<DashboardPeriod, DashboardAnalyticsSnapshot> = {
+    today: dashboardAnalytics(establishmentId, "today"),
+    "7d": dashboardAnalytics(establishmentId, "7d"),
+    "30d": dashboardAnalytics(establishmentId, "30d"),
+  };
+  analyticsBundleCache.set(establishmentId, { expires: now + ANALYTICS_BUNDLE_TTL_MS, bundle });
+  return bundle;
+}
+
+export function resetDashboardAnalyticsCacheForTests() {
+  analyticsBundleCache.clear();
+}
+
 export function summarizeParticipation(gp: GuestParticipation) {
   return {
     id: gp.id,

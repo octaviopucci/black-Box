@@ -1,12 +1,16 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import {
+  getAdminDashboardPayload,
+  parseAdminDashboardPeriod,
+  parseAdminDashboardScope,
+} from "../../../mesaflow/src/lib/admin-dashboard";
+import {
   changeUserPassword,
   createAdminCategoryPersisted,
   createAdminProduct,
   createAdminTable,
   createOrder,
   createRodizioRound,
-  dashboardStats,
   deleteAdminCategoryPersisted,
   deleteAdminProduct,
   deleteAdminTable,
@@ -150,13 +154,17 @@ function resolvePath(req: VercelRequest): string {
   return stripped.startsWith("/") ? stripped : `/${stripped}`;
 }
 
+/** GET handlers must not block on blob flush — reads stay fast on light deploy. */
+let activeRequestMethod: string | undefined;
+
 async function json(
   res: VercelResponse,
   status: number,
   body: unknown,
   options?: { skipFlush?: boolean; extraHeaders?: Record<string, string> },
 ) {
-  if (!options?.skipFlush) {
+  const skipFlush = options?.skipFlush ?? activeRequestMethod === "GET";
+  if (!skipFlush) {
     try {
       const persist = await flushPersistentStore();
       if (!persist.blob && persist.blobError) {
@@ -302,6 +310,7 @@ function parseDashboardPeriod(value: string | undefined): "today" | "7d" | "30d"
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  activeRequestMethod = req.method;
   setPersistentStoreOidcToken(readOidcHeader(req));
   if (req.method === "OPTIONS") return json(res, 204, {});
 
@@ -934,31 +943,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "GET" && path === "/admin/dashboard") {
       const auth = dashboardAuth(req);
       if (!auth) return json(res, 401, { error: "Não autorizado." });
-      const est = auth.establishment;
-      const stats = dashboardStats(est.id);
-      const orders = Object.values(store.orders)
-        .filter((o) => o.establishmentId === est.id)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      const tables = Object.values(store.tables).filter((t) => t.establishmentId === est.id);
-      const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === est.id && s.active);
-      const notifications = Object.values(store.notifications)
-        .filter((n) => n.establishmentId === est.id)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-        .slice(0, 20);
-      const commands = Object.values(store.commands).filter((c) => c.establishmentId === est.id);
-      const categories = Object.values(store.categories).filter((c) => c.establishmentId === est.id);
-      const products = Object.values(store.products).filter((p) => p.establishmentId === est.id);
-      return json(res, 200, {
-        establishment: est,
-        persist: persistStatus(),
-        stats,
-        orders,
-        tables,
-        sectors,
-        commands,
-        notifications,
-        categories,
-        products,
+      const period = parseAdminDashboardPeriod(
+        typeof req.query?.period === "string" ? req.query.period : undefined,
+      );
+      const scope = parseAdminDashboardScope(
+        typeof req.query?.scope === "string" ? req.query.scope : undefined,
+        typeof req.query?.period === "string",
+      );
+      const payload = getAdminDashboardPayload(auth.establishment, period, scope);
+      return json(res, 200, payload, {
+        extraHeaders:
+          scope === "overview"
+            ? { "Cache-Control": "private, max-age=10" }
+            : { "Cache-Control": "private, no-cache" },
       });
     }
 
