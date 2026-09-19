@@ -1,17 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
-import {
-  BLOB_ACCESS,
-  blobAuthOptions,
-  blobConfigured,
-  flushToBlob,
-  hydrateFromBlob,
-  IDENTITY_BLOB_PATH,
-  LEGACY_BLOB_PATH,
-  OPERATIONAL_BLOB_PATH,
-  probeBlobPaths,
-  type BlobEtags,
-} from "./blob-persistence";
+import * as blobPersistence from "./blob-persistence";
+import type { BlobEtags } from "./blob-persistence";
 import {
   flushToRedis,
   hydrateFromRedis,
@@ -357,9 +347,9 @@ export function blobDiagnostics(hasOidcHeader = false) {
   const blobEnvKeys = Object.keys(process.env).filter(
     (key) => key.includes("BLOB") || key.includes("OIDC"),
   );
-  const auth = blobAuthOptions(runtimeOidcToken);
+  const auth = blobPersistence.blobAuthOptions(runtimeOidcToken);
   return {
-    configured: blobConfigured(runtimeOidcToken),
+    configured: blobPersistence.blobConfigured(runtimeOidcToken),
     hasToken: Boolean(blobReadWriteToken()),
     hasStoreId: Boolean(blobStoreId()),
     hasOidc: Boolean(runtimeOidcToken || process.env.VERCEL_OIDC_TOKEN),
@@ -369,11 +359,11 @@ export function blobDiagnostics(hasOidcHeader = false) {
     vercelEnv: process.env.VERCEL_ENV,
     blobEnvKeys,
     paths: {
-      legacy: LEGACY_BLOB_PATH,
-      operational: OPERATIONAL_BLOB_PATH,
-      identity: IDENTITY_BLOB_PATH,
+      legacy: blobPersistence.LEGACY_BLOB_PATH,
+      operational: blobPersistence.OPERATIONAL_BLOB_PATH,
+      identity: blobPersistence.IDENTITY_BLOB_PATH,
     },
-    access: BLOB_ACCESS,
+    access: blobPersistence.BLOB_ACCESS,
     lastError: lastBlobError,
     etags: blobEtags,
     redis: {
@@ -385,7 +375,7 @@ export function blobDiagnostics(hasOidcHeader = false) {
 
 /** Testa leitura real no Blob (OIDC automático na Vercel). */
 export async function probeBlobStorage(): Promise<{ ok: boolean; error?: string }> {
-  return probeBlobPaths(runtimeOidcToken);
+  return blobPersistence.probeBlobPaths(runtimeOidcToken);
 }
 
 export function setPersistentStoreOidcToken(token: string | undefined) {
@@ -421,9 +411,9 @@ export async function hydratePersistentStore() {
     }
   }
 
-  if (blobConfigured(runtimeOidcToken)) {
+  if (blobPersistence.blobConfigured(runtimeOidcToken)) {
     try {
-      const hydrated = await hydrateFromBlob(runtimeOidcToken);
+      const hydrated = await blobPersistence.hydrateFromBlob(runtimeOidcToken);
       if (hydrated) {
         finishRemoteHydrate(
           hydrated.store,
@@ -472,6 +462,89 @@ function softFailPersistResult(error: unknown): PersistResult {
   };
 }
 
+/** Vercel deployment with Blob or Redis — approvals must reach shared store before 200. */
+export function sharedPersistenceConfigured(): boolean {
+  return Boolean(
+    process.env.VERCEL &&
+      (blobPersistence.blobConfigured(runtimeOidcToken) || redisConfigured()),
+  );
+}
+
+/** Flush operational data to shared store; required before returning success on status changes. */
+export async function requireOperationalPersist(): Promise<PersistResult & { ok: boolean }> {
+  if (!cache) {
+    return { ok: false, disk: false, blob: false, blobError: "Store não inicializado." };
+  }
+  if (!process.env.VERCEL) {
+    return { ok: true, disk: true, blob: false };
+  }
+  if (!operationalDirty) {
+    return { ok: true, disk: true, blob: false, redis: lastPersistSource === "redis" };
+  }
+  if (!sharedPersistenceConfigured()) {
+    return {
+      ok: false,
+      disk: true,
+      blob: false,
+      blobError:
+        "Armazenamento compartilhado não configurado (Blob ou Redis). Aprovação não pode ser compartilhada entre instâncias.",
+    };
+  }
+
+  if (redisConfigured()) {
+    const redisResult = await flushToRedis({
+      store: cache,
+      etags: blobEtags,
+      flushOperational: true,
+      flushIdentity: false,
+    });
+    if (redisResult.ok) {
+      operationalDirty = false;
+      lastRedisError = undefined;
+      lastPersistSource = "redis";
+      return { ok: true, disk: true, blob: false, redis: true };
+    }
+    lastRedisError = redisResult.error || "redis persist failed";
+    console.warn("[mesaflow] requireOperationalPersist redis failed", lastRedisError);
+  }
+
+  if (blobPersistence.blobConfigured(runtimeOidcToken)) {
+    const flushed = await blobPersistence.flushToBlob({
+      store: cache,
+      etags: blobEtags,
+      flushOperational: true,
+      flushIdentity: false,
+      runtimeOidcToken,
+    });
+    if (flushed.operational?.ok) {
+      if (flushed.operational.etag) blobEtags.operational = flushed.operational.etag;
+      operationalDirty = false;
+      lastBlobError = undefined;
+      lastPersistSource = "blob";
+      return { ok: true, disk: true, blob: true, redis: false, redisError: lastRedisError };
+    }
+    lastBlobError = flushed.operational?.error || "blob persist failed";
+    console.warn("[mesaflow] requireOperationalPersist blob failed", lastBlobError);
+    return {
+      ok: false,
+      disk: true,
+      blob: false,
+      blobError: lastBlobError,
+      redis: false,
+      redisError: lastRedisError,
+    };
+  }
+
+  return {
+    ok: false,
+    disk: true,
+    blob: false,
+    blobError: lastBlobError || "Blob not configured",
+    redis: false,
+    redisError: lastRedisError,
+  };
+}
+
 export async function flushPersistentStore(): Promise<PersistResult> {
   try {
     if (!cache) return { disk: false, blob: false };
@@ -498,8 +571,8 @@ export async function flushPersistentStore(): Promise<PersistResult> {
       console.warn("[mesaflow] redis persist failed", lastRedisError);
     }
 
-    if (blobConfigured(runtimeOidcToken)) {
-      const flushed = await flushToBlob({
+    if (blobPersistence.blobConfigured(runtimeOidcToken)) {
+      const flushed = await blobPersistence.flushToBlob({
         store: cache,
         etags: blobEtags,
         flushOperational: operationalDirty,

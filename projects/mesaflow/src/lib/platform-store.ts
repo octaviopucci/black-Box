@@ -4,7 +4,13 @@ import { getMerchantDetail, listMerchants, platformDashboard } from "./platform-
 import { parsePlatformPlan } from "./platform-plans";
 import { hashPassword, id, verifyPassword } from "./crypto-utils";
 import { PLATFORM_OWNER_LOGIN } from "./demo";
-import { getStore, saveOperationalStore, saveStore } from "./store";
+import {
+  getStore,
+  requireOperationalPersist,
+  saveOperationalStore,
+  saveStore,
+  sharedPersistenceConfigured,
+} from "./store";
 import type { PlatformPlan, PlatformStatus, PlatformUser } from "./types";
 
 const PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -93,12 +99,20 @@ export type MerchantPatch = {
   reason?: string;
 };
 
-export function updateMerchant(establishmentId: string, patch: MerchantPatch) {
+export async function updateMerchant(establishmentId: string, patch: MerchantPatch) {
   const store = getStore();
   const establishment = store.establishments[establishmentId];
   if (!establishment) return { error: "Estabelecimento não encontrado.", status: 404 };
 
   const metadata: Record<string, unknown> = {};
+  const statusChanging = patch.platformStatus !== undefined;
+  const previousStatus = statusChanging
+    ? {
+        platformStatus: establishment.platformStatus,
+        suspendedAt: establishment.suspendedAt,
+        suspendedReason: establishment.suspendedReason,
+      }
+    : null;
 
   if (patch.platformStatus !== undefined) {
     establishment.platformStatus = patch.platformStatus;
@@ -127,7 +141,7 @@ export function updateMerchant(establishmentId: string, patch: MerchantPatch) {
     return { error: "Nenhuma alteração informada.", status: 400 };
   }
 
-  appendAuditEvent(store, {
+  const auditEvent = appendAuditEvent(store, {
     establishmentId,
     type: "platform.merchant_status",
     actorType: "PLATFORM",
@@ -136,11 +150,32 @@ export function updateMerchant(establishmentId: string, patch: MerchantPatch) {
     metadata,
   });
   saveOperationalStore(store);
+
+  if (statusChanging && sharedPersistenceConfigured()) {
+    const persist = await requireOperationalPersist();
+    if (!persist.ok) {
+      if (previousStatus) {
+        establishment.platformStatus = previousStatus.platformStatus;
+        establishment.suspendedAt = previousStatus.suspendedAt;
+        establishment.suspendedReason = previousStatus.suspendedReason;
+      }
+      delete store.auditEvents[auditEvent.id];
+      saveOperationalStore(store);
+      return {
+        error:
+          persist.blobError ||
+          persist.redisError ||
+          "Não foi possível persistir a alteração de status. Tente novamente.",
+        status: 503,
+      };
+    }
+  }
+
   return { value: getMerchantDetail(establishmentId)! };
 }
 
 /** @deprecated Use updateMerchant */
-export function updateMerchantStatus(
+export async function updateMerchantStatus(
   establishmentId: string,
   status: PlatformStatus,
   reason?: string,

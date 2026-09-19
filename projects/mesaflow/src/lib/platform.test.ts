@@ -78,7 +78,7 @@ async function run() {
   assert.equal(newMerchants[0].plan, "premium");
   assert.equal(newMerchants[0].platformStatus, "pending");
 
-  const approved = updateMerchantStatus(newMerchants[0].id, "active");
+  const approved = await updateMerchantStatus(newMerchants[0].id, "active");
   assert.ok("value" in approved);
   assert.equal(approved.value.platformStatus, "active");
 
@@ -87,18 +87,18 @@ async function run() {
   const activeApi = validateActiveSession(allowed.session!.token);
   assert.ok(activeApi, "approved merchant can use admin API");
 
-  const planChanged = updateMerchant(newMerchants[0].id, { plan: "custom" });
+  const planChanged = await updateMerchant(newMerchants[0].id, { plan: "custom" });
   assert.ok("value" in planChanged);
   assert.equal(planChanged.value.plan, "custom");
 
-  const suspended = updateMerchantStatus(newMerchants[0].id, "suspended", "teste");
+  const suspended = await updateMerchantStatus(newMerchants[0].id, "suspended", "teste");
   assert.ok("value" in suspended);
   assert.equal(suspended.value.platformStatus, "suspended");
 
   const blocked = loginUser("maria.platform.test@example.com", "SenhaTeste1");
   assert.ok(blocked.error, "suspended merchant cannot login");
 
-  const reactivated = updateMerchantStatus(newMerchants[0].id, "active");
+  const reactivated = await updateMerchantStatus(newMerchants[0].id, "active");
   assert.ok("value" in reactivated);
   const allowedAgain = loginUser("maria.platform.test@example.com", "SenhaTeste1");
   assert.ok(allowedAgain.session, allowedAgain.error);
