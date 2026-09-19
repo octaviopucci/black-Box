@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import type { SoftSuggestion } from "@/lib/menu-intelligence";
-import type { ClosingScope } from "@/lib/types";
+import type { ClosingScope, Product } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { ProductImage } from "@/components/ui/product-image";
+import { ProductVisual } from "@/components/ui/product-image";
 import { cn } from "@/lib/cn";
 
 type TableParticipant = {
@@ -20,6 +20,7 @@ type ClosingSheetProps = {
   participantCount: number;
   participants: TableParticipant[];
   selfParticipationId?: string;
+  categoryEmoji?: (product: Product) => string | undefined;
   onAddContinue: (suggestion: SoftSuggestion) => void;
   onRequestClosing: (scope: ClosingScope, targetIds?: string[]) => void;
   onDismiss: () => void;
@@ -30,6 +31,7 @@ export function ClosingSheet({
   participantCount,
   participants,
   selfParticipationId,
+  categoryEmoji,
   onAddContinue,
   onRequestClosing,
   onDismiss,
@@ -91,13 +93,14 @@ export function ClosingSheet({
                 className="rounded-2xl border border-white/5 bg-surface/70 p-3"
               >
                 <div className="flex items-center gap-3">
-                  <ProductImage
+                  <ProductVisual
                     src={suggestion.product.image}
                     alt={suggestion.product.name}
-                    seed={suggestion.product.id}
+                    categoryEmoji={categoryEmoji?.(suggestion.product)}
                     width={64}
                     height={64}
                     className="h-16 w-16 shrink-0 rounded-xl object-cover"
+                    emojiClassName="h-16 w-16 shrink-0 text-3xl"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold leading-snug">{suggestion.product.name}</p>

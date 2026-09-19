@@ -19,6 +19,8 @@
     "test:persist": "npx tsx src/lib/persist-soft-fail.test.ts",
     "test:persist-status": "npx tsx src/lib/persist-status.test.ts",
     "test:seed-marcelo": "npx tsx src/lib/seed-marcelo-lanches.test.ts",
+    "test:order-math": "npx tsx src/lib/order-math.test.ts",
+    "test:admin-dashboard": "npx tsx src/lib/admin-dashboard.test.ts",
     "seed:marcelo": "npx tsx scripts/seed-marcelo-lanches.mts",
     "test:category-persist": "npx tsx src/lib/category-persist.test.ts",
     "test:platform-seed": "npx tsx src/lib/platform-seed-production.test.ts",

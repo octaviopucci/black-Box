@@ -38,12 +38,12 @@ import {
 } from "@/lib/menu-intelligence";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { ProductImage } from "@/components/ui/product-image";
+import { hasProductImage, ProductVisual } from "@/components/ui/product-image";
 import { Logo } from "@/components/brand/logo";
 import { BRAND_NAME } from "@/lib/brand";
 import { PRIVACY_POLICY_PATH, PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import Link from "next/link";
-import { lineTotal } from "@/lib/order-math";
+import { lineTotal, lineUnitPrice, variantDeltaValue } from "@/lib/order-math";
 import { SoftSuggestions } from "@/components/customer/soft-suggestions";
 import { ClosingSheet } from "@/components/customer/closing-sheet";
 
@@ -397,6 +397,15 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     () => (categoryId === "all" ? null : data?.categories.find((c) => c.id === categoryId) || null),
     [categoryId, data],
   );
+
+  const categoryEmojiById = useMemo(
+    () => Object.fromEntries((data?.categories || []).map((category) => [category.id, category.emoji])),
+    [data],
+  );
+
+  function categoryEmojiFor(product: Product) {
+    return categoryEmojiById[product.categoryId];
+  }
 
   const selectedSuggestions = useMemo(() => {
     if (!selected || !data) return [] as SoftSuggestion[];
@@ -802,22 +811,28 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                       onClick={() => setSelected(p)}
                       className="w-44 shrink-0 overflow-hidden rounded-2xl bg-surface-2 text-left ring-1 ring-white/5 transition duration-200 hover:ring-brand/20 active:scale-[0.98]"
                     >
-                      <div className="relative">
-                        <ProductImage
-                          src={p.image}
-                          alt={p.name}
-                          seed={p.id}
-                          width={176}
-                          height={120}
-                          className="h-28 w-full object-cover"
-                        />
-                        {badge && (
-                          <span className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-sm">
-                            {badge}
-                          </span>
-                        )}
-                      </div>
+                      {hasProductImage(p.image) && (
+                        <div className="relative">
+                          <ProductVisual
+                            src={p.image}
+                            alt={p.name}
+                            width={176}
+                            height={120}
+                            className="h-28 w-full object-cover"
+                          />
+                          {badge && (
+                            <span className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-sm">
+                              {badge}
+                            </span>
+                          )}
+                        </div>
+                      )}
                       <div className="p-2.5">
+                        {!hasProductImage(p.image) && categoryEmojiFor(p) ? (
+                          <span className="mb-1 block text-xl leading-none" aria-hidden>
+                            {categoryEmojiFor(p)}
+                          </span>
+                        ) : null}
                         <p className="line-clamp-2 text-sm font-semibold leading-snug">{p.name}</p>
                         <p className="mt-1 text-sm font-bold text-brand">{formatCurrency(p.price)}</p>
                       </div>
@@ -872,13 +887,14 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   onClick={() => setSelected(p)}
                   className="glass-card flex w-full gap-3.5 p-3 text-left transition duration-200 active:scale-[0.99]"
                 >
-                  <ProductImage
+                  <ProductVisual
                     src={p.image}
                     alt={p.name}
-                    seed={p.id}
+                    categoryEmoji={categoryEmojiFor(p)}
                     width={96}
                     height={96}
                     className="h-24 w-24 shrink-0 rounded-xl object-cover"
+                    emojiClassName="h-24 w-24 shrink-0 text-3xl"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start gap-2">
@@ -1158,14 +1174,19 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <ProductImage
-              src={selected.image}
-              alt={selected.name}
-              seed={selected.id}
-              width={480}
-              height={260}
-              className="mb-4 h-52 w-full rounded-2xl object-cover"
-            />
+            {hasProductImage(selected.image) ? (
+              <ProductVisual
+                src={selected.image}
+                alt={selected.name}
+                width={480}
+                height={260}
+                className="mb-4 h-52 w-full rounded-2xl object-cover"
+              />
+            ) : categoryEmojiFor(selected) ? (
+              <p className="mb-3 text-3xl leading-none" aria-hidden>
+                {categoryEmojiFor(selected)}
+              </p>
+            ) : null}
             <p className="mb-3 text-sm leading-relaxed text-muted">{selected.description}</p>
             {selected.prepMinutes > 0 && (
               <p className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted">
@@ -1218,13 +1239,21 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   : "Para acompanhar"
               }
               suggestions={selectedSuggestions}
+              categoryEmoji={categoryEmojiFor}
               onAdd={addSuggestion}
             />
             <p className="mb-4 text-xl font-bold text-brand">
               {formatCurrency(
-                selected.price +
-                (selected.variants.find((variant) => variant.id === selectedVariantId)?.priceDelta || 0) +
-                selected.addons.reduce((total, addon) => total + addon.price * (selectedAddons[addon.id] || 0), 0),
+                lineUnitPrice(
+                  selected.price,
+                  variantDeltaValue(selected.variants.find((variant) => variant.id === selectedVariantId)),
+                  selected.addons
+                    .filter((addon) => (selectedAddons[addon.id] || 0) > 0)
+                    .map((addon) => ({
+                      price: addon.price,
+                      qty: selectedAddons[addon.id] || 0,
+                    })),
+                ),
               )}
             </p>
             <Button
@@ -1263,7 +1292,16 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   <p className="font-medium">{line.product.name}</p>
                   {line.variant && <p className="text-xs text-muted">{line.variant.name}</p>}
                   {line.addons.length > 0 && <p className="text-xs text-muted">{line.addons.map((addon) => `${addon.qty}x ${addon.name}`).join(", ")}</p>}
-                  <p className="text-sm text-brand">{formatCurrency(lineTotal({ qty: line.qty, unitPrice: line.product.price, variantDelta: line.variant?.priceDelta || 0, addons: line.addons }))}</p>
+                  <p className="text-sm text-brand">
+                    {formatCurrency(
+                      lineTotal({
+                        qty: line.qty,
+                        unitPrice: line.product.price,
+                        variantDelta: variantDeltaValue(line.variant),
+                        addons: line.addons,
+                      }),
+                    )}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => cart.updateQty(line.key, line.qty - 1)} className="rounded-lg bg-surface-3 p-2">
@@ -1285,6 +1323,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                     : "Para completar"
                 }
                 suggestions={cartSuggestions}
+                categoryEmoji={categoryEmojiFor}
                 onAdd={addSuggestion}
                 compact
               />
@@ -1302,6 +1341,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
           participantCount={context?.participantCount || 1}
           participants={context?.participants || []}
           selfParticipationId={guestMe?.participation.id}
+          categoryEmoji={categoryEmojiFor}
           onAddContinue={handleClosingAdd}
           onRequestClosing={(scope, targetIds) => void requestClosing(scope, targetIds)}
           onDismiss={() => setClosingOpen(false)}

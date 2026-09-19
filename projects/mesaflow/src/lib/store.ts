@@ -119,12 +119,18 @@ function migrateProductImages(store: MesaFlowStore, markBlobDirty = true) {
   let changed = false;
   for (const product of Object.values(store.products)) {
     const canonical = PRODUCT_IMAGES[product.id];
-    const next = canonical ?? productImageByName(product.name);
+    if (canonical && product.image !== canonical) {
+      product.image = canonical;
+      changed = true;
+      continue;
+    }
+    if (!product.image) continue;
     const stale =
-      !product.image ||
       product.image.includes("picsum.photos") ||
       (product.id === "p_cappuccino" && product.image.includes("1593508512255"));
-    if (stale && next && product.image !== next) {
+    if (!stale) continue;
+    const next = productImageByName(product.name);
+    if (product.image !== next) {
       product.image = next;
       changed = true;
     }
@@ -435,7 +441,10 @@ export async function hydratePersistentStore() {
     return;
   }
 
-  if (cache && (operationalDirty || identityDirty)) {
+  /** Instância quente: reutiliza memória — evita round-trip Blob em cada GET admin. */
+  if (cache) {
+    migrateLegacyGuestParticipations(cache);
+    runRetentionPurge(cache);
     return;
   }
 

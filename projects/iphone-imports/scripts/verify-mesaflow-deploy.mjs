@@ -52,8 +52,15 @@ const requiredHandlerRoutes = [
   "/platform/auth/me",
   "/platform/dashboard",
   "/platform/merchants",
+  "/admin/dashboard",
   "/admin/orders",
   "/admin/password",
+];
+
+const requiredHandlerSnippets = [
+  "getAdminDashboardPayload",
+  "analyticsWeek",
+  "import-catalog",
 ];
 
 const requiredRootLanding = ["index.html", "favicon.ico", "apple-icon.png"];
@@ -135,6 +142,12 @@ for (const route of requiredHandlerRoutes) {
 for (const patch of requiredHandlerPatches) {
   if (!handlerBundle.includes(patch)) {
     console.error(`✗ api/mesaflow.js sem patch ${patch} (rebuild necessário)`);
+    failed = true;
+  }
+}
+for (const snippet of requiredHandlerSnippets) {
+  if (!handlerBundle.includes(snippet)) {
+    console.error(`✗ api/mesaflow.js sem ${snippet} (rebuild necessário)`);
     failed = true;
   }
 }
