@@ -33,8 +33,9 @@ Sem Evolution **e** sem `off` explícito, produção **não** expõe código byp
 
 1. `projects/iphone-imports/scripts/build-mesaflow.mjs` — export estático em `out/mesaflow/`
 2. `api/mesaflow.js` — serverless handler com store + pedidos
-3. `vercel-build` do iphone-imports inclui o passo MesaFlow automaticamente
-4. Push em `main` dispara `.github/workflows/iphone-imports-deploy.yml`
+3. **Deploy multi-produto** (bedois, loja-iphoneimports): `npm run vercel-build` em `projects/iphone-imports`
+4. **Deploy NA MESA enxuto** (projeto Vercel dedicado): `npm run vercel-build:mesaflow` — ver [`DEPLOY-NA-MESA.md`](../iphone-imports/DEPLOY-NA-MESA.md)
+5. Push em `main` dispara `.github/workflows/iphone-imports-deploy.yml` (build completo)
 
 ## Domínio `ponto-do-sabor.vercel.app`
 

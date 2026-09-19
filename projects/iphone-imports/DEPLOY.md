@@ -16,6 +16,12 @@ Projeto unificado em `projects/iphone-imports/`:
 | **MesaFlow** | `https://loja-iphoneimports.vercel.app/mesaflow/` |
 | **API MesaFlow** | `https://loja-iphoneimports.vercel.app/api/mesaflow/health` |
 
+## Deploy NA MESA enxuto (projeto Vercel dedicado)
+
+Se o projeto Vercel serve **somente** NA MESA / MesaFlow (sem iPhone, W-Tube, etc.), use o build enxuto — ver **[DEPLOY-NA-MESA.md](./DEPLOY-NA-MESA.md)**.
+
+> Projetos multi-produto (bedois, loja-iphoneimports) **devem** continuar com `npm run vercel-build` abaixo.
+
 ## Vercel — checklist (loja-iphoneimports)
 
 ### 1. Git (Settings → Git) ✅
