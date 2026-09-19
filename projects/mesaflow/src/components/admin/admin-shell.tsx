@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
+  Bell,
+  BellOff,
   ChefHat,
   LayoutGrid,
   LayoutDashboard,
@@ -18,8 +20,10 @@ import {
   X } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { useAuth } from "@/contexts/auth-context";
+import { useOrderAlerts } from "@/hooks/use-order-alerts";
 import { parseApiJson } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { isOrderSoundMuted, setOrderSoundMuted } from "@/lib/order-alert-sound";
 import type { Sector, UserRole } from "@/lib/types";
 
 const NAV = [
@@ -54,6 +58,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [persistWarning, setPersistWarning] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [soundMuted, setSoundMuted] = useState(false);
+  const { notificationPermission, enableNotifications } = useOrderAlerts();
+
+  useEffect(() => {
+    setSoundMuted(isOrderSoundMuted());
+  }, []);
 
   useEffect(() => {
     if (!session?.establishment.slug) return;
@@ -74,6 +84,34 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     await logout();
     router.push("/admin/login");
   }
+
+  async function toggleSound() {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    setOrderSoundMuted(next);
+    if (!next && notificationPermission !== "granted") {
+      await enableNotifications();
+    }
+  }
+
+  const soundToggle = (
+    <button
+      type="button"
+      onClick={() => void toggleSound()}
+      className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-sm text-muted transition hover:bg-surface-3"
+      aria-pressed={soundMuted}
+      title={
+        notificationPermission === "denied"
+          ? "Notificações bloqueadas no browser — permita nas configurações"
+          : notificationPermission === "granted"
+            ? "Alertas de som e notificação ativos"
+            : "Clique para ativar som e pedir permissão de notificação"
+      }
+    >
+      {soundMuted ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+      {soundMuted ? "Som desligado" : "Alertas ligados"}
+    </button>
+  );
 
   const kdsLinks = sectors.slice(0, 3);
   const isActive = (href: string) =>
@@ -122,26 +160,40 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <p className="mt-3 truncate text-xs text-muted">{session?.establishment.name}</p>
         </div>
         {navigation}
-        <button
-          onClick={handleLogout}
-          className="mt-8 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-muted hover:text-ink"
-        >
-          <LogOut className="h-4 w-4" />
-          Sair
-        </button>
+        <div className="mt-8 space-y-3">
+          {soundToggle}
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-muted hover:text-ink"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair
+          </button>
+        </div>
       </aside>
       <div className="min-w-0 flex-1">
-        <header className="print-hide sticky top-0 z-30 flex items-center justify-between border-b border-white/5 bg-surface/85 px-4 py-3 backdrop-blur-xl lg:hidden">
+        <header className="print-hide sticky top-0 z-30 flex items-center justify-between gap-2 border-b border-white/5 bg-surface/85 px-4 py-3 backdrop-blur-xl lg:hidden">
           <Logo href="/admin" iconSize={32} />
-          <button
-            type="button"
-            aria-label="Abrir menu"
-            aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen(true)}
-            className="rounded-xl bg-surface-2 p-2.5 text-muted"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void toggleSound()}
+              aria-pressed={soundMuted}
+              aria-label={soundMuted ? "Som desligado" : "Alertas ligados"}
+              className="rounded-xl bg-surface-2 p-2.5 text-muted"
+            >
+              {soundMuted ? <BellOff className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
+            </button>
+            <button
+              type="button"
+              aria-label="Abrir menu"
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen(true)}
+              className="rounded-xl bg-surface-2 p-2.5 text-muted"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
         </header>
 
         {mobileOpen && (

@@ -139,6 +139,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   const [selected, setSelected] = useState<Product | null>(null);
   const [selectedVariantId, setSelectedVariantId] = useState("");
   const [selectedAddons, setSelectedAddons] = useState<Record<string, number>>({});
+  const [pendingBumps, setPendingBumps] = useState<Record<string, number>>({});
   const [itemNotes, setItemNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -160,6 +161,7 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
   useEffect(() => {
     setSelectedVariantId(selected?.variants[0]?.id || "");
     setSelectedAddons({});
+    setPendingBumps({});
     setItemNotes("");
   }, [selected]);
 
@@ -423,6 +425,17 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     return suggestionsForProduct(selected, data.products, data.categories);
   }, [selected, data]);
 
+  const pendingBumpAddons = useMemo(() => {
+    if (!data) return [] as Array<{ addonId: string; name: string; price: number; qty: number }>;
+    return Object.entries(pendingBumps)
+      .filter(([, qty]) => qty > 0)
+      .flatMap(([productId, qty]) => {
+        const product = data.products.find((entry) => entry.id === productId);
+        if (!product) return [];
+        return [{ addonId: `bump_${productId}`, name: product.name, price: product.price, qty }];
+      });
+  }, [pendingBumps, data]);
+
   const cartSuggestions = useMemo(() => {
     if (!data || cart.lines.length === 0) return [] as SoftSuggestion[];
     return suggestionsForCart(cart.lines, data.products, data.categories);
@@ -438,12 +451,26 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     return suggestionsForClosing(orderedProducts, data.products, data.categories);
   }, [data, guestMe]);
 
+  function addPendingBump(product: Product) {
+    setPendingBumps((current) => ({
+      ...current,
+      [product.id]: Math.min(9, (current[product.id] || 0) + 1),
+    }));
+  }
+
   function addSuggestion(suggestion: SoftSuggestion) {
     const { product, parentProductId } = suggestion;
-    if (parentProductId && cart.lines.some((line) => line.product.id === parentProductId)) {
-      cart.addBump(parentProductId, product);
-      notify(`${product.name} adicionado como acréscimo.`);
-      return;
+    if (parentProductId) {
+      if (selected?.id === parentProductId) {
+        addPendingBump(product);
+        notify(`${product.name} adicionado como acréscimo.`);
+        return;
+      }
+      if (cart.lines.some((line) => line.product.id === parentProductId)) {
+        cart.addBump(parentProductId, product);
+        notify(`${product.name} adicionado como acréscimo.`);
+        return;
+      }
     }
     if (product.variants.length > 0) {
       setSelected(product);
@@ -1183,7 +1210,8 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
 
       {selected && (
         <div className="fixed inset-0 z-40 flex items-end bg-black/60 p-0 sm:items-center sm:justify-center sm:p-4">
-          <div className="max-h-[90dvh] w-full overflow-y-auto rounded-t-3xl border border-white/10 bg-surface-2 p-5 sm:max-w-md sm:rounded-3xl">
+          <div className="flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-surface-2 sm:max-w-md sm:rounded-3xl">
+            <div className="flex-1 overflow-y-auto p-5 pb-2">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="text-lg font-bold leading-snug">{selected.name}</h3>
@@ -1263,39 +1291,82 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
               categoryEmoji={categoryEmojiFor}
               onAdd={addSuggestion}
             />
-            <p className="mb-4 text-xl font-bold text-brand">
-              {formatCurrency(
-                lineUnitPrice(
-                  selected.price,
-                  variantDeltaValue(selected.variants.find((variant) => variant.id === selectedVariantId)),
-                  selected.addons
-                    .filter((addon) => (selectedAddons[addon.id] || 0) > 0)
-                    .map((addon) => ({
-                      price: addon.price,
-                      qty: selectedAddons[addon.id] || 0,
-                    })),
-                ),
-              )}
-            </p>
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={() => {
-                if (selected.variants.length > 0 && !selectedVariantId) {
-                  notify("Selecione uma opção antes de adicionar.", "error");
-                  return;
-                }
-                const variant = selected.variants.find((item) => item.id === selectedVariantId);
-                const addons = selected.addons
-                  .filter((addon) => (selectedAddons[addon.id] || 0) > 0)
-                  .map((addon) => ({ addonId: addon.id, name: addon.name, price: addon.price, qty: selectedAddons[addon.id] }));
-                cart.add(selected, { variant, addons, notes: itemNotes.trim() || undefined });
-                setSelected(null);
-                notify(`${selected.name} adicionado ao carrinho.`);
-              }}
-            >
-              Adicionar ao carrinho
-            </Button>
+            {pendingBumpAddons.length > 0 && (
+              <div className="mb-4 rounded-xl border border-brand/20 bg-brand/5 p-3">
+                <p className="mb-2 text-xs font-semibold text-brand">Acréscimos selecionados</p>
+                <ul className="space-y-1 text-sm">
+                  {pendingBumpAddons.map((addon) => (
+                    <li key={addon.addonId} className="flex items-center justify-between gap-2">
+                      <span>{addon.qty}x {addon.name}</span>
+                      <button
+                        type="button"
+                        aria-label={`Remover ${addon.name}`}
+                        onClick={() =>
+                          setPendingBumps((current) => {
+                            const next = { ...current };
+                            const productId = addon.addonId.replace(/^bump_/, "");
+                            const qty = (next[productId] || 0) - 1;
+                            if (qty <= 0) delete next[productId];
+                            else next[productId] = qty;
+                            return next;
+                          })
+                        }
+                        className="rounded-lg p-1 text-muted hover:text-ink"
+                      >
+                        <Minus className="h-3.5 w-3.5" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            </div>
+            <div className="shrink-0 border-t border-white/10 bg-surface-2 p-4 safe-bottom">
+              <p className="mb-3 text-xl font-bold text-brand">
+                {formatCurrency(
+                  lineUnitPrice(
+                    selected.price,
+                    variantDeltaValue(selected.variants.find((variant) => variant.id === selectedVariantId)),
+                    [
+                      ...selected.addons
+                        .filter((addon) => (selectedAddons[addon.id] || 0) > 0)
+                        .map((addon) => ({
+                          price: addon.price,
+                          qty: selectedAddons[addon.id] || 0,
+                        })),
+                      ...pendingBumpAddons,
+                    ],
+                  ),
+                )}
+              </p>
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={() => {
+                  if (selected.variants.length > 0 && !selectedVariantId) {
+                    notify("Selecione uma opção antes de adicionar.", "error");
+                    return;
+                  }
+                  const variant = selected.variants.find((item) => item.id === selectedVariantId);
+                  const addons = [
+                    ...selected.addons
+                      .filter((addon) => (selectedAddons[addon.id] || 0) > 0)
+                      .map((addon) => ({
+                        addonId: addon.id,
+                        name: addon.name,
+                        price: addon.price,
+                        qty: selectedAddons[addon.id],
+                      })),
+                    ...pendingBumpAddons,
+                  ];
+                  cart.add(selected, { variant, addons, notes: itemNotes.trim() || undefined });
+                  setSelected(null);
+                  notify(`${selected.name} adicionado ao carrinho.`);
+                }}
+              >
+                Adicionar ao carrinho
+              </Button>
+            </div>
           </div>
         </div>
       )}
