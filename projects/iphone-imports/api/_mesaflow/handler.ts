@@ -14,6 +14,7 @@ import {
   findTableByQr,
   blobDiagnostics,
   flushPersistentStore,
+  importMarceloLanchesCatalog,
   persistStatus,
   probeBlobStorage,
   probeRedisStorage,
@@ -1029,6 +1030,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 200, { category: result.value });
       }
+    }
+
+    if (req.method === "POST" && path === "/admin/catalog/import-marcelo") {
+      const secret = process.env.MESAFLOW_CATALOG_IMPORT_SECRET?.trim();
+      const header = req.headers["x-mesaflow-import-secret"];
+      if (!secret || header !== secret) {
+        return json(res, 401, { error: "Não autorizado." });
+      }
+      const body = (req.body || {}) as { createIfMissing?: boolean };
+      const result = await importMarceloLanchesCatalog({
+        createIfMissing: body.createIfMissing === true,
+      });
+      if (!result.ok) return json(res, 404, { error: result.error });
+      return json(res, 200, result);
     }
 
     if (req.method === "POST" && path === "/admin/media/upload") {

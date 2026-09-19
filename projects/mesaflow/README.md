@@ -56,6 +56,17 @@ cota disponível na Vercel).
 
 Sem Blob configurado, a API falha fechada e não grava dados em `/tmp`.
 
+### Import cardápio Marcelo Lanches
+
+```bash
+cd projects/mesaflow
+export BLOB_READ_WRITE_TOKEN="…"
+npm run seed:marcelo          # lojista já cadastrado
+npm run seed:marcelo -- --create   # cria estabelecimento se faltar
+```
+
+Detalhes de deploy NA MESA: `projects/iphone-imports/DEPLOY-NA-MESA.md`.
+
 ## Arquitetura MVP
 
 - **Next.js App Router** — cliente, admin e KDS
