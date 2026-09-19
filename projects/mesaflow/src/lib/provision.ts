@@ -1,6 +1,6 @@
 import { id } from "./crypto-utils";
 import { randomBytes } from "crypto";
-import { FOOD_PRESETS, productImage, productImageByName } from "./product-images";
+import { pickCategoryEmoji } from "./product-emoji";
 import { isOperationMode } from "./operation-modes";
 import type {
   BusinessType,
@@ -150,7 +150,7 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       id: catPrincipal,
       establishmentId: estId,
       name: input.businessType === "padaria" ? "Padaria" : "Pratos",
-      emoji: input.businessType === "padaria" ? "🥐" : "🍽️",
+      emoji: pickCategoryEmoji(input.businessType === "padaria" ? "Padaria" : "Pratos") ?? "🍽️",
       sortOrder: 1,
       active: true,
     },
@@ -158,7 +158,7 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       id: catBebida,
       establishmentId: estId,
       name: "Bebidas",
-      emoji: "🥤",
+      emoji: pickCategoryEmoji("Bebidas") ?? "🥤",
       sortOrder: 2,
       active: true,
     },
@@ -176,10 +176,6 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       name: input.businessType === "padaria" ? "Pão na Chapa" : "Prato do Dia",
       description: "Edite este item no painel quando o CRUD estiver disponível.",
       price: 29.9,
-      image:
-        input.businessType === "padaria"
-          ? FOOD_PRESETS.padaria
-          : productImage("p_xburger", "prato"),
       tags: ["destaque"],
       prepMinutes: 15,
       availability: "AMBOS",
@@ -197,10 +193,6 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       name: input.businessType === "lanchonete" ? "X-Salada" : "Porção Especial",
       description: "Item de exemplo — personalize no cardápio.",
       price: 24.9,
-      image: productImageByName(
-        input.businessType === "lanchonete" ? "X-Salada" : "Porção Especial",
-        "porcao",
-      ),
       tags: [],
       prepMinutes: 12,
       availability: "AMBOS",
@@ -218,7 +210,6 @@ export function provisionEstablishment(store: MesaFlowStore, input: RegisterInpu
       name: "Refrigerante Lata",
       description: "350ml gelado.",
       price: 8.9,
-      image: FOOD_PRESETS.bebida,
       tags: [],
       prepMinutes: 1,
       availability: "VITRINE",

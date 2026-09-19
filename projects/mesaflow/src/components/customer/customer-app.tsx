@@ -38,7 +38,7 @@ import {
 } from "@/lib/menu-intelligence";
 import type { Category, Command, Establishment, Order, Product, Rodizio, Sector, Table } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { hasProductImage, ProductVisual } from "@/components/ui/product-image";
+import { ProductVisual } from "@/components/ui/product-image";
 import { Logo } from "@/components/brand/logo";
 import { BRAND_NAME } from "@/lib/brand";
 import { PRIVACY_POLICY_PATH, PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
@@ -403,8 +403,17 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
     [data],
   );
 
+  const categoryNameById = useMemo(
+    () => Object.fromEntries((data?.categories || []).map((category) => [category.id, category.name])),
+    [data],
+  );
+
   function categoryEmojiFor(product: Product) {
     return categoryEmojiById[product.categoryId];
+  }
+
+  function categoryNameFor(product: Product) {
+    return categoryNameById[product.categoryId];
   }
 
   const selectedSuggestions = useMemo(() => {
@@ -811,28 +820,25 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                       onClick={() => setSelected(p)}
                       className="w-44 shrink-0 overflow-hidden rounded-2xl bg-surface-2 text-left ring-1 ring-white/5 transition duration-200 hover:ring-brand/20 active:scale-[0.98]"
                     >
-                      {hasProductImage(p.image) && (
-                        <div className="relative">
-                          <ProductVisual
-                            src={p.image}
-                            alt={p.name}
-                            width={176}
-                            height={120}
-                            className="h-28 w-full object-cover"
-                          />
-                          {badge && (
-                            <span className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-sm">
-                              {badge}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      <div className="p-2.5">
-                        {!hasProductImage(p.image) && categoryEmojiFor(p) ? (
-                          <span className="mb-1 block text-xl leading-none" aria-hidden>
-                            {categoryEmojiFor(p)}
+                      <div className="relative flex h-28 items-center justify-center bg-surface-3/30">
+                        <ProductVisual
+                          src={p.image}
+                          alt={p.name}
+                          productName={p.name}
+                          categoryEmoji={categoryEmojiFor(p)}
+                          categoryName={categoryNameFor(p)}
+                          width={176}
+                          height={120}
+                          className="h-28 w-full object-cover"
+                          emojiClassName="text-4xl"
+                        />
+                        {badge && (
+                          <span className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-sm">
+                            {badge}
                           </span>
-                        ) : null}
+                        )}
+                      </div>
+                      <div className="p-2.5">
                         <p className="line-clamp-2 text-sm font-semibold leading-snug">{p.name}</p>
                         <p className="mt-1 text-sm font-bold text-brand">{formatCurrency(p.price)}</p>
                       </div>
@@ -890,7 +896,9 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   <ProductVisual
                     src={p.image}
                     alt={p.name}
+                    productName={p.name}
                     categoryEmoji={categoryEmojiFor(p)}
+                    categoryName={categoryNameFor(p)}
                     width={96}
                     height={96}
                     className="h-24 w-24 shrink-0 rounded-xl object-cover"
@@ -1174,19 +1182,19 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                 <X className="h-5 w-5" />
               </button>
             </div>
-            {hasProductImage(selected.image) ? (
+            <div className="mb-4 flex h-52 items-center justify-center rounded-2xl bg-surface-3/30">
               <ProductVisual
                 src={selected.image}
                 alt={selected.name}
+                productName={selected.name}
+                categoryEmoji={categoryEmojiFor(selected)}
+                categoryName={categoryNameFor(selected)}
                 width={480}
                 height={260}
-                className="mb-4 h-52 w-full rounded-2xl object-cover"
+                className="h-52 w-full rounded-2xl object-cover"
+                emojiClassName="text-5xl"
               />
-            ) : categoryEmojiFor(selected) ? (
-              <p className="mb-3 text-3xl leading-none" aria-hidden>
-                {categoryEmojiFor(selected)}
-              </p>
-            ) : null}
+            </div>
             <p className="mb-3 text-sm leading-relaxed text-muted">{selected.description}</p>
             {selected.prepMinutes > 0 && (
               <p className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted">

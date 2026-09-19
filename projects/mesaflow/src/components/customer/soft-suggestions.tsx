@@ -49,6 +49,7 @@ export function SoftSuggestions({
                 <ProductVisual
                   src={product.image}
                   alt={product.name}
+                  productName={product.name}
                   categoryEmoji={emoji}
                   width={44}
                   height={44}

@@ -2383,71 +2383,40 @@ function pexels(id2, slug = "pexels-photo") {
 function unsplash(id2) {
   return `https://images.unsplash.com/photo-${id2}?w=800&h=600&q=80&auto=format&fit=crop`;
 }
-function productImage(id2, fallback = "default") {
-  if (PRODUCT_IMAGES[id2]) return PRODUCT_IMAGES[id2];
-  if (fallback in FOOD_PRESETS) return FOOD_PRESETS[fallback];
-  return FOOD_PRESETS.default;
+function isStockProductImageUrl(src) {
+  if (!src?.trim()) return false;
+  const normalized = src.trim();
+  if (KNOWN_STOCK_URLS.has(normalized)) return true;
+  const lower = normalized.toLowerCase();
+  return STOCK_URL_MARKERS.some((marker) => lower.includes(marker));
 }
-function productImageByName(name, preset = "default") {
-  const n = name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  if (n.includes("x-salada") || n.includes("x salada")) return FOOD_PRESETS.xsalada;
-  if (n.includes("burger") || n.includes("x-burger") || n.includes("hamburguer")) return FOOD_PRESETS.burger;
-  if (n.includes("pizza") || n.includes("calabresa") || n.includes("pepperoni") || n.includes("marguerita") || n.includes("margherita")) {
-    if (n.includes("pepperoni")) return PRODUCT_IMAGES.p_pizza_pepper;
-    if (n.includes("marguerita") || n.includes("margherita")) return PRODUCT_IMAGES.p_pizza_marg;
-    if (n.includes("frango")) return PRODUCT_IMAGES.p_pizza_frango;
-    return PRODUCT_IMAGES.p_pizza_calabresa;
-  }
-  if (n.includes("coxinha") || n.includes("salgado")) return PRODUCT_IMAGES.p_coxinha;
-  if (n.includes("pao") || n.includes("padaria") || n.includes("croissant")) return FOOD_PRESETS.padaria;
-  if (n.includes("batata") || n.includes("porcao")) return FOOD_PRESETS.porcao;
-  if (n.includes("refrigerante") || n.includes("coca") || n.includes("suco")) return FOOD_PRESETS.bebida;
-  if (n.includes("cappuccino") || n.includes("capuccino")) return PRODUCT_IMAGES.p_cappuccino;
-  if (n.includes("cafe") || n.includes("espresso") || n.includes("expresso") || n.includes("latte")) return FOOD_PRESETS.cafe;
-  if (n.includes("chopp") || n.includes("cerveja")) return pexels(15515325);
-  if (n.includes("caipirinha") || n.includes("drink")) return pexels(2097090);
-  if (n.includes("pudim") || n.includes("flan")) return PRODUCT_IMAGES.p_pudim;
-  if (n.includes("brownie") || n.includes("bolo") || n.includes("sobremesa") || n.includes("doce")) return PRODUCT_IMAGES.p_brownie;
-  if (n.includes("salada")) return unsplash("1512621776951-a57141f2eefd");
-  if (n.includes("prato")) return FOOD_PRESETS.prato;
-  return FOOD_PRESETS[preset] ?? FOOD_PRESETS.default;
+function sanitizeProductImageUrl(src) {
+  if (!src?.trim()) return void 0;
+  const normalized = src.trim();
+  if (isStockProductImageUrl(normalized)) return void 0;
+  return normalized;
 }
-var PEXELS_Q, PRODUCT_IMAGES, FOOD_PRESETS;
+var PEXELS_Q, PRODUCT_IMAGES, FOOD_PRESETS, STOCK_URL_MARKERS, KNOWN_STOCK_URLS;
 var init_product_images = __esm({
   "../mesaflow/src/lib/product-images.ts"() {
     "use strict";
     PEXELS_Q = "auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
     PRODUCT_IMAGES = {
       p_xburger: pexels(1639562),
-      // hambúrguer artesanal
       p_xsalada: pexels(1279330),
-      // burger com salada
       p_pizza_calabresa: unsplash("1513104890138-7c749659a591"),
-      // pizza calabresa
       p_pizza_frango: pexels(2983101),
-      // pizza de frango
       p_pizza_marg: unsplash("1565299624946-b28f40a0ae38"),
-      // pizza margherita
       p_pizza_pepper: unsplash("1604382354936-07c5d9983bd3"),
-      // pizza pepperoni
       p_batata: pexels(1581384),
-      // batata frita
       p_coxinha: pexels(4518843),
-      // salgado / coxinha
       p_coca: pexels(50593, "coca-cola-cold-drink-soft-drink-coke"),
-      // coca-cola lata
       p_cappuccino: unsplash("1572442388796-11668a67e53d"),
-      // cappuccino com latte art
       p_chopp: pexels(15515325),
-      // chopp / cerveja na torneira
       p_caipirinha: pexels(2097090),
-      // caipirinha / coquetel
       p_pudim: unsplash("1551024506-0bccd828d307"),
-      // pudim de leite
       p_brownie: pexels(1624487),
-      // brownie com sorvete
       p_salada: unsplash("1512621776951-a57141f2eefd")
-      // salada fresca
     };
     FOOD_PRESETS = {
       burger: pexels(1639562),
@@ -2460,6 +2429,20 @@ var init_product_images = __esm({
       cafe: unsplash("1495474472287-4d71bcdd2085"),
       default: pexels(1893556)
     };
+    STOCK_URL_MARKERS = [
+      "picsum.photos",
+      "images.pexels.com",
+      "images.unsplash.com",
+      "source.unsplash.com",
+      "placehold.co",
+      "placeholder.com",
+      "via.placeholder.com",
+      "loremflickr.com"
+    ];
+    KNOWN_STOCK_URLS = /* @__PURE__ */ new Set([
+      ...Object.values(PRODUCT_IMAGES),
+      ...Object.values(FOOD_PRESETS)
+    ]);
   }
 });
 
@@ -2542,6 +2525,43 @@ function parsePlatformStatusFilterInput(value) {
 var init_platform_status = __esm({
   "../mesaflow/src/lib/platform-status.ts"() {
     "use strict";
+  }
+});
+
+// ../mesaflow/src/lib/product-emoji.ts
+function normalizeLabel(value) {
+  return value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
+}
+function matchEmoji(label, rules) {
+  if (!label) return void 0;
+  for (const rule of rules) {
+    if (rule.keywords.some((keyword) => label.includes(normalizeLabel(keyword)))) {
+      return rule.emoji;
+    }
+  }
+  return void 0;
+}
+function pickCategoryEmoji(categoryName) {
+  if (!categoryName?.trim()) return void 0;
+  return matchEmoji(normalizeLabel(categoryName), CATEGORY_EMOJI_RULES);
+}
+var CATEGORY_EMOJI_RULES;
+var init_product_emoji = __esm({
+  "../mesaflow/src/lib/product-emoji.ts"() {
+    "use strict";
+    CATEGORY_EMOJI_RULES = [
+      { emoji: "\u{1F354}", keywords: ["burguer", "hamburguer", "lanche"] },
+      { emoji: "\u{1F957}", keywords: ["salada"] },
+      { emoji: "\u{1F32D}", keywords: ["hot dog", "hotdog"] },
+      { emoji: "\u{1F355}", keywords: ["pizza"] },
+      { emoji: "\u{1F35F}", keywords: ["porcao", "por\xE7\xE3o", "acompanhamento"] },
+      { emoji: "\u{1F371}", keywords: ["combo", "prato", "executivo"] },
+      { emoji: "\u{1F9C3}", keywords: ["suco"] },
+      { emoji: "\u{1F964}", keywords: ["bebida", "refrigerante", "refri"] },
+      { emoji: "\u{1F366}", keywords: ["sorvete", "sobremesa", "doce"] },
+      { emoji: "\u2615", keywords: ["cafe", "caf\xE9"] },
+      { emoji: "\u{1F37A}", keywords: ["bar", "cerveja", "chopp"] }
+    ];
   }
 });
 
@@ -2641,7 +2661,7 @@ function provisionEstablishment(store, input) {
       id: catPrincipal,
       establishmentId: estId,
       name: input.businessType === "padaria" ? "Padaria" : "Pratos",
-      emoji: input.businessType === "padaria" ? "\u{1F950}" : "\u{1F37D}\uFE0F",
+      emoji: pickCategoryEmoji(input.businessType === "padaria" ? "Padaria" : "Pratos") ?? "\u{1F37D}\uFE0F",
       sortOrder: 1,
       active: true
     },
@@ -2649,7 +2669,7 @@ function provisionEstablishment(store, input) {
       id: catBebida,
       establishmentId: estId,
       name: "Bebidas",
-      emoji: "\u{1F964}",
+      emoji: pickCategoryEmoji("Bebidas") ?? "\u{1F964}",
       sortOrder: 2,
       active: true
     }
@@ -2666,7 +2686,6 @@ function provisionEstablishment(store, input) {
       name: input.businessType === "padaria" ? "P\xE3o na Chapa" : "Prato do Dia",
       description: "Edite este item no painel quando o CRUD estiver dispon\xEDvel.",
       price: 29.9,
-      image: input.businessType === "padaria" ? FOOD_PRESETS.padaria : productImage("p_xburger", "prato"),
       tags: ["destaque"],
       prepMinutes: 15,
       availability: "AMBOS",
@@ -2684,10 +2703,6 @@ function provisionEstablishment(store, input) {
       name: input.businessType === "lanchonete" ? "X-Salada" : "Por\xE7\xE3o Especial",
       description: "Item de exemplo \u2014 personalize no card\xE1pio.",
       price: 24.9,
-      image: productImageByName(
-        input.businessType === "lanchonete" ? "X-Salada" : "Por\xE7\xE3o Especial",
-        "porcao"
-      ),
       tags: [],
       prepMinutes: 12,
       availability: "AMBOS",
@@ -2705,7 +2720,6 @@ function provisionEstablishment(store, input) {
       name: "Refrigerante Lata",
       description: "350ml gelado.",
       price: 8.9,
-      image: FOOD_PRESETS.bebida,
       tags: [],
       prepMinutes: 1,
       availability: "VITRINE",
@@ -2764,7 +2778,7 @@ var init_provision = __esm({
     "use strict";
     init_crypto_utils();
     import_crypto4 = require("crypto");
-    init_product_images();
+    init_product_emoji();
     init_operation_modes();
     init_platform_plans();
     TYPE_LABELS = {
@@ -3739,7 +3753,6 @@ function buildDemoStore() {
       name: "X-Burger Artesanal",
       description: "Blend 180g, queijo prato, molho da casa e p\xE3o brioche.",
       price: 32.9,
-      image: productImage("p_xburger"),
       tags: ["destaque"],
       prepMinutes: 18,
       availability: "AMBOS",
@@ -3765,7 +3778,6 @@ function buildDemoStore() {
       name: "X-Salada Premium",
       description: "Hamb\xFArguer com salada fresca, tomate e cebola roxa.",
       price: 36.9,
-      image: productImage("p_xsalada"),
       tags: [],
       prepMinutes: 20,
       availability: "AMBOS",
@@ -3785,7 +3797,6 @@ function buildDemoStore() {
       name: "Pizza Calabresa",
       description: "Massa fina, calabresa fatiada e cebola.",
       price: 54.9,
-      image: productImage("p_pizza_calabresa"),
       tags: ["rod\xEDzio"],
       prepMinutes: 25,
       availability: "AMBOS",
@@ -3808,7 +3819,6 @@ function buildDemoStore() {
       name: "Frango com Catupiry",
       description: "Cl\xE1ssica da casa com frango desfiado.",
       price: 56.9,
-      image: productImage("p_pizza_frango"),
       tags: ["rod\xEDzio"],
       prepMinutes: 25,
       availability: "AMBOS",
@@ -3827,7 +3837,6 @@ function buildDemoStore() {
       name: "Marguerita",
       description: "Molho de tomate, mussarela e manjeric\xE3o.",
       price: 49.9,
-      image: productImage("p_pizza_marg"),
       tags: ["rod\xEDzio"],
       prepMinutes: 22,
       availability: "AMBOS",
@@ -3845,7 +3854,6 @@ function buildDemoStore() {
       name: "Batata Frita Grande",
       description: "Por\xE7\xE3o generosa com alecrim e parmes\xE3o.",
       price: 28.9,
-      image: productImage("p_batata"),
       tags: [],
       prepMinutes: 12,
       availability: "VITRINE",
@@ -3863,7 +3871,6 @@ function buildDemoStore() {
       name: "Coxinha de Frango",
       description: "Massa crocante, recheio cremoso (unidade).",
       price: 9.9,
-      image: productImage("p_coxinha"),
       tags: [],
       prepMinutes: 5,
       availability: "VITRINE",
@@ -3881,7 +3888,6 @@ function buildDemoStore() {
       name: "Coca-Cola Lata",
       description: "350ml gelada.",
       price: 8.9,
-      image: productImage("p_coca"),
       tags: [],
       prepMinutes: 1,
       availability: "VITRINE",
@@ -3899,7 +3905,6 @@ function buildDemoStore() {
       name: "Cappuccino",
       description: "Espresso, leite vaporizado e espuma.",
       price: 14.9,
-      image: productImage("p_cappuccino"),
       tags: [],
       prepMinutes: 6,
       availability: "SOB_DEMANDA",
@@ -3923,7 +3928,6 @@ function buildDemoStore() {
       name: "Chopp Artesanal",
       description: "300ml da torneira.",
       price: 16.9,
-      image: productImage("p_chopp"),
       tags: [],
       prepMinutes: 2,
       availability: "VITRINE",
@@ -3941,7 +3945,6 @@ function buildDemoStore() {
       name: "Caipirinha",
       description: "Lim\xE3o, cacha\xE7a e gelo.",
       price: 22.9,
-      image: productImage("p_caipirinha"),
       tags: [],
       prepMinutes: 5,
       availability: "SOB_DEMANDA",
@@ -3959,7 +3962,6 @@ function buildDemoStore() {
       name: "Pudim de Leite",
       description: "Receita da v\xF3, calda caramelizada.",
       price: 18.9,
-      image: productImage("p_pudim"),
       tags: [],
       prepMinutes: 3,
       availability: "VITRINE",
@@ -3977,7 +3979,6 @@ function buildDemoStore() {
       name: "Brownie com Sorvete",
       description: "Chocolate belga e sorvete de creme.",
       price: 24.9,
-      image: productImage("p_brownie"),
       tags: [],
       prepMinutes: 5,
       availability: "SOB_DEMANDA",
@@ -3995,7 +3996,6 @@ function buildDemoStore() {
       name: "Pizza Pepperoni",
       description: "Pepperoni importado e mussarela.",
       price: 59.9,
-      image: productImage("p_pizza_pepper"),
       tags: ["rod\xEDzio", "premium"],
       prepMinutes: 25,
       availability: "AMBOS",
@@ -4014,7 +4014,6 @@ function buildDemoStore() {
       name: "Salada da Casa",
       description: "Mix de folhas, tomate cereja e molho bals\xE2mico.",
       price: 26.9,
-      image: productImage("p_salada"),
       tags: [],
       prepMinutes: 8,
       availability: "AMBOS",
@@ -4290,7 +4289,6 @@ var init_seed = __esm({
     "use strict";
     init_crypto_utils();
     init_demo();
-    init_product_images();
     EST_ID = DEMO_ESTABLISHMENT_ID;
     DEMO_SLUG = DEMO_ESTABLISHMENT_SLUG;
   }
@@ -4933,20 +4931,12 @@ function emptyStore() {
 function migrateProductImages(store, markBlobDirty = true) {
   let changed = false;
   for (const product of Object.values(store.products)) {
-    const canonical = PRODUCT_IMAGES[product.id];
-    if (canonical && product.image !== canonical) {
-      product.image = canonical;
-      changed = true;
-      continue;
-    }
     if (!product.image) continue;
-    const stale = product.image.includes("picsum.photos") || product.id === "p_cappuccino" && product.image.includes("1593508512255");
-    if (!stale) continue;
-    const next = productImageByName(product.name);
-    if (product.image !== next) {
-      product.image = next;
-      changed = true;
-    }
+    const sanitized = sanitizeProductImageUrl(product.image);
+    if (sanitized === product.image) continue;
+    if (sanitized) product.image = sanitized;
+    else delete product.image;
+    changed = true;
   }
   if (!changed) return;
   if (markBlobDirty) {
@@ -5665,7 +5655,8 @@ function validateProductFields(store, establishmentId, body, partial) {
     if (body.image !== null && (typeof body.image !== "string" || body.image.length > 2048)) {
       return invalid("Imagem inv\xE1lida.");
     }
-    fields.image = body.image === null || body.image === "" ? void 0 : body.image;
+    const raw = body.image === null || body.image === "" ? void 0 : String(body.image).trim();
+    fields.image = sanitizeProductImageUrl(raw);
   }
   if (body.tags !== void 0) {
     if (!Array.isArray(body.tags) || body.tags.length > 20 || body.tags.some((tag) => typeof tag !== "string" || !tag.trim() || tag.length > 50)) {

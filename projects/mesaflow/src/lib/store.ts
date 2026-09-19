@@ -14,7 +14,7 @@ import { issueAdminSessionToken, parseAdminSessionToken } from "./admin-session-
 import { hashPassword, id, sessionToken, verifyPassword } from "./crypto-utils";
 import { emit } from "./events";
 import { lineTotal } from "./order-math";
-import { PRODUCT_IMAGES, productImageByName } from "./product-images";
+import { sanitizeProductImageUrl } from "./product-images";
 import { parsePlatformPlan } from "./platform-plans";
 import {
   isMerchantAdminOperational,
@@ -118,22 +118,12 @@ export { hashPassword } from "./crypto-utils";
 function migrateProductImages(store: MesaFlowStore, markBlobDirty = true) {
   let changed = false;
   for (const product of Object.values(store.products)) {
-    const canonical = PRODUCT_IMAGES[product.id];
-    if (canonical && product.image !== canonical) {
-      product.image = canonical;
-      changed = true;
-      continue;
-    }
     if (!product.image) continue;
-    const stale =
-      product.image.includes("picsum.photos") ||
-      (product.id === "p_cappuccino" && product.image.includes("1593508512255"));
-    if (!stale) continue;
-    const next = productImageByName(product.name);
-    if (product.image !== next) {
-      product.image = next;
-      changed = true;
-    }
+    const sanitized = sanitizeProductImageUrl(product.image);
+    if (sanitized === product.image) continue;
+    if (sanitized) product.image = sanitized;
+    else delete product.image;
+    changed = true;
   }
   if (!changed) return;
   if (markBlobDirty) {
@@ -1051,7 +1041,8 @@ function validateProductFields(
     if (body.image !== null && (typeof body.image !== "string" || body.image.length > 2048)) {
       return invalid("Imagem inválida.");
     }
-    fields.image = body.image === null || body.image === "" ? undefined : body.image;
+    const raw = body.image === null || body.image === "" ? undefined : String(body.image).trim();
+    fields.image = sanitizeProductImageUrl(raw);
   }
   if (body.tags !== undefined) {
     if (
