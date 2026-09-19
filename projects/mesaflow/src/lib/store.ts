@@ -23,6 +23,7 @@ import {
   resolvePlatformStatus,
 } from "./platform-status";
 import { provisionEstablishment, type RegisterInput } from "./provision";
+import { applyMarceloLanchesCatalog } from "./seed-marcelo-lanches";
 import { buildDemoStore } from "./seed";
 import type {
   ClosingRequest,
@@ -83,7 +84,7 @@ export interface PersistResult {
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-function emptyStore(): MesaFlowStore {
+export function emptyStore(): MesaFlowStore {
   return {
     establishments: {},
     users: {},
@@ -680,22 +681,33 @@ export async function sharedPersistenceReady() {
 
 export function persistStatus() {
   const redisReady = redisConfigured();
+  const blobReady = blobPersistence.blobConfigured(runtimeOidcToken);
+  const sharedConfigured = sharedPersistenceConfigured();
+
+  const sharedPersistOk =
+    lastPersistSource === "blob" ||
+    lastPersistSource === "redis" ||
+    (!process.env.VERCEL && lastPersistSource === "disk-only");
+
+  let warning: string | undefined;
+  if (process.env.VERCEL) {
+    if (!sharedConfigured) {
+      warning =
+        "Pedidos não estão sendo compartilhados entre instâncias. Conecte Upstash Redis ou um Blob store com BLOB_READ_WRITE_TOKEN.";
+    } else if (lastBlobError || lastRedisError) {
+      const detail = lastBlobError ?? lastRedisError;
+      warning = `Falha ao persistir no armazenamento compartilhado: ${detail}. Pedidos podem não sincronizar entre instâncias.`;
+    }
+  }
+
   return {
     source: lastPersistSource,
+    blobConfigured: blobReady,
     blobError: lastBlobError,
     redisConfigured: redisReady,
     redisError: lastRedisError,
-    shared:
-      lastPersistSource === "blob" ||
-      lastPersistSource === "redis" ||
-      (!process.env.VERCEL && lastPersistSource === "disk-only"),
-    warning:
-      process.env.VERCEL &&
-      lastPersistSource !== "blob" &&
-      lastPersistSource !== "redis" &&
-      !redisReady
-        ? "Pedidos não estão sendo compartilhados entre instâncias. Conecte Upstash Redis ou um Blob store novo com BLOB_READ_WRITE_TOKEN."
-        : undefined,
+    shared: sharedPersistOk,
+    warning,
   };
 }
 
@@ -1841,4 +1853,15 @@ export function dashboardStats(establishmentId: string) {
     paymentsPending: analytics.payments.pending,
     paymentsConfirmed: analytics.payments.confirmed,
   };
+}
+
+export { applyMarceloLanchesCatalog } from "./seed-marcelo-lanches";
+
+export async function importMarceloLanchesCatalog(options?: { createIfMissing?: boolean }) {
+  const store = getStore();
+  const result = applyMarceloLanchesCatalog(store, options);
+  if (!result.ok) return result;
+  saveStore(store);
+  const persist = await flushPersistentStore();
+  return { ...result, persist };
 }

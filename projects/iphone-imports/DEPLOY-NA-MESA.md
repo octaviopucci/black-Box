@@ -85,3 +85,39 @@ Saída esperada: `out/mesaflow/**`, `out/index.html` (landing NA MESA), `api/mes
 | `npm run vercel-build:mesaflow` | Projeto Vercel NA MESA — só MesaFlow |
 
 O script completo **não foi alterado**; projetos existentes seguem iguais.
+
+## Cardápio Marcelo Lanches (import one-shot)
+
+Após deploy com Blob saudável (`GET /api/mesaflow/health` → `blob: true`), importe o cardápio completo (9 categorias, ~50 produtos, variantes “c/ fritas”, acréscimos como addons):
+
+### Opção A — script local (recomendado)
+
+Na máquina com token Blob do projeto NA MESA:
+
+```bash
+cd projects/mesaflow
+export BLOB_READ_WRITE_TOKEN="vercel_blob_rw_…"   # ou MESAFLOW_BLOB_READ_WRITE_TOKEN
+npm ci --include=dev
+npm run seed:marcelo
+# Cria o estabelecimento se ainda não existir:
+npm run seed:marcelo -- --create
+# Simular sem gravar:
+npm run seed:marcelo -- --dry-run
+```
+
+O script localiza o lojista cujo slug/nome contém **marcelo** (ex.: `marcelo-lanches`), substitui **somente** categorias/produtos desse estabelecimento e persiste em `mesaflow/operational.json` + `mesaflow/identity.json` no Blob.
+
+### Opção B — API após redeploy
+
+Defina `MESAFLOW_CATALOG_IMPORT_SECRET` no projeto Vercel e chame:
+
+```bash
+curl -X POST "https://<seu-dominio-na-mesa>/api/mesaflow/admin/catalog/import-marcelo" \
+  -H "Content-Type: application/json" \
+  -H "x-mesaflow-import-secret: $MESAFLOW_CATALOG_IMPORT_SECRET" \
+  -d '{"createIfMissing":true}'
+```
+
+### Banner de persistência
+
+Com Blob configurado e funcionando, o admin **não** exibe mais o aviso “Pedidos não estão sendo compartilhados…”. O banner só aparece se Blob/Redis não estiverem configurados **ou** se a última gravação falhou (`blobError` no health/dashboard).

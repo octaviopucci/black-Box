@@ -60,7 +60,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       .then((r) => r.json())
       .then((json) => {
         setSectors(json.sectors || []);
-        setPersistWarning(json.persist?.shared ? null : json.persist?.warning || null);
+        setPersistWarning(json.persist?.warning ?? null);
       });
   }, [session?.establishment.slug, fetchApi]);
 
