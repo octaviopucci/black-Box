@@ -53,6 +53,10 @@ function run() {
   assert.equal(burguer.variants.length, 2);
   assert.equal(burguer.addons.length, 12);
   assert.ok(!Object.values(store.categories).some((c) => c.name === "Acréscimos"));
+  for (const product of Object.values(store.products)) {
+    if (product.establishmentId !== created.establishmentId) continue;
+    assert.equal(product.image, undefined, `${product.name} must not have image`);
+  }
 
   const reimport = applyMarceloLanchesCatalog(store);
   assert.equal(reimport.ok, true);
