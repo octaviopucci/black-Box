@@ -2730,10 +2730,13 @@ function drinkProduct(establishmentId, categoryId, sectorId, productId, name, de
     ...extra
   };
 }
+function isMarceloLikeEstablishment(establishment) {
+  const slug = establishment.slug.toLowerCase();
+  const name = establishment.name.toLowerCase();
+  return establishment.slug === MARCELO_ESTABLISHMENT_SLUG || establishment.name === "Marcelo Lanches" || slug.includes("marcelo") || name.includes("marcelo");
+}
 function findMarceloEstablishment(store) {
-  return Object.values(store.establishments).find(
-    (e) => e.slug === MARCELO_ESTABLISHMENT_SLUG || e.slug.includes("marcelo") || e.name.toLowerCase().includes("marcelo")
-  ) ?? null;
+  return Object.values(store.establishments).find(isMarceloLikeEstablishment) ?? null;
 }
 function buildMarceloLanchesCatalog(establishmentId, secCozinha, secBalcao) {
   const categories = {
@@ -3477,8 +3480,19 @@ function ensureMarceloSectors(store, establishmentId) {
   return { cozinha, balcao };
 }
 function applyMarceloLanchesCatalog(store, options) {
-  let establishment = findMarceloEstablishment(store);
+  let establishment = null;
   let created = false;
+  if (options?.establishmentId) {
+    establishment = store.establishments[options.establishmentId] ?? null;
+    if (!establishment) {
+      return {
+        ok: false,
+        error: `Estabelecimento ${options.establishmentId} n\xE3o encontrado.`
+      };
+    }
+  } else {
+    establishment = findMarceloEstablishment(store);
+  }
   if (!establishment && options?.createIfMissing) {
     const now = (/* @__PURE__ */ new Date()).toISOString();
     establishment = {
@@ -6464,11 +6478,29 @@ function dashboardStats(establishmentId) {
 }
 async function importMarceloLanchesCatalog(options) {
   const store = getStore();
+  const snapshot = {
+    categories: { ...store.categories },
+    products: { ...store.products },
+    establishments: { ...store.establishments },
+    sectors: { ...store.sectors }
+  };
   const result = applyMarceloLanchesCatalog(store, options);
   if (!result.ok) return result;
   saveStore(store);
-  const persist2 = await flushPersistentStore();
-  return { ...result, persist: persist2 };
+  if (!process.env.VERCEL) {
+    return { ...result, persist: { ok: true, disk: true, blob: false } };
+  }
+  const persist2 = await requireOperationalPersist();
+  if (persist2.ok) return { ...result, persist: persist2 };
+  store.categories = snapshot.categories;
+  store.products = snapshot.products;
+  store.establishments = snapshot.establishments;
+  store.sectors = snapshot.sectors;
+  saveStore(store);
+  return {
+    ok: false,
+    error: persist2.blobError || persist2.redisError || "N\xE3o foi poss\xEDvel salvar no armazenamento compartilhado. Verifique Blob (BLOB_READ_WRITE_TOKEN) e tente novamente."
+  };
 }
 var import_fs, import_path, DATA_PATH, cache, operationalDirty, identityDirty, blobEtags, runtimeOidcToken, lastBlobError, lastRedisError, lastPersistSource, SESSION_TTL_MS, CATALOG_COLLECTION_KEYS, productionPlatformSeeded, PRODUCT_AVAILABILITIES, TABLE_STATUSES, SHARED_CATALOG_PERSIST_ERROR;
 var init_store = __esm({
@@ -8681,6 +8713,12 @@ function kitchenAuth(req) {
 function platformAuth(req) {
   return validatePlatformSession(readPlatformToken(req));
 }
+function catalogImportSecretAuthorized(req) {
+  const secret5 = process.env.MESAFLOW_CATALOG_IMPORT_SECRET?.trim();
+  if (!secret5) return false;
+  const header = req.headers["x-mesaflow-import-secret"];
+  return typeof header === "string" && header === secret5;
+}
 function parsePlatformPlanFilter(value) {
   if (value === "essencial" || value === "premium" || value === "custom") return value;
   return "all";
@@ -9302,16 +9340,46 @@ async function handler(req, res) {
       }
     }
     if (req.method === "POST" && path === "/admin/catalog/import-marcelo") {
-      const secret5 = process.env.MESAFLOW_CATALOG_IMPORT_SECRET?.trim();
-      const header = req.headers["x-mesaflow-import-secret"];
-      if (!secret5 || header !== secret5) {
+      const body = req.body || {};
+      const admin = adminAuth(req);
+      const platform = platformAuth(req);
+      let establishmentId = body.establishmentId;
+      if (admin) {
+        if (!isMarceloLikeEstablishment(admin.establishment)) {
+          return json(res, 401, { error: "N\xE3o autorizado." });
+        }
+        if (body.establishmentId && body.establishmentId !== admin.establishment.id) {
+          return json(res, 403, { error: "N\xE3o autorizado." });
+        }
+        establishmentId = admin.establishment.id;
+      } else if (!platform && !catalogImportSecretAuthorized(req)) {
         return json(res, 401, { error: "N\xE3o autorizado." });
       }
+      const result = await importMarceloLanchesCatalog({
+        createIfMissing: body.createIfMissing === true,
+        establishmentId
+      });
+      if (!result.ok) {
+        const status = result.error.includes("armazenamento compartilhado") ? 503 : 404;
+        return json(res, status, { error: result.error });
+      }
+      return json(res, 200, result);
+    }
+    const platformImportMarceloMatch = path.match(
+      /^\/platform\/merchants\/([^/]+)\/import-marcelo-catalog$/
+    );
+    if (platformImportMarceloMatch && req.method === "POST") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
       const body = req.body || {};
       const result = await importMarceloLanchesCatalog({
+        establishmentId: platformImportMarceloMatch[1],
         createIfMissing: body.createIfMissing === true
       });
-      if (!result.ok) return json(res, 404, { error: result.error });
+      if (!result.ok) {
+        const status = result.error.includes("armazenamento compartilhado") ? 503 : 404;
+        return json(res, status, { error: result.error });
+      }
       return json(res, 200, result);
     }
     if (req.method === "POST" && path === "/admin/media/upload") {

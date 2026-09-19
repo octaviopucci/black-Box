@@ -15,6 +15,7 @@ import {
   blobDiagnostics,
   flushPersistentStore,
   importMarceloLanchesCatalog,
+  isMarceloLikeEstablishment,
   persistStatus,
   probeBlobStorage,
   probeRedisStorage,
@@ -280,6 +281,13 @@ function kitchenAuth(req: VercelRequest) {
 
 function platformAuth(req: VercelRequest) {
   return validatePlatformSession(readPlatformToken(req));
+}
+
+function catalogImportSecretAuthorized(req: VercelRequest) {
+  const secret = process.env.MESAFLOW_CATALOG_IMPORT_SECRET?.trim();
+  if (!secret) return false;
+  const header = req.headers["x-mesaflow-import-secret"];
+  return typeof header === "string" && header === secret;
 }
 
 function parsePlatformPlanFilter(value: string | undefined): PlatformPlan | "all" {
@@ -1033,16 +1041,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST" && path === "/admin/catalog/import-marcelo") {
-      const secret = process.env.MESAFLOW_CATALOG_IMPORT_SECRET?.trim();
-      const header = req.headers["x-mesaflow-import-secret"];
-      if (!secret || header !== secret) {
+      const body = (req.body || {}) as { createIfMissing?: boolean; establishmentId?: string };
+      const admin = adminAuth(req);
+      const platform = platformAuth(req);
+      let establishmentId = body.establishmentId;
+
+      if (admin) {
+        if (!isMarceloLikeEstablishment(admin.establishment)) {
+          return json(res, 401, { error: "Não autorizado." });
+        }
+        if (body.establishmentId && body.establishmentId !== admin.establishment.id) {
+          return json(res, 403, { error: "Não autorizado." });
+        }
+        establishmentId = admin.establishment.id;
+      } else if (!platform && !catalogImportSecretAuthorized(req)) {
         return json(res, 401, { error: "Não autorizado." });
       }
-      const body = (req.body || {}) as { createIfMissing?: boolean };
+
       const result = await importMarceloLanchesCatalog({
         createIfMissing: body.createIfMissing === true,
+        establishmentId,
       });
-      if (!result.ok) return json(res, 404, { error: result.error });
+      if (!result.ok) {
+        const status = result.error.includes("armazenamento compartilhado") ? 503 : 404;
+        return json(res, status, { error: result.error });
+      }
+      return json(res, 200, result);
+    }
+
+    const platformImportMarceloMatch = path.match(
+      /^\/platform\/merchants\/([^/]+)\/import-marcelo-catalog$/,
+    );
+    if (platformImportMarceloMatch && req.method === "POST") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      const body = (req.body || {}) as { createIfMissing?: boolean };
+      const result = await importMarceloLanchesCatalog({
+        establishmentId: platformImportMarceloMatch[1],
+        createIfMissing: body.createIfMissing === true,
+      });
+      if (!result.ok) {
+        const status = result.error.includes("armazenamento compartilhado") ? 503 : 404;
+        return json(res, status, { error: result.error });
+      }
       return json(res, 200, result);
     }
 
