@@ -8,6 +8,7 @@ import { usePlatformAuth } from "@/contexts/platform-auth-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
+import { catalogSeedMetaForEstablishment } from "@/lib/catalog-seed-registry";
 import { PLAN_LABELS, PLAN_OPTIONS } from "@/lib/platform-plans";
 import { PLATFORM_STATUS_LABELS } from "@/lib/platform-status";
 import type { PlatformPlan, PlatformStatus } from "@/lib/types";
@@ -40,17 +41,6 @@ type MerchantDetail = {
   analytics7d: { sales: { revenue: number; ordersCount: number } };
   analytics30d: { sales: { revenue: number; ordersCount: number; paymentsCollected: number } };
 };
-
-function isMarceloMerchant(merchant: Pick<MerchantDetail, "name" | "slug">) {
-  const name = merchant.name.toLowerCase();
-  const slug = merchant.slug.toLowerCase();
-  return (
-    merchant.name === "Marcelo Lanches" ||
-    slug === "marcelo-lanches" ||
-    name.includes("marcelo") ||
-    slug.includes("marcelo")
-  );
-}
 
 const STATUS_ACTIONS: { status: PlatformStatus; label: string; variant?: "primary" | "secondary" }[] = [
   { status: "active", label: "Aprovar / Ativar", variant: "primary" },
@@ -129,11 +119,13 @@ function PlatformMerchantDetailContent() {
     await patchMerchant({ plan: selectedPlan });
   }
 
-  async function importMarceloCatalog() {
+  async function importCatalogSeed() {
     if (!merchant || !id) return;
+    const seed = catalogSeedMetaForEstablishment(merchant);
+    if (!seed) return;
     if (
       !window.confirm(
-        "Importar cardápio Marcelo Lanches neste lojista? Categorias e produtos atuais serão substituídos.",
+        `Importar cardápio ${seed.label} neste lojista? Categorias e produtos atuais serão substituídos.`,
       )
     ) {
       return;
@@ -141,7 +133,7 @@ function PlatformMerchantDetailContent() {
     setImportingCatalog(true);
     setImportMessage("");
     setError("");
-    const res = await fetchApi(`/platform/merchants/${id}/import-marcelo-catalog`, {
+    const res = await fetchApi(`/platform/merchants/${id}/import-catalog`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
@@ -169,6 +161,8 @@ function PlatformMerchantDetailContent() {
 
   if (loading) return <p className="text-sm text-muted">Carregando lojista…</p>;
   if (!merchant) return <p className="text-sm text-danger">Lojista não encontrado.</p>;
+
+  const catalogSeed = catalogSeedMetaForEstablishment(merchant);
 
   return (
     <div className="space-y-6 pb-24 lg:pb-6">
@@ -220,23 +214,31 @@ function PlatformMerchantDetailContent() {
         </p>
       )}
 
-      {isMarceloMerchant(merchant) && (
-        <div className="glass-panel p-5">
-          <h3 className="font-semibold text-ink">Cardápio Marcelo Lanches</h3>
+      <div className="glass-panel p-5">
+        <h3 className="font-semibold text-ink">Importar cardápio</h3>
+        {catalogSeed ? (
+          <>
+            <p className="mt-1 text-xs text-muted">{catalogSeed.description}</p>
+            <p className="mt-2 text-xs text-muted">
+              Seed disponível: <strong className="text-ink">{catalogSeed.label}</strong>
+            </p>
+            <Button
+              className="mt-4"
+              size="sm"
+              variant="secondary"
+              disabled={importingCatalog}
+              onClick={importCatalogSeed}
+            >
+              {importingCatalog ? "Importando…" : `Importar cardápio ${catalogSeed.label}`}
+            </Button>
+          </>
+        ) : (
           <p className="mt-1 text-xs text-muted">
-            Após deploy, importe o cardápio seed aqui. O seed não roda automaticamente.
+            Nenhum cardápio seed registrado para este lojista. Quando houver um seed em código para
+            este estabelecimento, o botão de importação aparecerá aqui.
           </p>
-          <Button
-            className="mt-4"
-            size="sm"
-            variant="secondary"
-            disabled={importingCatalog}
-            onClick={importMarceloCatalog}
-          >
-            {importingCatalog ? "Importando…" : "Importar cardápio Marcelo Lanches"}
-          </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="glass-panel p-5">
         <h3 className="font-semibold text-ink">Aprovação e status</h3>

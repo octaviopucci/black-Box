@@ -43,7 +43,7 @@ import { Logo } from "@/components/brand/logo";
 import { BRAND_NAME } from "@/lib/brand";
 import { PRIVACY_POLICY_PATH, PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import Link from "next/link";
-import { lineTotal } from "@/lib/order-math";
+import { lineTotal, lineUnitPrice, variantDeltaValue } from "@/lib/order-math";
 import { SoftSuggestions } from "@/components/customer/soft-suggestions";
 import { ClosingSheet } from "@/components/customer/closing-sheet";
 
@@ -1222,9 +1222,16 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
             />
             <p className="mb-4 text-xl font-bold text-brand">
               {formatCurrency(
-                selected.price +
-                (selected.variants.find((variant) => variant.id === selectedVariantId)?.priceDelta || 0) +
-                selected.addons.reduce((total, addon) => total + addon.price * (selectedAddons[addon.id] || 0), 0),
+                lineUnitPrice(
+                  selected.price,
+                  variantDeltaValue(selected.variants.find((variant) => variant.id === selectedVariantId)),
+                  selected.addons
+                    .filter((addon) => (selectedAddons[addon.id] || 0) > 0)
+                    .map((addon) => ({
+                      price: addon.price,
+                      qty: selectedAddons[addon.id] || 0,
+                    })),
+                ),
               )}
             </p>
             <Button
@@ -1263,7 +1270,16 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
                   <p className="font-medium">{line.product.name}</p>
                   {line.variant && <p className="text-xs text-muted">{line.variant.name}</p>}
                   {line.addons.length > 0 && <p className="text-xs text-muted">{line.addons.map((addon) => `${addon.qty}x ${addon.name}`).join(", ")}</p>}
-                  <p className="text-sm text-brand">{formatCurrency(lineTotal({ qty: line.qty, unitPrice: line.product.price, variantDelta: line.variant?.priceDelta || 0, addons: line.addons }))}</p>
+                  <p className="text-sm text-brand">
+                    {formatCurrency(
+                      lineTotal({
+                        qty: line.qty,
+                        unitPrice: line.product.price,
+                        variantDelta: variantDeltaValue(line.variant),
+                        addons: line.addons,
+                      }),
+                    )}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => cart.updateQty(line.key, line.qty - 1)} className="rounded-lg bg-surface-3 p-2">

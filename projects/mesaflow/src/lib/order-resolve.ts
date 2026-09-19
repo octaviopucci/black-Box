@@ -1,4 +1,4 @@
-import { lineTotal } from "./order-math";
+import { lineTotal, variantDeltaValue } from "./order-math";
 import type { MesaFlowStore, OrderItem, OrderLineInput, Product } from "./types";
 
 export type ResolveOrderLinesResult =
@@ -68,7 +68,7 @@ export function resolveOrderLines(
         return { ok: false, status: 400, error: `Variação inválida para ${product.name}.` };
       }
       variantName = variant.name;
-      variantDelta = variant.priceDelta;
+      variantDelta = variantDeltaValue(variant);
     } else if (product.variants.length > 0) {
       return { ok: false, status: 400, error: `Selecione uma variação para ${product.name}.` };
     }

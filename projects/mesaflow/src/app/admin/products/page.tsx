@@ -134,19 +134,8 @@ function toggleId(list: string[], id: string): string[] {
   return list.includes(id) ? list.filter((item) => item !== id) : [...list, id];
 }
 
-function isMarceloEstablishment(name: string, slug: string) {
-  const normalizedName = name.toLowerCase();
-  const normalizedSlug = slug.toLowerCase();
-  return (
-    name === "Marcelo Lanches" ||
-    normalizedSlug === "marcelo-lanches" ||
-    normalizedName.includes("marcelo") ||
-    normalizedSlug.includes("marcelo")
-  );
-}
-
 export default function AdminProductsPage() {
-  const { fetchApi, session } = useAuth();
+  const { fetchApi } = useAuth();
   const [catalog, setCatalog] = useState<CatalogResponse>({ products: [], categories: [], sectors: [] });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -168,12 +157,6 @@ export default function AdminProductsPage() {
   const [categoryError, setCategoryError] = useState("");
   const [renamingCategoryId, setRenamingCategoryId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
-  const [importingMarcelo, setImportingMarcelo] = useState(false);
-
-  const showMarceloImport =
-    session?.establishment &&
-    isMarceloEstablishment(session.establishment.name, session.establishment.slug);
-
   const load = useCallback(async () => {
     setLoading(true);
     setLoadError("");
@@ -427,34 +410,6 @@ export default function AdminProductsPage() {
     }
   }
 
-  async function importMarceloCatalog() {
-    if (
-      !window.confirm(
-        "Importar o cardápio completo Marcelo Lanches? Categorias e produtos atuais deste estabelecimento serão substituídos.",
-      )
-    ) {
-      return;
-    }
-    setImportingMarcelo(true);
-    setFeedback("");
-    setLoadError("");
-    try {
-      const response = await fetchApi("/admin/catalog/import-marcelo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      const json = await response.json();
-      if (!response.ok) throw new Error(json.error || "Falha na importação.");
-      setFeedback(`Cardápio importado: ${json.categories} categorias, ${json.products} produtos.`);
-      await load();
-    } catch (error) {
-      setLoadError(error instanceof Error ? error.message : "Falha na importação.");
-    } finally {
-      setImportingMarcelo(false);
-    }
-  }
-
   const categoryNames = Object.fromEntries(catalog.categories.map((category) => [category.id, category.name]));
   const sectorNames = Object.fromEntries(catalog.sectors.map((sector) => [sector.id, sector.name]));
 
@@ -467,11 +422,6 @@ export default function AdminProductsPage() {
           <p className="mt-1 text-sm text-muted">{catalog.products.length} itens no catálogo</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {showMarceloImport && (
-            <Button variant="secondary" disabled={importingMarcelo} onClick={importMarceloCatalog}>
-              {importingMarcelo ? "Importando…" : "Importar cardápio Marcelo Lanches"}
-            </Button>
-          )}
           <Button onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" /> Novo produto
           </Button>

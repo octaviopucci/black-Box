@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { lineTotal } from "@/lib/order-math";
+import { lineTotal, variantDeltaValue } from "@/lib/order-math";
 import type { OrderItem, OrderItemAddon, OrderLineInput, Product, ProductVariant } from "@/lib/types";
 
 export type CartLine = {
@@ -75,7 +75,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         sectorName: "",
         qty: l.qty,
         unitPrice: l.product.price,
-        variantDelta: l.variant?.priceDelta || 0,
+        variantDelta: variantDeltaValue(l.variant),
         addons: l.addons,
         notes: l.notes,
         status: "NOVO",

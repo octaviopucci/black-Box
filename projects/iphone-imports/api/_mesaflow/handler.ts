@@ -41,6 +41,7 @@ import {
   validateSession,
   updateOrderStatus,
 } from "../../../mesaflow/src/lib/store";
+import { catalogSeedForEstablishment } from "../../../mesaflow/src/lib/catalog-seeds";
 import {
   cancelGuestClosing,
   getGuestClosingStatus,
@@ -1082,6 +1083,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
       if (!result.ok) {
         const status = result.error.includes("armazenamento compartilhado") ? 503 : 404;
+        return json(res, status, { error: result.error });
+      }
+      return json(res, 200, result);
+    }
+
+    const platformImportCatalogMatch = path.match(/^\/platform\/merchants\/([^/]+)\/import-catalog$/);
+    if (platformImportCatalogMatch && req.method === "POST") {
+      const auth = platformAuth(req);
+      if (!auth) return json(res, 401, { error: "Acesso negado." });
+      const store = getStore();
+      const establishment = store.establishments[platformImportCatalogMatch[1]];
+      if (!establishment) return json(res, 404, { error: "Lojista não encontrado." });
+      const seed = catalogSeedForEstablishment(establishment);
+      if (!seed) {
+        return json(res, 404, { error: "Nenhum cardápio seed registrado para este lojista." });
+      }
+      const body = (req.body || {}) as { createIfMissing?: boolean };
+      const result = await seed.importCatalog({
+        establishmentId: establishment.id,
+        createIfMissing: body.createIfMissing === true,
+      });
+      if (!result.ok) {
+        const status = result.error.includes("armazenamento compartilhado") ? 503 : 400;
         return json(res, status, { error: result.error });
       }
       return json(res, 200, result);
