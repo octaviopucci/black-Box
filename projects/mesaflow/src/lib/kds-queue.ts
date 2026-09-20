@@ -27,10 +27,20 @@ export function getKdsQueue(establishmentId: string, sectorId: string) {
       ]),
   );
 
+  const waiters = Object.fromEntries(
+    Object.values(store.users)
+      .filter((user) => user.establishmentId === establishmentId)
+      .map((user) => [user.id, user.name]),
+  );
+
   const tickets = orders.flatMap((order) => {
     const items = order.items.filter((item) => item.sectorId === sectorId);
     if (!items.length) return [];
-    const participantName = participations[order.guestParticipationId] || "Cliente";
+    let participantName = participations[order.guestParticipationId] || "Cliente";
+    if (order.orderOrigin === "WAITER" && order.waiterId) {
+      const waiterName = waiters[order.waiterId] || "Garçom";
+      participantName = `MESA ${order.tableNumber} · ${waiterName}`;
+    }
     return [{ order, items, participantName }];
   });
 

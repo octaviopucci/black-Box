@@ -1,8 +1,8 @@
 import { createAdminProduct, listAdminProducts } from "@/lib/store";
-import { readJson, requireAdmin } from "../_shared";
+import { readJson, requireAdmin, requireWaiter } from "../_shared";
 
 export async function GET(req: Request) {
-  const auth = requireAdmin(req);
+  const auth = requireWaiter(req, "order.view");
   if (!auth) return Response.json({ error: "Não autorizado." }, { status: 401 });
   return Response.json(listAdminProducts(auth.establishment.id));
 }

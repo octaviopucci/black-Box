@@ -37,6 +37,12 @@ type MerchantDetail = {
   owner: { name: string; email: string; lastLoginAt?: string } | null;
   tables: Array<{ id: string; number: string; name: string; status: string; capacity: number }>;
   staff: Array<{ id: string; name: string; email: string; role: string; active: boolean; lastLoginAt?: string }>;
+  entitlements?: {
+    waiterAccess: boolean;
+    waitersLimit: number | null;
+    waitersUsed: number;
+    tablesLimit: number | null;
+  };
   analyticsToday: { sales: { revenue: number; ordersCount: number } };
   analytics7d: { sales: { revenue: number; ordersCount: number } };
   analytics30d: { sales: { revenue: number; ordersCount: number; paymentsCollected: number } };

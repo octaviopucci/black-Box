@@ -1,6 +1,7 @@
 import { readAdminSessionToken } from "@/lib/staff-auth-request";
 import { validateActiveSession, validateSession } from "@/lib/store";
-import type { UserRole } from "@/lib/types";
+import type { User, UserRole } from "@/lib/types";
+import { assertWaiterPermission, type WaiterPermissionKey } from "@/lib/waiter-permissions";
 
 function readAuth(req: Request) {
   return validateActiveSession(readAdminSessionToken(req));
@@ -27,6 +28,25 @@ export function requireStaff(req: Request, roles?: UserRole[]) {
   const auth = readAuth(req);
   const allowed = roles ?? ["OWNER", "MANAGER", "COUNTER", "WAITER"];
   return auth && allowed.includes(auth.user.role) ? auth : null;
+}
+
+/** Garçom ou roles superiores com permissão operacional de salão. */
+export function requireWaiter(req: Request, permission?: WaiterPermissionKey) {
+  const auth = requireStaff(req);
+  if (!auth) return null;
+  if (auth.user.role === "OWNER" || auth.user.role === "MANAGER" || auth.user.role === "COUNTER") {
+    return auth;
+  }
+  if (auth.user.role !== "WAITER") return null;
+  if (permission) {
+    const check = assertWaiterPermission(auth.user, permission);
+    if (!check.ok) return null;
+  }
+  return auth;
+}
+
+export function requirePermission(user: User, permission: WaiterPermissionKey): boolean {
+  return assertWaiterPermission(user, permission).ok;
 }
 
 /** Staff session scoped to a specific establishment (SSE, realtime). */

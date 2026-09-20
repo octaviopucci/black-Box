@@ -54,6 +54,11 @@ export type SectorKind = "COZINHA" | "BALCAO" | "BAR" | "CAFETERIA" | "PIZZARIA"
 
 export type ProductAvailability = "VITRINE" | "SOB_DEMANDA" | "AMBOS";
 
+export interface PlanOverrides {
+  features?: Partial<Record<"waiter_access", boolean>>;
+  limits?: Partial<Record<"waiters" | "tables", number | null>>;
+}
+
 export interface Establishment {
   id: string;
   slug: string;
@@ -70,6 +75,8 @@ export interface Establishment {
   /** Plano NA MESA — default essencial no cadastro. */
   plan?: PlatformPlan;
   planStartedAt?: string;
+  /** Overrides comerciais (platform admin). */
+  planOverrides?: PlanOverrides;
   /** Controle pelo platform admin — default active. */
   platformStatus?: PlatformStatus;
   suspendedAt?: string;
@@ -154,6 +161,22 @@ export interface GuestPhoneSecret {
   phoneCiphertext: string;
 }
 
+export interface WaiterPermissions {
+  "table.view": boolean;
+  "table.view_session": boolean;
+  "table.add_note": boolean;
+  "order.create": boolean;
+  "order.view": boolean;
+  "order.edit": boolean;
+  "order.cancel": boolean;
+  "account.view": boolean;
+  "account.request": boolean;
+  "account.close": boolean;
+  "account.partial_close": boolean;
+  "notification.view": boolean;
+  "notification.action": boolean;
+}
+
 export interface User {
   id: string;
   establishmentId: string;
@@ -164,6 +187,18 @@ export interface User {
   active: boolean;
   lastLoginAt?: string;
   privacyConsent?: PrivacyConsent;
+  /** Permissões operacionais — garçons (WAITER). */
+  permissions?: Partial<WaiterPermissions>;
+  /** Atribuição opcional de mesas. */
+  assignedTableIds?: string[];
+  /** PIN opcional (hash bcrypt). */
+  pinHash?: string;
+  failedLoginAttempts?: number;
+  loginLockedUntil?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  deactivatedAt?: string;
+  deactivatedByUserId?: string;
 }
 
 export interface Sector {
@@ -269,6 +304,9 @@ export interface OrderItem {
   status: OrderStatus;
 }
 
+/** Autoria do pedido — GUEST (cliente) vs WAITER (staff). */
+export type OrderOrigin = "GUEST" | "WAITER";
+
 export interface Order {
   id: string;
   establishmentId: string;
@@ -281,13 +319,22 @@ export interface Order {
   status: OrderStatus;
   items: OrderItem[];
   notes?: string;
+  /** Canal/modalidade — MESA, RODIZIO, BALCAO. */
   source: "MESA" | "RODIZIO" | "BALCAO";
+  /** Autoria — default GUEST para legado. */
+  orderOrigin?: OrderOrigin;
+  createdByUserId?: string;
+  createdByRole?: UserRole;
+  waiterId?: string;
   /** Comer aqui ou levar — default COMER_AQUI para pedidos legados. */
   serviceType?: OrderServiceType;
   rodizioRoundId?: string;
   total: number;
   createdAt: string;
   updatedAt: string;
+  cancelledByUserId?: string;
+  cancelledAt?: string;
+  cancelReason?: string;
 }
 
 /** Payload do cliente — sem preços (resolvidos no servidor). */
@@ -335,7 +382,9 @@ export interface ClosingRequest {
   establishmentId: string;
   commandId: string;
   tableId: string;
-  requestedByGuestParticipationId: string;
+  requestedByGuestParticipationId?: string;
+  requestedByStaffUserId?: string;
+  requestedByStaffRole?: UserRole;
   scope: ClosingScope;
   targetGuestParticipationIds: string[];
   status: "PENDING" | "CANCELLED" | "CONFIRMED" | "SETTLED";
@@ -436,6 +485,28 @@ export interface MesaFlowOperationalStore {
   orderCounter: Record<string, number>;
 }
 
+export interface WaiterActivationToken {
+  id: string;
+  establishmentId: string;
+  userId: string;
+  tokenHash: string;
+  expiresAt: string;
+  createdAt: string;
+  createdByUserId: string;
+  usedAt?: string;
+  revokedAt?: string;
+}
+
+export interface TableAssignment {
+  id: string;
+  establishmentId: string;
+  tableId: string;
+  waiterUserId: string;
+  assignedByUserId: string;
+  assignedAt: string;
+  unassignedAt?: string;
+}
+
 export interface MesaFlowIdentityStore {
   users: Record<string, User>;
   sessions: Record<string, Session>;
@@ -445,6 +516,8 @@ export interface MesaFlowIdentityStore {
   guestPhoneSecrets: Record<string, GuestPhoneSecret>;
   /** hashToken(guestJwt) → ISO revokedAt — denylist so revoke works with JWT sessions */
   revokedGuestTokenHashes: Record<string, string>;
+  waiterActivationTokens?: Record<string, WaiterActivationToken>;
+  tableAssignments?: Record<string, TableAssignment>;
 }
 
 export interface MesaFlowStore extends MesaFlowOperationalStore, MesaFlowIdentityStore {}

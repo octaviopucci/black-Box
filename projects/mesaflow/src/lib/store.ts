@@ -94,6 +94,8 @@ export function emptyStore(): MesaFlowStore {
     otpChallenges: {},
     guestPhoneSecrets: {},
     revokedGuestTokenHashes: {},
+    waiterActivationTokens: {},
+    tableAssignments: {},
     sectors: {},
     categories: {},
     products: {},
@@ -330,6 +332,8 @@ function migrateOperationalCollections(store: MesaFlowStore) {
   store.integrationConnections ||= {};
   store.auditEvents ||= {};
   store.revokedGuestTokenHashes ||= {};
+  store.waiterActivationTokens ||= {};
+  store.tableAssignments ||= {};
   store.clientSessions ||= {};
   store.otpChallenges ||= {};
   store.guestPhoneSecrets ||= {};
@@ -911,21 +915,44 @@ export function changeUserPassword(
 }
 
 export function loginUser(email: string, password: string) {
-  const user = findUserByEmail(email);
-  if (!user || !verifyPassword(password, user.passwordHash)) {
+  const store = getStore();
+  const userRaw = Object.values(store.users).find(
+    (u) => u.email.toLowerCase() === email.toLowerCase(),
+  );
+  if (!userRaw) return { error: "E-mail ou senha inválidos." };
+  if (!userRaw.active) return { error: "Usuário desativado. Contate o administrador." };
+  if (userRaw.loginLockedUntil && new Date(userRaw.loginLockedUntil).getTime() > Date.now()) {
+    return { error: "Conta temporariamente bloqueada. Tente novamente mais tarde." };
+  }
+  if (!verifyPassword(password, userRaw.passwordHash)) {
+    userRaw.failedLoginAttempts = (userRaw.failedLoginAttempts || 0) + 1;
+    if (userRaw.failedLoginAttempts >= 5) {
+      userRaw.loginLockedUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      userRaw.failedLoginAttempts = 0;
+    }
+    store.users[userRaw.id] = userRaw;
+    saveStore(store);
     return { error: "E-mail ou senha inválidos." };
   }
-  const store = getStore();
+  const user = userRaw;
   if (!user.passwordHash.startsWith("$2")) {
     user.passwordHash = hashPassword(password);
     store.users[user.id] = user;
   }
   const establishment = store.establishments[user.establishmentId];
   if (!establishment) return { error: "Estabelecimento não encontrado." };
+  if (user.role === "WAITER") {
+    const { hasFeature } = require("./platform-entitlements") as typeof import("./platform-entitlements");
+    if (!hasFeature(establishment, "waiter_access")) {
+      return { error: "Plano atual não inclui acesso de garçons." };
+    }
+  }
   const platformStatus = resolvePlatformStatus(establishment);
   if (!isMerchantLoginAllowed(platformStatus)) {
     return { error: merchantLoginBlockedMessage(platformStatus) };
   }
+  user.failedLoginAttempts = 0;
+  user.loginLockedUntil = undefined;
   user.lastLoginAt = new Date().toISOString();
   store.users[user.id] = user;
   appendAuditEvent(store, {
@@ -1692,6 +1719,10 @@ export function createOrder(input: {
   serviceType?: Order["serviceType"];
   rodizioRoundId?: string;
   guestParticipationId: string;
+  orderOrigin?: Order["orderOrigin"];
+  createdByUserId?: string;
+  createdByRole?: User["role"];
+  waiterId?: string;
 }): Order {
   const store = getStore();
   const participation = store.guestParticipations[input.guestParticipationId];
@@ -1711,6 +1742,10 @@ export function createOrder(input: {
     items: input.items.map((i) => ({ ...i, status: "NOVO" as OrderStatus })),
     notes: input.notes,
     source: input.source || "MESA",
+    orderOrigin: input.orderOrigin || "GUEST",
+    createdByUserId: input.createdByUserId,
+    createdByRole: input.createdByRole,
+    waiterId: input.waiterId,
     serviceType: input.serviceType || "COMER_AQUI",
     rodizioRoundId: input.rodizioRoundId,
     total,

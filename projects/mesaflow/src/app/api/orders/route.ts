@@ -74,6 +74,7 @@ export async function POST(req: Request) {
       items: resolved.items,
       notes: body.notes,
       source: "MESA",
+      orderOrigin: "GUEST",
       serviceType: body.serviceType || "COMER_AQUI",
     });
     return Response.json({ order, total: order.total });

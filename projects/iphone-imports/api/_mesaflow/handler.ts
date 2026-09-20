@@ -116,6 +116,26 @@ import {
 } from "../../../mesaflow/src/lib/platform-store";
 import { parsePlatformPlan } from "../../../mesaflow/src/lib/platform-plans";
 import {
+  countActiveWaiters,
+  entitlementSummary,
+} from "../../../mesaflow/src/lib/platform-entitlements";
+import { publicWaiterPermissions } from "../../../mesaflow/src/lib/waiter-permissions";
+import {
+  activateWaiterWithToken,
+  cancelStaffOrder,
+  createStaffOrder,
+  createWaiter,
+  enrichOrderDisplay,
+  generateWaiterActivationToken,
+  listOperationalTables,
+  listWaiters,
+  publicWaiterUser,
+  requestAccountByStaff,
+  resetWaiterPassword,
+  revokeWaiterActivationToken,
+  updateWaiter,
+} from "../../../mesaflow/src/lib/waiter-store";
+import {
   parsePlatformStatusFilterInput,
   parsePlatformStatusInput,
 } from "../../../mesaflow/src/lib/platform-status";
@@ -288,6 +308,18 @@ function kitchenAuth(req: VercelRequest) {
     return auth;
   }
   return null;
+}
+
+function waiterAuth(req: VercelRequest, permission?: string) {
+  const auth = staffAuth(req);
+  if (!auth) return null;
+  if (["OWNER", "MANAGER", "COUNTER"].includes(auth.user.role)) return auth;
+  if (auth.user.role !== "WAITER") return null;
+  if (permission) {
+    const perms = publicWaiterPermissions(auth.user);
+    if (!perms[permission as keyof typeof perms]) return null;
+  }
+  return auth;
 }
 
 function platformAuth(req: VercelRequest) {
@@ -592,8 +624,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
       if (commandId) orders = orders.filter((o) => o.commandId === commandId);
       orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      const enriched = orders.map((order) => enrichOrderWithGuest(store.guestParticipations, order));
+      const enriched = orders.map((order) => {
+        const base = enrichOrderWithGuest(store.guestParticipations, order);
+        return enrichOrderDisplay(base, store);
+      });
       return json(res, 200, { orders: enriched });
+    }
+
+    if (req.method === "POST" && path === "/admin/orders") {
+      const auth = waiterAuth(req, "order.create");
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const body = (req.body || {}) as {
+        tableId?: string;
+        items?: OrderLineInput[];
+        notes?: string;
+        serviceType?: OrderServiceType;
+      };
+      if (!body.tableId || !body.items?.length) {
+        return json(res, 400, { error: "Mesa e itens são obrigatórios." });
+      }
+      const sectors = Object.fromEntries(
+        Object.values(store.sectors)
+          .filter((sector) => sector.establishmentId === auth.establishment.id)
+          .map((sector) => [sector.id, { name: sector.name }]),
+      );
+      const resolved = resolveOrderLines(store, auth.establishment.id, sectors, body.items);
+      if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
+      const result = createStaffOrder({
+        establishmentId: auth.establishment.id,
+        tableId: body.tableId,
+        items: resolved.items,
+        notes: body.notes,
+        serviceType: body.serviceType,
+        actor: auth.user,
+      });
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 201, result.value);
     }
 
     if (req.method === "POST" && path === "/orders") {
@@ -643,6 +709,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           items: resolved.items,
           notes: body.notes,
           source: "MESA",
+          orderOrigin: "GUEST",
           serviceType: body.serviceType || "COMER_AQUI",
         });
         return json(res, 200, { order, total: order.total });
@@ -770,10 +837,135 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "GET" && path === "/auth/me") {
       const auth = validateSession(readAdminToken(req));
       if (!auth) return json(res, 401, { error: "Sessão inválida." });
+      const user =
+        auth.user.role === "WAITER"
+          ? publicWaiterUser(auth.user)
+          : { ...publicUser(auth.user), permissions: publicWaiterPermissions(auth.user) };
       return json(res, 200, {
-        user: publicUser(auth.user),
+        user,
         establishment: publicEstablishment(auth.establishment),
+        entitlements: entitlementSummary(
+          auth.establishment,
+          countActiveWaiters(store, auth.establishment.id),
+        ),
       });
+    }
+
+    if (req.method === "POST" && path === "/waiter/activate") {
+      const rl = rateLimitOrReject(res, "authLogin", clientIp(req));
+      if (!rl) return;
+      const body = (req.body || {}) as { token?: string; password?: string; pin?: string };
+      const result = activateWaiterWithToken(
+        String(body.token || ""),
+        String(body.password || ""),
+        body.pin,
+      );
+      if ("error" in result) {
+        return json(res, result.status, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
+      return json(res, 200, result.value, { extraHeaders: rateLimitHeaders(rl) });
+    }
+
+    if (path === "/admin/waiters") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "GET") {
+        return json(res, 200, { waiters: listWaiters(auth.establishment.id) });
+      }
+      if (req.method === "POST") {
+        const body = (req.body || {}) as {
+          name?: string;
+          email?: string;
+          password?: string;
+          permissions?: Record<string, boolean>;
+        };
+        const result = createWaiter(auth.establishment, auth.user.id, {
+          name: String(body.name || ""),
+          email: String(body.email || ""),
+          password: body.password,
+          permissions: body.permissions,
+        });
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, result.value);
+      }
+    }
+
+    const waiterIdMatch = path.match(/^\/admin\/waiters\/([^/]+)$/);
+    if (waiterIdMatch && req.method === "PATCH") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const result = updateWaiter(auth.establishment.id, waiterIdMatch[1], auth.user.id, req.body || {});
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    const waiterResetMatch = path.match(/^\/admin\/waiters\/([^/]+)\/reset-password$/);
+    if (waiterResetMatch && req.method === "POST") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const body = (req.body || {}) as { password?: string };
+      const result = resetWaiterPassword(
+        auth.establishment.id,
+        waiterResetMatch[1],
+        auth.user.id,
+        String(body.password || ""),
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    const waiterTokenMatch = path.match(/^\/admin\/waiters\/([^/]+)\/activation-token$/);
+    if (waiterTokenMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      if (req.method === "POST") {
+        const result = generateWaiterActivationToken(
+          auth.establishment.id,
+          waiterTokenMatch[1],
+          auth.user.id,
+        );
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, result.value);
+      }
+      if (req.method === "DELETE") {
+        const result = revokeWaiterActivationToken(
+          auth.establishment.id,
+          waiterTokenMatch[1],
+          auth.user.id,
+        );
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, result.value);
+      }
+    }
+
+    const orderCancelMatch = path.match(/^\/admin\/orders\/([^/]+)\/cancel$/);
+    if (orderCancelMatch && req.method === "POST") {
+      const auth = waiterAuth(req, "order.cancel");
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const body = (req.body || {}) as { reason?: string };
+      const result = cancelStaffOrder(
+        auth.establishment.id,
+        orderCancelMatch[1],
+        auth.user,
+        body.reason,
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+
+    const requestAccountMatch = path.match(/^\/admin\/tables\/([^/]+)\/request-account$/);
+    if (requestAccountMatch && req.method === "POST") {
+      const auth = waiterAuth(req, "account.request");
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const body = (req.body || {}) as { scope?: "TABLE" | "SELF" };
+      const result = requestAccountByStaff(
+        auth.establishment.id,
+        requestAccountMatch[1],
+        auth.user,
+        body.scope === "SELF" ? "SELF" : "TABLE",
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
     }
 
     if (req.method === "POST" && path === "/platform/auth/login") {
@@ -1001,11 +1193,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (path === "/admin/products") {
-      const auth = adminAuth(req);
-      if (!auth) return json(res, 401, { error: "Não autorizado." });
       if (req.method === "GET") {
+        const auth = waiterAuth(req, "order.view");
+        if (!auth) return json(res, 401, { error: "Não autorizado." });
         return json(res, 200, listAdminProducts(auth.establishment.id));
       }
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
       if (req.method === "POST") {
         const result = createAdminProduct(auth.establishment.id, req.body);
         if ("error" in result) return json(res, result.status, { error: result.error });
@@ -1176,13 +1370,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (path === "/admin/tables") {
-      const auth = adminAuth(req);
+      const auth = staffAuth(req);
       if (!auth) return json(res, 401, { error: "Não autorizado." });
       if (req.method === "GET") {
+        const operational = String(req.query?.operational || "") === "1";
+        if (operational) {
+          const filter = String(req.query?.filter || "") === "mine" ? "mine" : "all";
+          return json(res, 200, {
+            tables: listOperationalTables(auth.establishment.id, auth.user, filter),
+          });
+        }
+        if (auth.user.role !== "OWNER" && auth.user.role !== "MANAGER") {
+          return json(res, 401, { error: "Não autorizado." });
+        }
         return json(res, 200, { tables: listAdminTables(auth.establishment.id) });
       }
+      const adminOnly = adminAuth(req);
+      if (!adminOnly) return json(res, 401, { error: "Não autorizado." });
       if (req.method === "POST") {
-        const result = createAdminTable(auth.establishment.id, req.body);
+        const result = createAdminTable(adminOnly.establishment.id, req.body);
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, { table: result.value });
       }
