@@ -273,7 +273,9 @@ function emptyIdentity() {
     clientSessions: {},
     otpChallenges: {},
     guestPhoneSecrets: {},
-    revokedGuestTokenHashes: {}
+    revokedGuestTokenHashes: {},
+    waiterActivationTokens: {},
+    tableAssignments: {}
   };
 }
 function splitStore(store) {
@@ -301,7 +303,9 @@ function splitStore(store) {
     clientSessions,
     otpChallenges,
     guestPhoneSecrets,
-    revokedGuestTokenHashes
+    revokedGuestTokenHashes,
+    waiterActivationTokens,
+    tableAssignments
   } = store;
   return {
     operational: {
@@ -330,7 +334,9 @@ function splitStore(store) {
       clientSessions,
       otpChallenges,
       guestPhoneSecrets,
-      revokedGuestTokenHashes: revokedGuestTokenHashes || {}
+      revokedGuestTokenHashes: revokedGuestTokenHashes || {},
+      waiterActivationTokens: waiterActivationTokens || {},
+      tableAssignments: tableAssignments || {}
     }
   };
 }
@@ -2497,7 +2503,7 @@ var init_platform_plans = __esm({
       {
         value: "premium",
         label: PLAN_LABELS.premium,
-        description: "Mesas ilimitadas \xB7 recursos avan\xE7ados"
+        description: "At\xE9 35 mesas \xB7 10 gar\xE7ons \xB7 recursos avan\xE7ados"
       },
       {
         value: "custom",
@@ -4544,6 +4550,341 @@ var init_platform_session_token = __esm({
   }
 });
 
+// ../mesaflow/src/lib/platform-entitlements.ts
+var platform_entitlements_exports = {};
+__export(platform_entitlements_exports, {
+  FEATURE_LABELS: () => FEATURE_LABELS,
+  LIMIT_LABELS: () => LIMIT_LABELS,
+  PLATFORM_FEATURES: () => PLATFORM_FEATURES,
+  PLATFORM_LIMITS: () => PLATFORM_LIMITS,
+  canCreateKdsSector: () => canCreateKdsSector,
+  canCreateStaffUser: () => canCreateStaffUser,
+  canCreateTable: () => canCreateTable,
+  canCreateWaiter: () => canCreateWaiter,
+  countActiveWaiters: () => countActiveWaiters,
+  countKdsSectors: () => countKdsSectors,
+  countStaffUsers: () => countStaffUsers,
+  countTables: () => countTables,
+  entitlementSummary: () => entitlementSummary,
+  featureDeniedMessage: () => featureDeniedMessage,
+  getIncludedLimit: () => getIncludedLimit,
+  getLimit: () => getLimit,
+  hasFeature: () => hasFeature,
+  limitReachedMessage: () => limitReachedMessage,
+  requireFeature: () => requireFeature,
+  resolveEntitlements: () => resolveEntitlements,
+  resolvePlanAddons: () => resolvePlanAddons
+});
+function isPlatformFeature(key) {
+  return PLATFORM_FEATURES.includes(key);
+}
+function isPlatformLimit(key) {
+  return PLATFORM_LIMITS.includes(key);
+}
+function resolvePlanAddons(establishment) {
+  const plan = resolvePlan(establishment.plan);
+  if (plan === "custom") return { waiters: 0, tables: 0, establishments: 0 };
+  const overrides = establishment.planOverrides;
+  const waiters = Math.max(0, overrides?.addonWaiters ?? overrides?.addons?.waiters ?? 0);
+  const tables = Math.max(0, overrides?.addonTables ?? overrides?.addons?.tables ?? 0);
+  let establishments = Math.max(
+    0,
+    overrides?.addonEstablishments ?? overrides?.addons?.establishments ?? 0
+  );
+  if (plan === "premium") {
+    establishments = Math.min(establishments, 2);
+  } else if (plan === "essencial") {
+    establishments = 0;
+  }
+  return { waiters, tables, establishments };
+}
+function effectiveLimit(included, addon) {
+  if (included === null) return null;
+  return included + addon;
+}
+function effectiveEstablishments(plan, included, addonEstablishments) {
+  if (plan === "custom") return null;
+  const cap = MAX_ESTABLISHMENTS[plan];
+  if (cap === null) return null;
+  const base = included ?? 1;
+  return Math.min(base + addonEstablishments, cap);
+}
+function resolveEntitlements(establishment) {
+  const plan = resolvePlan(establishment.plan);
+  const overrides = establishment.planOverrides;
+  const features = { ...BASE_FEATURES[plan] };
+  const included = { ...BASE_INCLUDED[plan] };
+  if (overrides?.features) {
+    for (const [key, value] of Object.entries(overrides.features)) {
+      if (isPlatformFeature(key) && typeof value === "boolean") {
+        features[key] = value;
+      }
+    }
+  }
+  if (overrides?.limits) {
+    for (const [key, value] of Object.entries(overrides.limits)) {
+      if (isPlatformLimit(key) && (typeof value === "number" || value === null)) {
+        included[key] = value;
+      }
+    }
+  }
+  const addons = resolvePlanAddons(establishment);
+  const limits = { ...included };
+  limits.waiters = effectiveLimit(included.waiters, addons.waiters);
+  limits.tables = effectiveLimit(included.tables, addons.tables);
+  limits.establishments = effectiveEstablishments(plan, included.establishments, addons.establishments);
+  return {
+    features,
+    included,
+    limits,
+    addons,
+    addonPrices: ADDON_PRICES_ANNUAL[plan]
+  };
+}
+function hasFeature(establishment, feature) {
+  return resolveEntitlements(establishment).features[feature];
+}
+function getLimit(establishment, limit) {
+  return resolveEntitlements(establishment).limits[limit];
+}
+function getIncludedLimit(establishment, limit) {
+  return resolveEntitlements(establishment).included[limit];
+}
+function featureDeniedMessage(feature) {
+  return `Plano atual n\xE3o inclui ${FEATURE_LABELS[feature]}.`;
+}
+function limitReachedMessage(limit, used, max) {
+  return `Limite de ${LIMIT_LABELS[limit].toLowerCase()} atingido (${used}/${max}).`;
+}
+function countActiveWaiters(store, establishmentId) {
+  return Object.values(store.users).filter(
+    (user) => user.establishmentId === establishmentId && user.role === "WAITER" && user.active
+  ).length;
+}
+function countTables(store, establishmentId) {
+  return Object.values(store.tables).filter((table) => table.establishmentId === establishmentId).length;
+}
+function countStaffUsers(store, establishmentId) {
+  return Object.values(store.users).filter(
+    (user) => user.establishmentId === establishmentId && user.active && STAFF_ROLES.includes(user.role)
+  ).length;
+}
+function countKdsSectors(store, establishmentId) {
+  return Object.values(store.sectors).filter(
+    (sector) => sector.establishmentId === establishmentId && sector.active
+  ).length;
+}
+function canCreateWaiter(establishment, store) {
+  if (!hasFeature(establishment, "waiter_access")) {
+    return { ok: false, error: featureDeniedMessage("waiter_access") };
+  }
+  const limit = getLimit(establishment, "waiters");
+  if (limit === null) return { ok: true };
+  const used = countActiveWaiters(store, establishment.id);
+  if (used >= limit) {
+    return { ok: false, error: limitReachedMessage("waiters", used, limit) };
+  }
+  return { ok: true };
+}
+function canCreateTable(establishment, store) {
+  const limit = getLimit(establishment, "tables");
+  if (limit === null) return { ok: true };
+  const used = countTables(store, establishment.id);
+  if (used >= limit) {
+    return { ok: false, error: limitReachedMessage("tables", used, limit) };
+  }
+  return { ok: true };
+}
+function canCreateStaffUser(establishment, store) {
+  const limit = getLimit(establishment, "staff_users");
+  if (limit === null) return { ok: true };
+  const used = countStaffUsers(store, establishment.id);
+  if (used >= limit) {
+    return { ok: false, error: limitReachedMessage("staff_users", used, limit) };
+  }
+  return { ok: true };
+}
+function canCreateKdsSector(establishment, store) {
+  const limit = getLimit(establishment, "kds_sectors");
+  if (limit === null) return { ok: true };
+  const used = countKdsSectors(store, establishment.id);
+  if (used >= limit) {
+    return { ok: false, error: limitReachedMessage("kds_sectors", used, limit) };
+  }
+  return { ok: true };
+}
+function requireFeature(establishment, feature) {
+  if (!hasFeature(establishment, feature)) {
+    return { ok: false, error: featureDeniedMessage(feature) };
+  }
+  return { ok: true };
+}
+function entitlementSummary(establishment, store) {
+  const ent = resolveEntitlements(establishment);
+  const plan = resolvePlan(establishment.plan);
+  const waitersUsed = countActiveWaiters(store, establishment.id);
+  const tablesUsed = countTables(store, establishment.id);
+  const staffUsersUsed = countStaffUsers(store, establishment.id);
+  const kdsSectorsUsed = store.sectors ? countKdsSectors({ sectors: store.sectors }, establishment.id) : 0;
+  return {
+    plan,
+    features: ent.features,
+    limits: ent.limits,
+    included: ent.included,
+    addons: ent.addons,
+    addonPrices: ent.addonPrices,
+    usage: {
+      waiters: waitersUsed,
+      tables: tablesUsed,
+      staffUsers: staffUsersUsed,
+      kdsSectors: kdsSectorsUsed
+    },
+    waiterAccess: ent.features.waiter_access,
+    waitersLimit: ent.limits.waiters,
+    waitersUsed,
+    waitersIncluded: ent.included.waiters,
+    waitersAddon: ent.addons.waiters,
+    tablesLimit: ent.limits.tables,
+    tablesUsed,
+    tablesIncluded: ent.included.tables,
+    tablesAddon: ent.addons.tables,
+    staffUsersLimit: ent.limits.staff_users,
+    staffUsersUsed,
+    establishmentsLimit: ent.limits.establishments,
+    establishmentsIncluded: ent.included.establishments,
+    establishmentsAddon: ent.addons.establishments,
+    establishmentsMax: MAX_ESTABLISHMENTS[plan]
+  };
+}
+var PLATFORM_FEATURES, PLATFORM_LIMITS, STAFF_ROLES, CORE_FEATURES, BASE_INCLUDED, MAX_ESTABLISHMENTS, ADDON_PRICES_ANNUAL, BASE_FEATURES, FEATURE_LABELS, LIMIT_LABELS;
+var init_platform_entitlements = __esm({
+  "../mesaflow/src/lib/platform-entitlements.ts"() {
+    "use strict";
+    init_platform_plans();
+    PLATFORM_FEATURES = [
+      "guest_menu",
+      "guest_orders",
+      "guest_bill_request",
+      "split_bill",
+      "rodizio",
+      "admin",
+      "thermal_print",
+      "order_alerts",
+      "kds",
+      "table_cockpit",
+      "catalog_import",
+      "product_media",
+      "waiter_access",
+      "advanced_reports",
+      "integrations",
+      "multi_unit"
+    ];
+    PLATFORM_LIMITS = [
+      "waiters",
+      "tables",
+      "staff_users",
+      "establishments",
+      "kds_sectors"
+    ];
+    STAFF_ROLES = ["OWNER", "MANAGER", "KITCHEN", "COUNTER"];
+    CORE_FEATURES = {
+      guest_menu: true,
+      guest_orders: true,
+      guest_bill_request: true,
+      split_bill: true,
+      rodizio: true,
+      admin: true,
+      thermal_print: true,
+      order_alerts: true,
+      kds: true,
+      table_cockpit: true,
+      catalog_import: true,
+      product_media: true
+    };
+    BASE_INCLUDED = {
+      essencial: {
+        waiters: 1,
+        tables: 10,
+        staff_users: 3,
+        establishments: 1,
+        kds_sectors: 3
+      },
+      premium: {
+        waiters: 10,
+        tables: 35,
+        staff_users: 15,
+        establishments: 1,
+        kds_sectors: 8
+      },
+      custom: {
+        waiters: null,
+        tables: null,
+        staff_users: null,
+        establishments: null,
+        kds_sectors: null
+      }
+    };
+    MAX_ESTABLISHMENTS = {
+      essencial: 1,
+      premium: 3,
+      custom: null
+    };
+    ADDON_PRICES_ANNUAL = {
+      essencial: { table: 70, waiter: 50, establishment: null },
+      premium: { table: 50, waiter: 30, establishment: 397 },
+      custom: { table: null, waiter: null, establishment: null }
+    };
+    BASE_FEATURES = {
+      essencial: {
+        ...CORE_FEATURES,
+        waiter_access: true,
+        advanced_reports: false,
+        integrations: false,
+        multi_unit: false
+      },
+      premium: {
+        ...CORE_FEATURES,
+        waiter_access: true,
+        advanced_reports: true,
+        integrations: true,
+        multi_unit: true
+      },
+      custom: {
+        ...CORE_FEATURES,
+        waiter_access: true,
+        advanced_reports: true,
+        integrations: true,
+        multi_unit: true
+      }
+    };
+    FEATURE_LABELS = {
+      guest_menu: "Card\xE1pio digital + QR",
+      guest_orders: "Pedidos na mesa",
+      guest_bill_request: "Pedir conta (guest)",
+      split_bill: "Fechamento por pessoa",
+      rodizio: "Rod\xEDzio / rodadas",
+      admin: "Admin lojista",
+      thermal_print: "Comanda t\xE9rmica",
+      order_alerts: "Alertas de pedido",
+      kds: "KDS por setor",
+      table_cockpit: "Cockpit de mesa",
+      catalog_import: "Import card\xE1pio",
+      product_media: "Foto de produto",
+      waiter_access: "Acesso gar\xE7om",
+      advanced_reports: "Relat\xF3rios avan\xE7ados",
+      integrations: "Integra\xE7\xF5es",
+      multi_unit: "Multi-unidade"
+    };
+    LIMIT_LABELS = {
+      waiters: "Gar\xE7ons ativos",
+      tables: "Mesas",
+      staff_users: "Staff (sem gar\xE7om)",
+      establishments: "Estabelecimentos",
+      kds_sectors: "Setores KDS"
+    };
+  }
+});
+
 // ../mesaflow/src/lib/platform-analytics.ts
 function establishmentOwner(establishmentId) {
   const store = getStore();
@@ -4663,6 +5004,8 @@ function getMerchantDetail(establishmentId) {
     ...summary,
     tables,
     staff,
+    planOverrides: establishment.planOverrides,
+    entitlements: entitlementSummary(establishment, store),
     analyticsToday: dashboardAnalytics(establishmentId, "today"),
     analytics7d: dashboardAnalytics(establishmentId, "7d"),
     analytics30d: dashboardAnalytics(establishmentId, "30d"),
@@ -4737,6 +5080,7 @@ var init_platform_analytics = __esm({
   "../mesaflow/src/lib/platform-analytics.ts"() {
     "use strict";
     init_dashboard_analytics();
+    init_platform_entitlements();
     init_platform_plans();
     init_store();
     init_platform_status();
@@ -4853,6 +5197,41 @@ async function updateMerchant(establishmentId, patch) {
       metadata.plan = nextPlan;
     }
   }
+  if (patch.planOverrides !== void 0) {
+    if (patch.planOverrides === null) {
+      establishment.planOverrides = void 0;
+      metadata.planOverrides = null;
+    } else {
+      establishment.planOverrides = {
+        features: { ...establishment.planOverrides?.features, ...patch.planOverrides.features },
+        limits: { ...establishment.planOverrides?.limits, ...patch.planOverrides.limits },
+        addonWaiters: patch.planOverrides.addonWaiters ?? establishment.planOverrides?.addonWaiters,
+        addonTables: patch.planOverrides.addonTables ?? establishment.planOverrides?.addonTables,
+        addonEstablishments: patch.planOverrides.addonEstablishments ?? establishment.planOverrides?.addonEstablishments,
+        addons: { ...establishment.planOverrides?.addons, ...patch.planOverrides.addons }
+      };
+      metadata.planOverrides = establishment.planOverrides;
+    }
+  }
+  if (patch.addonWaiters !== void 0 || patch.addonTables !== void 0 || patch.addonEstablishments !== void 0) {
+    establishment.planOverrides ||= {};
+    if (patch.addonWaiters !== void 0) {
+      establishment.planOverrides.addonWaiters = Math.max(0, patch.addonWaiters);
+      metadata.addonWaiters = establishment.planOverrides.addonWaiters;
+    }
+    if (patch.addonTables !== void 0) {
+      establishment.planOverrides.addonTables = Math.max(0, patch.addonTables);
+      metadata.addonTables = establishment.planOverrides.addonTables;
+    }
+    if (patch.addonEstablishments !== void 0) {
+      const cap = establishment.plan === "premium" ? 2 : 0;
+      establishment.planOverrides.addonEstablishments = Math.min(
+        cap,
+        Math.max(0, patch.addonEstablishments)
+      );
+      metadata.addonEstablishments = establishment.planOverrides.addonEstablishments;
+    }
+  }
   if (Object.keys(metadata).length === 0) {
     return { error: "Nenhuma altera\xE7\xE3o informada.", status: 400 };
   }
@@ -4912,6 +5291,8 @@ function emptyStore() {
     otpChallenges: {},
     guestPhoneSecrets: {},
     revokedGuestTokenHashes: {},
+    waiterActivationTokens: {},
+    tableAssignments: {},
     sectors: {},
     categories: {},
     products: {},
@@ -5100,6 +5481,8 @@ function migrateOperationalCollections(store) {
   store.integrationConnections ||= {};
   store.auditEvents ||= {};
   store.revokedGuestTokenHashes ||= {};
+  store.waiterActivationTokens ||= {};
+  store.tableAssignments ||= {};
   store.clientSessions ||= {};
   store.otpChallenges ||= {};
   store.guestPhoneSecrets ||= {};
@@ -5568,21 +5951,45 @@ function changeUserPassword(userId, establishmentId, currentPassword, newPasswor
   return { value: { changedAt: (/* @__PURE__ */ new Date()).toISOString() } };
 }
 function loginUser(email, password) {
-  const user = findUserByEmail(email);
-  if (!user || !verifyPassword(password, user.passwordHash)) {
+  const store = getStore();
+  const normalizedEmail = email.trim().toLowerCase();
+  const userRaw = Object.values(store.users).find(
+    (u) => u.email.toLowerCase() === normalizedEmail
+  );
+  if (!userRaw) return { error: "E-mail ou senha inv\xE1lidos." };
+  if (!userRaw.active) return { error: "Usu\xE1rio desativado. Contate o administrador." };
+  if (userRaw.loginLockedUntil && new Date(userRaw.loginLockedUntil).getTime() > Date.now()) {
+    return { error: "Conta temporariamente bloqueada. Tente novamente mais tarde." };
+  }
+  if (!verifyPassword(password, userRaw.passwordHash)) {
+    userRaw.failedLoginAttempts = (userRaw.failedLoginAttempts || 0) + 1;
+    if (userRaw.failedLoginAttempts >= 5) {
+      userRaw.loginLockedUntil = new Date(Date.now() + 15 * 60 * 1e3).toISOString();
+      userRaw.failedLoginAttempts = 0;
+    }
+    store.users[userRaw.id] = userRaw;
+    saveStore(store);
     return { error: "E-mail ou senha inv\xE1lidos." };
   }
-  const store = getStore();
+  const user = userRaw;
   if (!user.passwordHash.startsWith("$2")) {
     user.passwordHash = hashPassword(password);
     store.users[user.id] = user;
   }
   const establishment = store.establishments[user.establishmentId];
   if (!establishment) return { error: "Estabelecimento n\xE3o encontrado." };
+  if (user.role === "WAITER") {
+    const { hasFeature: hasFeature2, featureDeniedMessage: featureDeniedMessage2 } = (init_platform_entitlements(), __toCommonJS(platform_entitlements_exports));
+    if (!hasFeature2(establishment, "waiter_access")) {
+      return { error: featureDeniedMessage2("waiter_access") };
+    }
+  }
   const platformStatus = resolvePlatformStatus(establishment);
   if (!isMerchantLoginAllowed(platformStatus)) {
     return { error: merchantLoginBlockedMessage(platformStatus) };
   }
+  user.failedLoginAttempts = 0;
+  user.loginLockedUntil = void 0;
   user.lastLoginAt = (/* @__PURE__ */ new Date()).toISOString();
   store.users[user.id] = user;
   appendAuditEvent(store, {
@@ -5758,6 +6165,17 @@ function listAdminProducts(establishmentId) {
       (item) => item.establishmentId === establishmentId
     )
   };
+}
+function listGuestMenuCatalog(establishmentId) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  const categories = Object.values(store.categories).filter((c) => c.establishmentId === establishmentId && c.active).sort((a, b) => a.sortOrder - b.sortOrder);
+  const products = Object.values(store.products).filter(
+    (p) => p.establishmentId === establishmentId && p.active
+  );
+  const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === establishmentId);
+  const rodizio = establishment?.rodizioEnabled ? Object.values(store.rodizios).find((r) => r.establishmentId === establishmentId && r.active) ?? null : null;
+  return { categories, products, sectors, rodizio };
 }
 function createAdminProduct(establishmentId, body) {
   const store = getStore();
@@ -5996,6 +6414,11 @@ function listAdminTables(establishmentId) {
 }
 function createAdminTable(establishmentId, body) {
   const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return invalid("Estabelecimento n\xE3o encontrado.", 404);
+  const { canCreateTable: canCreateTable2 } = (init_platform_entitlements(), __toCommonJS(platform_entitlements_exports));
+  const tableGate = canCreateTable2(establishment, store);
+  if (!tableGate.ok) return invalid(tableGate.error, 403);
   const parsed = validateTableFields(store, establishmentId, body, false);
   if ("error" in parsed) return parsed;
   const table = {
@@ -6186,6 +6609,10 @@ function createOrder(input) {
     items: input.items.map((i) => ({ ...i, status: "NOVO" })),
     notes: input.notes,
     source: input.source || "MESA",
+    orderOrigin: input.orderOrigin || "GUEST",
+    createdByUserId: input.createdByUserId,
+    createdByRole: input.createdByRole,
+    waiterId: input.waiterId,
     serviceType: input.serviceType || "COMER_AQUI",
     rodizioRoundId: input.rodizioRoundId,
     total,
@@ -6207,6 +6634,11 @@ function createOrder(input) {
     metadata: { orderId: order.id, orderNumber: order.number }
   });
   emit({ type: "order.created", orderId: order.id, establishmentId: input.establishmentId });
+  queueMicrotask(() => {
+    void Promise.resolve().then(() => (init_admin_dashboard(), admin_dashboard_exports)).then(({ invalidateAdminDashboardCache: invalidateAdminDashboardCache2 }) => {
+      invalidateAdminDashboardCache2(input.establishmentId);
+    });
+  });
   return order;
 }
 function updateOrderStatus(orderId, status, establishmentId) {
@@ -6228,6 +6660,13 @@ function updateOrderStatus(orderId, status, establishmentId) {
     });
   }
   emit({ type: "order.updated", orderId, establishmentId: order.establishmentId });
+  if (establishmentId) {
+    queueMicrotask(() => {
+      void Promise.resolve().then(() => (init_admin_dashboard(), admin_dashboard_exports)).then(({ invalidateAdminDashboardCache: invalidateAdminDashboardCache2 }) => {
+        invalidateAdminDashboardCache2(establishmentId);
+      });
+    });
+  }
   return order;
 }
 function createRodizioRound(input) {
@@ -6605,6 +7044,9 @@ function dashboardAnalyticsBundle(establishmentId) {
   analyticsBundleCache.set(establishmentId, { expires: now + ANALYTICS_BUNDLE_TTL_MS, bundle });
   return bundle;
 }
+function invalidateDashboardAnalyticsCache(establishmentId) {
+  analyticsBundleCache.delete(establishmentId);
+}
 var MS_HOUR, STALE_PARTICIPATION_MS, analyticsBundleCache, ANALYTICS_BUNDLE_TTL_MS;
 var init_dashboard_analytics = __esm({
   "../mesaflow/src/lib/dashboard-analytics.ts"() {
@@ -6620,16 +7062,16 @@ var init_dashboard_analytics = __esm({
   }
 });
 
-// api/_mesaflow/handler.ts
-var handler_exports = {};
-__export(handler_exports, {
-  default: () => handler
-});
-module.exports = __toCommonJS(handler_exports);
-
 // ../mesaflow/src/lib/admin-dashboard.ts
-init_dashboard_analytics();
-init_store();
+var admin_dashboard_exports = {};
+__export(admin_dashboard_exports, {
+  buildAdminDashboardPayload: () => buildAdminDashboardPayload,
+  getAdminDashboardPayload: () => getAdminDashboardPayload,
+  invalidateAdminDashboardCache: () => invalidateAdminDashboardCache,
+  parseAdminDashboardPeriod: () => parseAdminDashboardPeriod,
+  parseAdminDashboardScope: () => parseAdminDashboardScope,
+  resetAdminDashboardCacheForTests: () => resetAdminDashboardCacheForTests
+});
 function parseAdminDashboardPeriod(value) {
   if (value === "7d" || value === "30d") return value;
   return "today";
@@ -6638,8 +7080,15 @@ function parseAdminDashboardScope(value, hasPeriod) {
   if (value === "nav" || value === "overview" || value === "full") return value;
   return hasPeriod ? "overview" : "full";
 }
-var DASHBOARD_CACHE_TTL_MS = 15e3;
-var payloadCache = /* @__PURE__ */ new Map();
+function resetAdminDashboardCacheForTests() {
+  payloadCache.clear();
+}
+function invalidateAdminDashboardCache(establishmentId) {
+  invalidateDashboardAnalyticsCache(establishmentId);
+  for (const key of payloadCache.keys()) {
+    if (key.startsWith(`${establishmentId}:`)) payloadCache.delete(key);
+  }
+}
 function statsFromAnalytics(analytics) {
   return {
     revenue: analytics.sales.revenue,
@@ -6736,8 +7185,24 @@ function getAdminDashboardPayload(establishment, period = "today", scope = "full
   payloadCache.set(key, { expires: now + DASHBOARD_CACHE_TTL_MS, payload });
   return payload;
 }
+var DASHBOARD_CACHE_TTL_MS, payloadCache;
+var init_admin_dashboard = __esm({
+  "../mesaflow/src/lib/admin-dashboard.ts"() {
+    "use strict";
+    init_dashboard_analytics();
+    init_store();
+    DASHBOARD_CACHE_TTL_MS = 15e3;
+    payloadCache = /* @__PURE__ */ new Map();
+  }
+});
 
 // api/_mesaflow/handler.ts
+var handler_exports = {};
+__export(handler_exports, {
+  default: () => handler
+});
+module.exports = __toCommonJS(handler_exports);
+init_admin_dashboard();
 init_store();
 
 // ../mesaflow/src/lib/catalog-seed-registry.ts
@@ -7809,6 +8274,11 @@ function connectIntegration(establishmentId, provider, config, actorUserId) {
     return invalid3("Provedor de integra\xE7\xE3o inv\xE1lido.", 400);
   }
   const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return invalid3("Estabelecimento n\xE3o encontrado.", 404);
+  const { requireFeature: requireFeature2 } = (init_platform_entitlements(), __toCommonJS(platform_entitlements_exports));
+  const featureGate = requireFeature2(establishment, "integrations");
+  if (!featureGate.ok) return invalid3(featureGate.error, 403);
   ensureOperationalCollections(store);
   ensureIntegrationCatalog(establishmentId);
   const connection = Object.values(store.integrationConnections).find(
@@ -8269,10 +8739,17 @@ function getKdsQueue(establishmentId, sectorId) {
       gp.displayName?.trim() || `Participante ${gp.participantIndex}`
     ])
   );
+  const waiters = Object.fromEntries(
+    Object.values(store.users).filter((user) => user.establishmentId === establishmentId).map((user) => [user.id, user.name])
+  );
   const tickets = orders.flatMap((order) => {
     const items = order.items.filter((item) => item.sectorId === sectorId);
     if (!items.length) return [];
-    const participantName = participations[order.guestParticipationId] || "Cliente";
+    let participantName = participations[order.guestParticipationId] || "Cliente";
+    if (order.orderOrigin === "WAITER" && order.waiterId) {
+      const waiterName = waiters[order.waiterId] || "Gar\xE7om";
+      participantName = `MESA ${order.tableNumber} \xB7 ${waiterName}`;
+    }
     return [{ order, items, participantName }];
   });
   const establishment = Object.values(store.establishments).find(
@@ -8616,6 +9093,540 @@ function publicMerchantUser(user) {
 // api/_mesaflow/handler.ts
 init_platform_store();
 init_platform_plans();
+init_platform_entitlements();
+
+// ../mesaflow/src/lib/waiter-permissions.ts
+var WAITER_PERMISSION_KEYS = [
+  "table.view",
+  "table.view_session",
+  "table.add_note",
+  "order.create",
+  "order.view",
+  "order.edit",
+  "order.cancel",
+  "account.view",
+  "account.request",
+  "account.close",
+  "account.partial_close",
+  "notification.view",
+  "notification.action"
+];
+var DEFAULT_WAITER_PERMISSIONS = {
+  "table.view": true,
+  "table.view_session": true,
+  "table.add_note": true,
+  "order.create": true,
+  "order.view": true,
+  "order.edit": true,
+  "order.cancel": true,
+  "account.view": true,
+  "account.request": true,
+  "account.close": false,
+  "account.partial_close": false,
+  "notification.view": true,
+  "notification.action": true
+};
+function resolveWaiterPermissions(user) {
+  if (user.role !== "WAITER") {
+    return { ...DEFAULT_WAITER_PERMISSIONS, "account.close": true, "account.partial_close": true };
+  }
+  const merged = { ...DEFAULT_WAITER_PERMISSIONS };
+  if (user.permissions) {
+    for (const key of WAITER_PERMISSION_KEYS) {
+      if (user.permissions[key] !== void 0) {
+        merged[key] = user.permissions[key];
+      }
+    }
+  }
+  return merged;
+}
+function hasWaiterPermission(user, permission) {
+  if (user.role === "OWNER" || user.role === "MANAGER") return true;
+  if (user.role === "COUNTER") {
+    return permission !== "account.partial_close" || true;
+  }
+  if (user.role !== "WAITER") {
+    return ["order.view", "notification.view"].includes(permission);
+  }
+  return resolveWaiterPermissions(user)[permission];
+}
+function assertWaiterPermission(user, permission) {
+  if (!hasWaiterPermission(user, permission)) {
+    return { ok: false, error: `Permiss\xE3o negada: ${permission}` };
+  }
+  return { ok: true };
+}
+function publicWaiterPermissions(user) {
+  return resolveWaiterPermissions(user);
+}
+
+// ../mesaflow/src/lib/waiter-store.ts
+var import_crypto9 = require("crypto");
+init_audit_log();
+init_crypto_utils();
+init_events();
+init_platform_entitlements();
+init_password_policy();
+init_store();
+function invalid5(error, status = 400) {
+  return { error, status };
+}
+function hashToken2(raw) {
+  return (0, import_crypto9.createHash)("sha256").update(raw).digest("hex");
+}
+function ensureWaiterCollections(store) {
+  store.waiterActivationTokens ||= {};
+  store.tableAssignments ||= {};
+}
+function publicWaiterUser(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    active: user.active,
+    lastLoginAt: user.lastLoginAt,
+    permissions: publicWaiterPermissions(user),
+    assignedTableIds: user.assignedTableIds || [],
+    createdAt: user.createdAt
+  };
+}
+function listWaiters(establishmentId) {
+  const store = getStore();
+  return Object.values(store.users).filter((user) => user.establishmentId === establishmentId && user.role === "WAITER").sort((a, b) => a.name.localeCompare(b.name)).map(publicWaiterUser);
+}
+function createWaiter(establishment, actorUserId, input) {
+  const store = getStore();
+  ensureWaiterCollections(store);
+  const gate = canCreateWaiter(establishment, store);
+  if (!gate.ok) return invalid5(gate.error, 403);
+  const name = String(input.name || "").trim();
+  const email = String(input.email || "").trim().toLowerCase();
+  if (!name || !email) return invalid5("Nome e e-mail s\xE3o obrigat\xF3rios.");
+  if (findUserByEmail(email)) return invalid5("E-mail j\xE1 cadastrado.", 409);
+  const password = input.password || (0, import_crypto9.randomBytes)(9).toString("base64url");
+  const policy = validatePasswordStrength(password);
+  if (policy) return invalid5(policy);
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const user = {
+    id: id("user_"),
+    establishmentId: establishment.id,
+    email,
+    passwordHash: hashPassword(password),
+    name,
+    role: "WAITER",
+    active: true,
+    permissions: { ...DEFAULT_WAITER_PERMISSIONS, ...input.permissions },
+    assignedTableIds: [],
+    createdAt: now,
+    updatedAt: now
+  };
+  store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: establishment.id,
+    type: "waiter.created",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "user",
+    targetId: user.id,
+    metadata: { email: user.email }
+  });
+  saveStore(store);
+  return { value: { waiter: publicWaiterUser(user) } };
+}
+function updateWaiter(establishmentId, waiterId, actorUserId, input) {
+  const store = getStore();
+  ensureWaiterCollections(store);
+  const user = store.users[waiterId];
+  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
+    return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
+  }
+  if (input.name !== void 0) {
+    const name = String(input.name).trim();
+    if (!name) return invalid5("Nome inv\xE1lido.");
+    user.name = name;
+  }
+  if (input.email !== void 0) {
+    const email = String(input.email).trim().toLowerCase();
+    if (!email) return invalid5("E-mail inv\xE1lido.");
+    const existing = findUserByEmail(email);
+    if (existing && existing.id !== user.id) return invalid5("E-mail j\xE1 cadastrado.", 409);
+    user.email = email;
+  }
+  if (input.permissions !== void 0) {
+    user.permissions = { ...DEFAULT_WAITER_PERMISSIONS, ...user.permissions, ...input.permissions };
+  }
+  if (input.assignedTableIds !== void 0) {
+    user.assignedTableIds = input.assignedTableIds;
+  }
+  if (input.active !== void 0) {
+    user.active = Boolean(input.active);
+    if (!user.active) {
+      user.deactivatedAt = (/* @__PURE__ */ new Date()).toISOString();
+      user.deactivatedByUserId = actorUserId;
+      revokeWaiterActivationTokens(store, user.id);
+    } else {
+      user.deactivatedAt = void 0;
+      user.deactivatedByUserId = void 0;
+    }
+  }
+  user.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
+  store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId,
+    type: input.active === false ? "waiter.deactivated" : "waiter.updated",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "user",
+    targetId: user.id,
+    metadata: { active: user.active }
+  });
+  saveStore(store);
+  return { value: { waiter: publicWaiterUser(user) } };
+}
+function resetWaiterPassword(establishmentId, waiterId, actorUserId, newPassword) {
+  const store = getStore();
+  const user = store.users[waiterId];
+  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
+    return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
+  }
+  const policy = validatePasswordStrength(newPassword);
+  if (policy) return invalid5(policy);
+  user.passwordHash = hashPassword(newPassword);
+  user.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
+  user.failedLoginAttempts = 0;
+  user.loginLockedUntil = void 0;
+  store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "waiter.password_reset",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "user",
+    targetId: user.id,
+    metadata: {}
+  });
+  saveStore(store);
+  return { value: { changedAt: user.updatedAt } };
+}
+function revokeWaiterActivationTokens(store, userId) {
+  ensureWaiterCollections(store);
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  for (const token of Object.values(store.waiterActivationTokens)) {
+    if (token.userId === userId && !token.revokedAt && !token.usedAt) {
+      token.revokedAt = now;
+      store.waiterActivationTokens[token.id] = token;
+    }
+  }
+}
+function generateWaiterActivationToken(establishmentId, waiterId, actorUserId) {
+  const store = getStore();
+  ensureWaiterCollections(store);
+  const user = store.users[waiterId];
+  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
+    return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
+  }
+  revokeWaiterActivationTokens(store, user.id);
+  const raw = (0, import_crypto9.randomBytes)(32).toString("base64url");
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1e3).toISOString();
+  const record = {
+    id: id("wat_"),
+    establishmentId,
+    userId: waiterId,
+    tokenHash: hashToken2(raw),
+    expiresAt,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    createdByUserId: actorUserId
+  };
+  store.waiterActivationTokens[record.id] = record;
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "waiter.activation_token",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "user",
+    targetId: waiterId,
+    metadata: { tokenId: record.id }
+  });
+  saveStore(store);
+  return {
+    value: {
+      token: raw,
+      expiresAt,
+      activationUrl: `/waiter/activate?token=${encodeURIComponent(raw)}`
+    }
+  };
+}
+function revokeWaiterActivationToken(establishmentId, waiterId, actorUserId) {
+  const store = getStore();
+  ensureWaiterCollections(store);
+  revokeWaiterActivationTokens(store, waiterId);
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "waiter.activation_token_revoked",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "user",
+    targetId: waiterId,
+    metadata: {}
+  });
+  saveStore(store);
+  return { value: { revoked: 1 } };
+}
+function activateWaiterWithToken(rawToken, password, pin) {
+  const store = getStore();
+  ensureWaiterCollections(store);
+  const tokenHash = hashToken2(rawToken);
+  const record = Object.values(store.waiterActivationTokens).find(
+    (entry) => entry.tokenHash === tokenHash
+  );
+  if (!record) return invalid5("Token inv\xE1lido.", 404);
+  if (record.revokedAt) return invalid5("Token revogado.", 410);
+  if (record.usedAt) return invalid5("Token j\xE1 utilizado.", 410);
+  if (new Date(record.expiresAt).getTime() <= Date.now()) {
+    return invalid5("Token expirado.", 410);
+  }
+  const user = store.users[record.userId];
+  const establishment = store.establishments[record.establishmentId];
+  if (!user || !establishment || user.role !== "WAITER") {
+    return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
+  }
+  if (!hasFeature(establishment, "waiter_access")) {
+    return invalid5("Plano n\xE3o inclui acesso de gar\xE7ons.", 403);
+  }
+  const policy = validatePasswordStrength(password);
+  if (policy) return invalid5(policy);
+  user.passwordHash = hashPassword(password);
+  if (pin && pin.length >= 4) {
+    user.pinHash = hashPassword(pin);
+  }
+  user.active = true;
+  user.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
+  store.users[user.id] = user;
+  record.usedAt = (/* @__PURE__ */ new Date()).toISOString();
+  store.waiterActivationTokens[record.id] = record;
+  appendAuditEvent(store, {
+    establishmentId: establishment.id,
+    type: "waiter.activated",
+    actorType: "STAFF",
+    actorUserId: user.id,
+    targetType: "user",
+    targetId: user.id,
+    metadata: { via: "activation_token" }
+  });
+  saveStore(store);
+  return { value: { user: publicWaiterUser(user), establishmentId: establishment.id } };
+}
+function ensureServiceParticipation(store, command, table, establishmentId) {
+  const guestOpen = Object.values(store.guestParticipations).find(
+    (gp) => gp.commandId === command.id && gp.status === "OPEN" && !gp.phoneLookupHash.startsWith("staff_service_")
+  );
+  if (guestOpen) return guestOpen.id;
+  const serviceId = `gp_service_${command.id}`;
+  if (!store.guestParticipations[serviceId]) {
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    store.guestParticipations[serviceId] = {
+      id: serviceId,
+      establishmentId,
+      commandId: command.id,
+      tableId: table.id,
+      phoneLookupHash: `staff_service_${command.id}`,
+      phoneDisplay: "",
+      displayName: "Atendimento",
+      participantIndex: 0,
+      status: "OPEN",
+      joinedAt: now,
+      verifiedAt: now,
+      orderCount: 0
+    };
+  }
+  return serviceId;
+}
+function createStaffOrder(input) {
+  const perm = assertWaiterPermission(input.actor, "order.create");
+  if (!perm.ok) return invalid5(perm.error, 403);
+  if (input.actor.establishmentId !== input.establishmentId) {
+    return invalid5("Estabelecimento inv\xE1lido.", 403);
+  }
+  const store = getStore();
+  migrateOperationalCollections2(store);
+  const table = store.tables[input.tableId];
+  if (!table || table.establishmentId !== input.establishmentId) {
+    return invalid5("Mesa n\xE3o encontrada.", 404);
+  }
+  if (table.status === "INATIVA") return invalid5("Mesa inativa.", 409);
+  const establishment = store.establishments[input.establishmentId];
+  if (!establishment?.open) return invalid5("Estabelecimento indispon\xEDvel.", 400);
+  const command = getOrOpenCommand(table);
+  const participationId = ensureServiceParticipation(store, command, table, input.establishmentId);
+  saveStore(store);
+  try {
+    const order = createOrder({
+      establishmentId: input.establishmentId,
+      table,
+      commandId: command.id,
+      guestParticipationId: participationId,
+      items: input.items,
+      notes: input.notes,
+      source: "MESA",
+      serviceType: input.serviceType || "COMER_AQUI",
+      orderOrigin: "WAITER",
+      createdByUserId: input.actor.id,
+      createdByRole: input.actor.role,
+      waiterId: input.actor.id
+    });
+    appendAuditEvent(store, {
+      establishmentId: input.establishmentId,
+      type: "order.created",
+      actorType: "STAFF",
+      actorUserId: input.actor.id,
+      targetType: "order",
+      targetId: order.id,
+      metadata: { orderOrigin: "WAITER", tableId: table.id, commandId: command.id }
+    });
+    saveStore(store);
+    return { value: { order } };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "N\xE3o foi poss\xEDvel criar o pedido.";
+    return invalid5(message, 403);
+  }
+}
+function cancelStaffOrder(establishmentId, orderId, actor, reason) {
+  const perm = assertWaiterPermission(actor, "order.cancel");
+  if (!perm.ok) return invalid5(perm.error, 403);
+  const store = getStore();
+  const order = store.orders[orderId];
+  if (!order || order.establishmentId !== establishmentId) {
+    return invalid5("Pedido n\xE3o encontrado.", 404);
+  }
+  if (order.status === "CANCELADO") return invalid5("Pedido j\xE1 cancelado.", 409);
+  if (["ENTREGUE", "PRONTO"].includes(order.status)) {
+    return invalid5("Pedido n\xE3o pode ser cancelado neste status.", 409);
+  }
+  order.status = "CANCELADO";
+  order.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
+  order.cancelledByUserId = actor.id;
+  order.cancelledAt = order.updatedAt;
+  order.cancelReason = reason?.trim() || void 0;
+  order.items = order.items.map((item) => ({ ...item, status: "CANCELADO" }));
+  store.orders[orderId] = order;
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "order.cancelled",
+    actorType: "STAFF",
+    actorUserId: actor.id,
+    targetType: "order",
+    targetId: orderId,
+    metadata: { reason: order.cancelReason }
+  });
+  saveStore(store);
+  emit({ type: "order.updated", orderId, establishmentId });
+  return { value: { order } };
+}
+function requestAccountByStaff(establishmentId, tableId, actor, scope = "TABLE") {
+  const perm = assertWaiterPermission(actor, "account.request");
+  if (!perm.ok) return invalid5(perm.error, 403);
+  const store = getStore();
+  migrateOperationalCollections2(store);
+  const table = store.tables[tableId];
+  if (!table || table.establishmentId !== establishmentId) {
+    return invalid5("Mesa n\xE3o encontrada.", 404);
+  }
+  const command = getActiveCommand(table);
+  if (!command) return invalid5("Mesa sem comanda aberta.", 409);
+  const pending = Object.values(store.closingRequests).find(
+    (request) => request.commandId === command.id && request.status === "PENDING"
+  );
+  if (pending) {
+    return invalid5("J\xE1 existe solicita\xE7\xE3o de conta pendente.", 409);
+  }
+  const participations = Object.values(store.guestParticipations).filter(
+    (gp) => gp.commandId === command.id && gp.status !== "CLOSED"
+  );
+  const targetIds = participations.map((gp) => gp.id);
+  const requestId = id("clr_");
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  store.closingRequests[requestId] = {
+    id: requestId,
+    establishmentId,
+    commandId: command.id,
+    tableId: table.id,
+    requestedByStaffUserId: actor.id,
+    requestedByStaffRole: actor.role,
+    scope,
+    targetGuestParticipationIds: targetIds,
+    status: "PENDING",
+    createdAt: now
+  };
+  command.status = "PAGAMENTO_SOLICITADO";
+  command.closingRequestedAt = now;
+  command.lastClosingScope = scope;
+  table.status = "AGUARDANDO_PAGAMENTO";
+  store.commands[command.id] = command;
+  store.tables[table.id] = table;
+  for (const gp of participations) {
+    if (gp.status === "OPEN") {
+      gp.status = "CLOSING_REQUESTED";
+      gp.closingRequestedAt = now;
+      store.guestParticipations[gp.id] = gp;
+    }
+  }
+  notifyStaff(store, establishmentId, "closing.requested", "Conta solicitada", `Mesa ${table.number} \xB7 Gar\xE7om ${actor.name}`, {
+    commandId: command.id,
+    tableId: table.id,
+    actionUrl: `/admin/tables/cockpit?table=${encodeURIComponent(table.id)}`,
+    metadata: { requestedByStaffUserId: actor.id }
+  });
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "account.requested",
+    actorType: "STAFF",
+    actorUserId: actor.id,
+    targetType: "table",
+    targetId: table.id,
+    metadata: { commandId: command.id, scope }
+  });
+  saveStore(store);
+  emit({ type: "command.updated", commandId: command.id, establishmentId });
+  return { value: { closingRequestId: requestId } };
+}
+function listOperationalTables(establishmentId, actor, filter = "all") {
+  if (actor.establishmentId !== establishmentId) return [];
+  const store = getStore();
+  migrateOperationalCollections2(store);
+  const assigned = new Set(actor.assignedTableIds || []);
+  return Object.values(store.tables).filter((table) => table.establishmentId === establishmentId && table.status !== "INATIVA").filter((table) => filter !== "mine" || assigned.size === 0 || assigned.has(table.id)).sort((a, b) => Number(a.number) - Number(b.number) || a.name.localeCompare(b.name)).map((table) => {
+    const command = getActiveCommand(table);
+    const guestCount = command ? Object.values(store.guestParticipations).filter(
+      (gp) => gp.commandId === command.id && gp.status !== "CLOSED" && !gp.phoneLookupHash.startsWith("staff_service_")
+    ).length : 0;
+    const orderCount = command ? Object.values(store.orders).filter(
+      (o) => o.commandId === command.id && o.status !== "CANCELADO"
+    ).length : 0;
+    return {
+      ...table,
+      commandId: command?.id,
+      guestCount,
+      orderCount,
+      assignedToMe: assigned.has(table.id)
+    };
+  });
+}
+function enrichOrderDisplay(order, store) {
+  const origin = order.orderOrigin || "GUEST";
+  let originLabel = "Cliente";
+  if (origin === "WAITER" && order.waiterId) {
+    const waiter = store.users[order.waiterId];
+    originLabel = waiter ? `Gar\xE7om ${waiter.name}` : "Gar\xE7om";
+  }
+  return {
+    ...order,
+    orderOrigin: origin,
+    originLabel
+  };
+}
+
+// api/_mesaflow/handler.ts
 init_platform_status();
 
 // ../mesaflow/src/lib/order-display.ts
@@ -8952,6 +9963,17 @@ function kitchenAuth(req) {
   }
   return null;
 }
+function waiterAuth(req, permission) {
+  const auth = staffAuth(req);
+  if (!auth) return null;
+  if (["OWNER", "MANAGER", "COUNTER"].includes(auth.user.role)) return auth;
+  if (auth.user.role !== "WAITER") return null;
+  if (permission) {
+    const perms = publicWaiterPermissions(auth.user);
+    if (!perms[permission]) return null;
+  }
+  return auth;
+}
 function platformAuth(req) {
   return validatePlatformSession(readPlatformToken(req));
 }
@@ -9195,8 +10217,34 @@ async function handler(req, res) {
       let orders = Object.values(store.orders).filter((o) => o.establishmentId === auth.establishment.id);
       if (commandId) orders = orders.filter((o) => o.commandId === commandId);
       orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      const enriched = orders.map((order) => enrichOrderWithGuest(store.guestParticipations, order));
+      const enriched = orders.map((order) => {
+        const base = enrichOrderWithGuest(store.guestParticipations, order);
+        return enrichOrderDisplay(base, store);
+      });
       return json(res, 200, { orders: enriched });
+    }
+    if (req.method === "POST" && path === "/admin/orders") {
+      const auth = waiterAuth(req, "order.create");
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const body = req.body || {};
+      if (!body.tableId || !body.items?.length) {
+        return json(res, 400, { error: "Mesa e itens s\xE3o obrigat\xF3rios." });
+      }
+      const sectors = Object.fromEntries(
+        Object.values(store.sectors).filter((sector) => sector.establishmentId === auth.establishment.id).map((sector) => [sector.id, { name: sector.name }])
+      );
+      const resolved = resolveOrderLines(store, auth.establishment.id, sectors, body.items);
+      if (!resolved.ok) return json(res, resolved.status, { error: resolved.error });
+      const result = createStaffOrder({
+        establishmentId: auth.establishment.id,
+        tableId: body.tableId,
+        items: resolved.items,
+        notes: body.notes,
+        serviceType: body.serviceType,
+        actor: auth.user
+      });
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 201, result.value);
     }
     if (req.method === "POST" && path === "/orders") {
       const guestAuth = validateClientSession(readGuestToken(req));
@@ -9234,6 +10282,7 @@ async function handler(req, res) {
           items: resolved.items,
           notes: body.notes,
           source: "MESA",
+          orderOrigin: "GUEST",
           serviceType: body.serviceType || "COMER_AQUI"
         });
         return json(res, 200, { order, total: order.total });
@@ -9334,10 +10383,117 @@ async function handler(req, res) {
     if (req.method === "GET" && path === "/auth/me") {
       const auth = validateSession(readAdminToken(req));
       if (!auth) return json(res, 401, { error: "Sess\xE3o inv\xE1lida." });
+      const user = auth.user.role === "WAITER" ? publicWaiterUser(auth.user) : { ...publicUser(auth.user), permissions: publicWaiterPermissions(auth.user) };
       return json(res, 200, {
-        user: publicUser(auth.user),
-        establishment: publicEstablishment(auth.establishment)
+        user,
+        establishment: publicEstablishment(auth.establishment),
+        entitlements: entitlementSummary(auth.establishment, store)
       });
+    }
+    if (req.method === "POST" && path === "/waiter/activate") {
+      const rl = rateLimitOrReject(res, "authLogin", clientIp(req));
+      if (!rl) return;
+      const body = req.body || {};
+      const result = activateWaiterWithToken(
+        String(body.token || ""),
+        String(body.password || ""),
+        body.pin
+      );
+      if ("error" in result) {
+        return json(res, result.status, { error: result.error }, { extraHeaders: rateLimitHeaders(rl) });
+      }
+      return json(res, 200, result.value, { extraHeaders: rateLimitHeaders(rl) });
+    }
+    if (path === "/admin/waiters") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "GET") {
+        return json(res, 200, { waiters: listWaiters(auth.establishment.id) });
+      }
+      if (req.method === "POST") {
+        const body = req.body || {};
+        const result = createWaiter(auth.establishment, auth.user.id, {
+          name: String(body.name || ""),
+          email: String(body.email || ""),
+          password: body.password,
+          permissions: body.permissions
+        });
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, result.value);
+      }
+    }
+    const waiterIdMatch = path.match(/^\/admin\/waiters\/([^/]+)$/);
+    if (waiterIdMatch && req.method === "PATCH") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const result = updateWaiter(auth.establishment.id, waiterIdMatch[1], auth.user.id, req.body || {});
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+    const waiterResetMatch = path.match(/^\/admin\/waiters\/([^/]+)\/reset-password$/);
+    if (waiterResetMatch && req.method === "POST") {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const body = req.body || {};
+      const result = resetWaiterPassword(
+        auth.establishment.id,
+        waiterResetMatch[1],
+        auth.user.id,
+        String(body.password || "")
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+    const waiterTokenMatch = path.match(/^\/admin\/waiters\/([^/]+)\/activation-token$/);
+    if (waiterTokenMatch) {
+      const auth = adminAuth(req);
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      if (req.method === "POST") {
+        const result = generateWaiterActivationToken(
+          auth.establishment.id,
+          waiterTokenMatch[1],
+          auth.user.id
+        );
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 201, result.value);
+      }
+      if (req.method === "DELETE") {
+        const result = revokeWaiterActivationToken(
+          auth.establishment.id,
+          waiterTokenMatch[1],
+          auth.user.id
+        );
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, result.value);
+      }
+    }
+    const orderCancelMatch = path.match(/^\/admin\/orders\/([^/]+)\/cancel$/);
+    if (orderCancelMatch && req.method === "POST") {
+      const auth = waiterAuth(req, "order.cancel");
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const body = req.body || {};
+      const result = cancelStaffOrder(
+        auth.establishment.id,
+        orderCancelMatch[1],
+        auth.user,
+        body.reason
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
+    }
+    const requestAccountMatch = path.match(/^\/admin\/tables\/([^/]+)\/request-account$/);
+    if (requestAccountMatch && req.method === "POST") {
+      const auth = waiterAuth(req, "account.request");
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const body = req.body || {};
+      const result = requestAccountByStaff(
+        auth.establishment.id,
+        requestAccountMatch[1],
+        auth.user,
+        body.scope === "SELF" ? "SELF" : "TABLE"
+      );
+      if ("error" in result) return json(res, result.status, { error: result.error });
+      return json(res, 200, result.value);
     }
     if (req.method === "POST" && path === "/platform/auth/login") {
       const rl = rateLimitOrReject(res, "authLogin", `${clientIp(req)}:platform`);
@@ -9534,12 +10690,23 @@ async function handler(req, res) {
         return json(res, 200, { establishment: result.value });
       }
     }
+    if (req.method === "GET" && path === "/admin/menu") {
+      const auth = waiterAuth(req, "order.view");
+      if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
+      const catalog = listGuestMenuCatalog(auth.establishment.id);
+      return json(res, 200, {
+        establishment: auth.establishment,
+        ...catalog
+      });
+    }
     if (path === "/admin/products") {
+      if (req.method === "GET") {
+        const auth2 = waiterAuth(req, "order.view");
+        if (!auth2) return json(res, 401, { error: "N\xE3o autorizado." });
+        return json(res, 200, listAdminProducts(auth2.establishment.id));
+      }
       const auth = adminAuth(req);
       if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
-      if (req.method === "GET") {
-        return json(res, 200, listAdminProducts(auth.establishment.id));
-      }
       if (req.method === "POST") {
         const result = createAdminProduct(auth.establishment.id, req.body);
         if ("error" in result) return json(res, result.status, { error: result.error });
@@ -9696,13 +10863,25 @@ async function handler(req, res) {
       }
     }
     if (path === "/admin/tables") {
-      const auth = adminAuth(req);
+      const auth = staffAuth(req);
       if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
       if (req.method === "GET") {
+        const operational = String(req.query?.operational || "") === "1";
+        if (operational) {
+          const filter = String(req.query?.filter || "") === "mine" ? "mine" : "all";
+          return json(res, 200, {
+            tables: listOperationalTables(auth.establishment.id, auth.user, filter)
+          });
+        }
+        if (auth.user.role !== "OWNER" && auth.user.role !== "MANAGER") {
+          return json(res, 401, { error: "N\xE3o autorizado." });
+        }
         return json(res, 200, { tables: listAdminTables(auth.establishment.id) });
       }
+      const adminOnly = adminAuth(req);
+      if (!adminOnly) return json(res, 401, { error: "N\xE3o autorizado." });
       if (req.method === "POST") {
-        const result = createAdminTable(auth.establishment.id, req.body);
+        const result = createAdminTable(adminOnly.establishment.id, req.body);
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, { table: result.value });
       }

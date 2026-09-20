@@ -62,6 +62,8 @@ const requiredHandlerSnippets = [
   "getAdminDashboardPayload",
   "analyticsWeek",
   "import-catalog",
+  "createStaffOrder",
+  'orderOrigin: "WAITER"',
 ];
 
 const requiredRootLanding = ["index.html", "favicon.ico", "apple-icon.png"];

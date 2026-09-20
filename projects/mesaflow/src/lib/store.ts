@@ -1834,6 +1834,11 @@ export function createOrder(input: {
     metadata: { orderId: order.id, orderNumber: order.number },
   });
   emit({ type: "order.created", orderId: order.id, establishmentId: input.establishmentId });
+  queueMicrotask(() => {
+    void import("./admin-dashboard").then(({ invalidateAdminDashboardCache }) => {
+      invalidateAdminDashboardCache(input.establishmentId);
+    });
+  });
   return order;
 }
 
@@ -1860,6 +1865,13 @@ export function updateOrderStatus(
     });
   }
   emit({ type: "order.updated", orderId, establishmentId: order.establishmentId });
+  if (establishmentId) {
+    queueMicrotask(() => {
+      void import("./admin-dashboard").then(({ invalidateAdminDashboardCache }) => {
+        invalidateAdminDashboardCache(establishmentId);
+      });
+    });
+  }
   return order;
 }
 

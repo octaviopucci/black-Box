@@ -1,5 +1,6 @@
 import {
   dashboardAnalyticsBundle,
+  invalidateDashboardAnalyticsCache,
   type DashboardAnalyticsSnapshot,
   type DashboardPeriod,
 } from "./dashboard-analytics";
@@ -26,6 +27,14 @@ const payloadCache = new Map<string, { expires: number; payload: unknown }>();
 
 export function resetAdminDashboardCacheForTests() {
   payloadCache.clear();
+}
+
+/** Limpa cache da Visão geral após mutações operacionais (pedidos, pagamentos). */
+export function invalidateAdminDashboardCache(establishmentId: string) {
+  invalidateDashboardAnalyticsCache(establishmentId);
+  for (const key of payloadCache.keys()) {
+    if (key.startsWith(`${establishmentId}:`)) payloadCache.delete(key);
+  }
 }
 
 function statsFromAnalytics(analytics: DashboardAnalyticsSnapshot) {
