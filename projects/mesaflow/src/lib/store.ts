@@ -958,8 +958,9 @@ export function createStaffUser(
 
 export function loginUser(email: string, password: string) {
   const store = getStore();
+  const normalizedEmail = email.trim().toLowerCase();
   const userRaw = Object.values(store.users).find(
-    (u) => u.email.toLowerCase() === email.toLowerCase(),
+    (u) => u.email.toLowerCase() === normalizedEmail,
   );
   if (!userRaw) return { error: "E-mail ou senha inválidos." };
   if (!userRaw.active) return { error: "Usuário desativado. Contate o administrador." };

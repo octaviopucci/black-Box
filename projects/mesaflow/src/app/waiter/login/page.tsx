@@ -1,31 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { TurnstileWidget } from "@/components/auth/turnstile-widget";
 import { useAuth } from "@/contexts/auth-context";
 import { staffFetch } from "@/lib/api";
 import { AuthLayout } from "@/components/ui/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DEMO_LOGIN } from "@/lib/demo";
+import { turnstileSiteKeyClient } from "@/lib/turnstile-client";
 
-export default function WaiterLoginPage() {
+function WaiterLoginForm() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { setSession } = useAuth();
-  const [email, setEmail] = useState("garcom@pontodosabor.com");
-  const [password, setPassword] = useState(DEMO_LOGIN.password);
+  const turnstileSiteKey = turnstileSiteKeyClient();
+  const emailFromActivate = searchParams.get("email")?.trim().toLowerCase() || "";
+  const devDefaults = process.env.NODE_ENV === "development";
+  const [email, setEmail] = useState(
+    emailFromActivate || (devDefaults ? "garcom@pontodosabor.com" : ""),
+  );
+  const [password, setPassword] = useState(devDefaults ? DEMO_LOGIN.password : "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+
+  useEffect(() => {
+    if (emailFromActivate) setEmail(emailFromActivate);
+  }, [emailFromActivate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (turnstileSiteKey && !turnstileToken) {
+      setError("Complete a verificação anti-bot.");
+      return;
+    }
     setLoading(true);
     setError("");
     const res = await staffFetch("/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({
+        email: email.trim(),
+        password,
+        turnstileToken: turnstileToken || undefined,
+      }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -54,12 +75,31 @@ export default function WaiterLoginPage() {
         )}
         <div>
           <label className="mb-1.5 block text-xs font-medium text-muted">E-mail</label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" />
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="username"
+          />
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-medium text-muted">Senha</label>
-          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+          />
         </div>
+        {turnstileSiteKey ? (
+          <TurnstileWidget
+            siteKey={turnstileSiteKey}
+            onToken={setTurnstileToken}
+            onExpire={() => setTurnstileToken("")}
+          />
+        ) : null}
         <Button type="submit" className="w-full" size="lg" loading={loading}>
           Entrar
         </Button>
@@ -71,5 +111,13 @@ export default function WaiterLoginPage() {
         </p>
       </form>
     </AuthLayout>
+  );
+}
+
+export default function WaiterLoginPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-muted">Carregando…</div>}>
+      <WaiterLoginForm />
+    </Suspense>
   );
 }

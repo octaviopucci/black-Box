@@ -86,6 +86,8 @@ function emptyIdentity(): MesaFlowIdentityStore {
     otpChallenges: {},
     guestPhoneSecrets: {},
     revokedGuestTokenHashes: {},
+    waiterActivationTokens: {},
+    tableAssignments: {},
   };
 }
 
@@ -118,6 +120,8 @@ export function splitStore(store: MesaFlowStore): {
     otpChallenges,
     guestPhoneSecrets,
     revokedGuestTokenHashes,
+    waiterActivationTokens,
+    tableAssignments,
   } = store;
   return {
     operational: {
@@ -147,6 +151,8 @@ export function splitStore(store: MesaFlowStore): {
       otpChallenges,
       guestPhoneSecrets,
       revokedGuestTokenHashes: revokedGuestTokenHashes || {},
+      waiterActivationTokens: waiterActivationTokens || {},
+      tableAssignments: tableAssignments || {},
     },
   };
 }
