@@ -59,7 +59,7 @@ export function suggestionsForProduct(
   const exclude = new Set<string>([product.id]);
   const configured = [
     ...resolveConfigured(product.bumpProductIds, catalog, exclude, "Combina bem", "pairing", product.id),
-    ...resolveConfigured(product.upsellProductIds, catalog, exclude, "Vale conhecer", "pairing"),
+    ...resolveConfigured(product.upsellProductIds, catalog, exclude, "Vale conhecer", "pairing", product.id),
   ];
   if (configured.length >= limit) return configured.slice(0, limit);
 
@@ -112,7 +112,14 @@ export function suggestionsForCart(
         "pairing",
         line.product.id,
       ),
-      ...resolveConfigured(line.product.upsellProductIds, catalog, inCart, "Quem pediu isso também gostou", "pairing"),
+      ...resolveConfigured(
+        line.product.upsellProductIds,
+        catalog,
+        inCart,
+        "Quem pediu isso também gostou",
+        "pairing",
+        line.product.id,
+      ),
     );
   }
 
