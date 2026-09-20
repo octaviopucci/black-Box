@@ -32,6 +32,7 @@ import {
   listAdminCategories,
   listAdminProducts,
   listAdminTables,
+  listGuestMenuCatalog,
   loginUser,
   publicEstablishment,
   publicUser,
@@ -1186,6 +1187,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 200, { establishment: result.value });
       }
+    }
+
+    if (req.method === "GET" && path === "/admin/menu") {
+      const auth = waiterAuth(req, "order.view");
+      if (!auth) return json(res, 401, { error: "Não autorizado." });
+      const catalog = listGuestMenuCatalog(auth.establishment.id);
+      return json(res, 200, {
+        establishment: auth.establishment,
+        ...catalog,
+      });
     }
 
     if (path === "/admin/products") {

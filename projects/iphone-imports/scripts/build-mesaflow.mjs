@@ -80,6 +80,7 @@ function assertHandlerCriticalRoutes(handlerBundlePath) {
     "/platform/auth/me",
     "/platform/dashboard",
     "/platform/merchants",
+    "/admin/menu",
     "/admin/orders",
     "/admin/password",
     "/orders",
