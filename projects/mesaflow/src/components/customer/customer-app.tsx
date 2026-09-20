@@ -1342,10 +1342,11 @@ export function CustomerApp({ slug, tableToken }: { slug: string; tableToken: st
             </label>
             <SoftSuggestions
               className="mb-4"
-              title="Para acompanhar"
+              title="Pedir também"
               suggestions={modalSuggestions}
               categoryEmoji={categoryEmojiFor}
-              onAdd={addSuggestion}
+              quantities={pendingBumps}
+              onQtyChange={setPendingBumpQty}
             />
             </div>
             <div className="shrink-0 border-t border-white/10 bg-surface-2 p-4 safe-bottom">

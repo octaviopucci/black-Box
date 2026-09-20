@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import type { SoftSuggestion } from "@/lib/menu-intelligence";
 import type { Product } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
@@ -9,7 +9,11 @@ import { hasProductImage, ProductVisual } from "@/components/ui/product-image";
 
 type SoftSuggestionsProps = {
   suggestions: SoftSuggestion[];
-  onAdd: (suggestion: SoftSuggestion) => void;
+  /** Modo carrinho/fechamento: botão Adicionar (pode abrir sheet ou nova linha). */
+  onAdd?: (suggestion: SoftSuggestion) => void;
+  /** Modo sheet do produto: +/- inline como adicionais — nunca abre outro sheet. */
+  quantities?: Record<string, number>;
+  onQtyChange?: (productId: string, qty: number) => void;
   categoryEmoji?: (product: Product) => string | undefined;
   title?: string;
   compact?: boolean;
@@ -19,11 +23,14 @@ type SoftSuggestionsProps = {
 export function SoftSuggestions({
   suggestions,
   onAdd,
+  quantities,
+  onQtyChange,
   categoryEmoji,
   title,
   compact = false,
   className,
 }: SoftSuggestionsProps) {
+  const inlineQty = Boolean(quantities && onQtyChange);
   if (!suggestions.length) return null;
 
   return (
@@ -68,14 +75,36 @@ export function SoftSuggestions({
                 <p className="truncate text-[11px] text-muted">{reason}</p>
                 <p className="text-xs font-semibold text-brand">{formatCurrency(product.price)}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => onAdd(suggestion)}
-                className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-brand/15 px-2.5 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/25"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Adicionar
-              </button>
+              {inlineQty ? (
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label={`Remover ${product.name}`}
+                    onClick={() => onQtyChange!(product.id, (quantities![product.id] || 0) - 1)}
+                    className="rounded-lg bg-surface-3 p-2"
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-5 text-center text-sm font-bold">{quantities![product.id] || 0}</span>
+                  <button
+                    type="button"
+                    aria-label={`Adicionar ${product.name}`}
+                    onClick={() => onQtyChange!(product.id, (quantities![product.id] || 0) + 1)}
+                    className="rounded-lg bg-brand p-2 text-white"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onAdd?.(suggestion)}
+                  className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-brand/15 px-2.5 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/25"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Adicionar
+                </button>
+              )}
             </li>
           );
         })}
