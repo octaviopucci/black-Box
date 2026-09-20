@@ -13,9 +13,10 @@ export const PLAN_LABELS: Record<PlatformPlan, string> = {
   custom: "Custom",
 };
 
+/** Mesas inclusas no plano (antes de add-ons). Metadata comercial — gates usam platform-entitlements. */
 export const PLAN_TABLE_LIMIT: Record<PlatformPlan, number | null> = {
   essencial: 10,
-  premium: null,
+  premium: 35,
   custom: null,
 };
 
@@ -36,7 +37,7 @@ export const PLAN_OPTIONS: { value: PlatformPlan; label: string; description: st
   {
     value: "premium",
     label: PLAN_LABELS.premium,
-    description: "Mesas ilimitadas · recursos avançados",
+    description: "Até 35 mesas · 10 garçons · recursos avançados",
   },
   {
     value: "custom",

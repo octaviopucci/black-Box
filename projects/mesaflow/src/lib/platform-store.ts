@@ -11,7 +11,7 @@ import {
   saveStore,
   sharedPersistenceConfigured,
 } from "./store";
-import type { PlatformPlan, PlatformStatus, PlatformUser } from "./types";
+import type { PlanOverrides, PlatformPlan, PlatformStatus, PlatformUser } from "./types";
 
 const PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -96,6 +96,10 @@ export function ensurePlatformOwnerSeed() {
 export type MerchantPatch = {
   platformStatus?: PlatformStatus;
   plan?: PlatformPlan;
+  planOverrides?: PlanOverrides | null;
+  addonWaiters?: number;
+  addonTables?: number;
+  addonEstablishments?: number;
   reason?: string;
 };
 
@@ -134,6 +138,48 @@ export async function updateMerchant(establishmentId: string, patch: MerchantPat
       establishment.plan = nextPlan;
       establishment.planStartedAt = new Date().toISOString();
       metadata.plan = nextPlan;
+    }
+  }
+
+  if (patch.planOverrides !== undefined) {
+    if (patch.planOverrides === null) {
+      establishment.planOverrides = undefined;
+      metadata.planOverrides = null;
+    } else {
+      establishment.planOverrides = {
+        features: { ...establishment.planOverrides?.features, ...patch.planOverrides.features },
+        limits: { ...establishment.planOverrides?.limits, ...patch.planOverrides.limits },
+        addonWaiters: patch.planOverrides.addonWaiters ?? establishment.planOverrides?.addonWaiters,
+        addonTables: patch.planOverrides.addonTables ?? establishment.planOverrides?.addonTables,
+        addonEstablishments:
+          patch.planOverrides.addonEstablishments ?? establishment.planOverrides?.addonEstablishments,
+        addons: { ...establishment.planOverrides?.addons, ...patch.planOverrides.addons },
+      };
+      metadata.planOverrides = establishment.planOverrides;
+    }
+  }
+
+  if (
+    patch.addonWaiters !== undefined ||
+    patch.addonTables !== undefined ||
+    patch.addonEstablishments !== undefined
+  ) {
+    establishment.planOverrides ||= {};
+    if (patch.addonWaiters !== undefined) {
+      establishment.planOverrides.addonWaiters = Math.max(0, patch.addonWaiters);
+      metadata.addonWaiters = establishment.planOverrides.addonWaiters;
+    }
+    if (patch.addonTables !== undefined) {
+      establishment.planOverrides.addonTables = Math.max(0, patch.addonTables);
+      metadata.addonTables = establishment.planOverrides.addonTables;
+    }
+    if (patch.addonEstablishments !== undefined) {
+      const cap = establishment.plan === "premium" ? 2 : 0;
+      establishment.planOverrides.addonEstablishments = Math.min(
+        cap,
+        Math.max(0, patch.addonEstablishments),
+      );
+      metadata.addonEstablishments = establishment.planOverrides.addonEstablishments;
     }
   }
 

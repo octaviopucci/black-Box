@@ -9,9 +9,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { catalogSeedMetaForEstablishment } from "@/lib/catalog-seed-registry";
+import {
+  FEATURE_LABELS,
+  LIMIT_LABELS,
+  type PlatformFeature,
+  type PlatformLimit,
+} from "@/lib/platform-entitlements";
 import { PLAN_LABELS, PLAN_OPTIONS } from "@/lib/platform-plans";
 import { PLATFORM_STATUS_LABELS } from "@/lib/platform-status";
-import type { PlatformPlan, PlatformStatus } from "@/lib/types";
+import type { PlanOverrides, PlatformPlan, PlatformStatus } from "@/lib/types";
 
 type MerchantDetail = {
   id: string;
@@ -38,11 +44,35 @@ type MerchantDetail = {
   tables: Array<{ id: string; number: string; name: string; status: string; capacity: number }>;
   staff: Array<{ id: string; name: string; email: string; role: string; active: boolean; lastLoginAt?: string }>;
   entitlements?: {
+    plan: PlatformPlan;
+    features: Record<PlatformFeature, boolean>;
+    limits: Record<PlatformLimit, number | null>;
+    included: Record<PlatformLimit, number | null>;
+    addons: { waiters: number; tables: number; establishments: number };
+    addonPrices: { table: number | null; waiter: number | null; establishment: number | null };
+    usage: {
+      waiters: number;
+      tables: number;
+      staffUsers: number;
+      kdsSectors: number;
+    };
     waiterAccess: boolean;
     waitersLimit: number | null;
     waitersUsed: number;
+    waitersIncluded: number | null;
+    waitersAddon: number;
     tablesLimit: number | null;
+    tablesUsed: number;
+    tablesIncluded: number | null;
+    tablesAddon: number;
+    staffUsersLimit: number | null;
+    staffUsersUsed: number;
+    establishmentsLimit: number | null;
+    establishmentsIncluded: number | null;
+    establishmentsAddon: number;
+    establishmentsMax: number | null;
   };
+  planOverrides?: PlanOverrides;
   analyticsToday: { sales: { revenue: number; ordersCount: number } };
   analytics7d: { sales: { revenue: number; ordersCount: number } };
   analytics30d: { sales: { revenue: number; ordersCount: number; paymentsCollected: number } };
@@ -67,6 +97,12 @@ function PlatformMerchantDetailContent() {
   const [selectedPlan, setSelectedPlan] = useState<PlatformPlan>("essencial");
   const [importingCatalog, setImportingCatalog] = useState(false);
   const [importMessage, setImportMessage] = useState("");
+  const [overrideDraft, setOverrideDraft] = useState<PlanOverrides>({});
+  const [overridesDirty, setOverridesDirty] = useState(false);
+  const [addonWaiters, setAddonWaiters] = useState(0);
+  const [addonTables, setAddonTables] = useState(0);
+  const [addonEstablishments, setAddonEstablishments] = useState(0);
+  const [addonsDirty, setAddonsDirty] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) {
@@ -80,6 +116,16 @@ function PlatformMerchantDetailContent() {
     if (res.ok) {
       setMerchant(json.merchant);
       setSelectedPlan(json.merchant.plan);
+      setOverrideDraft(json.merchant.planOverrides || {});
+      setOverridesDirty(false);
+      setAddonWaiters(json.merchant.entitlements?.addons?.waiters ?? json.merchant.planOverrides?.addonWaiters ?? 0);
+      setAddonTables(json.merchant.entitlements?.addons?.tables ?? json.merchant.planOverrides?.addonTables ?? 0);
+      setAddonEstablishments(
+        json.merchant.entitlements?.addons?.establishments ??
+          json.merchant.planOverrides?.addonEstablishments ??
+          0,
+      );
+      setAddonsDirty(false);
     } else {
       setMerchant(null);
     }
@@ -107,6 +153,12 @@ function PlatformMerchantDetailContent() {
     }
     setMerchant(json.merchant);
     setSelectedPlan(json.merchant.plan);
+    setOverrideDraft(json.merchant.planOverrides || {});
+    setAddonWaiters(json.merchant.entitlements?.addons?.waiters ?? 0);
+    setAddonTables(json.merchant.entitlements?.addons?.tables ?? 0);
+    setAddonEstablishments(json.merchant.entitlements?.addons?.establishments ?? 0);
+    setOverridesDirty(false);
+    setAddonsDirty(false);
     setSaving(false);
   }
 
@@ -123,6 +175,41 @@ function PlatformMerchantDetailContent() {
   async function savePlan() {
     if (!merchant || selectedPlan === merchant.plan) return;
     await patchMerchant({ plan: selectedPlan });
+  }
+
+  function setFeatureOverride(feature: PlatformFeature, value: boolean | undefined) {
+    setOverrideDraft((prev) => {
+      const features = { ...prev.features };
+      if (value === undefined) delete features[feature];
+      else features[feature] = value;
+      return { ...prev, features: Object.keys(features).length ? features : undefined };
+    });
+    setOverridesDirty(true);
+  }
+
+  function setLimitOverride(limit: PlatformLimit, value: number | null | undefined) {
+    setOverrideDraft((prev) => {
+      const limits = { ...prev.limits };
+      if (value === undefined) delete limits[limit];
+      else limits[limit] = value;
+      return { ...prev, limits: Object.keys(limits).length ? limits : undefined };
+    });
+    setOverridesDirty(true);
+  }
+
+  async function saveOverrides() {
+    if (!merchant) return;
+    const hasOverrides =
+      (overrideDraft.features && Object.keys(overrideDraft.features).length > 0) ||
+      (overrideDraft.limits && Object.keys(overrideDraft.limits).length > 0);
+    await patchMerchant({ planOverrides: hasOverrides ? overrideDraft : null });
+    setOverridesDirty(false);
+  }
+
+  async function saveAddons() {
+    if (!merchant) return;
+    await patchMerchant({ addonWaiters, addonTables, addonEstablishments });
+    setAddonsDirty(false);
   }
 
   async function importCatalogSeed() {
@@ -274,6 +361,246 @@ function PlatformMerchantDetailContent() {
             </Button>
           ))}
         </div>
+      </div>
+
+      {merchant.entitlements && (
+        <div className="glass-panel p-5">
+          <h3 className="font-semibold text-ink">Entitlements (plano + uso)</h3>
+          <p className="mt-1 text-xs text-muted">
+            Plano: <strong className="text-ink">{PLAN_LABELS[merchant.entitlements.plan]}</strong>
+          </p>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wider text-muted">
+                  <th className="pb-2 pr-4">Recurso</th>
+                  <th className="pb-2 pr-4">Inclusos</th>
+                  <th className="pb-2 pr-4">Add-ons</th>
+                  <th className="pb-2 pr-4">Usados</th>
+                  <th className="pb-2 pr-4">Teto efetivo</th>
+                  <th className="pb-2">Preço add-on/ano</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-white/5">
+                  <td className="py-2 pr-4">{LIMIT_LABELS.waiters}</td>
+                  <td className="py-2 pr-4">{merchant.entitlements.waitersIncluded ?? "∞"}</td>
+                  <td className="py-2 pr-4">+{merchant.entitlements.addons.waiters}</td>
+                  <td className="py-2 pr-4">{merchant.entitlements.waitersUsed}</td>
+                  <td className="py-2 pr-4 font-medium text-ink">
+                    {merchant.entitlements.waitersLimit ?? "∞"}
+                  </td>
+                  <td className="py-2">
+                    {merchant.entitlements.addonPrices.waiter != null
+                      ? formatCurrency(merchant.entitlements.addonPrices.waiter)
+                      : "—"}
+                  </td>
+                </tr>
+                <tr className="border-t border-white/5">
+                  <td className="py-2 pr-4">{LIMIT_LABELS.tables}</td>
+                  <td className="py-2 pr-4">{merchant.entitlements.tablesIncluded ?? "∞"}</td>
+                  <td className="py-2 pr-4">+{merchant.entitlements.addons.tables}</td>
+                  <td className="py-2 pr-4">{merchant.entitlements.tablesUsed}</td>
+                  <td className="py-2 pr-4 font-medium text-ink">
+                    {merchant.entitlements.tablesLimit ?? "∞"}
+                  </td>
+                  <td className="py-2">
+                    {merchant.entitlements.addonPrices.table != null
+                      ? formatCurrency(merchant.entitlements.addonPrices.table)
+                      : "—"}
+                  </td>
+                </tr>
+                <tr className="border-t border-white/5">
+                  <td className="py-2 pr-4">{LIMIT_LABELS.establishments}</td>
+                  <td className="py-2 pr-4">{merchant.entitlements.establishmentsIncluded ?? "∞"}</td>
+                  <td className="py-2 pr-4">+{merchant.entitlements.addons.establishments}</td>
+                  <td className="py-2 pr-4">1</td>
+                  <td className="py-2 pr-4 font-medium text-ink">
+                    {merchant.entitlements.establishmentsLimit ?? "∞"}
+                    {merchant.entitlements.establishmentsMax != null
+                      ? ` (máx. ${merchant.entitlements.establishmentsMax})`
+                      : ""}
+                  </td>
+                  <td className="py-2">
+                    {merchant.entitlements.addonPrices.establishment != null
+                      ? formatCurrency(merchant.entitlements.addonPrices.establishment)
+                      : "—"}
+                  </td>
+                </tr>
+                {(["staff_users", "kds_sectors"] as PlatformLimit[]).map((limit) => {
+                  const included = merchant.entitlements!.included[limit];
+                  const effective = merchant.entitlements!.limits[limit];
+                  const used =
+                    limit === "staff_users"
+                      ? merchant.entitlements!.usage.staffUsers
+                      : merchant.entitlements!.usage.kdsSectors;
+                  return (
+                    <tr key={limit} className="border-t border-white/5">
+                      <td className="py-2 pr-4">{LIMIT_LABELS[limit]}</td>
+                      <td className="py-2 pr-4">{included ?? "∞"}</td>
+                      <td className="py-2 pr-4">—</td>
+                      <td className="py-2 pr-4">{used}</td>
+                      <td className="py-2 pr-4 font-medium text-ink">{effective ?? "∞"}</td>
+                      <td className="py-2">—</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Features comerciais</p>
+            <ul className="mt-2 grid gap-1 sm:grid-cols-2 text-sm">
+              {(
+                ["waiter_access", "advanced_reports", "integrations", "multi_unit"] as PlatformFeature[]
+              ).map((feature) => (
+                <li key={feature} className="flex justify-between rounded-lg bg-surface-2 px-3 py-2">
+                  <span>{FEATURE_LABELS[feature]}</span>
+                  <span className={merchant.entitlements!.features[feature] ? "text-success" : "text-muted"}>
+                    {merchant.entitlements!.features[feature] ? "ligado" : "desligado"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {merchant.entitlements && merchant.plan !== "custom" && (
+        <div className="glass-panel p-5">
+          <h3 className="font-semibold text-ink">Add-ons operacionais</h3>
+          <p className="mt-1 text-xs text-muted">
+            Liberação comercial (+N além do incluso). Preços de referência — billing automático em breve.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <label className="rounded-lg bg-surface-2 px-3 py-3 text-sm">
+              <span className="font-medium text-ink">+ Garçons</span>
+              <p className="mt-0.5 text-xs text-muted">
+                Ref.: {merchant.entitlements.addonPrices.waiter != null
+                  ? `${formatCurrency(merchant.entitlements.addonPrices.waiter)}/garçom/ano`
+                  : "—"}
+              </p>
+              <input
+                type="number"
+                min={0}
+                value={addonWaiters}
+                onChange={(e) => {
+                  setAddonWaiters(Math.max(0, Number(e.target.value) || 0));
+                  setAddonsDirty(true);
+                }}
+                className="mt-2 w-full rounded-lg border border-white/10 bg-surface px-2 py-1.5"
+              />
+            </label>
+            <label className="rounded-lg bg-surface-2 px-3 py-3 text-sm">
+              <span className="font-medium text-ink">+ Mesas</span>
+              <p className="mt-0.5 text-xs text-muted">
+                Ref.: {merchant.entitlements.addonPrices.table != null
+                  ? `${formatCurrency(merchant.entitlements.addonPrices.table)}/mesa/ano`
+                  : "—"}
+              </p>
+              <input
+                type="number"
+                min={0}
+                value={addonTables}
+                onChange={(e) => {
+                  setAddonTables(Math.max(0, Number(e.target.value) || 0));
+                  setAddonsDirty(true);
+                }}
+                className="mt-2 w-full rounded-lg border border-white/10 bg-surface px-2 py-1.5"
+              />
+            </label>
+            {merchant.plan === "premium" && (
+              <label className="rounded-lg bg-surface-2 px-3 py-3 text-sm">
+                <span className="font-medium text-ink">+ Estabelecimentos</span>
+                <p className="mt-0.5 text-xs text-muted">
+                  Ref.: {merchant.entitlements.addonPrices.establishment != null
+                    ? `${formatCurrency(merchant.entitlements.addonPrices.establishment)}/estab./ano · máx. 2 extras (teto 3)`
+                    : "—"}
+                </p>
+                <input
+                  type="number"
+                  min={0}
+                  max={2}
+                  value={addonEstablishments}
+                  onChange={(e) => {
+                    setAddonEstablishments(Math.min(2, Math.max(0, Number(e.target.value) || 0)));
+                    setAddonsDirty(true);
+                  }}
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-surface px-2 py-1.5"
+                />
+              </label>
+            )}
+          </div>
+          <Button className="mt-4" size="sm" disabled={saving || !addonsDirty} onClick={() => void saveAddons()}>
+            Salvar add-ons
+          </Button>
+        </div>
+      )}
+
+      <div className="glass-panel p-5">
+        <h3 className="font-semibold text-ink">Overrides de entitlement</h3>
+        <p className="mt-1 text-xs text-muted">
+          Ajustes manuais para piloto ou negociação comercial. Sobrescrevem o plano base.
+        </p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Features</p>
+            <div className="mt-2 space-y-2">
+              {(["waiter_access", "integrations", "advanced_reports", "multi_unit"] as PlatformFeature[]).map(
+                (feature) => (
+                  <label key={feature} className="flex items-center justify-between rounded-lg bg-surface-2 px-3 py-2 text-sm">
+                    <span>{FEATURE_LABELS[feature]}</span>
+                    <select
+                      value={
+                        overrideDraft.features?.[feature] === undefined
+                          ? ""
+                          : overrideDraft.features[feature]
+                            ? "1"
+                            : "0"
+                      }
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setFeatureOverride(
+                          feature,
+                          v === "" ? undefined : v === "1",
+                        );
+                      }}
+                      className="rounded-lg border border-white/10 bg-surface px-2 py-1 text-xs"
+                    >
+                      <option value="">(plano)</option>
+                      <option value="1">ligado</option>
+                      <option value="0">desligado</option>
+                    </select>
+                  </label>
+                ),
+              )}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Limites</p>
+            <div className="mt-2 space-y-2">
+              {(["waiters", "tables", "staff_users"] as PlatformLimit[]).map((limit) => (
+                <label key={limit} className="block rounded-lg bg-surface-2 px-3 py-2 text-sm">
+                  <span className="text-muted">{LIMIT_LABELS[limit]}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="(plano / ∞ se vazio custom)"
+                    value={overrideDraft.limits?.[limit] ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.trim();
+                      setLimitOverride(limit, raw === "" ? undefined : Number(raw));
+                    }}
+                    className="mt-1 w-full rounded-lg border border-white/10 bg-surface px-2 py-1 text-sm"
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+        <Button className="mt-4" size="sm" disabled={saving || !overridesDirty} onClick={() => void saveOverrides()}>
+          Salvar overrides
+        </Button>
       </div>
 
       <div className="glass-panel p-5">

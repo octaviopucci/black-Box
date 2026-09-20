@@ -180,7 +180,16 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     router.push(`/admin/orders?order=${encodeURIComponent(orderId)}`);
   }
 
-  const roleNav = navForRole(session?.user.role);
+  const entitlements = session?.entitlements;
+  const roleNav = navForRole(session?.user.role).filter((item) => {
+    if (item.href === "/admin/waiters" && entitlements && !entitlements.features.waiter_access) {
+      return false;
+    }
+    if (item.href === "/admin/integrations" && entitlements && !entitlements.features.integrations) {
+      return false;
+    }
+    return true;
+  });
   const mobileNav = roleNav.slice(0, 5);
 
   const navigation = (

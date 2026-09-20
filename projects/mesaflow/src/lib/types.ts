@@ -55,8 +55,39 @@ export type SectorKind = "COZINHA" | "BALCAO" | "BAR" | "CAFETERIA" | "PIZZARIA"
 export type ProductAvailability = "VITRINE" | "SOB_DEMANDA" | "AMBOS";
 
 export interface PlanOverrides {
-  features?: Partial<Record<"waiter_access", boolean>>;
-  limits?: Partial<Record<"waiters" | "tables", number | null>>;
+  features?: Partial<
+    Record<
+      | "guest_menu"
+      | "guest_orders"
+      | "guest_bill_request"
+      | "split_bill"
+      | "rodizio"
+      | "admin"
+      | "thermal_print"
+      | "order_alerts"
+      | "kds"
+      | "table_cockpit"
+      | "catalog_import"
+      | "product_media"
+      | "waiter_access"
+      | "advanced_reports"
+      | "integrations"
+      | "multi_unit",
+      boolean
+    >
+  >;
+  /** Override dos inclusos do plano (não soma add-on). */
+  limits?: Partial<
+    Record<
+      "waiters" | "tables" | "staff_users" | "establishments" | "kds_sectors",
+      number | null
+    >
+  >;
+  /** Add-ons liberados na platform (+N além do incluso). */
+  addonWaiters?: number;
+  addonTables?: number;
+  addonEstablishments?: number;
+  addons?: { waiters?: number; tables?: number; establishments?: number };
 }
 
 export interface Establishment {

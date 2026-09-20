@@ -42,6 +42,7 @@ import type {
   Table,
   TableStatus,
   User,
+  UserRole,
   Product,
   ProductAddon,
   ProductAvailability,
@@ -914,6 +915,47 @@ export function changeUserPassword(
   return { value: { changedAt: new Date().toISOString() } };
 }
 
+export function createStaffUser(
+  establishment: Establishment,
+  actorUserId: string,
+  input: { name: string; email: string; password: string; role: Exclude<UserRole, "WAITER" | "OWNER"> },
+): MutationResult<{ user: User }> {
+  const store = getStore();
+  const { canCreateStaffUser } = require("./platform-entitlements") as typeof import("./platform-entitlements");
+  const gate = canCreateStaffUser(establishment, store);
+  if (!gate.ok) return invalid(gate.error, 403);
+
+  const name = String(input.name || "").trim();
+  const email = String(input.email || "").trim().toLowerCase();
+  if (!name || !email) return invalid("Nome e e-mail são obrigatórios.");
+  if (findUserByEmail(email)) return invalid("E-mail já cadastrado.", 409);
+
+  const passwordError = validatePasswordStrength(input.password);
+  if (passwordError) return invalid(passwordError);
+
+  const user: User = {
+    id: id("user_"),
+    establishmentId: establishment.id,
+    email,
+    passwordHash: hashPassword(input.password),
+    name,
+    role: input.role,
+    active: true,
+  };
+  store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId: establishment.id,
+    type: "staff.created",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "user",
+    targetId: user.id,
+    metadata: { role: user.role, email: user.email },
+  });
+  saveStore(store);
+  return { value: { user } };
+}
+
 export function loginUser(email: string, password: string) {
   const store = getStore();
   const userRaw = Object.values(store.users).find(
@@ -942,9 +984,10 @@ export function loginUser(email: string, password: string) {
   const establishment = store.establishments[user.establishmentId];
   if (!establishment) return { error: "Estabelecimento não encontrado." };
   if (user.role === "WAITER") {
-    const { hasFeature } = require("./platform-entitlements") as typeof import("./platform-entitlements");
+    const { hasFeature, featureDeniedMessage } =
+      require("./platform-entitlements") as typeof import("./platform-entitlements");
     if (!hasFeature(establishment, "waiter_access")) {
-      return { error: "Plano atual não inclui acesso de garçons." };
+      return { error: featureDeniedMessage("waiter_access") };
     }
   }
   const platformStatus = resolvePlatformStatus(establishment);
@@ -1507,6 +1550,11 @@ export function createAdminTable(
   body: unknown,
 ): MutationResult<Table> {
   const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return invalid("Estabelecimento não encontrado.", 404);
+  const { canCreateTable } = require("./platform-entitlements") as typeof import("./platform-entitlements");
+  const tableGate = canCreateTable(establishment, store);
+  if (!tableGate.ok) return invalid(tableGate.error, 403);
   const parsed = validateTableFields(store, establishmentId, body, false);
   if ("error" in parsed) return parsed;
   const table: Table = {

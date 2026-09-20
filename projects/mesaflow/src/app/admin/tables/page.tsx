@@ -21,7 +21,7 @@ type Draft = { number: string; name: string; capacity: string; status: TableStat
 const EMPTY: Draft = { number: "", name: "", capacity: "4", status: "LIVRE" };
 
 export default function AdminTablesPage() {
-  const { session, fetchApi } = useAuth();
+  const { session, fetchApi, refreshSession } = useAuth();
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -48,8 +48,14 @@ export default function AdminTablesPage() {
   }, [fetchApi]);
 
   useEffect(() => {
+    void refreshSession();
     void load();
-  }, [load]);
+  }, [load, refreshSession]);
+
+  const entitlements = session?.entitlements;
+  const tablesLimit = entitlements?.limits.tables;
+  const tablesUsed = entitlements?.usage.tables ?? tables.length;
+  const atTableLimit = tablesLimit !== null && tablesLimit !== undefined && tablesUsed >= tablesLimit;
 
   const menuPath = (table: Table) =>
     `/m/${encodeURIComponent(session?.establishment.slug || "")}/${encodeURIComponent(table.qrToken)}`;
@@ -166,7 +172,13 @@ export default function AdminTablesPage() {
           <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-bold">Mesas</h1>
           <p className="mt-1 text-sm text-muted">Gerencie acesso, capacidade e QR Codes.</p>
         </div>
-        <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" /> Nova mesa</Button>
+        {!atTableLimit ? (
+          <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" /> Nova mesa</Button>
+        ) : (
+          <p className="text-sm text-warning">
+            Limite de mesas atingido ({tablesUsed}/{tablesLimit}). Solicite add-ons na NA MESA para ampliar o teto.
+          </p>
+        )}
       </header>
 
       {feedback && <div className="mb-4 rounded-xl border border-success/20 bg-success/10 px-4 py-3 text-sm text-success">{feedback}</div>}
@@ -185,7 +197,9 @@ export default function AdminTablesPage() {
           <QrCode className="mx-auto mb-3 h-9 w-9 text-muted" />
           <p className="font-semibold">Nenhuma mesa cadastrada</p>
           <p className="mt-1 text-sm text-muted">Crie uma mesa e o QR Code será gerado automaticamente.</p>
-          <Button className="mt-5" onClick={openCreate}>Criar primeira mesa</Button>
+          {!atTableLimit && (
+            <Button className="mt-5" onClick={openCreate}>Criar primeira mesa</Button>
+          )}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

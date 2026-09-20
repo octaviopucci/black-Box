@@ -19,7 +19,7 @@ type WaiterRow = {
 };
 
 export default function AdminWaitersPage() {
-  const { fetchApi, session } = useAuth();
+  const { fetchApi, session, refreshSession } = useAuth();
   const [waiters, setWaiters] = useState<WaiterRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -46,8 +46,15 @@ export default function AdminWaitersPage() {
   }, [fetchApi]);
 
   useEffect(() => {
+    void refreshSession();
     void load();
-  }, [load]);
+  }, [load, refreshSession]);
+
+  const entitlements = session?.entitlements;
+  const waiterAccess = entitlements?.features.waiter_access ?? false;
+  const waitersLimit = entitlements?.limits.waiters;
+  const waitersUsed = entitlements?.usage.waiters ?? waiters.length;
+  const atWaiterLimit = waitersLimit !== null && waitersLimit !== undefined && waitersUsed >= waitersLimit;
 
   async function createWaiter(e: React.FormEvent) {
     e.preventDefault();
@@ -101,17 +108,41 @@ export default function AdminWaitersPage() {
     return <p className="text-muted">Acesso restrito a administradores.</p>;
   }
 
+  if (!waiterAccess) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Garçons</h1>
+        <p className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
+          Seu plano atual não inclui acesso de garçons. Faça upgrade para Premium ou fale com a equipe NA MESA.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Garçons</h1>
-          <p className="text-sm text-muted">Identidade individual · permissões · ativação QR</p>
+          <p className="text-sm text-muted">
+            Identidade individual · permissões · ativação QR
+            {waitersLimit !== null && waitersLimit !== undefined && (
+              <> · {waitersUsed}/{waitersLimit} ativos</>
+            )}
+          </p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
-          <UserPlus className="h-4 w-4" /> Novo garçom
-        </Button>
+        {!atWaiterLimit && (
+          <Button onClick={() => setFormOpen(true)}>
+            <UserPlus className="h-4 w-4" /> Novo garçom
+          </Button>
+        )}
       </div>
+
+      {atWaiterLimit && (
+        <p className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
+          Limite de garçons atingido ({waitersUsed}/{waitersLimit}). Solicite add-ons na NA MESA ou desative um garçom existente.
+        </p>
+      )}
 
       {feedback && <p className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">{feedback}</p>}
       {error && <p className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">{error}</p>}

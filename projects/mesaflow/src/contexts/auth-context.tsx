@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { staffFetch } from "@/lib/api";
+import type { EntitlementSummary } from "@/lib/platform-entitlements";
 import type { Establishment, User } from "@/lib/types";
 
 export type AuthSession = {
@@ -9,6 +10,7 @@ export type AuthSession = {
   token?: string;
   user: Pick<User, "id" | "name" | "email" | "role">;
   establishment: Establishment;
+  entitlements?: EntitlementSummary;
 };
 
 type AuthContextValue = {
@@ -25,10 +27,14 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 function sessionFromAuthMe(
-  json: { user: AuthSession["user"]; establishment: Establishment },
+  json: {
+    user: AuthSession["user"];
+    establishment: Establishment;
+    entitlements?: EntitlementSummary;
+  },
   token?: string,
 ): AuthSession {
-  return { token, user: json.user, establishment: json.establishment };
+  return { token, user: json.user, establishment: json.establishment, entitlements: json.entitlements };
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

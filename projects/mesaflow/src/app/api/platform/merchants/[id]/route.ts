@@ -22,6 +22,10 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   const body = (await readJson(req)) as {
     platformStatus?: unknown;
     plan?: unknown;
+    planOverrides?: unknown;
+    addonWaiters?: unknown;
+    addonTables?: unknown;
+    addonEstablishments?: unknown;
     reason?: string;
   } | null;
 
@@ -39,9 +43,31 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     return Response.json({ error: "Plano inválido (essencial, premium, custom)." }, { status: 400 });
   }
 
+  const planOverrides =
+    body?.planOverrides !== undefined
+      ? (body.planOverrides as import("@/lib/types").PlanOverrides | null)
+      : undefined;
+
+  const addonWaiters =
+    body?.addonWaiters !== undefined && typeof body.addonWaiters === "number"
+      ? Math.max(0, Math.floor(body.addonWaiters))
+      : undefined;
+  const addonTables =
+    body?.addonTables !== undefined && typeof body.addonTables === "number"
+      ? Math.max(0, Math.floor(body.addonTables))
+      : undefined;
+  const addonEstablishments =
+    body?.addonEstablishments !== undefined && typeof body.addonEstablishments === "number"
+      ? Math.max(0, Math.floor(body.addonEstablishments))
+      : undefined;
+
   const result = await updateMerchant(id, {
     platformStatus: platformStatus ?? undefined,
     plan: plan ?? undefined,
+    planOverrides,
+    addonWaiters,
+    addonTables,
+    addonEstablishments,
     reason: body?.reason,
   });
   if ("error" in result) {

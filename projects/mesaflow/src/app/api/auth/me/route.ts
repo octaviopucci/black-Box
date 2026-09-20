@@ -1,4 +1,4 @@
-import { entitlementSummary, countActiveWaiters } from "@/lib/platform-entitlements";
+import { entitlementSummary } from "@/lib/platform-entitlements";
 import { readAdminSessionToken } from "@/lib/staff-auth-request";
 import { getStore, publicEstablishment, publicUser, validateSession } from "@/lib/store";
 import { publicWaiterPermissions } from "@/lib/waiter-permissions";
@@ -15,9 +15,6 @@ export async function GET(req: Request) {
   return Response.json({
     user,
     establishment: publicEstablishment(auth.establishment),
-    entitlements: entitlementSummary(
-      auth.establishment,
-      countActiveWaiters(store, auth.establishment.id),
-    ),
+    entitlements: entitlementSummary(auth.establishment, store),
   });
 }
