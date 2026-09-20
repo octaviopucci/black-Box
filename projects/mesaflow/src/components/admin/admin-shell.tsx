@@ -41,16 +41,28 @@ const NAV = [
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingBag },
   { href: "/admin/products", label: "Produtos", icon: LayoutGrid },
   { href: "/admin/tables", label: "Mesas", icon: Table2 },
+  { href: "/admin/waiters", label: "Garçons", icon: UserPlusIcon },
   { href: "/admin/operations", label: "Controle", icon: ShieldAlert },
   { href: "/admin/qrcodes", label: "QR Codes", icon: QrCode },
   { href: "/admin/integrations", label: "Integrações", icon: Plug },
   { href: "/admin/settings", label: "Ajustes", icon: Settings },
 ];
 
+function UserPlusIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="19" y1="8" x2="19" y2="14" />
+      <line x1="22" y1="11" x2="16" y2="11" />
+    </svg>
+  );
+}
+
 const ROLE_NAV: Record<UserRole, string[] | "*"> = {
   OWNER: "*",
   MANAGER: "*",
-  WAITER: ["/admin", "/admin/orders", "/admin/tables", "/admin/operations", "/admin/qrcodes"],
+  WAITER: ["/waiter", "/waiter/orders", "/waiter/table", "/waiter/login"],
   KITCHEN: ["/admin", "/admin/orders", "/admin/operations"],
   COUNTER: ["/admin", "/admin/orders", "/admin/tables", "/admin/operations", "/admin/qrcodes"] };
 

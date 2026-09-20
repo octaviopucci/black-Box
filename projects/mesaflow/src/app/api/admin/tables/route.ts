@@ -1,9 +1,21 @@
 import { createAdminTable, listAdminTables } from "@/lib/store";
-import { readJson, requireAdmin } from "../_shared";
+import { listOperationalTables } from "@/lib/waiter-store";
+import { readJson, requireAdmin, requireStaff } from "../_shared";
 
 export async function GET(req: Request) {
-  const auth = requireAdmin(req);
+  const auth = requireStaff(req);
   if (!auth) return Response.json({ error: "Não autorizado." }, { status: 401 });
+  const url = new URL(req.url);
+  const operational = url.searchParams.get("operational") === "1";
+  if (operational) {
+    const filter = url.searchParams.get("filter") === "mine" ? "mine" : "all";
+    return Response.json({
+      tables: listOperationalTables(auth.establishment.id, auth.user, filter),
+    });
+  }
+  if (auth.user.role !== "OWNER" && auth.user.role !== "MANAGER") {
+    return Response.json({ error: "Não autorizado." }, { status: 401 });
+  }
   return Response.json({ tables: listAdminTables(auth.establishment.id) });
 }
 

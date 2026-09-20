@@ -39,6 +39,9 @@ function AdminGate({ children }: { children: React.ReactNode }) {
     if (status === "active" && pathname === PENDING_PATH) {
       router.replace("/admin");
     }
+    if (session.user.role === "WAITER" && !pathname.startsWith("/waiter")) {
+      router.replace("/waiter");
+    }
   }, [pathname, router, session, loading, refreshSession]);
 
   if (PUBLIC_PATHS.includes(pathname)) return children;
