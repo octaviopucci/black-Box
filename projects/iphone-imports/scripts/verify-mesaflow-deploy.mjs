@@ -53,6 +53,7 @@ const requiredHandlerRoutes = [
   "/platform/dashboard",
   "/platform/merchants",
   "/admin/dashboard",
+  "/admin/menu",
   "/admin/orders",
   "/admin/password",
 ];
