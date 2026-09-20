@@ -25,6 +25,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     planOverrides?: unknown;
     addonWaiters?: unknown;
     addonTables?: unknown;
+    addonEstablishments?: unknown;
     reason?: string;
   } | null;
 
@@ -55,6 +56,10 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     body?.addonTables !== undefined && typeof body.addonTables === "number"
       ? Math.max(0, Math.floor(body.addonTables))
       : undefined;
+  const addonEstablishments =
+    body?.addonEstablishments !== undefined && typeof body.addonEstablishments === "number"
+      ? Math.max(0, Math.floor(body.addonEstablishments))
+      : undefined;
 
   const result = await updateMerchant(id, {
     platformStatus: platformStatus ?? undefined,
@@ -62,6 +67,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     planOverrides,
     addonWaiters,
     addonTables,
+    addonEstablishments,
     reason: body?.reason,
   });
   if ("error" in result) {

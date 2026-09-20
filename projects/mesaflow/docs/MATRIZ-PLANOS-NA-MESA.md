@@ -1,109 +1,81 @@
-# NA MESA — Matriz comercial de planos (fonte para Dev Head + entitlements)
+# NA MESA — Matriz de planos (rev. Octavio 2026-09-20 b)
 
-> **Data:** 2026-09-20 (rev. limites Octavio)  
 > **Produto:** NA MESA (código MesaFlow)  
 > **Posicionamento:** entrada já entrega operação completa; Premium/Custom = escala. Nunca nomear concorrentes.
 
 ---
 
-## 1. Planos
+## Staff (o que é)
 
-| Plano | Preço anual | Promessa |
-|-------|-------------|----------|
-| **Essencial** | R$ 997 | Operação completa na mesa, escala pequena |
-| **Premium** | R$ 1.997 | Escala média + mais equipe no salão |
-| **Custom** | a partir de R$ 2.997 | Ilimitado / sob medida |
+Usuários do **painel/KDS** com login próprio, **exceto garçom**:
+OWNER, MANAGER, KITCHEN, COUNTER (e afins).
+Garçom conta em `limit.waiters`, **não** em `limit.staff_users`.
 
 ---
 
-## 2. Limites inclusos + add-ons (DECIDIDO)
+## Limites
 
-### Garçons (`feature.waiter_access` + `limit.waiters` + `addons.waiters`)
+| Recurso | Essencial | Premium | Custom |
+|---------|-----------|---------|--------|
+| Garçons | 1 · +R$50/ano | 10 · +R$30/ano | ∞ |
+| Mesas | 10 · +R$70/ano | 35 · +R$50/ano | ∞ |
+| Staff (sem garçom) | 3 | 15 | ∞ |
+| Estabelecimentos | 1 | até **3** · +R$397/ano cada extra | ∞ |
+| Setores KDS | 3 | 8 | ∞ |
+| Produtos cardápio | **sem limite** | **sem limite** | **sem limite** |
+| Relatórios avançados | não | sim | sim |
+| Integrações | não | sim | sim |
+| Multi-unidade | não | **sim** | sim |
+| waiter_access | sim | sim | sim |
 
-| Plano | Inclusos | Add-on extra | Preço add-on |
-|-------|----------|--------------|--------------|
-| Essencial | **1** | sim | **R$ 50 / garçom / ano** |
-| Premium | **10** | sim | **R$ 30 / garçom / ano** |
-| Custom | **ilimitado** | — | — |
+### Estabelecimentos Premium
+- Incluso: 1
+- Máximo: 3
+- Add-on: R$397/estabelecimento/ano (2º e 3º)
+- Platform Admin libera `addonEstablishments` (teto efetivo ≤ 3 no Premium)
 
-- `waiter_access = true` em **todos** os planos (Essencial já inclui 1).
-- `limit.waiters` efetivo = inclusos + `addonWaiters` comprados/liberados na platform.
-- Custom: `limit.waiters = null` (∞).
-
-### Mesas (`limit.tables` + `addons.tables`)
-
-| Plano | Inclusas | Add-on extra | Preço add-on |
-|-------|----------|--------------|--------------|
-| Essencial | **10** | sim | **R$ 70 / mesa / ano** |
-| Premium | **35** | sim | **R$ 50 / mesa / ano** |
-| Custom | **ilimitado** | — | — |
-
-Efetivo: `limit.tables = inclusas + addonTables` (Custom = null).
-
-### Platform Admin — obrigatório
-Por estabelecimento, permitir:
-- **Liberar +N mesas** (grava `planOverrides.addonTables`)
-- **Liberar +N garçons** (grava `planOverrides.addonWaiters`)
-- Mostrar: plano · inclusos · add-ons · usados · teto efetivo · preço de referência do add-on (metadata, não billing automático ainda)
-- Opcional: toggle override manual de feature flags
-
-Billing Stripe pode vir depois; por agora add-on = **liberação operacional** na platform (com preço exibido para o time comercial).
+### Produtos
+`limit.products = null` em todos — **sem enforcement**.
 
 ---
 
-## 3. Outros limites recomendados entre planos
-
-| Recurso | Essencial | Premium | Custom | Entitlement | Nota |
-|---------|-----------|---------|--------|-------------|------|
-| **Staff admin** (OWNER/MANAGER/KITCHEN/COUNTER, excl. WAITER) | **3** | **15** | ∞ | `limit.staff_users` | Evita Essencial com time enorme |
-| **Estabelecimentos / contrato** | **1** | **1** | ∞ / negociado | `limit.establishments` | Multi-loja = Custom ou upsell |
-| **Setores KDS** | **3** | **8** | ∞ | `limit.kds_sectors` | Cozinha/bar/balcão… |
-| **Produtos no cardápio** | **150** | **500** | ∞ | `limit.products` | Protege store JSON |
-| **Pedidos / mês (soft)** | soft 3k | soft 15k | ∞ | `limit.orders_month_soft` | Só alerta platform, não bloqueia no MVP |
-| **Relatórios avançados / export** | ❌ | ✅ | ✅ | `feature.advanced_reports` | |
-| **Integrações** (iFood etc. futuro) | ❌ | ✅ | ✅ | `feature.integrations` | Flag agora; connectors depois |
-| **Multi-unidade** | ❌ | ❌ | ✅ | `feature.multi_unit` | |
-| **Prioridade suporte** (comercial) | padrão | prioritário | dedicado | — | Fora do código |
-
-### Core (todos os planos = true)
-`guest_menu`, `guest_orders`, `guest_bill_request`, `split_bill`, `rodizio`, `admin`, `thermal_print`, `order_alerts`, `kds`, `table_cockpit`, `catalog_import`, `product_media`, `waiter_access`
-
----
-
-## 4. Defaults técnicos
+## Defaults técnicos
 
 ```ts
 essencial: {
-  features: { waiter_access: true, advanced_reports: false, integrations: false, multi_unit: false, /* core true */ },
-  limits: { tables: 10, waiters: 1, staff_users: 3, establishments: 1, kds_sectors: 3, products: 150 },
-  addonPricesAnnual: { table: 70, waiter: 50 },
+  features: { waiter_access: true, advanced_reports: false, integrations: false, multi_unit: false },
+  limits: { tables: 10, waiters: 1, staff_users: 3, establishments: 1, kds_sectors: 3 },
+  addonPricesAnnual: { table: 70, waiter: 50, establishment: null },
 },
 premium: {
-  features: { waiter_access: true, advanced_reports: true, integrations: true, multi_unit: false },
-  limits: { tables: 35, waiters: 10, staff_users: 15, establishments: 1, kds_sectors: 8, products: 500 },
-  addonPricesAnnual: { table: 50, waiter: 30 },
+  features: { waiter_access: true, advanced_reports: true, integrations: true, multi_unit: true },
+  limits: { tables: 35, waiters: 10, staff_users: 15, establishments: 1, kds_sectors: 8 },
+  addonPricesAnnual: { table: 50, waiter: 30, establishment: 397 },
 },
 custom: {
   features: { waiter_access: true, advanced_reports: true, integrations: true, multi_unit: true },
-  limits: { tables: null, waiters: null, staff_users: null, establishments: null, kds_sectors: null, products: null },
-  addonPricesAnnual: { table: null, waiter: null },
+  limits: { all null },
+  addonPricesAnnual: { all null },
 },
 ```
 
 Efetivo:
 ```
-effectiveWaiters = limits.waiters == null ? null : limits.waiters + (overrides.addonWaiters ?? 0)
-effectiveTables  = limits.tables  == null ? null : limits.tables  + (overrides.addonTables  ?? 0)
+effectiveWaiters = included.waiters + addonWaiters
+effectiveTables  = included.tables  + addonTables
+effectiveEstablishments = min(included.establishments + addonEstablishments, planMax)  // Premium max 3
 ```
 
 ---
 
-## 5. Aceite
+## Aceite
 
 - [ ] Essencial: 1º garçom OK; 2º bloqueia até +addon
-- [ ] Premium: 10º OK; 11º bloqueia até +addon
+- [ ] Premium: 10º garçom OK; 11º bloqueia até +addon
 - [ ] Custom: sem teto
 - [ ] Mesas: 10 / 35 / ∞ idem
-- [ ] Platform: campos **+ mesas** e **+ garçons** por lojista
-- [ ] UI mostra usados/teto; API é a fonte da verdade
-- [ ] Preços de add-on visíveis na platform (metadata)
+- [ ] Premium: até 3 estabelecimentos com add-on R$397
+- [ ] Staff exclui WAITER
+- [ ] Produtos sem limite em todos os planos
+- [ ] Platform: campos + mesas, + garçons, + estabelecimentos (Premium)
+- [ ] multi_unit: false / true / true

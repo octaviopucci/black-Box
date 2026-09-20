@@ -48,14 +48,13 @@ type MerchantDetail = {
     features: Record<PlatformFeature, boolean>;
     limits: Record<PlatformLimit, number | null>;
     included: Record<PlatformLimit, number | null>;
-    addons: { waiters: number; tables: number };
-    addonPrices: { table: number | null; waiter: number | null };
+    addons: { waiters: number; tables: number; establishments: number };
+    addonPrices: { table: number | null; waiter: number | null; establishment: number | null };
     usage: {
       waiters: number;
       tables: number;
       staffUsers: number;
       kdsSectors: number;
-      products: number;
     };
     waiterAccess: boolean;
     waitersLimit: number | null;
@@ -68,6 +67,10 @@ type MerchantDetail = {
     tablesAddon: number;
     staffUsersLimit: number | null;
     staffUsersUsed: number;
+    establishmentsLimit: number | null;
+    establishmentsIncluded: number | null;
+    establishmentsAddon: number;
+    establishmentsMax: number | null;
   };
   planOverrides?: PlanOverrides;
   analyticsToday: { sales: { revenue: number; ordersCount: number } };
@@ -98,6 +101,7 @@ function PlatformMerchantDetailContent() {
   const [overridesDirty, setOverridesDirty] = useState(false);
   const [addonWaiters, setAddonWaiters] = useState(0);
   const [addonTables, setAddonTables] = useState(0);
+  const [addonEstablishments, setAddonEstablishments] = useState(0);
   const [addonsDirty, setAddonsDirty] = useState(false);
 
   const load = useCallback(async () => {
@@ -116,6 +120,11 @@ function PlatformMerchantDetailContent() {
       setOverridesDirty(false);
       setAddonWaiters(json.merchant.entitlements?.addons?.waiters ?? json.merchant.planOverrides?.addonWaiters ?? 0);
       setAddonTables(json.merchant.entitlements?.addons?.tables ?? json.merchant.planOverrides?.addonTables ?? 0);
+      setAddonEstablishments(
+        json.merchant.entitlements?.addons?.establishments ??
+          json.merchant.planOverrides?.addonEstablishments ??
+          0,
+      );
       setAddonsDirty(false);
     } else {
       setMerchant(null);
@@ -147,6 +156,7 @@ function PlatformMerchantDetailContent() {
     setOverrideDraft(json.merchant.planOverrides || {});
     setAddonWaiters(json.merchant.entitlements?.addons?.waiters ?? 0);
     setAddonTables(json.merchant.entitlements?.addons?.tables ?? 0);
+    setAddonEstablishments(json.merchant.entitlements?.addons?.establishments ?? 0);
     setOverridesDirty(false);
     setAddonsDirty(false);
     setSaving(false);
@@ -198,7 +208,7 @@ function PlatformMerchantDetailContent() {
 
   async function saveAddons() {
     if (!merchant) return;
-    await patchMerchant({ addonWaiters, addonTables });
+    await patchMerchant({ addonWaiters, addonTables, addonEstablishments });
     setAddonsDirty(false);
   }
 
@@ -400,15 +410,30 @@ function PlatformMerchantDetailContent() {
                       : "—"}
                   </td>
                 </tr>
-                {(["staff_users", "kds_sectors", "products"] as PlatformLimit[]).map((limit) => {
+                <tr className="border-t border-white/5">
+                  <td className="py-2 pr-4">{LIMIT_LABELS.establishments}</td>
+                  <td className="py-2 pr-4">{merchant.entitlements.establishmentsIncluded ?? "∞"}</td>
+                  <td className="py-2 pr-4">+{merchant.entitlements.addons.establishments}</td>
+                  <td className="py-2 pr-4">1</td>
+                  <td className="py-2 pr-4 font-medium text-ink">
+                    {merchant.entitlements.establishmentsLimit ?? "∞"}
+                    {merchant.entitlements.establishmentsMax != null
+                      ? ` (máx. ${merchant.entitlements.establishmentsMax})`
+                      : ""}
+                  </td>
+                  <td className="py-2">
+                    {merchant.entitlements.addonPrices.establishment != null
+                      ? formatCurrency(merchant.entitlements.addonPrices.establishment)
+                      : "—"}
+                  </td>
+                </tr>
+                {(["staff_users", "kds_sectors"] as PlatformLimit[]).map((limit) => {
                   const included = merchant.entitlements!.included[limit];
                   const effective = merchant.entitlements!.limits[limit];
                   const used =
                     limit === "staff_users"
                       ? merchant.entitlements!.usage.staffUsers
-                      : limit === "kds_sectors"
-                        ? merchant.entitlements!.usage.kdsSectors
-                        : merchant.entitlements!.usage.products;
+                      : merchant.entitlements!.usage.kdsSectors;
                   return (
                     <tr key={limit} className="border-t border-white/5">
                       <td className="py-2 pr-4">{LIMIT_LABELS[limit]}</td>
@@ -447,7 +472,7 @@ function PlatformMerchantDetailContent() {
           <p className="mt-1 text-xs text-muted">
             Liberação comercial (+N além do incluso). Preços de referência — billing automático em breve.
           </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <label className="rounded-lg bg-surface-2 px-3 py-3 text-sm">
               <span className="font-medium text-ink">+ Garçons</span>
               <p className="mt-0.5 text-xs text-muted">
@@ -484,6 +509,27 @@ function PlatformMerchantDetailContent() {
                 className="mt-2 w-full rounded-lg border border-white/10 bg-surface px-2 py-1.5"
               />
             </label>
+            {merchant.plan === "premium" && (
+              <label className="rounded-lg bg-surface-2 px-3 py-3 text-sm">
+                <span className="font-medium text-ink">+ Estabelecimentos</span>
+                <p className="mt-0.5 text-xs text-muted">
+                  Ref.: {merchant.entitlements.addonPrices.establishment != null
+                    ? `${formatCurrency(merchant.entitlements.addonPrices.establishment)}/estab./ano · máx. 2 extras (teto 3)`
+                    : "—"}
+                </p>
+                <input
+                  type="number"
+                  min={0}
+                  max={2}
+                  value={addonEstablishments}
+                  onChange={(e) => {
+                    setAddonEstablishments(Math.min(2, Math.max(0, Number(e.target.value) || 0)));
+                    setAddonsDirty(true);
+                  }}
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-surface px-2 py-1.5"
+                />
+              </label>
+            )}
           </div>
           <Button className="mt-4" size="sm" disabled={saving || !addonsDirty} onClick={() => void saveAddons()}>
             Salvar add-ons
