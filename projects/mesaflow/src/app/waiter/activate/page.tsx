@@ -33,7 +33,12 @@ function ActivateForm() {
       setLoading(false);
       return;
     }
-    router.push("/waiter/login");
+    const activatedEmail = json.user?.email;
+    router.push(
+      activatedEmail
+        ? `/waiter/login?email=${encodeURIComponent(activatedEmail)}`
+        : "/waiter/login",
+    );
   }
 
   return (

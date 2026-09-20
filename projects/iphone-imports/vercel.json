@@ -77,6 +77,12 @@
     { "source": "/mesaflow/kds/live", "destination": "/mesaflow/kds/live" },
     { "source": "/mesaflow/kds/:sector", "destination": "/mesaflow/kds/live" },
     { "source": "/mesaflow/m/live", "destination": "/mesaflow/m/live" },
-    { "source": "/mesaflow/m/:slug/:table", "destination": "/mesaflow/m/live" }
+    { "source": "/mesaflow/m/:slug/:table", "destination": "/mesaflow/m/live" },
+    { "source": "/mesaflow/waiter/login", "destination": "/mesaflow/waiter/login" },
+    { "source": "/mesaflow/waiter/activate", "destination": "/mesaflow/waiter/activate" },
+    { "source": "/mesaflow/waiter/orders", "destination": "/mesaflow/waiter/orders" },
+    { "source": "/mesaflow/waiter/table", "destination": "/mesaflow/waiter/table" },
+    { "source": "/mesaflow/waiter", "destination": "/mesaflow/waiter" },
+    { "source": "/mesaflow/admin/waiters", "destination": "/mesaflow/admin/waiters" }
   ]
 }

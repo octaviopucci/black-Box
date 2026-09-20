@@ -21,6 +21,8 @@ async function run() {
   } = await import("./waiter-store");
   const { hasFeature, canCreateWaiter } = await import("./platform-entitlements");
   const { issueAdminSessionToken } = await import("./admin-session-token");
+  const { loginUser } = await import("./store");
+  const { splitStore, mergeStore } = await import("./blob-persistence");
 
   resetPersistedStoreCacheForTests();
   const store = getStore();
@@ -112,6 +114,38 @@ async function run() {
   const rawToken = ("value" in tokenResult ? tokenResult.value.token : "");
   const activateResult = activateWaiterWithToken(rawToken, "NovaSenhaSegura2");
   assert.ok(!("error" in activateResult));
+  if ("value" in activateResult) {
+    assert.equal(activateResult.value.user.active, true);
+  }
+
+  const loginAfterActivate = loginUser("joao.garcom@test.local", "NovaSenhaSegura2");
+  assert.ok(!("error" in loginAfterActivate), (loginAfterActivate as { error?: string }).error);
+  assert.equal(loginAfterActivate.user?.role, "WAITER");
+  assert.equal(loginAfterActivate.user?.email, "joao.garcom@test.local");
+
+  const loginWrongCase = loginUser("JOAO.GARCOM@TEST.LOCAL", "NovaSenhaSegura2");
+  assert.ok(!("error" in loginWrongCase), "login must be case-insensitive for email");
+
+  // Essencial: waiter_access=true e login não bloqueia garçom já ativado
+  establishment.plan = "essencial";
+  delete establishment.planOverrides;
+  store.establishments[establishment.id] = establishment;
+  assert.equal(hasFeature(establishment, "waiter_access"), true);
+
+  const essencialLogin = loginUser("joao.garcom@test.local", "NovaSenhaSegura2");
+  assert.ok(!("error" in essencialLogin), (essencialLogin as { error?: string }).error);
+  assert.equal(essencialLogin.user?.role, "WAITER");
+
+  // splitStore persiste tokens de ativação no blob identity
+  const split = splitStore(getStore());
+  assert.ok(split.identity.waiterActivationTokens);
+  assert.ok(Object.keys(split.identity.waiterActivationTokens!).length >= 1);
+  const merged = mergeStore(split.operational, split.identity);
+  assert.ok(merged.waiterActivationTokens);
+  assert.equal(
+    Object.keys(merged.waiterActivationTokens!).length,
+    Object.keys(split.identity.waiterActivationTokens!).length,
+  );
 
   const crossTables = listOperationalTables("est_inexistente", waiterUser, "all");
   assert.equal(crossTables.length, 0);
