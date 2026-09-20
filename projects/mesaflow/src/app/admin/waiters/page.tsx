@@ -140,7 +140,7 @@ export default function AdminWaitersPage() {
 
       {atWaiterLimit && (
         <p className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
-          Limite de garçons atingido ({waitersUsed}/{waitersLimit}). Faça upgrade ou desative um garçom existente.
+          Limite de garçons atingido ({waitersUsed}/{waitersLimit}). Solicite add-ons na NA MESA ou desative um garçom existente.
         </p>
       )}
 

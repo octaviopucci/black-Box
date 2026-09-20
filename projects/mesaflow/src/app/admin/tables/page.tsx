@@ -176,7 +176,7 @@ export default function AdminTablesPage() {
           <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" /> Nova mesa</Button>
         ) : (
           <p className="text-sm text-warning">
-            Limite de mesas atingido ({tablesUsed}/{tablesLimit}). Faça upgrade do plano para adicionar mais.
+            Limite de mesas atingido ({tablesUsed}/{tablesLimit}). Solicite add-ons na NA MESA para ampliar o teto.
           </p>
         )}
       </header>

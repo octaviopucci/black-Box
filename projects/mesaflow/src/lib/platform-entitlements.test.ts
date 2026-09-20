@@ -14,7 +14,14 @@ async function run() {
   const { provisionEstablishment } = await import("./provision");
   const { hashPassword } = await import("./crypto-utils");
   const { createWaiter } = await import("./waiter-store");
-  const { canCreateWaiter, canCreateTable, getLimit, hasFeature } = await import("./platform-entitlements");
+  const {
+    canCreateWaiter,
+    canCreateTable,
+    getLimit,
+    getIncludedLimit,
+    hasFeature,
+    resolveEntitlements,
+  } = await import("./platform-entitlements");
 
   resetPersistedStoreCacheForTests();
   const store = getStore();
@@ -31,19 +38,42 @@ async function run() {
   store.establishments[establishment.id] = establishment;
   store.users[owner.id] = owner;
 
-  // --- Essencial: bloqueia garçom ---
-  assert.equal(hasFeature(establishment, "waiter_access"), false);
-  assert.equal(canCreateWaiter(establishment, getStore()).ok, false);
+  // --- Essencial: waiter_access true, 1º garçom OK, 2º falha ---
+  assert.equal(hasFeature(establishment, "waiter_access"), true);
+  assert.equal(getIncludedLimit(establishment, "waiters"), 1);
 
-  const waiterBlocked = createWaiter(establishment, owner.id, {
-    name: "Garçom Essencial",
-    email: "garcom.essencial@test.local",
+  const firstWaiter = createWaiter(establishment, owner.id, {
+    name: "Garçom 1",
+    email: "garcom1@test.local",
     password: "SenhaSegura1",
   });
-  assert.ok("error" in waiterBlocked, "essencial must block waiter creation");
-  assert.equal(waiterBlocked.status, 403);
+  assert.ok(!("error" in firstWaiter), "1st waiter should succeed on essencial");
+
+  assert.equal(canCreateWaiter(establishment, getStore()).ok, false);
+  const secondWaiter = createWaiter(establishment, owner.id, {
+    name: "Garçom 2",
+    email: "garcom2@test.local",
+    password: "SenhaSegura1",
+  });
+  assert.ok("error" in secondWaiter, "2nd waiter must fail without addon");
+  assert.equal(secondWaiter.status, 403);
+
+  // --- Essencial: addon libera 2º garçom ---
+  establishment.planOverrides = { addonWaiters: 1 };
+  store.establishments[establishment.id] = establishment;
+  assert.equal(getLimit(establishment, "waiters"), 2);
+
+  const addonWaiter = createWaiter(establishment, owner.id, {
+    name: "Garçom Addon",
+    email: "garcom.addon@test.local",
+    password: "SenhaSegura1",
+  });
+  assert.ok(!("error" in addonWaiter), "addon should allow 2nd waiter");
 
   // --- Essencial: até 10 mesas, 11ª falha ---
+  establishment.planOverrides = undefined;
+  store.establishments[establishment.id] = establishment;
+
   let tableCount = Object.values(store.tables).filter((t) => t.establishmentId === establishment.id).length;
   for (let i = tableCount; i < 10; i++) {
     const result = createAdminTable(establishment.id, {
@@ -57,11 +87,19 @@ async function run() {
   assert.ok("error" in eleventh, "11th table must fail on essencial");
   assert.equal(eleventh.status, 403);
 
-  // --- Premium: 5 garçons OK, 6º falha ---
+  // --- Premium: 10 garçons OK, 11º falha ---
+  for (const user of Object.values(store.users)) {
+    if (user.establishmentId === establishment.id && user.role === "WAITER") {
+      user.active = false;
+      store.users[user.id] = user;
+    }
+  }
   establishment.plan = "premium";
+  establishment.planOverrides = undefined;
   store.establishments[establishment.id] = establishment;
+  assert.equal(getIncludedLimit(establishment, "waiters"), 10);
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     const result = createWaiter(establishment, owner.id, {
       name: `Garçom Premium ${i + 1}`,
       email: `garcom.premium.${i + 1}@test.local`,
@@ -69,50 +107,38 @@ async function run() {
     });
     assert.ok(!("error" in result), `waiter ${i + 1} should succeed on premium`);
   }
-  assert.equal(canCreateWaiter(establishment, getStore()).ok, false);
-  const sixth = createWaiter(establishment, owner.id, {
-    name: "Garçom Premium 6",
-    email: "garcom.premium.6@test.local",
+  const eleventhWaiter = createWaiter(establishment, owner.id, {
+    name: "Garçom Premium 11",
+    email: "garcom.premium.11@test.local",
     password: "SenhaSegura1",
   });
-  assert.ok("error" in sixth, "6th waiter must fail on premium");
-  assert.equal(sixth.status, 403);
+  assert.ok("error" in eleventhWaiter, "11th waiter must fail on premium");
+  assert.equal(eleventhWaiter.status, 403);
 
-  // --- Custom: garçons ilimitados ---
+  // --- Premium: 35 mesas inclusas ---
+  establishment.plan = "premium";
+  store.establishments[establishment.id] = establishment;
+  const currentTables = Object.values(store.tables).filter((t) => t.establishmentId === establishment.id).length;
+  for (let i = currentTables; i < 35; i++) {
+    const result = createAdminTable(establishment.id, {
+      number: String(200 + i),
+      capacity: 4,
+    });
+    assert.ok(!("error" in result), `premium table ${i + 1} should succeed`);
+  }
+  const table36 = createAdminTable(establishment.id, { number: "236", capacity: 4 });
+  assert.ok("error" in table36, "36th table must fail on premium without addon");
+  assert.equal(table36.status, 403);
+
+  // --- Custom: ilimitado ---
   establishment.plan = "custom";
   store.establishments[establishment.id] = establishment;
   assert.equal(getLimit(establishment, "waiters"), null);
+  assert.equal(getLimit(establishment, "tables"), null);
+  assert.equal(resolveEntitlements(establishment).addons.waiters, 0);
 
-  for (let i = 0; i < 3; i++) {
-    const result = createWaiter(establishment, owner.id, {
-      name: `Garçom Custom ${i + 1}`,
-      email: `garcom.custom.${i + 1}@test.local`,
-      password: "SenhaSegura1",
-    });
-    assert.ok(!("error" in result), `custom waiter ${i + 1} should succeed`);
-  }
-
-  // --- Override: libera waiter no essencial ---
-  for (const user of Object.values(store.users)) {
-    if (user.establishmentId === establishment.id && user.role === "WAITER") {
-      user.active = false;
-      store.users[user.id] = user;
-    }
-  }
+  // --- Staff users: essencial 3 incl. owner ---
   establishment.plan = "essencial";
-  establishment.planOverrides = { features: { waiter_access: true }, limits: { waiters: 1 } };
-  store.establishments[establishment.id] = establishment;
-  assert.equal(hasFeature(establishment, "waiter_access"), true);
-
-  const overrideWaiter = createWaiter(establishment, owner.id, {
-    name: "Garçom Piloto",
-    email: "garcom.piloto@test.local",
-    password: "SenhaSegura1",
-  });
-  assert.ok(!("error" in overrideWaiter), "override should allow one waiter on essencial");
-
-  // --- Staff users limit on essencial (3 incl. owner) ---
-  establishment.planOverrides = undefined;
   store.establishments[establishment.id] = establishment;
 
   const staff1 = createStaffUser(establishment, owner.id, {

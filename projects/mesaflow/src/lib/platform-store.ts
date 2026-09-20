@@ -97,6 +97,8 @@ export type MerchantPatch = {
   platformStatus?: PlatformStatus;
   plan?: PlatformPlan;
   planOverrides?: PlanOverrides | null;
+  addonWaiters?: number;
+  addonTables?: number;
   reason?: string;
 };
 
@@ -146,8 +148,23 @@ export async function updateMerchant(establishmentId: string, patch: MerchantPat
       establishment.planOverrides = {
         features: { ...establishment.planOverrides?.features, ...patch.planOverrides.features },
         limits: { ...establishment.planOverrides?.limits, ...patch.planOverrides.limits },
+        addonWaiters: patch.planOverrides.addonWaiters ?? establishment.planOverrides?.addonWaiters,
+        addonTables: patch.planOverrides.addonTables ?? establishment.planOverrides?.addonTables,
+        addons: { ...establishment.planOverrides?.addons, ...patch.planOverrides.addons },
       };
       metadata.planOverrides = establishment.planOverrides;
+    }
+  }
+
+  if (patch.addonWaiters !== undefined || patch.addonTables !== undefined) {
+    establishment.planOverrides ||= {};
+    if (patch.addonWaiters !== undefined) {
+      establishment.planOverrides.addonWaiters = Math.max(0, patch.addonWaiters);
+      metadata.addonWaiters = establishment.planOverrides.addonWaiters;
+    }
+    if (patch.addonTables !== undefined) {
+      establishment.planOverrides.addonTables = Math.max(0, patch.addonTables);
+      metadata.addonTables = establishment.planOverrides.addonTables;
     }
   }
 

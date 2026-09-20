@@ -1248,6 +1248,11 @@ export function createAdminProduct(
   body: unknown,
 ): MutationResult<Product> {
   const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return invalid("Estabelecimento não encontrado.", 404);
+  const { canCreateProduct } = require("./platform-entitlements") as typeof import("./platform-entitlements");
+  const productGate = canCreateProduct(establishment, store);
+  if (!productGate.ok) return invalid(productGate.error, 403);
   const parsed = validateProductFields(store, establishmentId, body, false);
   if ("error" in parsed) return parsed;
   const product: Product = {

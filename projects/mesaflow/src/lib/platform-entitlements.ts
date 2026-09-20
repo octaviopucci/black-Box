@@ -1,5 +1,5 @@
 import { resolvePlan } from "./platform-plans";
-import type { Establishment, PlatformPlan, User, UserRole } from "./types";
+import type { Establishment, PlatformPlan, Product, Sector, User, UserRole } from "./types";
 
 export const PLATFORM_FEATURES = [
   "guest_menu",
@@ -22,13 +22,33 @@ export const PLATFORM_FEATURES = [
 
 export type PlatformFeature = (typeof PLATFORM_FEATURES)[number];
 
-export const PLATFORM_LIMITS = ["waiters", "tables", "staff_users", "establishments"] as const;
+export const PLATFORM_LIMITS = [
+  "waiters",
+  "tables",
+  "staff_users",
+  "establishments",
+  "kds_sectors",
+  "products",
+] as const;
 
 export type PlatformLimit = (typeof PLATFORM_LIMITS)[number];
 
+/** Limites inclusos no plano (antes de add-ons). */
+export type PlanLimitsIncluded = Record<PlatformLimit, number | null>;
+
+export interface PlanAddonPrices {
+  table: number | null;
+  waiter: number | null;
+}
+
 export interface PlanEntitlements {
   features: Record<PlatformFeature, boolean>;
-  limits: Record<PlatformLimit, number | null>;
+  /** Inclusos no plano (+ override manual de `limits`). */
+  included: PlanLimitsIncluded;
+  /** Teto efetivo para enforcement (= included + addon em waiters/tables). */
+  limits: PlanLimitsIncluded;
+  addons: { waiters: number; tables: number };
+  addonPrices: PlanAddonPrices;
 }
 
 const CORE_FEATURES: Record<
@@ -52,36 +72,60 @@ const CORE_FEATURES: Record<
   product_media: true,
 };
 
-const BASE_ENTITLEMENTS: Record<PlatformPlan, PlanEntitlements> = {
+const BASE_INCLUDED: Record<PlatformPlan, PlanLimitsIncluded> = {
   essencial: {
-    features: {
-      ...CORE_FEATURES,
-      waiter_access: false,
-      advanced_reports: false,
-      integrations: false,
-      multi_unit: false,
-    },
-    limits: { waiters: 0, tables: 10, staff_users: 3, establishments: 1 },
+    waiters: 1,
+    tables: 10,
+    staff_users: 3,
+    establishments: 1,
+    kds_sectors: 3,
+    products: 150,
   },
   premium: {
-    features: {
-      ...CORE_FEATURES,
-      waiter_access: true,
-      advanced_reports: true,
-      integrations: true,
-      multi_unit: false,
-    },
-    limits: { waiters: 5, tables: null, staff_users: 10, establishments: 1 },
+    waiters: 10,
+    tables: 35,
+    staff_users: 15,
+    establishments: 1,
+    kds_sectors: 8,
+    products: 500,
   },
   custom: {
-    features: {
-      ...CORE_FEATURES,
-      waiter_access: true,
-      advanced_reports: true,
-      integrations: true,
-      multi_unit: true,
-    },
-    limits: { waiters: null, tables: null, staff_users: null, establishments: null },
+    waiters: null,
+    tables: null,
+    staff_users: null,
+    establishments: null,
+    kds_sectors: null,
+    products: null,
+  },
+};
+
+const ADDON_PRICES_ANNUAL: Record<PlatformPlan, PlanAddonPrices> = {
+  essencial: { table: 70, waiter: 50 },
+  premium: { table: 50, waiter: 30 },
+  custom: { table: null, waiter: null },
+};
+
+const BASE_FEATURES: Record<PlatformPlan, PlanEntitlements["features"]> = {
+  essencial: {
+    ...CORE_FEATURES,
+    waiter_access: true,
+    advanced_reports: false,
+    integrations: false,
+    multi_unit: false,
+  },
+  premium: {
+    ...CORE_FEATURES,
+    waiter_access: true,
+    advanced_reports: true,
+    integrations: true,
+    multi_unit: false,
+  },
+  custom: {
+    ...CORE_FEATURES,
+    waiter_access: true,
+    advanced_reports: true,
+    integrations: true,
+    multi_unit: true,
   },
 };
 
@@ -109,6 +153,8 @@ export const LIMIT_LABELS: Record<PlatformLimit, string> = {
   tables: "Mesas",
   staff_users: "Usuários staff",
   establishments: "Estabelecimentos",
+  kds_sectors: "Setores KDS",
+  products: "Produtos no cardápio",
 };
 
 function isPlatformFeature(key: string): key is PlatformFeature {
@@ -119,13 +165,32 @@ function isPlatformLimit(key: string): key is PlatformLimit {
   return (PLATFORM_LIMITS as readonly string[]).includes(key);
 }
 
+export function resolvePlanAddons(establishment: Establishment): { waiters: number; tables: number } {
+  const plan = resolvePlan(establishment.plan);
+  if (plan === "custom") return { waiters: 0, tables: 0 };
+  const overrides = establishment.planOverrides;
+  const waiters = Math.max(
+    0,
+    overrides?.addonWaiters ?? overrides?.addons?.waiters ?? 0,
+  );
+  const tables = Math.max(
+    0,
+    overrides?.addonTables ?? overrides?.addons?.tables ?? 0,
+  );
+  return { waiters, tables };
+}
+
+function effectiveLimit(included: number | null, addon: number): number | null {
+  if (included === null) return null;
+  return included + addon;
+}
+
 export function resolveEntitlements(establishment: Establishment): PlanEntitlements {
   const plan = resolvePlan(establishment.plan);
-  const base = BASE_ENTITLEMENTS[plan];
   const overrides = establishment.planOverrides;
 
-  const features = { ...base.features };
-  const limits = { ...base.limits };
+  const features = { ...BASE_FEATURES[plan] };
+  const included: PlanLimitsIncluded = { ...BASE_INCLUDED[plan] };
 
   if (overrides?.features) {
     for (const [key, value] of Object.entries(overrides.features)) {
@@ -137,20 +202,36 @@ export function resolveEntitlements(establishment: Establishment): PlanEntitleme
   if (overrides?.limits) {
     for (const [key, value] of Object.entries(overrides.limits)) {
       if (isPlatformLimit(key) && (typeof value === "number" || value === null)) {
-        limits[key] = value;
+        included[key] = value;
       }
     }
   }
 
-  return { features, limits };
+  const addons = resolvePlanAddons(establishment);
+  const limits: PlanLimitsIncluded = { ...included };
+  limits.waiters = effectiveLimit(included.waiters, addons.waiters);
+  limits.tables = effectiveLimit(included.tables, addons.tables);
+
+  return {
+    features,
+    included,
+    limits,
+    addons,
+    addonPrices: ADDON_PRICES_ANNUAL[plan],
+  };
 }
 
 export function hasFeature(establishment: Establishment, feature: PlatformFeature): boolean {
   return resolveEntitlements(establishment).features[feature];
 }
 
+/** Retorna o teto efetivo (inclusos + add-ons quando aplicável). */
 export function getLimit(establishment: Establishment, limit: PlatformLimit): number | null {
   return resolveEntitlements(establishment).limits[limit];
+}
+
+export function getIncludedLimit(establishment: Establishment, limit: PlatformLimit): number | null {
+  return resolveEntitlements(establishment).included[limit];
 }
 
 export function featureDeniedMessage(feature: PlatformFeature): string {
@@ -169,7 +250,10 @@ export function countActiveWaiters(store: { users: Record<string, User> }, estab
   ).length;
 }
 
-export function countTables(store: { tables: Record<string, { establishmentId: string }> }, establishmentId: string): number {
+export function countTables(
+  store: { tables: Record<string, { establishmentId: string }> },
+  establishmentId: string,
+): number {
   return Object.values(store.tables).filter((table) => table.establishmentId === establishmentId).length;
 }
 
@@ -179,6 +263,24 @@ export function countStaffUsers(store: { users: Record<string, User> }, establis
       user.establishmentId === establishmentId &&
       user.active &&
       STAFF_ROLES.includes(user.role),
+  ).length;
+}
+
+export function countKdsSectors(
+  store: { sectors: Record<string, Sector> },
+  establishmentId: string,
+): number {
+  return Object.values(store.sectors).filter(
+    (sector) => sector.establishmentId === establishmentId && sector.active,
+  ).length;
+}
+
+export function countProducts(
+  store: { products: Record<string, Product> },
+  establishmentId: string,
+): number {
+  return Object.values(store.products).filter(
+    (product) => product.establishmentId === establishmentId,
   ).length;
 }
 
@@ -224,6 +326,32 @@ export function canCreateStaffUser(
   return { ok: true };
 }
 
+export function canCreateProduct(
+  establishment: Establishment,
+  store: { products: Record<string, Product> },
+): { ok: true } | { ok: false; error: string } {
+  const limit = getLimit(establishment, "products");
+  if (limit === null) return { ok: true };
+  const used = countProducts(store, establishment.id);
+  if (used >= limit) {
+    return { ok: false, error: limitReachedMessage("products", used, limit) };
+  }
+  return { ok: true };
+}
+
+export function canCreateKdsSector(
+  establishment: Establishment,
+  store: { sectors: Record<string, Sector> },
+): { ok: true } | { ok: false; error: string } {
+  const limit = getLimit(establishment, "kds_sectors");
+  if (limit === null) return { ok: true };
+  const used = countKdsSectors(store, establishment.id);
+  if (used >= limit) {
+    return { ok: false, error: limitReachedMessage("kds_sectors", used, limit) };
+  }
+  return { ok: true };
+}
+
 export function requireFeature(
   establishment: Establishment,
   feature: PlatformFeature,
@@ -237,18 +365,28 @@ export function requireFeature(
 export interface EntitlementSummary {
   plan: PlatformPlan;
   features: Record<PlatformFeature, boolean>;
-  limits: Record<PlatformLimit, number | null>;
+  /** Teto efetivo (inclusos + add-ons). */
+  limits: PlanLimitsIncluded;
+  included: PlanLimitsIncluded;
+  addons: { waiters: number; tables: number };
+  addonPrices: PlanAddonPrices;
   usage: {
     waiters: number;
     tables: number;
     staffUsers: number;
+    kdsSectors: number;
+    products: number;
   };
   /** Campos legados — mantidos para compatibilidade */
   waiterAccess: boolean;
   waitersLimit: number | null;
   waitersUsed: number;
+  waitersIncluded: number | null;
+  waitersAddon: number;
   tablesLimit: number | null;
   tablesUsed: number;
+  tablesIncluded: number | null;
+  tablesAddon: number;
   staffUsersLimit: number | null;
   staffUsersUsed: number;
 }
@@ -258,27 +396,44 @@ export function entitlementSummary(
   store: {
     users: Record<string, User>;
     tables: Record<string, { establishmentId: string }>;
+    sectors?: Record<string, Sector>;
+    products?: Record<string, Product>;
   },
 ): EntitlementSummary {
   const ent = resolveEntitlements(establishment);
   const waitersUsed = countActiveWaiters(store, establishment.id);
   const tablesUsed = countTables(store, establishment.id);
   const staffUsersUsed = countStaffUsers(store, establishment.id);
+  const kdsSectorsUsed = store.sectors
+    ? countKdsSectors({ sectors: store.sectors }, establishment.id)
+    : 0;
+  const productsUsed = store.products
+    ? countProducts({ products: store.products }, establishment.id)
+    : 0;
 
   return {
     plan: resolvePlan(establishment.plan),
     features: ent.features,
     limits: ent.limits,
+    included: ent.included,
+    addons: ent.addons,
+    addonPrices: ent.addonPrices,
     usage: {
       waiters: waitersUsed,
       tables: tablesUsed,
       staffUsers: staffUsersUsed,
+      kdsSectors: kdsSectorsUsed,
+      products: productsUsed,
     },
     waiterAccess: ent.features.waiter_access,
     waitersLimit: ent.limits.waiters,
     waitersUsed,
+    waitersIncluded: ent.included.waiters,
+    waitersAddon: ent.addons.waiters,
     tablesLimit: ent.limits.tables,
     tablesUsed,
+    tablesIncluded: ent.included.tables,
+    tablesAddon: ent.addons.tables,
     staffUsersLimit: ent.limits.staff_users,
     staffUsersUsed,
   };

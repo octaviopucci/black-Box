@@ -76,7 +76,17 @@ export interface PlanOverrides {
       boolean
     >
   >;
-  limits?: Partial<Record<"waiters" | "tables" | "staff_users" | "establishments", number | null>>;
+  /** Override dos inclusos do plano (não soma add-on). */
+  limits?: Partial<
+    Record<
+      "waiters" | "tables" | "staff_users" | "establishments" | "kds_sectors" | "products",
+      number | null
+    >
+  >;
+  /** Add-ons liberados na platform (+N garçons/mesas além do incluso). */
+  addonWaiters?: number;
+  addonTables?: number;
+  addons?: { waiters?: number; tables?: number };
 }
 
 export interface Establishment {
