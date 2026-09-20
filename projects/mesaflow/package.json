@@ -27,6 +27,7 @@
     "test:guest-closing": "npx tsx src/lib/guest-closing.test.ts",
     "test:security": "npx tsx src/lib/security-auth.test.ts",
     "test:waiter": "npx tsx src/lib/waiter-access.test.ts",
+    "test:waiter-catalog": "npx tsx src/lib/waiter-catalog-parity.test.ts",
     "test:entitlements": "npx tsx src/lib/platform-entitlements.test.ts",
     "test:rate-limit": "npx tsx src/lib/rate-limit.test.ts",
     "backup:store": "node scripts/backup-store.mjs",

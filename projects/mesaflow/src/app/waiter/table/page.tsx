@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, Minus, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { CartProvider } from "@/contexts/cart-context";
 import { WaiterActionButton, WaiterAccountIcon } from "@/components/waiter/waiter-shell";
+import { OrderCatalog } from "@/components/shared/order-catalog";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import type { Category, Order, Product } from "@/lib/types";
-
-type CartLine = { product: Product; qty: number; notes?: string };
 
 function WaiterTableContent() {
   const searchParams = useSearchParams();
@@ -21,7 +21,6 @@ function WaiterTableContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [cart, setCart] = useState<CartLine[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
@@ -44,10 +43,14 @@ function WaiterTableContent() {
         setOrders([]);
       }
 
-      const productsRes = await fetchApi("/admin/products");
-      const productsJson = await productsRes.json();
-      setProducts((productsJson.products || []).filter((p: Product) => p.active));
-      setCategories(productsJson.categories || []);
+      const menuRes = await fetchApi("/admin/menu");
+      const menuJson = await menuRes.json();
+      if (!menuRes.ok) {
+        setError(menuJson.error || "Falha ao carregar cardápio");
+        return;
+      }
+      setProducts(menuJson.products || []);
+      setCategories(menuJson.categories || []);
     } catch {
       setError("Falha ao carregar mesa");
     } finally {
@@ -58,56 +61,6 @@ function WaiterTableContent() {
   useEffect(() => {
     void load();
   }, [load]);
-
-  const cartTotal = useMemo(
-    () => cart.reduce((sum, line) => sum + line.product.price * line.qty, 0),
-    [cart],
-  );
-
-  function addToCart(product: Product) {
-    setCart((prev) => {
-      const existing = prev.find((line) => line.product.id === product.id);
-      if (existing) {
-        return prev.map((line) =>
-          line.product.id === product.id ? { ...line, qty: line.qty + 1 } : line,
-        );
-      }
-      return [...prev, { product, qty: 1 }];
-    });
-  }
-
-  function changeQty(productId: string, delta: number) {
-    setCart((prev) =>
-      prev
-        .map((line) =>
-          line.product.id === productId ? { ...line, qty: line.qty + delta } : line,
-        )
-        .filter((line) => line.qty > 0),
-    );
-  }
-
-  async function submitOrder() {
-    if (!tableId || !cart.length) return;
-    setBusy(true);
-    setError("");
-    setFeedback("");
-    const items = cart.map((line) => ({ productId: line.product.id, qty: line.qty, notes: line.notes }));
-    const res = await fetchApi("/admin/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tableId, items, serviceType: "COMER_AQUI" }),
-    });
-    const json = await res.json();
-    if (!res.ok) {
-      setError(json.error || "Falha ao enviar pedido");
-      setBusy(false);
-      return;
-    }
-    setCart([]);
-    setFeedback(`Pedido #${json.order?.number} enviado`);
-    setBusy(false);
-    void load();
-  }
 
   async function requestAccount() {
     if (!tableId) return;
@@ -167,44 +120,36 @@ function WaiterTableContent() {
       {error && <p className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">{error}</p>}
 
       {tab === "order" && (
-        <div className="space-y-4">
-          <div className="grid gap-2">
-            {products.slice(0, 12).map((product) => (
-              <button
-                key={product.id}
-                type="button"
-                onClick={() => addToCart(product)}
-                className="flex min-h-14 items-center justify-between rounded-xl border border-white/10 px-4 py-3 text-left active:bg-white/5"
-              >
-                <span className="font-medium">{product.name}</span>
-                <span className="text-sm text-brand">{formatCurrency(product.price)}</span>
-              </button>
-            ))}
-          </div>
-
-          {cart.length > 0 && (
-            <div className="sticky bottom-20 space-y-3 rounded-2xl border border-brand/20 bg-background p-4 shadow-xl">
-              <p className="font-semibold">Carrinho · {formatCurrency(cartTotal)}</p>
-              {cart.map((line) => (
-                <div key={line.product.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="flex-1 truncate">{line.product.name}</span>
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => changeQty(line.product.id, -1)} className="rounded-lg border border-white/10 p-1">
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <span className="w-6 text-center">{line.qty}</span>
-                    <button type="button" onClick={() => changeQty(line.product.id, 1)} className="rounded-lg border border-white/10 p-1">
-                      <Plus className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <WaiterActionButton onClick={() => void submitOrder()} disabled={busy}>
-                Enviar pedido
-              </WaiterActionButton>
-            </div>
-          )}
-        </div>
+        <CartProvider key={tableId}>
+          <OrderCatalog
+            categories={categories}
+            products={products}
+            defaultServiceType="COMER_AQUI"
+            submitLabel="Enviar pedido"
+            onNotify={(message, tone) => {
+              if (tone === "error") {
+                setError(message);
+                setFeedback("");
+              } else {
+                setFeedback(message);
+                setError("");
+                void load();
+              }
+            }}
+            onSubmit={async ({ items, serviceType }) => {
+              const res = await fetchApi("/admin/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tableId, items, serviceType }),
+              });
+              const json = await res.json();
+              if (!res.ok) {
+                return { ok: false, error: json.error || "Falha ao enviar pedido" };
+              }
+              return { ok: true, orderNumber: json.order?.number };
+            }}
+          />
+        </CartProvider>
       )}
 
       {tab === "orders" && (

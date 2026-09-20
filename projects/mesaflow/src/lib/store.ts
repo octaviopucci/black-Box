@@ -1243,6 +1243,24 @@ export function listAdminProducts(establishmentId: string) {
   };
 }
 
+/** Cardápio visível ao cliente — mesma regra do GET /api/menu/[slug]/[table]. */
+export function listGuestMenuCatalog(establishmentId: string) {
+  const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  const categories = Object.values(store.categories)
+    .filter((c) => c.establishmentId === establishmentId && c.active)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const products = Object.values(store.products).filter(
+    (p) => p.establishmentId === establishmentId && p.active,
+  );
+  const sectors = Object.values(store.sectors).filter((s) => s.establishmentId === establishmentId);
+  const rodizio =
+    establishment?.rodizioEnabled
+      ? Object.values(store.rodizios).find((r) => r.establishmentId === establishmentId && r.active) ?? null
+      : null;
+  return { categories, products, sectors, rodizio };
+}
+
 export function createAdminProduct(
   establishmentId: string,
   body: unknown,
