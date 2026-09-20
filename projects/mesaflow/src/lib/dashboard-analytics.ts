@@ -343,6 +343,10 @@ export function dashboardAnalyticsBundle(
   return bundle;
 }
 
+export function invalidateDashboardAnalyticsCache(establishmentId: string) {
+  analyticsBundleCache.delete(establishmentId);
+}
+
 export function resetDashboardAnalyticsCacheForTests() {
   analyticsBundleCache.clear();
 }

@@ -62,6 +62,8 @@ const requiredHandlerPatches = [
   "allowUnconditionalOverwrite",
   "mergeOperationalBlobOnConflict",
   "requireOperationalPersist",
+  "createStaffOrder",
+  'orderOrigin: "WAITER"',
 ];
 
 const requiredRootLanding = ["index.html", "favicon.ico", "apple-icon.png"];

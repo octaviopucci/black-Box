@@ -95,6 +95,8 @@ function assertHandlerCriticalRoutes(handlerBundlePath) {
     "allowUnconditionalOverwrite",
     "mergeOperationalBlobOnConflict",
     "requireOperationalPersist",
+    "createStaffOrder",
+    'orderOrigin: "WAITER"',
   ];
   for (const patch of requiredPatches) {
     if (!bundle.includes(patch)) {
