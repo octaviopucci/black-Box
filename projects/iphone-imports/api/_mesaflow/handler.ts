@@ -116,7 +116,6 @@ import {
 } from "../../../mesaflow/src/lib/platform-store";
 import { parsePlatformPlan } from "../../../mesaflow/src/lib/platform-plans";
 import {
-  countActiveWaiters,
   entitlementSummary,
 } from "../../../mesaflow/src/lib/platform-entitlements";
 import { publicWaiterPermissions } from "../../../mesaflow/src/lib/waiter-permissions";
@@ -844,10 +843,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 200, {
         user,
         establishment: publicEstablishment(auth.establishment),
-        entitlements: entitlementSummary(
-          auth.establishment,
-          countActiveWaiters(store, auth.establishment.id),
-        ),
+        entitlements: entitlementSummary(auth.establishment, store),
       });
     }
 

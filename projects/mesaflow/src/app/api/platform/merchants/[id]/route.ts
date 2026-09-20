@@ -22,6 +22,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   const body = (await readJson(req)) as {
     platformStatus?: unknown;
     plan?: unknown;
+    planOverrides?: unknown;
     reason?: string;
   } | null;
 
@@ -39,9 +40,15 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     return Response.json({ error: "Plano inválido (essencial, premium, custom)." }, { status: 400 });
   }
 
+  const planOverrides =
+    body?.planOverrides !== undefined
+      ? (body.planOverrides as import("@/lib/types").PlanOverrides | null)
+      : undefined;
+
   const result = await updateMerchant(id, {
     platformStatus: platformStatus ?? undefined,
     plan: plan ?? undefined,
+    planOverrides,
     reason: body?.reason,
   });
   if ("error" in result) {

@@ -638,6 +638,11 @@ export function connectIntegration(
     return invalid("Provedor de integração inválido.", 400);
   }
   const store = getStore();
+  const establishment = store.establishments[establishmentId];
+  if (!establishment) return invalid("Estabelecimento não encontrado.", 404);
+  const { requireFeature } = require("./platform-entitlements") as typeof import("./platform-entitlements");
+  const featureGate = requireFeature(establishment, "integrations");
+  if (!featureGate.ok) return invalid(featureGate.error, 403);
   ensureOperationalCollections(store);
   ensureIntegrationCatalog(establishmentId);
 

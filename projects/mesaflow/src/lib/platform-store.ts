@@ -11,7 +11,7 @@ import {
   saveStore,
   sharedPersistenceConfigured,
 } from "./store";
-import type { PlatformPlan, PlatformStatus, PlatformUser } from "./types";
+import type { PlanOverrides, PlatformPlan, PlatformStatus, PlatformUser } from "./types";
 
 const PLATFORM_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -96,6 +96,7 @@ export function ensurePlatformOwnerSeed() {
 export type MerchantPatch = {
   platformStatus?: PlatformStatus;
   plan?: PlatformPlan;
+  planOverrides?: PlanOverrides | null;
   reason?: string;
 };
 
@@ -134,6 +135,19 @@ export async function updateMerchant(establishmentId: string, patch: MerchantPat
       establishment.plan = nextPlan;
       establishment.planStartedAt = new Date().toISOString();
       metadata.plan = nextPlan;
+    }
+  }
+
+  if (patch.planOverrides !== undefined) {
+    if (patch.planOverrides === null) {
+      establishment.planOverrides = undefined;
+      metadata.planOverrides = null;
+    } else {
+      establishment.planOverrides = {
+        features: { ...establishment.planOverrides?.features, ...patch.planOverrides.features },
+        limits: { ...establishment.planOverrides?.limits, ...patch.planOverrides.limits },
+      };
+      metadata.planOverrides = establishment.planOverrides;
     }
   }
 

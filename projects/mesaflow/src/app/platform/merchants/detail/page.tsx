@@ -9,9 +9,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
 import { catalogSeedMetaForEstablishment } from "@/lib/catalog-seed-registry";
+import {
+  FEATURE_LABELS,
+  LIMIT_LABELS,
+  type PlatformFeature,
+  type PlatformLimit,
+} from "@/lib/platform-entitlements";
 import { PLAN_LABELS, PLAN_OPTIONS } from "@/lib/platform-plans";
 import { PLATFORM_STATUS_LABELS } from "@/lib/platform-status";
-import type { PlatformPlan, PlatformStatus } from "@/lib/types";
+import type { PlanOverrides, PlatformPlan, PlatformStatus } from "@/lib/types";
 
 type MerchantDetail = {
   id: string;
@@ -38,11 +44,19 @@ type MerchantDetail = {
   tables: Array<{ id: string; number: string; name: string; status: string; capacity: number }>;
   staff: Array<{ id: string; name: string; email: string; role: string; active: boolean; lastLoginAt?: string }>;
   entitlements?: {
+    plan: PlatformPlan;
+    features: Record<PlatformFeature, boolean>;
+    limits: Record<PlatformLimit, number | null>;
+    usage: { waiters: number; tables: number; staffUsers: number };
     waiterAccess: boolean;
     waitersLimit: number | null;
     waitersUsed: number;
     tablesLimit: number | null;
+    tablesUsed: number;
+    staffUsersLimit: number | null;
+    staffUsersUsed: number;
   };
+  planOverrides?: PlanOverrides;
   analyticsToday: { sales: { revenue: number; ordersCount: number } };
   analytics7d: { sales: { revenue: number; ordersCount: number } };
   analytics30d: { sales: { revenue: number; ordersCount: number; paymentsCollected: number } };
@@ -67,6 +81,8 @@ function PlatformMerchantDetailContent() {
   const [selectedPlan, setSelectedPlan] = useState<PlatformPlan>("essencial");
   const [importingCatalog, setImportingCatalog] = useState(false);
   const [importMessage, setImportMessage] = useState("");
+  const [overrideDraft, setOverrideDraft] = useState<PlanOverrides>({});
+  const [overridesDirty, setOverridesDirty] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) {
@@ -80,6 +96,8 @@ function PlatformMerchantDetailContent() {
     if (res.ok) {
       setMerchant(json.merchant);
       setSelectedPlan(json.merchant.plan);
+      setOverrideDraft(json.merchant.planOverrides || {});
+      setOverridesDirty(false);
     } else {
       setMerchant(null);
     }
@@ -123,6 +141,35 @@ function PlatformMerchantDetailContent() {
   async function savePlan() {
     if (!merchant || selectedPlan === merchant.plan) return;
     await patchMerchant({ plan: selectedPlan });
+  }
+
+  function setFeatureOverride(feature: PlatformFeature, value: boolean | undefined) {
+    setOverrideDraft((prev) => {
+      const features = { ...prev.features };
+      if (value === undefined) delete features[feature];
+      else features[feature] = value;
+      return { ...prev, features: Object.keys(features).length ? features : undefined };
+    });
+    setOverridesDirty(true);
+  }
+
+  function setLimitOverride(limit: PlatformLimit, value: number | null | undefined) {
+    setOverrideDraft((prev) => {
+      const limits = { ...prev.limits };
+      if (value === undefined) delete limits[limit];
+      else limits[limit] = value;
+      return { ...prev, limits: Object.keys(limits).length ? limits : undefined };
+    });
+    setOverridesDirty(true);
+  }
+
+  async function saveOverrides() {
+    if (!merchant) return;
+    const hasOverrides =
+      (overrideDraft.features && Object.keys(overrideDraft.features).length > 0) ||
+      (overrideDraft.limits && Object.keys(overrideDraft.limits).length > 0);
+    await patchMerchant({ planOverrides: hasOverrides ? overrideDraft : null });
+    setOverridesDirty(false);
   }
 
   async function importCatalogSeed() {
@@ -274,6 +321,120 @@ function PlatformMerchantDetailContent() {
             </Button>
           ))}
         </div>
+      </div>
+
+      {merchant.entitlements && (
+        <div className="glass-panel p-5">
+          <h3 className="font-semibold text-ink">Entitlements (plano + uso)</h3>
+          <p className="mt-1 text-xs text-muted">
+            Plano efetivo: <strong className="text-ink">{PLAN_LABELS[merchant.entitlements.plan]}</strong>
+          </p>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">Limites · uso</p>
+              <ul className="mt-2 space-y-2 text-sm">
+                {(["waiters", "tables", "staff_users"] as PlatformLimit[]).map((limit) => {
+                  const max = merchant.entitlements!.limits[limit];
+                  const used =
+                    limit === "waiters"
+                      ? merchant.entitlements!.usage.waiters
+                      : limit === "tables"
+                        ? merchant.entitlements!.usage.tables
+                        : merchant.entitlements!.usage.staffUsers;
+                  return (
+                    <li key={limit} className="flex justify-between rounded-lg bg-surface-2 px-3 py-2">
+                      <span>{LIMIT_LABELS[limit]}</span>
+                      <span className="font-medium text-ink">
+                        {used}/{max === null ? "∞" : max}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">Features comerciais</p>
+              <ul className="mt-2 space-y-1 text-sm">
+                {(
+                  ["waiter_access", "advanced_reports", "integrations", "multi_unit"] as PlatformFeature[]
+                ).map((feature) => (
+                  <li key={feature} className="flex justify-between rounded-lg bg-surface-2 px-3 py-2">
+                    <span>{FEATURE_LABELS[feature]}</span>
+                    <span className={merchant.entitlements!.features[feature] ? "text-success" : "text-muted"}>
+                      {merchant.entitlements!.features[feature] ? "ligado" : "desligado"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="glass-panel p-5">
+        <h3 className="font-semibold text-ink">Overrides de entitlement</h3>
+        <p className="mt-1 text-xs text-muted">
+          Ajustes manuais para piloto ou negociação comercial. Sobrescrevem o plano base.
+        </p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Features</p>
+            <div className="mt-2 space-y-2">
+              {(["waiter_access", "integrations", "advanced_reports", "multi_unit"] as PlatformFeature[]).map(
+                (feature) => (
+                  <label key={feature} className="flex items-center justify-between rounded-lg bg-surface-2 px-3 py-2 text-sm">
+                    <span>{FEATURE_LABELS[feature]}</span>
+                    <select
+                      value={
+                        overrideDraft.features?.[feature] === undefined
+                          ? ""
+                          : overrideDraft.features[feature]
+                            ? "1"
+                            : "0"
+                      }
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setFeatureOverride(
+                          feature,
+                          v === "" ? undefined : v === "1",
+                        );
+                      }}
+                      className="rounded-lg border border-white/10 bg-surface px-2 py-1 text-xs"
+                    >
+                      <option value="">(plano)</option>
+                      <option value="1">ligado</option>
+                      <option value="0">desligado</option>
+                    </select>
+                  </label>
+                ),
+              )}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Limites</p>
+            <div className="mt-2 space-y-2">
+              {(["waiters", "tables", "staff_users"] as PlatformLimit[]).map((limit) => (
+                <label key={limit} className="block rounded-lg bg-surface-2 px-3 py-2 text-sm">
+                  <span className="text-muted">{LIMIT_LABELS[limit]}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="(plano / ∞ se vazio custom)"
+                    value={overrideDraft.limits?.[limit] ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.trim();
+                      setLimitOverride(limit, raw === "" ? undefined : Number(raw));
+                    }}
+                    className="mt-1 w-full rounded-lg border border-white/10 bg-surface px-2 py-1 text-sm"
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+        <Button className="mt-4" size="sm" disabled={saving || !overridesDirty} onClick={() => void saveOverrides()}>
+          Salvar overrides
+        </Button>
       </div>
 
       <div className="glass-panel p-5">

@@ -1,8 +1,5 @@
 import { dashboardAnalytics, type DashboardPeriod } from "@/lib/dashboard-analytics";
-import {
-  countActiveWaiters,
-  entitlementSummary,
-} from "@/lib/platform-entitlements";
+import { entitlementSummary } from "@/lib/platform-entitlements";
 import { planAnnualRevenue, resolvePlan } from "@/lib/platform-plans";
 import { getStore } from "@/lib/store";
 import { resolvePlatformStatus } from "@/lib/platform-status";
@@ -159,12 +156,12 @@ export function getMerchantDetail(establishmentId: string) {
       lastLoginAt: u.lastLoginAt,
     }));
 
-  const waitersUsed = countActiveWaiters(store, establishmentId);
   return {
     ...summary,
     tables,
     staff,
-    entitlements: entitlementSummary(establishment, waitersUsed),
+    planOverrides: establishment.planOverrides,
+    entitlements: entitlementSummary(establishment, store),
     analyticsToday: dashboardAnalytics(establishmentId, "today"),
     analytics7d: dashboardAnalytics(establishmentId, "7d"),
     analytics30d: dashboardAnalytics(establishmentId, "30d"),

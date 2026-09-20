@@ -55,8 +55,28 @@ export type SectorKind = "COZINHA" | "BALCAO" | "BAR" | "CAFETERIA" | "PIZZARIA"
 export type ProductAvailability = "VITRINE" | "SOB_DEMANDA" | "AMBOS";
 
 export interface PlanOverrides {
-  features?: Partial<Record<"waiter_access", boolean>>;
-  limits?: Partial<Record<"waiters" | "tables", number | null>>;
+  features?: Partial<
+    Record<
+      | "guest_menu"
+      | "guest_orders"
+      | "guest_bill_request"
+      | "split_bill"
+      | "rodizio"
+      | "admin"
+      | "thermal_print"
+      | "order_alerts"
+      | "kds"
+      | "table_cockpit"
+      | "catalog_import"
+      | "product_media"
+      | "waiter_access"
+      | "advanced_reports"
+      | "integrations"
+      | "multi_unit",
+      boolean
+    >
+  >;
+  limits?: Partial<Record<"waiters" | "tables" | "staff_users" | "establishments", number | null>>;
 }
 
 export interface Establishment {
