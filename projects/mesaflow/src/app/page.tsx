@@ -1,119 +1,68 @@
-import Link from "next/link";
-import { SignupSection } from "@/components/auth/signup-section";
-import { Logo } from "@/components/brand/logo";
+import type { Metadata } from "next";
 import { ComparisonTable } from "@/components/landing/comparison-table";
-import { DemoSection } from "@/components/landing/demo-section";
-import { FeatureHighlights } from "@/components/landing/feature-highlights";
+import { CtaSection } from "@/components/landing/cta-section";
+import { FaqSection } from "@/components/landing/faq-section";
+import { HeroSection } from "@/components/landing/hero-section";
 import { HowItWorks } from "@/components/landing/how-it-works";
-import { KitOperation } from "@/components/landing/kit-operation";
-import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { LandingFooter } from "@/components/landing/landing-footer";
+import { LandingHeader } from "@/components/landing/landing-header";
+import { PlansSection } from "@/components/landing/plans-section";
+import { ProblemSection } from "@/components/landing/problem-section";
+import { WhatYouGet } from "@/components/landing/what-you-get";
+import { asset } from "@/lib/assets";
+import { BRAND_NAME, BRAND_THEME_COLOR } from "@/lib/brand";
 
-const AUDIENCE = ["rodízios", "bares", "casas de carne", "padarias com mesa", "restaurantes presenciais"];
+const LANDING_TITLE = "NA MESA | Comanda digital e pedido na mesa para restaurantes";
+const LANDING_DESCRIPTION =
+  "NA MESA — pedido na mesa sem fila no balcão. Comanda digital pra rodízio, bar, casa de carne e restaurante de salão. Planos a partir de R$997 no ano.";
+const LANDING_OG_DESCRIPTION =
+  "O cliente pede no celular, a cozinha recebe, a conta fecha sem briga. Feito pra quem vive do salão.";
+
+export const metadata: Metadata = {
+  title: LANDING_TITLE,
+  description: LANDING_DESCRIPTION,
+  openGraph: {
+    title: LANDING_TITLE,
+    description: LANDING_OG_DESCRIPTION,
+    siteName: BRAND_NAME,
+    type: "website",
+    locale: "pt_BR",
+    images: [{ url: asset("/landing/hero.jpg"), width: 960, height: 540, alt: "Pedido na mesa — NA MESA" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: LANDING_TITLE,
+    description: LANDING_OG_DESCRIPTION,
+    images: [asset("/landing/hero.jpg")],
+  },
+  other: {
+    "theme-color": BRAND_THEME_COLOR,
+  },
+};
 
 export default function HomePage() {
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-surface">
-      <div className="pointer-events-none absolute inset-0 mesh-bg" />
-      <div className="pointer-events-none absolute -right-32 top-20 h-72 w-72 rounded-full bg-brand/10 blur-3xl" />
-      <div className="pointer-events-none absolute -left-20 bottom-40 h-64 w-64 rounded-full bg-brand-soft/10 blur-3xl" />
+    <div className="min-h-dvh bg-[#111] font-[system-ui,-apple-system,'Segoe_UI',Roboto,Ubuntu,Cantarell,sans-serif] text-[#f2f2f2] antialiased [scroll-behavior:auto]">
+      <LandingHeader />
 
-      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <Logo showTagline />
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/login"
-            className="hidden text-sm font-medium text-muted transition hover:text-ink sm:block"
-          >
-            Entrar
-          </Link>
-          <Link
-            href="#cadastro"
-            className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
-          >
-            Começar grátis
-          </Link>
-        </div>
-      </header>
-
-      <main className="relative mx-auto max-w-6xl px-6 pb-20 pt-8 sm:pt-16">
-        {/* Hero */}
-        <section className="text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand">
-            <Sparkles className="h-3.5 w-3.5" />
-            {BRAND_TAGLINE}
-          </div>
-          <h1 className="mx-auto max-w-4xl font-[family-name:var(--font-display)] text-4xl font-bold leading-[1.08] sm:text-6xl">
-            <span className="text-gradient">{BRAND_NAME}</span>
-            <span className="mt-2 block text-2xl font-semibold text-ink/90 sm:text-4xl">
-              A camada digital de mesa para quem vive do salão
-            </span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
-            Sessão na mesa → pedido no KDS → conta parcial ou individual → OK do restaurante antes de
-            liberar. Kit físico elegante, operação completa e suporte próximo —{" "}
-            <strong className="font-semibold text-ink">mais por menos</strong>.
-          </p>
-          <p className="mx-auto mt-4 text-sm text-muted/80">
-            Para {AUDIENCE.join(", ")} — onde a dor é giro de mesa e divisão de conta, não delivery.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="#cadastro"
-              className="inline-flex items-center gap-2 rounded-2xl bg-brand px-8 py-4 text-base font-semibold text-white shadow-xl shadow-brand/25 transition hover:bg-brand-dark"
-            >
-              Quero NA MESA no meu restaurante
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="#como-funciona"
-              className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold backdrop-blur transition hover:bg-white/10"
-            >
-              Ver como funciona
-            </Link>
-          </div>
-        </section>
-
-        <ComparisonTable />
+      <main id="topo" className="mx-auto w-full max-w-[960px] px-4 pb-8">
+        <HeroSection />
+        <ProblemSection />
         <HowItWorks />
-        <KitOperation />
-        <FeatureHighlights />
-        <DemoSection />
+        <WhatYouGet />
+        <ComparisonTable />
+        <PlansSection />
 
-        {/* Final CTA */}
-        <section className="mt-24 text-center">
-          <div className="glass-panel mx-auto max-w-2xl p-10">
-            <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold sm:text-3xl">
-              Pronto para acelerar o giro de mesa?
-            </h2>
-            <p className="mt-3 text-muted">
-              Plano de entrada já inclui o que o mercado trata como premium. Cadastre-se ou explore a demo
-              — sem compromisso.
-            </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link
-                href="#cadastro"
-                className="inline-flex items-center gap-2 rounded-2xl bg-brand px-8 py-4 font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
-              >
-                Criar conta grátis
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="#demo"
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 px-8 py-4 font-semibold transition hover:bg-white/5"
-              >
-                Ver demo ao vivo
-              </Link>
-            </div>
-          </div>
+        <section aria-label="Nota" className="py-2">
+          <p className="rounded-r-lg border-l-[3px] border-brand bg-[#1a1a1a] px-4 py-3.5 text-[0.92rem] text-muted">
+            Estamos subindo as primeiras casas — se quiser, a gente te mostra ao vivo.
+          </p>
         </section>
 
-        <SignupSection />
+        <FaqSection />
+        <CtaSection />
+        <LandingFooter />
       </main>
-
-      <footer className="relative border-t border-white/5 py-8 text-center text-xs text-muted">
-        {BRAND_NAME} · Camada digital de mesa · Seu pedido, sem espera.
-      </footer>
     </div>
   );
 }
