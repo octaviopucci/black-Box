@@ -125,6 +125,7 @@ import {
   cancelStaffOrder,
   createStaffOrder,
   createWaiter,
+  deleteWaiter,
   enrichOrderDisplay,
   generateWaiterActivationToken,
   listOperationalTables,
@@ -875,12 +876,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           email?: string;
           password?: string;
           permissions?: Record<string, boolean>;
+          waiterKind?: "FIXED" | "TEMPORARY";
         };
         const result = createWaiter(auth.establishment, auth.user.id, {
           name: String(body.name || ""),
           email: String(body.email || ""),
           password: body.password,
           permissions: body.permissions,
+          waiterKind: body.waiterKind === "FIXED" ? "FIXED" : "TEMPORARY",
         });
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, result.value);
@@ -888,12 +891,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const waiterIdMatch = path.match(/^\/admin\/waiters\/([^/]+)$/);
-    if (waiterIdMatch && req.method === "PATCH") {
+    if (waiterIdMatch) {
       const auth = adminAuth(req);
       if (!auth) return json(res, 401, { error: "Não autorizado." });
-      const result = updateWaiter(auth.establishment.id, waiterIdMatch[1], auth.user.id, req.body || {});
-      if ("error" in result) return json(res, result.status, { error: result.error });
-      return json(res, 200, result.value);
+      if (req.method === "PATCH") {
+        const result = updateWaiter(auth.establishment.id, waiterIdMatch[1], auth.user.id, req.body || {});
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, result.value);
+      }
+      if (req.method === "DELETE") {
+        const result = deleteWaiter(auth.establishment.id, waiterIdMatch[1], auth.user.id);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, result.value);
+      }
     }
 
     const waiterResetMatch = path.match(/^\/admin\/waiters\/([^/]+)\/reset-password$/);

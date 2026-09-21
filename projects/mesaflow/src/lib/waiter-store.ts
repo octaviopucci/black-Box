@@ -31,6 +31,7 @@ import type {
   TableAssignment,
   User,
   WaiterActivationToken,
+  WaiterKind,
   WaiterPermissions,
 } from "./types";
 
@@ -50,6 +51,29 @@ function ensureWaiterCollections(store: MesaFlowStore) {
   store.tableAssignments ||= {};
 }
 
+export function resolveWaiterKind(user: User): WaiterKind {
+  return user.waiterKind || "TEMPORARY";
+}
+
+function isWaiterDeleted(user: User): boolean {
+  return Boolean(user.deletedAt);
+}
+
+function assertAccessibleWaiter(user: User | undefined, establishmentId: string): MutationError | null {
+  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER" || isWaiterDeleted(user)) {
+    return invalid("Garçom não encontrado.", 404);
+  }
+  return null;
+}
+
+function revokeUserSessions(store: MesaFlowStore, userId: string) {
+  for (const [token, session] of Object.entries(store.sessions)) {
+    if (session.userId === userId) {
+      delete store.sessions[token];
+    }
+  }
+}
+
 export function publicWaiterUser(user: User) {
   return {
     id: user.id,
@@ -57,6 +81,7 @@ export function publicWaiterUser(user: User) {
     email: user.email,
     role: user.role,
     active: user.active,
+    waiterKind: resolveWaiterKind(user),
     lastLoginAt: user.lastLoginAt,
     permissions: publicWaiterPermissions(user),
     assignedTableIds: user.assignedTableIds || [],
@@ -67,7 +92,10 @@ export function publicWaiterUser(user: User) {
 export function listWaiters(establishmentId: string) {
   const store = getStore();
   return Object.values(store.users)
-    .filter((user) => user.establishmentId === establishmentId && user.role === "WAITER")
+    .filter(
+      (user) =>
+        user.establishmentId === establishmentId && user.role === "WAITER" && !isWaiterDeleted(user),
+    )
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(publicWaiterUser);
 }
@@ -75,7 +103,13 @@ export function listWaiters(establishmentId: string) {
 export function createWaiter(
   establishment: Establishment,
   actorUserId: string,
-  input: { name: string; email: string; password?: string; permissions?: Partial<WaiterPermissions> },
+  input: {
+    name: string;
+    email: string;
+    password?: string;
+    permissions?: Partial<WaiterPermissions>;
+    waiterKind?: WaiterKind;
+  },
 ): MutationResult<{ waiter: ReturnType<typeof publicWaiterUser> }> {
   const store = getStore();
   ensureWaiterCollections(store);
@@ -89,7 +123,13 @@ export function createWaiter(
 
   if (findUserByEmail(email)) return invalid("E-mail já cadastrado.", 409);
 
-  const password = input.password || randomBytes(9).toString("base64url");
+  const waiterKind: WaiterKind = input.waiterKind === "FIXED" ? "FIXED" : "TEMPORARY";
+  let password = String(input.password || "").trim();
+  if (waiterKind === "FIXED") {
+    if (!password) return invalid("Senha é obrigatória para garçom fixo.");
+  } else if (!password) {
+    password = randomBytes(9).toString("base64url");
+  }
   const policy = validatePasswordStrength(password);
   if (policy) return invalid(policy);
 
@@ -102,6 +142,7 @@ export function createWaiter(
     name,
     role: "WAITER",
     active: true,
+    waiterKind,
     permissions: { ...DEFAULT_WAITER_PERMISSIONS, ...input.permissions },
     assignedTableIds: [],
     createdAt: now,
@@ -116,7 +157,7 @@ export function createWaiter(
     actorUserId,
     targetType: "user",
     targetId: user.id,
-    metadata: { email: user.email },
+    metadata: { email: user.email, waiterKind },
   });
 
   saveStore(store);
@@ -138,9 +179,8 @@ export function updateWaiter(
   const store = getStore();
   ensureWaiterCollections(store);
   const user = store.users[waiterId];
-  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
-    return invalid("Garçom não encontrado.", 404);
-  }
+  const accessError = assertAccessibleWaiter(user, establishmentId);
+  if (accessError) return accessError;
 
   if (input.name !== undefined) {
     const name = String(input.name).trim();
@@ -189,6 +229,44 @@ export function updateWaiter(
   return { value: { waiter: publicWaiterUser(user) } };
 }
 
+export function deleteWaiter(
+  establishmentId: string,
+  waiterId: string,
+  actorUserId: string,
+): MutationResult<{ deletedAt: string }> {
+  const store = getStore();
+  ensureWaiterCollections(store);
+  const user = store.users[waiterId];
+  const accessError = assertAccessibleWaiter(user, establishmentId);
+  if (accessError) return accessError;
+
+  const now = new Date().toISOString();
+  user!.deletedAt = now;
+  user!.deletedByUserId = actorUserId;
+  user!.active = false;
+  user!.deactivatedAt = user!.deactivatedAt || now;
+  user!.deactivatedByUserId = user!.deactivatedByUserId || actorUserId;
+  user!.email = `deleted+${user!.id}@mesaflow.internal`;
+  user!.updatedAt = now;
+
+  revokeWaiterActivationTokens(store, user!.id);
+  revokeUserSessions(store, user!.id);
+  store.users[user!.id] = user!;
+
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "waiter.deleted",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "user",
+    targetId: user!.id,
+    metadata: {},
+  });
+
+  saveStore(store);
+  return { value: { deletedAt: now } };
+}
+
 export function resetWaiterPassword(
   establishmentId: string,
   waiterId: string,
@@ -197,9 +275,8 @@ export function resetWaiterPassword(
 ): MutationResult<{ changedAt: string }> {
   const store = getStore();
   const user = store.users[waiterId];
-  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
-    return invalid("Garçom não encontrado.", 404);
-  }
+  const accessError = assertAccessibleWaiter(user, establishmentId);
+  if (accessError) return accessError;
   const policy = validatePasswordStrength(newPassword);
   if (policy) return invalid(policy);
 
@@ -242,11 +319,10 @@ export function generateWaiterActivationToken(
   const store = getStore();
   ensureWaiterCollections(store);
   const user = store.users[waiterId];
-  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
-    return invalid("Garçom não encontrado.", 404);
-  }
+  const accessError = assertAccessibleWaiter(user, establishmentId);
+  if (accessError) return accessError;
 
-  revokeWaiterActivationTokens(store, user.id);
+  revokeWaiterActivationTokens(store, user!.id);
 
   const raw = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
@@ -322,7 +398,7 @@ export function activateWaiterWithToken(
 
   const user = store.users[record.userId];
   const establishment = store.establishments[record.establishmentId];
-  if (!user || !establishment || user.role !== "WAITER") {
+  if (!user || !establishment || user.role !== "WAITER" || isWaiterDeleted(user)) {
     return invalid("Garçom não encontrado.", 404);
   }
   if (!hasFeature(establishment, "waiter_access")) {
@@ -638,11 +714,10 @@ export function assignTableToWaiter(
   if (!table || table.establishmentId !== establishmentId) {
     return invalid("Mesa não encontrada.", 404);
   }
-  if (!waiter || waiter.establishmentId !== establishmentId || waiter.role !== "WAITER") {
-    return invalid("Garçom não encontrado.", 404);
-  }
+  const accessError = assertAccessibleWaiter(waiter, establishmentId);
+  if (accessError) return accessError;
 
-  const ids = new Set(waiter.assignedTableIds || []);
+  const ids = new Set(waiter!.assignedTableIds || []);
   ids.add(tableId);
   waiter.assignedTableIds = [...ids];
   waiter.updatedAt = new Date().toISOString();

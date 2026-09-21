@@ -757,7 +757,7 @@ export function findUserByEmail(email: string) {
   const store = getStore();
   return (
     Object.values(store.users).find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.active,
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.active && !u.deletedAt,
     ) || null
   );
 }
@@ -791,7 +791,7 @@ export function validateSession(token: string | null | undefined) {
   if (signed) {
     const user = store.users[signed.userId];
     const establishment = store.establishments[signed.establishmentId];
-    if (!user?.active || !establishment) return null;
+    if (!user?.active || user.deletedAt || !establishment) return null;
     const session: Session = {
       token,
       userId: user.id,
@@ -812,7 +812,7 @@ export function validateSession(token: string | null | undefined) {
   }
   const user = store.users[session.userId];
   const establishment = store.establishments[session.establishmentId];
-  if (!user?.active || !establishment) return null;
+  if (!user?.active || user.deletedAt || !establishment) return null;
   return { session, user, establishment };
 }
 
@@ -963,6 +963,7 @@ export function loginUser(email: string, password: string) {
     (u) => u.email.toLowerCase() === normalizedEmail,
   );
   if (!userRaw) return { error: "E-mail ou senha inválidos." };
+  if (userRaw.deletedAt) return { error: "E-mail ou senha inválidos." };
   if (!userRaw.active) return { error: "Usuário desativado. Contate o administrador." };
   if (userRaw.loginLockedUntil && new Date(userRaw.loginLockedUntil).getTime() > Date.now()) {
     return { error: "Conta temporariamente bloqueada. Tente novamente mais tarde." };

@@ -4658,7 +4658,7 @@ function limitReachedMessage(limit, used, max) {
 }
 function countActiveWaiters(store, establishmentId) {
   return Object.values(store.users).filter(
-    (user) => user.establishmentId === establishmentId && user.role === "WAITER" && user.active
+    (user) => user.establishmentId === establishmentId && user.role === "WAITER" && user.active && !user.deletedAt
   ).length;
 }
 function countTables(store, establishmentId) {
@@ -5826,7 +5826,7 @@ function findEstablishmentBySlug(slug) {
 function findUserByEmail(email) {
   const store = getStore();
   return Object.values(store.users).find(
-    (u) => u.email.toLowerCase() === email.toLowerCase() && u.active
+    (u) => u.email.toLowerCase() === email.toLowerCase() && u.active && !u.deletedAt
   ) || null;
 }
 function purgeExpiredSessions(store) {
@@ -5855,7 +5855,7 @@ function validateSession(token) {
   if (signed) {
     const user2 = store.users[signed.userId];
     const establishment2 = store.establishments[signed.establishmentId];
-    if (!user2?.active || !establishment2) return null;
+    if (!user2?.active || user2.deletedAt || !establishment2) return null;
     const session2 = {
       token,
       userId: user2.id,
@@ -5875,7 +5875,7 @@ function validateSession(token) {
   }
   const user = store.users[session.userId];
   const establishment = store.establishments[session.establishmentId];
-  if (!user?.active || !establishment) return null;
+  if (!user?.active || user.deletedAt || !establishment) return null;
   return { session, user, establishment };
 }
 function registerEstablishment(input) {
@@ -5957,6 +5957,7 @@ function loginUser(email, password) {
     (u) => u.email.toLowerCase() === normalizedEmail
   );
   if (!userRaw) return { error: "E-mail ou senha inv\xE1lidos." };
+  if (userRaw.deletedAt) return { error: "E-mail ou senha inv\xE1lidos." };
   if (!userRaw.active) return { error: "Usu\xE1rio desativado. Contate o administrador." };
   if (userRaw.loginLockedUntil && new Date(userRaw.loginLockedUntil).getTime() > Date.now()) {
     return { error: "Conta temporariamente bloqueada. Tente novamente mais tarde." };
@@ -9178,6 +9179,25 @@ function ensureWaiterCollections(store) {
   store.waiterActivationTokens ||= {};
   store.tableAssignments ||= {};
 }
+function resolveWaiterKind(user) {
+  return user.waiterKind || "TEMPORARY";
+}
+function isWaiterDeleted(user) {
+  return Boolean(user.deletedAt);
+}
+function assertAccessibleWaiter(user, establishmentId) {
+  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER" || isWaiterDeleted(user)) {
+    return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
+  }
+  return null;
+}
+function revokeUserSessions(store, userId) {
+  for (const [token, session] of Object.entries(store.sessions)) {
+    if (session.userId === userId) {
+      delete store.sessions[token];
+    }
+  }
+}
 function publicWaiterUser(user) {
   return {
     id: user.id,
@@ -9185,6 +9205,7 @@ function publicWaiterUser(user) {
     email: user.email,
     role: user.role,
     active: user.active,
+    waiterKind: resolveWaiterKind(user),
     lastLoginAt: user.lastLoginAt,
     permissions: publicWaiterPermissions(user),
     assignedTableIds: user.assignedTableIds || [],
@@ -9193,7 +9214,9 @@ function publicWaiterUser(user) {
 }
 function listWaiters(establishmentId) {
   const store = getStore();
-  return Object.values(store.users).filter((user) => user.establishmentId === establishmentId && user.role === "WAITER").sort((a, b) => a.name.localeCompare(b.name)).map(publicWaiterUser);
+  return Object.values(store.users).filter(
+    (user) => user.establishmentId === establishmentId && user.role === "WAITER" && !isWaiterDeleted(user)
+  ).sort((a, b) => a.name.localeCompare(b.name)).map(publicWaiterUser);
 }
 function createWaiter(establishment, actorUserId, input) {
   const store = getStore();
@@ -9204,7 +9227,13 @@ function createWaiter(establishment, actorUserId, input) {
   const email = String(input.email || "").trim().toLowerCase();
   if (!name || !email) return invalid5("Nome e e-mail s\xE3o obrigat\xF3rios.");
   if (findUserByEmail(email)) return invalid5("E-mail j\xE1 cadastrado.", 409);
-  const password = input.password || (0, import_crypto9.randomBytes)(9).toString("base64url");
+  const waiterKind = input.waiterKind === "FIXED" ? "FIXED" : "TEMPORARY";
+  let password = String(input.password || "").trim();
+  if (waiterKind === "FIXED") {
+    if (!password) return invalid5("Senha \xE9 obrigat\xF3ria para gar\xE7om fixo.");
+  } else if (!password) {
+    password = (0, import_crypto9.randomBytes)(9).toString("base64url");
+  }
   const policy = validatePasswordStrength(password);
   if (policy) return invalid5(policy);
   const now = (/* @__PURE__ */ new Date()).toISOString();
@@ -9216,6 +9245,7 @@ function createWaiter(establishment, actorUserId, input) {
     name,
     role: "WAITER",
     active: true,
+    waiterKind,
     permissions: { ...DEFAULT_WAITER_PERMISSIONS, ...input.permissions },
     assignedTableIds: [],
     createdAt: now,
@@ -9229,7 +9259,7 @@ function createWaiter(establishment, actorUserId, input) {
     actorUserId,
     targetType: "user",
     targetId: user.id,
-    metadata: { email: user.email }
+    metadata: { email: user.email, waiterKind }
   });
   saveStore(store);
   return { value: { waiter: publicWaiterUser(user) } };
@@ -9238,9 +9268,8 @@ function updateWaiter(establishmentId, waiterId, actorUserId, input) {
   const store = getStore();
   ensureWaiterCollections(store);
   const user = store.users[waiterId];
-  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
-    return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
-  }
+  const accessError = assertAccessibleWaiter(user, establishmentId);
+  if (accessError) return accessError;
   if (input.name !== void 0) {
     const name = String(input.name).trim();
     if (!name) return invalid5("Nome inv\xE1lido.");
@@ -9284,12 +9313,40 @@ function updateWaiter(establishmentId, waiterId, actorUserId, input) {
   saveStore(store);
   return { value: { waiter: publicWaiterUser(user) } };
 }
+function deleteWaiter(establishmentId, waiterId, actorUserId) {
+  const store = getStore();
+  ensureWaiterCollections(store);
+  const user = store.users[waiterId];
+  const accessError = assertAccessibleWaiter(user, establishmentId);
+  if (accessError) return accessError;
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  user.deletedAt = now;
+  user.deletedByUserId = actorUserId;
+  user.active = false;
+  user.deactivatedAt = user.deactivatedAt || now;
+  user.deactivatedByUserId = user.deactivatedByUserId || actorUserId;
+  user.email = `deleted+${user.id}@mesaflow.internal`;
+  user.updatedAt = now;
+  revokeWaiterActivationTokens(store, user.id);
+  revokeUserSessions(store, user.id);
+  store.users[user.id] = user;
+  appendAuditEvent(store, {
+    establishmentId,
+    type: "waiter.deleted",
+    actorType: "STAFF",
+    actorUserId,
+    targetType: "user",
+    targetId: user.id,
+    metadata: {}
+  });
+  saveStore(store);
+  return { value: { deletedAt: now } };
+}
 function resetWaiterPassword(establishmentId, waiterId, actorUserId, newPassword) {
   const store = getStore();
   const user = store.users[waiterId];
-  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
-    return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
-  }
+  const accessError = assertAccessibleWaiter(user, establishmentId);
+  if (accessError) return accessError;
   const policy = validatePasswordStrength(newPassword);
   if (policy) return invalid5(policy);
   user.passwordHash = hashPassword(newPassword);
@@ -9323,9 +9380,8 @@ function generateWaiterActivationToken(establishmentId, waiterId, actorUserId) {
   const store = getStore();
   ensureWaiterCollections(store);
   const user = store.users[waiterId];
-  if (!user || user.establishmentId !== establishmentId || user.role !== "WAITER") {
-    return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
-  }
+  const accessError = assertAccessibleWaiter(user, establishmentId);
+  if (accessError) return accessError;
   revokeWaiterActivationTokens(store, user.id);
   const raw = (0, import_crypto9.randomBytes)(32).toString("base64url");
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1e3).toISOString();
@@ -9388,7 +9444,7 @@ function activateWaiterWithToken(rawToken, password, pin) {
   }
   const user = store.users[record.userId];
   const establishment = store.establishments[record.establishmentId];
-  if (!user || !establishment || user.role !== "WAITER") {
+  if (!user || !establishment || user.role !== "WAITER" || isWaiterDeleted(user)) {
     return invalid5("Gar\xE7om n\xE3o encontrado.", 404);
   }
   if (!hasFeature(establishment, "waiter_access")) {
@@ -10416,19 +10472,27 @@ async function handler(req, res) {
           name: String(body.name || ""),
           email: String(body.email || ""),
           password: body.password,
-          permissions: body.permissions
+          permissions: body.permissions,
+          waiterKind: body.waiterKind === "FIXED" ? "FIXED" : "TEMPORARY"
         });
         if ("error" in result) return json(res, result.status, { error: result.error });
         return json(res, 201, result.value);
       }
     }
     const waiterIdMatch = path.match(/^\/admin\/waiters\/([^/]+)$/);
-    if (waiterIdMatch && req.method === "PATCH") {
+    if (waiterIdMatch) {
       const auth = adminAuth(req);
       if (!auth) return json(res, 401, { error: "N\xE3o autorizado." });
-      const result = updateWaiter(auth.establishment.id, waiterIdMatch[1], auth.user.id, req.body || {});
-      if ("error" in result) return json(res, result.status, { error: result.error });
-      return json(res, 200, result.value);
+      if (req.method === "PATCH") {
+        const result = updateWaiter(auth.establishment.id, waiterIdMatch[1], auth.user.id, req.body || {});
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, result.value);
+      }
+      if (req.method === "DELETE") {
+        const result = deleteWaiter(auth.establishment.id, waiterIdMatch[1], auth.user.id);
+        if ("error" in result) return json(res, result.status, { error: result.error });
+        return json(res, 200, result.value);
+      }
     }
     const waiterResetMatch = path.match(/^\/admin\/waiters\/([^/]+)\/reset-password$/);
     if (waiterResetMatch && req.method === "POST") {

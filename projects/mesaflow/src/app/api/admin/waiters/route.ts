@@ -18,12 +18,14 @@ export async function POST(req: Request) {
     email?: string;
     password?: string;
     permissions?: Record<string, boolean>;
+    waiterKind?: "FIXED" | "TEMPORARY";
   };
   const result = createWaiter(auth.establishment, auth.user.id, {
     name: String(body.name || ""),
     email: String(body.email || ""),
     password: body.password,
     permissions: body.permissions,
+    waiterKind: body.waiterKind === "FIXED" ? "FIXED" : "TEMPORARY",
   });
   return mutationResponse(result, 201);
 }
