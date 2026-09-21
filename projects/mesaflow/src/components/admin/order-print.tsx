@@ -25,7 +25,7 @@ export function OrderPrintView({ order, establishmentName }: OrderPrintProps) {
     <div id="mesaflow-order-print" className="hidden print:block">
       <style>{`
         @media print {
-          @page {
+          @page mesaflow-thermal {
             size: 58mm auto;
             margin: 0;
           }
@@ -34,8 +34,7 @@ export function OrderPrintView({ order, establishmentName }: OrderPrintProps) {
           body {
             margin: 0 !important;
             padding: 0 !important;
-            width: 58mm;
-            max-width: 58mm;
+            width: 100%;
             overflow-x: hidden !important;
             background: #fff !important;
           }
@@ -50,13 +49,16 @@ export function OrderPrintView({ order, establishmentName }: OrderPrintProps) {
           }
 
           #mesaflow-order-print {
-            position: absolute;
+            page: mesaflow-thermal;
+            position: fixed;
             left: 0;
+            right: 0;
             top: 0;
             width: 54mm;
             max-width: 260px;
             padding: 2mm 2mm 3mm;
-            margin: 0;
+            margin-left: auto;
+            margin-right: auto;
             box-sizing: border-box;
             overflow: hidden;
             font-family: ui-monospace, monospace;
