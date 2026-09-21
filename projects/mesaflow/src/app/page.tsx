@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import { ComparisonTable } from "@/components/landing/comparison-table";
 import { CtaSection } from "@/components/landing/cta-section";
+import { DesireSection } from "@/components/landing/desire-section";
 import { FaqSection } from "@/components/landing/faq-section";
 import { HeroSection } from "@/components/landing/hero-section";
 import { HowItWorks } from "@/components/landing/how-it-works";
+import { KitSection } from "@/components/landing/kit-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { PlansSection } from "@/components/landing/plans-section";
 import { ProblemSection } from "@/components/landing/problem-section";
-import { WhatYouGet } from "@/components/landing/what-you-get";
+import { TrustBand } from "@/components/landing/trust-band";
 import { asset } from "@/lib/assets";
 import { BRAND_NAME, BRAND_THEME_COLOR } from "@/lib/brand";
 
@@ -27,7 +29,7 @@ export const metadata: Metadata = {
     siteName: BRAND_NAME,
     type: "website",
     locale: "pt_BR",
-    images: [{ url: asset("/landing/hero.jpg"), width: 960, height: 540, alt: "Pedido na mesa — NA MESA" }],
+    images: [{ url: asset("/landing/hero.jpg"), width: 1200, height: 675, alt: "Pedido na mesa — NA MESA" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -45,16 +47,19 @@ export default function HomePage() {
     <div className="min-h-dvh bg-[#111] font-[system-ui,-apple-system,'Segoe_UI',Roboto,Ubuntu,Cantarell,sans-serif] text-[#f2f2f2] antialiased [scroll-behavior:auto]">
       <LandingHeader />
 
-      <main id="topo" className="mx-auto w-full max-w-[960px] px-4 pb-8">
+      <TrustBand />
+
+      <main id="topo" className="mx-auto w-full max-w-[1040px] px-4 pb-10">
         <HeroSection />
         <ProblemSection />
+        <DesireSection />
         <HowItWorks />
-        <WhatYouGet />
+        <KitSection />
         <ComparisonTable />
         <PlansSection />
 
-        <section aria-label="Nota" className="py-2">
-          <p className="rounded-r-lg border-l-[3px] border-brand bg-[#1a1a1a] px-4 py-3.5 text-[0.92rem] text-muted">
+        <section aria-label="Nota" className="py-4">
+          <p className="rounded-r-lg border-l-[3px] border-brand bg-[#1a1a1a] px-5 py-4 text-[0.95rem] text-muted">
             Estamos subindo as primeiras casas — se quiser, a gente te mostra ao vivo.
           </p>
         </section>

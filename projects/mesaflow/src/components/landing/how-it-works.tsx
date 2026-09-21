@@ -4,36 +4,40 @@ import { asset } from "@/lib/assets";
 
 export function HowItWorks() {
   return (
-    <section id="como-funciona" className="scroll-mt-16 py-11">
-      <div className="grid gap-6 md:grid-cols-[1.2fr_0.8fr] md:items-start">
-        <div>
-          <h2 className="text-[clamp(1.35rem,3vw,1.85rem)] font-extrabold leading-tight">Como funciona</h2>
-          <ol className="mt-4 grid gap-2.5">
-            {HOW_IT_WORKS_STEPS.map((step, index) => (
-              <li key={step} className="grid grid-cols-[2rem_1fr] items-start gap-3 text-muted">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-extrabold text-[#111]">
-                  {index + 1}
-                </span>
-                <span className="pt-0.5">{step}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <figure className="max-w-[22rem] overflow-hidden rounded-[0.85rem] border border-[#2a2a2a] bg-[#1a1a1a] md:justify-self-end">
-          <Image
-            src={asset("/landing/kit.jpg")}
-            alt="Placa com QR na mesa — kit NA MESA"
-            width={720}
-            height={405}
-            loading="lazy"
-            className="h-auto w-full"
-            sizes="(min-width: 760px) 30vw, 100vw"
-          />
-          <figcaption className="px-3.5 py-2.5 text-sm text-muted">
-            Placa/QR bonita na mesa — o cliente aponta e pede.
-          </figcaption>
-        </figure>
+    <section id="como-funciona" className="scroll-mt-16 py-12">
+      <div className="max-w-3xl">
+        <h2 className="text-[clamp(1.5rem,3vw,2rem)] font-extrabold leading-tight">Como funciona</h2>
+        <p className="mt-2 text-muted">Quatro passos. Do QR na mesa até liberar pra próxima reserva.</p>
       </div>
+
+      <ol className="mt-6 grid gap-3 sm:grid-cols-2">
+        {HOW_IT_WORKS_STEPS.map((step, index) => (
+          <li
+            key={step}
+            className="flex gap-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4 text-muted"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-extrabold text-[#111]">
+              {index + 1}
+            </span>
+            <span className="pt-1 text-sm leading-relaxed sm:text-[0.95rem]">{step}</span>
+          </li>
+        ))}
+      </ol>
+
+      <figure className="mt-8 overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#1a1a1a] shadow-[0_16px_40px_-20px_rgba(0,0,0,0.85)]">
+        <Image
+          src={asset("/landing/produto.jpg")}
+          alt="Cardápio no celular, tela da cozinha e operação NA MESA"
+          width={1200}
+          height={500}
+          loading="lazy"
+          className="h-auto w-full"
+          sizes="(min-width: 960px) 960px, 100vw"
+        />
+        <figcaption className="border-t border-[#2a2a2a] px-5 py-3 text-sm text-muted">
+          Cliente pede no celular · cozinha recebe · casa no controle do fechamento.
+        </figcaption>
+      </figure>
     </section>
   );
 }

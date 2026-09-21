@@ -1,18 +1,29 @@
 export const LANDING_WHATSAPP_URL =
   process.env.NEXT_PUBLIC_NA_MESA_WHATSAPP ?? "https://wa.me/55XXXXXXXXXXX";
 
+export const AUDIENCE_CHIPS = [
+  "Rodízio",
+  "Bar",
+  "Casa de carne",
+  "Padaria com mesa",
+  "Restaurante de salão",
+] as const;
+
 export const PROBLEM_BULLETS = [
   {
-    title: "Mesa parada.",
-    text: "Garçom atrasado, pedido no papel, cozinha sem saber a ordem. Mesa não vira.",
+    title: "Mesa parada",
+    text: "Garçom atrasado, pedido no papel, cozinha sem saber a ordem.",
+    icon: "clock" as const,
   },
   {
-    title: "Conta que vira briga.",
+    title: "Conta que vira briga",
     text: "Separar por pessoa no caderno dá erro e atrasa a saída.",
+    icon: "receipt" as const,
   },
   {
-    title: "Ferramenta errada.",
+    title: "Ferramenta errada",
     text: "App de cardápio ou delivery não resolve o dia a dia do salão.",
+    icon: "x-circle" as const,
   },
 ] as const;
 
@@ -23,7 +34,7 @@ export const HOW_IT_WORKS_STEPS = [
   "A casa libera a mesa. Controle fica com você.",
 ] as const;
 
-export const WHAT_YOU_GET = [
+export const KIT_BULLETS = [
   {
     title: "Kit",
     text: "Placas e QR prontos pra mesa. Não é só um link no WhatsApp.",
@@ -44,7 +55,6 @@ export type Plan = {
   id: PlanId;
   name: string;
   price: string;
-  priceNote?: string;
   daily: string;
   features: string[];
   cta: string;
@@ -88,8 +98,7 @@ export const PLANS: Plan[] = [
   {
     id: "custom",
     name: "Custom",
-    price: "a partir de R$ 2.997",
-    priceNote: "no ano",
+    price: "R$ 2.997",
     daily: "Pra operação maior",
     features: [
       "Mesas, garçons e staff sem teto",
