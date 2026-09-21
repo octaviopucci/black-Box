@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { QrCode, RefreshCw, UserPlus } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { QrCode, RefreshCw, Trash2, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PASSWORD_POLICY_HINT } from "@/lib/password-policy";
-import type { WaiterPermissions } from "@/lib/types";
+import type { WaiterKind, WaiterPermissions } from "@/lib/types";
 import { WAITER_PERMISSION_KEYS } from "@/lib/waiter-permissions";
 
 type WaiterRow = {
@@ -14,8 +14,16 @@ type WaiterRow = {
   name: string;
   email: string;
   active: boolean;
+  waiterKind: WaiterKind;
   lastLoginAt?: string;
   permissions: WaiterPermissions;
+};
+
+type KindFilter = "ALL" | WaiterKind;
+
+const KIND_LABELS: Record<WaiterKind, string> = {
+  FIXED: "Fixo",
+  TEMPORARY: "Temporário",
 };
 
 export default function AdminWaitersPage() {
@@ -28,6 +36,8 @@ export default function AdminWaitersPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [waiterKind, setWaiterKind] = useState<WaiterKind>("TEMPORARY");
+  const [kindFilter, setKindFilter] = useState<KindFilter>("ALL");
   const [busyId, setBusyId] = useState("");
   const [activationUrl, setActivationUrl] = useState("");
 
@@ -53,17 +63,31 @@ export default function AdminWaitersPage() {
   const entitlements = session?.entitlements;
   const waiterAccess = entitlements?.features.waiter_access ?? false;
   const waitersLimit = entitlements?.limits.waiters;
-  const waitersUsed = entitlements?.usage.waiters ?? waiters.length;
+  const waitersUsed = entitlements?.usage.waiters ?? waiters.filter((w) => w.active).length;
   const atWaiterLimit = waitersLimit !== null && waitersLimit !== undefined && waitersUsed >= waitersLimit;
+
+  const filteredWaiters = useMemo(() => {
+    if (kindFilter === "ALL") return waiters;
+    return waiters.filter((w) => w.waiterKind === kindFilter);
+  }, [waiters, kindFilter]);
 
   async function createWaiter(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setFeedback("");
+    if (waiterKind === "FIXED" && !password.trim()) {
+      setError("Senha é obrigatória para garçom fixo.");
+      return;
+    }
     const res = await fetchApi("/admin/waiters", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password: password || undefined }),
+      body: JSON.stringify({
+        name,
+        email,
+        password: password || undefined,
+        waiterKind,
+      }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -74,7 +98,8 @@ export default function AdminWaitersPage() {
     setName("");
     setEmail("");
     setPassword("");
-    setFeedback("Garçom criado");
+    setWaiterKind("TEMPORARY");
+    setFeedback(`Garçom ${KIND_LABELS[waiterKind].toLowerCase()} criado`);
     void load();
   }
 
@@ -87,6 +112,43 @@ export default function AdminWaitersPage() {
     });
     setBusyId("");
     if (res.ok) void load();
+  }
+
+  async function deleteWaiter(waiter: WaiterRow) {
+    const confirmed = window.confirm(
+      `Excluir ${waiter.name} permanentemente?\n\nO histórico de pedidos será preservado. Esta ação não pode ser desfeita.`,
+    );
+    if (!confirmed) return;
+    setBusyId(waiter.id);
+    setError("");
+    const res = await fetchApi(`/admin/waiters/${waiter.id}`, { method: "DELETE" });
+    const json = await res.json();
+    setBusyId("");
+    if (res.ok) {
+      setFeedback(`${waiter.name} excluído`);
+      void load();
+    } else {
+      setError(json.error || "Falha ao excluir garçom");
+    }
+  }
+
+  async function resetPassword(waiter: WaiterRow) {
+    const newPassword = window.prompt(`Nova senha para ${waiter.name}:`);
+    if (!newPassword) return;
+    setBusyId(waiter.id);
+    setError("");
+    const res = await fetchApi(`/admin/waiters/${waiter.id}/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: newPassword }),
+    });
+    const json = await res.json();
+    setBusyId("");
+    if (res.ok) {
+      setFeedback(`Senha redefinida para ${waiter.name}`);
+    } else {
+      setError(json.error || "Falha ao redefinir senha");
+    }
   }
 
   async function generateQr(waiterId: string) {
@@ -125,7 +187,7 @@ export default function AdminWaitersPage() {
         <div>
           <h1 className="text-2xl font-bold">Garçons</h1>
           <p className="text-sm text-muted">
-            Identidade individual · permissões · ativação QR
+            Fixo (conta permanente) · Temporário (ativação QR)
             {waitersLimit !== null && waitersLimit !== undefined && (
               <> · {waitersUsed}/{waitersLimit} ativos</>
             )}
@@ -136,6 +198,19 @@ export default function AdminWaitersPage() {
             <UserPlus className="h-4 w-4" /> Novo garçom
           </Button>
         )}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {(["ALL", "FIXED", "TEMPORARY"] as const).map((filter) => (
+          <Button
+            key={filter}
+            size="sm"
+            variant={kindFilter === filter ? "default" : "secondary"}
+            onClick={() => setKindFilter(filter)}
+          >
+            {filter === "ALL" ? "Todos" : KIND_LABELS[filter]}
+          </Button>
+        ))}
       </div>
 
       {atWaiterLimit && (
@@ -156,9 +231,33 @@ export default function AdminWaitersPage() {
       {formOpen && (
         <form onSubmit={createWaiter} className="rounded-2xl border border-white/10 p-4 space-y-3">
           <h2 className="font-semibold">Novo garçom</h2>
+          <div className="flex flex-wrap gap-2">
+            {(["TEMPORARY", "FIXED"] as const).map((kind) => (
+              <Button
+                key={kind}
+                type="button"
+                size="sm"
+                variant={waiterKind === kind ? "default" : "secondary"}
+                onClick={() => setWaiterKind(kind)}
+              >
+                {KIND_LABELS[kind]}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-muted">
+            {waiterKind === "FIXED"
+              ? "Conta permanente — defina a senha agora. O garçom entra direto em /waiter."
+              : "Uso pontual — senha opcional; gere QR de ativação para o garçom definir a senha."}
+          </p>
           <Input placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} required />
           <Input type="email" placeholder="E-mail login" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Input type="password" placeholder="Senha (opcional — gera automática)" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Input
+            type="password"
+            placeholder={waiterKind === "FIXED" ? "Senha (obrigatória)" : "Senha (opcional — gera automática)"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required={waiterKind === "FIXED"}
+          />
           <p className="text-xs text-muted">{PASSWORD_POLICY_HINT}</p>
           <div className="flex gap-2">
             <Button type="submit">Salvar</Button>
@@ -171,11 +270,22 @@ export default function AdminWaitersPage() {
         <p className="text-muted">Carregando…</p>
       ) : (
         <div className="space-y-3">
-          {waiters.map((waiter) => (
+          {filteredWaiters.map((waiter) => (
             <div key={waiter.id} className="rounded-2xl border border-white/10 p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-semibold">{waiter.name}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold">{waiter.name}</p>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        waiter.waiterKind === "FIXED"
+                          ? "bg-brand/20 text-brand"
+                          : "bg-white/10 text-muted"
+                      }`}
+                    >
+                      {KIND_LABELS[waiter.waiterKind]}
+                    </span>
+                  </div>
                   <p className="text-sm text-muted">{waiter.email}</p>
                   <p className="text-xs text-muted mt-1">
                     {waiter.active ? "Ativo" : "Inativo"}
@@ -183,11 +293,21 @@ export default function AdminWaitersPage() {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="secondary" loading={busyId === waiter.id} onClick={() => void generateQr(waiter.id)}>
-                    <QrCode className="h-4 w-4" /> QR ativação
-                  </Button>
+                  {waiter.waiterKind === "TEMPORARY" && (
+                    <Button size="sm" variant="secondary" loading={busyId === waiter.id} onClick={() => void generateQr(waiter.id)}>
+                      <QrCode className="h-4 w-4" /> QR ativação
+                    </Button>
+                  )}
+                  {waiter.waiterKind === "FIXED" && (
+                    <Button size="sm" variant="secondary" loading={busyId === waiter.id} onClick={() => void resetPassword(waiter)}>
+                      Redefinir senha
+                    </Button>
+                  )}
                   <Button size="sm" variant="secondary" loading={busyId === waiter.id} onClick={() => void toggleActive(waiter)}>
                     {waiter.active ? "Desativar" : "Ativar"}
+                  </Button>
+                  <Button size="sm" variant="danger" loading={busyId === waiter.id} onClick={() => void deleteWaiter(waiter)}>
+                    <Trash2 className="h-4 w-4" /> Excluir
                   </Button>
                 </div>
               </div>
@@ -201,7 +321,7 @@ export default function AdminWaitersPage() {
               </details>
             </div>
           ))}
-          {!waiters.length && <p className="text-muted">Nenhum garçom cadastrado.</p>}
+          {!filteredWaiters.length && <p className="text-muted">Nenhum garçom neste filtro.</p>}
         </div>
       )}
 

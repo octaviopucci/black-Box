@@ -272,7 +272,11 @@ export function limitReachedMessage(limit: PlatformLimit, used: number, max: num
 
 export function countActiveWaiters(store: { users: Record<string, User> }, establishmentId: string): number {
   return Object.values(store.users).filter(
-    (user) => user.establishmentId === establishmentId && user.role === "WAITER" && user.active,
+    (user) =>
+      user.establishmentId === establishmentId &&
+      user.role === "WAITER" &&
+      user.active &&
+      !user.deletedAt,
   ).length;
 }
 

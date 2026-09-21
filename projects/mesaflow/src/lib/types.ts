@@ -192,6 +192,9 @@ export interface GuestPhoneSecret {
   phoneCiphertext: string;
 }
 
+/** Garçom fixo (conta permanente) vs temporário (ativação por QR/token). */
+export type WaiterKind = "FIXED" | "TEMPORARY";
+
 export interface WaiterPermissions {
   "table.view": boolean;
   "table.view_session": boolean;
@@ -224,12 +227,16 @@ export interface User {
   assignedTableIds?: string[];
   /** PIN opcional (hash bcrypt). */
   pinHash?: string;
+  /** Tipo de garçom — ausente em registros legados equivale a TEMPORARY. */
+  waiterKind?: WaiterKind;
   failedLoginAttempts?: number;
   loginLockedUntil?: string;
   createdAt?: string;
   updatedAt?: string;
   deactivatedAt?: string;
   deactivatedByUserId?: string;
+  deletedAt?: string;
+  deletedByUserId?: string;
 }
 
 export interface Sector {
