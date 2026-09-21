@@ -205,7 +205,7 @@ export default function AdminWaitersPage() {
           <Button
             key={filter}
             size="sm"
-            variant={kindFilter === filter ? "default" : "secondary"}
+            variant={kindFilter === filter ? "primary" : "secondary"}
             onClick={() => setKindFilter(filter)}
           >
             {filter === "ALL" ? "Todos" : KIND_LABELS[filter]}
@@ -237,7 +237,7 @@ export default function AdminWaitersPage() {
                 key={kind}
                 type="button"
                 size="sm"
-                variant={waiterKind === kind ? "default" : "secondary"}
+                variant={waiterKind === kind ? "primary" : "secondary"}
                 onClick={() => setWaiterKind(kind)}
               >
                 {KIND_LABELS[kind]}
