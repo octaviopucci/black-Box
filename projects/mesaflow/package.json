@@ -34,7 +34,8 @@
     "test:entitlements": "npx tsx src/lib/platform-entitlements.test.ts",
     "test:rate-limit": "npx tsx src/lib/rate-limit.test.ts",
     "backup:store": "node scripts/backup-store.mjs",
-    "restore:store": "node scripts/restore-store.mjs"
+    "restore:store": "node scripts/restore-store.mjs",
+    "capture:mockups": "node scripts/capture-landing-mockups.mjs"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",
@@ -56,6 +57,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "playwright": "^1.49.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5"
