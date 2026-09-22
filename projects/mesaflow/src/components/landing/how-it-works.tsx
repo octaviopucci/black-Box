@@ -1,14 +1,15 @@
 import Image from "next/image";
 import { HOW_IT_WORKS_STEPS } from "@/components/landing/landing-data";
+import { AdminOrdersMockup, KdsMockup } from "@/components/landing/product-mockups";
+import { SectionShell } from "@/components/landing/section-shell";
 import { asset } from "@/lib/assets";
 
 export function HowItWorks() {
   return (
-    <section id="como-funciona" className="scroll-mt-16 py-11">
-      <div className="grid gap-6 md:grid-cols-[1.2fr_0.8fr] md:items-start">
+    <SectionShell id="como-funciona" title="Como funciona">
+      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
         <div>
-          <h2 className="text-[clamp(1.35rem,3vw,1.85rem)] font-extrabold leading-tight">Como funciona</h2>
-          <ol className="mt-4 grid gap-2.5">
+          <ol className="grid gap-2.5">
             {HOW_IT_WORKS_STEPS.map((step, index) => (
               <li key={step} className="grid grid-cols-[2rem_1fr] items-start gap-3 text-muted">
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-extrabold text-[#111]">
@@ -18,22 +19,30 @@ export function HowItWorks() {
               </li>
             ))}
           </ol>
+          <p className="mt-4 text-sm text-muted">
+            Garçom também pode lançar pelo celular. Cliente e garçom usam o mesmo fluxo.
+          </p>
         </div>
-        <figure className="max-w-[22rem] overflow-hidden rounded-[0.85rem] border border-[#2a2a2a] bg-[#1a1a1a] md:justify-self-end">
-          <Image
-            src={asset("/landing/kit.jpg")}
-            alt="Placa com QR na mesa — kit NA MESA"
-            width={720}
-            height={405}
-            loading="lazy"
-            className="h-auto w-full"
-            sizes="(min-width: 760px) 30vw, 100vw"
-          />
-          <figcaption className="px-3.5 py-2.5 text-sm text-muted">
-            Placa/QR bonita na mesa — o cliente aponta e pede.
-          </figcaption>
-        </figure>
+        <div className="grid gap-4">
+          <figure className="overflow-hidden rounded-xl border border-[#2a2a2a]">
+            <Image
+              src={asset("/landing/kit/kit-placa-peca-pelo-celular.webp")}
+              alt="Placa NA MESA: Peça pelo celular"
+              width={720}
+              height={900}
+              loading="lazy"
+              className="h-auto w-full"
+              sizes="(min-width: 760px) 40vw, 100vw"
+            />
+          </figure>
+          <div className="hidden sm:block">
+            <AdminOrdersMockup />
+          </div>
+          <div className="hidden md:block">
+            <KdsMockup />
+          </div>
+        </div>
       </div>
-    </section>
+    </SectionShell>
   );
 }
