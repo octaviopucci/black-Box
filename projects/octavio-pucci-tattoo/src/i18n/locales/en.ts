@@ -169,7 +169,7 @@ Sunday: Closed`,
   gallery: {
     label: "Portfolio",
     title: "Our work",
-    filters: { all: "All", blackgrey: "Black & Grey", colorido: "Color" },
+    filters: { all: "All", blackgrey: "Black & Grey", fineline: "Color" },
     swipeHint: "Swipe to see more work",
     workAlt: "Tattoo work",
     workEnlarged: "Enlarged tattoo work",

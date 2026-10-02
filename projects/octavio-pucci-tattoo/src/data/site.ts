@@ -9,7 +9,7 @@ export const site = {
   assets: {
     logo: "/instagram/profile.jpg",
     hero: "/instagram/post-24.jpg",
-    artist: "/instagram/post-9.jpg",
+    artist: "/portfolio/tatuador-octavio-trabalhando-pescoco.jpg",
   },
   /** Hero film roll — seleção variada do feed */
   heroRoll: [
@@ -28,30 +28,88 @@ export const site = {
     { image: "/instagram/post-18.jpg" },
   ],
   gallery: [
-    { src: "/instagram/post-2.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-3.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-4.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-5.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-6.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-7.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-8.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-13.jpg", category: "colorido" as const },
-    { src: "/instagram/post-14.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-15.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-16.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-17.jpg", category: "colorido" as const },
-    { src: "/instagram/post-18.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-19.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-20.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-21.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-22.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-23.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-24.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-9.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-10.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-11.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-12.jpg", category: "blackgrey" as const },
-    { src: "/instagram/post-1.jpg", category: "blackgrey" as const },
+    {
+      type: "video" as const,
+      src: "/portfolio/homenagem-filhos-leao-familia-braco.mp4",
+      poster: "/portfolio/homenagem-filhos-leao-familia-braco-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Tatuagem realista preto e cinza no braço: leão, mãos em soquinho de pai e filho e cena de família na praia, em homenagem aos filhos.",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/escadaria-ceu-pombas-braco.mp4",
+      poster: "/portfolio/escadaria-ceu-pombas-braco-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Tatuagem realista preto e cinza no braço: escadaria com portões abertos, nuvens, pombas e uma flor.",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/duality-leao-perna.mp4",
+      poster: "/portfolio/duality-leao-perna-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Tatuagem realista preto e cinza na panturrilha: leão rugindo com a face dividida ao meio (Duality).",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/hannya-costas-fechamento.mp4",
+      poster: "/portfolio/hannya-costas-fechamento-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Fechamento de costas completo com máscara Hannya, flor e nuvens orientais em preto e cinza, feito em 2 sessões.",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/ouroboros-cobra-pulso.mp4",
+      poster: "/portfolio/ouroboros-cobra-pulso-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Ouroboros: cobra realista preto e cinza envolvendo o pulso como bracelete, do estêncil ao resultado final.",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/tigre-coruja-fechamento-braco.mp4",
+      poster: "/portfolio/tigre-coruja-fechamento-braco-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Fechamento de braço realista preto e cinza com tigre de olhos azuis, coruja e rosas.",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/anjo-pombas-joelho.mp4",
+      poster: "/portfolio/anjo-pombas-joelho-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Tatuagem no joelho em preto e cinza com detalhes em vermelho: figura angelical, pomba e raios de luz.",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/olho-martini-bitcoin-antebraco.mp4",
+      poster: "/portfolio/olho-martini-bitcoin-antebraco-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Tatuagem realista preto e cinza no antebraço: olho, taça de martíni com um olho e moedas com símbolo de Bitcoin.",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/mitologia-grega-fechamento-braco.mp4",
+      poster: "/portfolio/mitologia-grega-fechamento-braco-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Fechamento de braço realista preto e cinza com tema de mitologia grega: elmo espartano, guerreiro com cavalo, rosto barbado e grega (meandro).",
+    },
+    {
+      type: "video" as const,
+      src: "/portfolio/leao-pomba-antebraco.mp4",
+      poster: "/portfolio/leao-pomba-antebraco-poster.jpg",
+      category: "blackgrey" as const,
+      alt: "Tatuagem realista preto e cinza no antebraço: leão sereno com uma pomba em voo sobre pedras e água.",
+    },
+    {
+      type: "image" as const,
+      src: "/portfolio/ohana-lettering-fine-line-antebraco.jpg",
+      category: "fineline" as const,
+      alt: "Lettering fine line 'OHANA' no antebraço, letras serifadas finas em preto.",
+    },
+    {
+      type: "image" as const,
+      src: "/portfolio/memento-vivere-fine-line-antebraco.jpg",
+      category: "fineline" as const,
+      alt: "Fine line no antebraço: mãos de 'A Criação de Adão' (uma esquelética) com a frase 'MEMENTO VIVERE'.",
+    },
   ],
   /** Grid Instagram — ordem própria, sem repetir sequência da galeria */
   instagramGrid: [
@@ -69,6 +127,22 @@ export const site = {
   i18nLocales: ["pt"] as const,
 } as const;
 
-export type GalleryCategory = "all" | "blackgrey" | "colorido";
+export type GalleryFilterCategory = "blackgrey" | "fineline";
+export type GalleryCategory = "all" | GalleryFilterCategory;
+
+export type GalleryItem =
+  | {
+      type: "image";
+      src: string;
+      alt: string;
+      category: GalleryFilterCategory;
+    }
+  | {
+      type: "video";
+      src: string;
+      poster: string;
+      alt: string;
+      category: GalleryFilterCategory;
+    };
 
 export const INSTAGRAM_URL = site.instagram.url;

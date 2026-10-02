@@ -61,7 +61,7 @@ export type Messages = {
   gallery: {
     label: string;
     title: string;
-    filters: { all: string; blackgrey: string; colorido: string };
+    filters: { all: string; blackgrey: string; fineline: string };
     swipeHint: string;
     workAlt: string;
     workEnlarged: string;

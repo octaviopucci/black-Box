@@ -169,7 +169,7 @@ Dimanche : Fermé`,
   gallery: {
     label: "Réalisations",
     title: "Nos réalisations",
-    filters: { all: "Tous", blackgrey: "Noir & Gris", colorido: "Couleur" },
+    filters: { all: "Tous", blackgrey: "Noir & Gris", fineline: "Couleur" },
     swipeHint: "Glissez pour voir plus de réalisations",
     workAlt: "Réalisation",
     workEnlarged: "Réalisation agrandie",

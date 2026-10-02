@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
-import { site, type GalleryCategory } from "@/data/site";
+import { site, type GalleryCategory, type GalleryItem } from "@/data/site";
 import { useLocale } from "@/i18n/locale-provider";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -11,6 +11,98 @@ import { cn } from "@/lib/utils";
 
 const INITIAL_VISIBLE = 8;
 const LOAD_BATCH = 6;
+
+function galleryItemKey(item: GalleryItem) {
+  return `${item.type}:${item.src}`;
+}
+
+function GalleryVideoCard({
+  src,
+  poster,
+  alt,
+}: {
+  src: string;
+  poster: string;
+  alt: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting) {
+          void video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.35 },
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      poster={poster}
+      aria-label={alt}
+      className="portfolio-img h-full w-full object-cover"
+    >
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+}
+
+function GalleryLightboxMedia({ item }: { item: GalleryItem }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || item.type !== "video") return;
+    void video.play().catch(() => {});
+    return () => {
+      video.pause();
+    };
+  }, [item]);
+
+  if (item.type === "video") {
+    return (
+      <video
+        ref={videoRef}
+        src={item.src}
+        poster={item.poster}
+        controls
+        playsInline
+        muted
+        preload="metadata"
+        aria-label={item.alt}
+        className="h-full w-full object-contain"
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={item.src}
+      alt={item.alt}
+      fill
+      loading="lazy"
+      sizes="(max-width: 1024px) 100vw, 896px"
+      className="object-contain"
+    />
+  );
+}
 
 export function Gallery() {
   const { t } = useLocale();
@@ -22,7 +114,7 @@ export function Gallery() {
   const filters: { id: GalleryCategory; label: string }[] = [
     { id: "all", label: t.gallery.filters.all },
     { id: "blackgrey", label: t.gallery.filters.blackgrey },
-    { id: "colorido", label: t.gallery.filters.colorido },
+    { id: "fineline", label: t.gallery.filters.fineline },
   ];
 
   const items = useMemo(() => {
@@ -32,9 +124,10 @@ export function Gallery() {
 
   const visibleItems = items.slice(0, visibleCount);
 
-  useEffect(() => {
+  const selectFilter = (id: GalleryCategory) => {
+    setFilter(id);
     setVisibleCount(INITIAL_VISIBLE);
-  }, [filter]);
+  };
 
   useEffect(() => {
     const node = scrollRef.current;
@@ -56,10 +149,15 @@ export function Gallery() {
     scrollRef.current?.scrollBy({ left: direction * 280, behavior: "auto" });
   };
 
-  const goLightbox = (direction: -1 | 1) => {
-    if (lightboxIndex === null) return;
-    setLightboxIndex((lightboxIndex + direction + items.length) % items.length);
-  };
+  const goLightbox = useCallback(
+    (direction: -1 | 1) => {
+      setLightboxIndex((current) => {
+        if (current === null) return null;
+        return (current + direction + items.length) % items.length;
+      });
+    },
+    [items.length],
+  );
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -70,7 +168,9 @@ export function Gallery() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightboxIndex, items.length]);
+  }, [lightboxIndex, goLightbox]);
+
+  const lightboxItem = lightboxIndex !== null ? items[lightboxIndex] : null;
 
   return (
     <section id="trabalhos" className="bg-paper py-24 md:py-32">
@@ -95,7 +195,7 @@ export function Gallery() {
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setFilter(item.id)}
+                onClick={() => selectFilter(item.id)}
                 className={cn(
                   "px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-all duration-300",
                   filter === item.id
@@ -132,33 +232,44 @@ export function Gallery() {
             ref={scrollRef}
             className="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 md:gap-4"
           >
-            {visibleItems.map((item, index) => (
-              <button
-                key={item.src}
-                type="button"
-                onClick={() => setLightboxIndex(index)}
-                className="portfolio-frame group relative h-[17.5rem] w-[13.125rem] shrink-0 snap-start sm:h-[20rem] sm:w-[15rem] md:h-[22rem] md:w-[16.5rem]"
-              >
-                <Image
-                  src={item.src}
-                  alt={`${t.gallery.workAlt} ${index + 1}`}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 768px) 210px, 264px"
-                  className="portfolio-img"
-                />
-                <div className="absolute inset-0 flex items-end justify-start bg-gradient-to-t from-paper/80 via-transparent to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Search className="h-5 w-5 text-ink" strokeWidth={1.5} />
-                </div>
-              </button>
-            ))}
+            {visibleItems.map((item) => {
+              const globalIndex = items.indexOf(item);
+              return (
+                <button
+                  key={galleryItemKey(item)}
+                  type="button"
+                  onClick={() => setLightboxIndex(globalIndex)}
+                  className="portfolio-frame group relative h-[17.5rem] w-[13.125rem] shrink-0 snap-start overflow-hidden sm:h-[20rem] sm:w-[15rem] md:h-[22rem] md:w-[16.5rem]"
+                >
+                  {item.type === "video" ? (
+                    <GalleryVideoCard
+                      src={item.src}
+                      poster={item.poster}
+                      alt={item.alt}
+                    />
+                  ) : (
+                    <Image
+                      src={item.src}
+                      alt={item.alt}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 768px) 210px, 264px"
+                      className="portfolio-img"
+                    />
+                  )}
+                  <div className="absolute inset-0 flex items-end justify-start bg-gradient-to-t from-paper/80 via-transparent to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Search className="h-5 w-5 text-ink" strokeWidth={1.5} />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </Reveal>
 
         <p className="mt-4 text-xs text-mute">{t.gallery.swipeHint}</p>
       </div>
 
-      {lightboxIndex !== null && items[lightboxIndex] && (
+      {lightboxItem && lightboxIndex !== null && (
         <div
           className="lightbox-open fixed inset-0 z-[70] flex items-center justify-center bg-paper/96 p-4"
           onClick={() => setLightboxIndex(null)}
@@ -197,15 +308,12 @@ export function Gallery() {
             className="relative h-[min(85vh,900px)] w-full max-w-4xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <Image
-              src={items[lightboxIndex].src}
-              alt={t.gallery.workEnlarged}
-              fill
-              sizes="(max-width: 1024px) 100vw, 896px"
-              className="object-contain"
-            />
+            <GalleryLightboxMedia item={lightboxItem} />
           </div>
-          <p className="absolute bottom-5 text-xs tracking-widest text-mute">
+          <p className="absolute bottom-5 max-w-lg px-6 text-center text-xs tracking-wide text-mute">
+            {lightboxItem.alt}
+          </p>
+          <p className="absolute bottom-12 text-[10px] tracking-widest text-mute/80">
             {lightboxIndex + 1} {t.gallery.of} {items.length}
           </p>
         </div>

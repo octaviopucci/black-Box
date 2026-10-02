@@ -26,7 +26,7 @@ export const pt: Messages = {
     "ATENÇÃO ATÉ O ÚLTIMO TRAÇO",
   ],
   stats: [
-    { value: 13, label: "Trabalhos no feed" },
+    { value: 12, label: "Trabalhos no portfolio" },
     { value: 8, label: "Anos de experiência" },
     { value: 6800, label: "Seguidores no Instagram" },
     { value: 100, suffix: "%", label: "Foco em cada sessão" },
@@ -154,7 +154,7 @@ export const pt: Messages = {
   gallery: {
     label: "Trabalhos",
     title: "Portfolio",
-    filters: { all: "Todos", blackgrey: "Realismo", colorido: "Fine Line" },
+    filters: { all: "Todos", blackgrey: "Realismo", fineline: "Fine Line" },
     swipeHint: "Deslize para ver mais trabalhos",
     workAlt: "Trabalho",
     workEnlarged: "Trabalho ampliado",
