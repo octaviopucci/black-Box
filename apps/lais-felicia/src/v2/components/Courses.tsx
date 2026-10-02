@@ -3,6 +3,7 @@ import { asset, courses, whatsappUrl } from '../../data/site'
 import { v2Asset, v2CourseBonus, v2CoursePhotos } from '../data/site'
 import { Carousel } from './Carousel'
 import { Reveal } from './Reveal'
+import { SectionIntro } from './SectionIntro'
 import { Testimonials } from './Testimonials'
 
 function coursePhotoSrc(file: string, v2?: boolean) {
@@ -13,10 +14,7 @@ export function Courses() {
   return (
     <section id="cursos" className="section-pad overflow-hidden">
       <Reveal>
-        <div className="mb-12 text-center">
-          <p className="eyebrow">Cursos profissionais</p>
-          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Planos de formação</h2>
-        </div>
+        <SectionIntro eyebrow="Cursos profissionais" title="Planos de formação" />
       </Reveal>
 
       <Carousel>
@@ -57,26 +55,33 @@ export function Courses() {
 
       <Reveal delay={0.06}>
         <div className="mx-auto mt-14 max-w-6xl">
-          <div className="flex flex-col items-center text-center">
-            <p className="eyebrow">Por dentro do curso</p>
-            <h3 className="display-title mt-3 text-3xl sm:text-4xl">A experiência em imagens</h3>
-          </div>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <SectionIntro
+            eyebrow="Por dentro do curso"
+            title="A experiência em imagens"
+            titleAs="h3"
+            titleClassName="text-3xl sm:text-4xl"
+            className="mb-8"
+          />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {v2CoursePhotos.map((item) => (
               <figure
                 key={item.file}
-                className={`overflow-hidden rounded-md border border-ink/10 bg-surface-lift ${
-                  item.featured ? 'col-span-2 sm:col-span-2' : ''
+                className={`group overflow-hidden rounded-md border border-ink/10 bg-surface-lift ${
+                  item.featured ? 'col-span-2' : ''
                 }`}
               >
                 <img
                   src={coursePhotoSrc(item.file, item.v2)}
                   alt={item.alt}
-                  className={`w-full object-cover ${item.featured ? 'aspect-[16/10]' : 'aspect-[4/5]'}`}
+                  className={`w-full object-cover transition duration-700 ease-silk group-hover:scale-[1.03] ${
+                    item.featured ? 'aspect-[16/10]' : 'aspect-[4/5]'
+                  }`}
                   style={item.objectPosition ? { objectPosition: item.objectPosition } : undefined}
                   loading="lazy"
                 />
-                <figcaption className="px-3 py-2.5 text-xs text-ink-soft sm:text-sm">{item.caption}</figcaption>
+                <figcaption className="px-3 py-2.5 text-xs leading-snug text-ink-soft sm:text-sm">
+                  {item.caption}
+                </figcaption>
               </figure>
             ))}
           </div>

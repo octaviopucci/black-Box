@@ -1,21 +1,21 @@
 import { v2Asset, v2ExperienceGallery } from '../data/site'
 import { Reveal } from './Reveal'
+import { SectionIntro } from './SectionIntro'
 
 export function Gallery() {
   return (
     <section id="galeria" className="section-pad">
       <Reveal>
-        <div className="mb-12 text-center">
-          <p className="eyebrow">Resultados e experiência</p>
-          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Experiência no Studio</h2>
-        </div>
+        <SectionIntro eyebrow="Resultados e experiência" title="Experiência no Studio" />
       </Reveal>
 
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {v2ExperienceGallery.map((item, i) => (
           <figure
             key={item.file}
-            className={`group relative overflow-hidden rounded-md ${i === 0 ? 'sm:col-span-2 sm:row-span-2' : ''}`}
+            className={`group relative overflow-hidden rounded-md border border-ink/10 bg-surface-lift ${
+              i === 0 ? 'sm:col-span-2 sm:row-span-2' : ''
+            }`}
           >
             <img
               src={v2Asset(item.file)}

@@ -3,15 +3,13 @@ import { v2Path } from '../base'
 import { v2Asset, v2ServiceHighlights } from '../data/site'
 import { Carousel } from './Carousel'
 import { Reveal } from './Reveal'
+import { SectionIntro } from './SectionIntro'
 
 export function Services() {
   return (
     <section id="servicos" className="section-pad overflow-hidden">
       <Reveal>
-        <div className="mb-12 text-center">
-          <p className="eyebrow">Atendimentos</p>
-          <h2 className="display-title mt-3 text-4xl sm:text-5xl">Procedimentos</h2>
-        </div>
+        <SectionIntro eyebrow="Atendimentos" title="Procedimentos" />
       </Reveal>
 
       <Carousel>

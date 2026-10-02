@@ -20,6 +20,16 @@
   color: #b56b7e;
 }
 
+.theme-v2 .section-intro .eyebrow {
+  display: block;
+  width: fit-content;
+  margin-inline: auto;
+}
+
+.theme-v2 .section-intro .display-title {
+  text-wrap: balance;
+}
+
 .theme-v2 .display-title {
   color: #2a2426;
 }
