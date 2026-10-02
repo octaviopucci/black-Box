@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0a1520;
+  --paper: #f3f6f9;
+  --enamel: #6b9eb8;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: var(--paper);
+  background:
+    radial-gradient(ellipse 45% 35% at 100% 0%, rgba(107, 158, 184, 0.1), transparent 55%),
+    radial-gradient(ellipse 35% 28% at 0% 90%, rgba(220, 232, 239, 0.06), transparent 50%),
+    linear-gradient(180deg, #0a1520 0%, #122030 50%, #0a1520 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.03;
+  background-image: theme('backgroundImage.grain');
+  background-size: 200px 200px;
+  mix-blend-mode: overlay;
+}
+
+::selection {
+  background: rgba(107, 158, 184, 0.45);
+  color: #0a1520;
+}
+
+@layer components {
+  .eyebrow {
+    @apply inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-enamel-soft;
+  }
+
+  .display-title {
+    @apply font-brand text-balance font-semibold leading-[0.92] tracking-tight;
+  }
+
+  .cta-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-enamel px-6 py-3.5 text-sm font-medium tracking-wide text-ink transition duration-500 ease-clinic hover:bg-enamel-soft;
+  }
+
+  .cta-ghost {
+    @apply inline-flex items-center justify-center gap-2 border border-paper/20 px-5 py-3.5 text-sm font-normal text-paper/85 transition duration-500 ease-clinic hover:border-enamel hover:text-enamel-soft;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
