@@ -6,6 +6,7 @@ description: >-
   brand sites, hero sections, or when the user asks for sites "sem cara de IA",
   cinematic UI, or high-end visual direction.
 paths:
+  - "projects/**/*.{tsx,jsx,css}"
   - "apps/**/*.{tsx,jsx,css}"
   - "portal/**/*.{tsx,jsx,css}"
 ---

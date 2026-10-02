@@ -8,13 +8,16 @@
 Para **qualquer** pedido de feature, bug, refactor ou decisão técnica:
 
 1. Leia e siga `.cursor/skills/vibe-coding/SKILL.md` **automaticamente** — não espere
-   o usuário digitar `/vibe-coding`.
+ o usuário digitar `/vibe-coding`.
 2. Ordem: **brainstorm → plano → ondas paralelas → revisão → commit**.
 3. Aplique os três pilares embutidos: processo (Superpowers), simplicidade
-   (Ponytail), comunicação direta (Caveman).
+ (Ponytail), comunicação direta (Caveman).
 
 **Exceções (modo direto):** typo, rename, ajuste de uma linha com escopo óbvio —
 ou quando o usuário pedir `/vibe-coding direto` ou `/vibe-coding rápido`.
+
+**`/agency-premium`:** override — **executar scaffold imediato**, sem brainstorm.
+Ver `.cursor/skills/frontend/agency-premium/SKILL.md`.
 
 **Do iPhone:** Cloud Agent segue este arquivo + skill; guia mobile em
 `.cursor/skills/vibe-coding/references/mobile-iphone.md`.
@@ -79,18 +82,21 @@ Detalhe: `.cursor/skills/vibe-coding/references/specialists.md`.
 | Skill | Uso |
 |-------|-----|
 | `/vibe-coding` | Fluxo completo (processo: brainstorm → PR) |
-| `/agency-site` | **Landing/site/SaaS** — Next.js em `projects/<slug>/` + 4 camadas + 21st.dev |
+| `/agency-site` | Landing **simples** (Standard) — Next.js em `projects/<slug>/` |
+| `/agency-premium` | **Site top pronto** — kit + scaffold, GSAP/Lenis, ref. ARP Fibra — iPhone ok |
 | `/prompt-site` | Marca profunda, research, produto digital premium |
 | `/premium-site-brief` | Brief rápido antes de codar landing |
 | `/story-quiz` | **Story Quiz** — metodologia Stecca: espionar → modelar → criar funil para qualquer produto |
 | `anti-ai-landing` | Regras anti template IA (carregada por `/agency-site`) |
 | Outras em `.cursor/skills/frontend/` | Scroll cinematic, Netlify preview, Instagram extract, etc. |
 
-**Landing nova (padrão):** `/agency-site` → scaffold em `projects/<slug>/` (Next.js App Router + shadcn + framer-motion). Projeto sai do monorepo no handoff.
+**Landing simples:** `/agency-site` → scaffold manual, seção a seção.
+
+**Landing top:** `/agency-premium` → kit completo em `projects/<slug>/` (executa na hora).
 
 **Legado:** demos Vite em `apps/*` — só manutenção, não criar novos.
 
-**Marca complexa:** `/agency-site` + `/prompt-site`.
+**Marca complexa:** `/agency-premium` + `/prompt-site`.
 
 Quando site + backend: vibe-coding orquestra; agency-site/prompt-site na camada visual.
 

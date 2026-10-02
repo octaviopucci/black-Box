@@ -34,9 +34,20 @@ Respostas recomendadas:
 
 ## Motion
 
+**Standard:**
+
 ```bash
 npm install framer-motion
 ```
+
+**Premium** (+ GSAP scroll craft — ref. ARP Fibra):
+
+```bash
+npm install framer-motion gsap lenis
+```
+
+Criar `src/components/providers/smooth-scroll.tsx` — copiar de
+[premium-motion.md](premium-motion.md). Envolver children no `layout.tsx`.
 
 ## Estrutura mínima sugerida
 
@@ -50,8 +61,11 @@ projects/<slug>/
 │   │   page.tsx
 │   │   globals.css
 │   └── components/
+│       providers/
+│       │   smooth-scroll.tsx   ← Premium (Lenis + GSAP)
 │       sections/
 │       │   hero.tsx
+│       │   lifestyle-pinned.tsx  ← Premium (pin + scrub)
 │       │   features.tsx
 │       │   pricing.tsx
 │       │   faq.tsx
