@@ -1,0 +1,7 @@
+[build]
+  command = "npm ci && NEXT_PUBLIC_WHATSAPP_NUMBER=5515997499178 npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_PUBLIC_WHATSAPP_NUMBER = "5515997499178"
