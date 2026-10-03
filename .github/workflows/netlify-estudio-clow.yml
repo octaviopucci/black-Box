@@ -1,0 +1,43 @@
+name: Deploy Studio Clown Tattoo (Netlify)
+
+on:
+  push:
+    branches:
+      - main
+      - cursor/estudio-clow-perf-192e
+    paths:
+      - "projects/estudio-clow-tattoo/**"
+      - ".github/workflows/netlify-estudio-clow.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: projects/estudio-clow-tattoo/package-lock.json
+
+      - name: Install and build
+        working-directory: projects/estudio-clow-tattoo
+        run: |
+          npm ci
+          NEXT_BASE_PATH= npm run build
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
+            echo "::error::NETLIFY_AUTH_TOKEN secret is missing. Add it in GitHub → Settings → Secrets → Actions."
+            exit 1
+          fi
+          npx netlify-cli@27.1.2 deploy \
+            --prod \
+            --dir=projects/estudio-clow-tattoo/out \
+            --site=a9fa2fe9-6450-4569-bbc4-bc6c449f7d72 \
+            --message "CI deploy ${GITHUB_SHA}"
